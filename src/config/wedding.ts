@@ -1,0 +1,107 @@
+/**
+ * THE single place to edit invitation content (PRD §4, "all names, dates,
+ * venue details and invitation text must be configurable").
+ *
+ * Rules:
+ *  - Anything set to `null` is unconfirmed. Sections hide null fields rather
+ *    than inventing them (PRD §6, §8).
+ *  - Values marked PLACEHOLDER are stand-ins so the design can be reviewed.
+ *    Replace them with approved details before publishing.
+ */
+
+export interface Person {
+  /** Name shown in the large script lettering. */
+  displayName: string;
+  /** Optional full name for formal lines (e.g. "Son of …"). */
+  fullName: string | null;
+}
+
+export interface WeddingConfig {
+  couple: {
+    bride: Person;
+    groom: Person;
+  };
+  wedding: {
+    /** ISO 8601 local date-time at the venue, e.g. "2027-02-14T19:30". */
+    dateTime: string | null;
+    /** IANA zone the dateTime is expressed in — drives the countdown. */
+    timeZone: string;
+  };
+  invitation: {
+    /** Odia blessing line above the greeting. Confirm spelling with the family. */
+    invocation: { odia: string; english: string } | null;
+    /** {guest} is replaced with the guest's name from the share link. */
+    greeting: string;
+    message: string;
+    ctaLabel: string;
+  };
+  venue: {
+    name: string | null;
+    city: string | null;
+    address: string | null;
+    mapsUrl: string | null;
+  };
+  assets: {
+    /**
+     * Approved Lord Jagannath artwork (PRD §8). Path under /public, e.g.
+     * "/art/jagannath.webp" — square, transparent background, ≥ 512px.
+     * While null, a Nilachakra emblem stands in.
+     */
+    deityArtwork: string | null;
+  };
+  opening: {
+    /** Play the temple opening once per browser session (always in dev). */
+    playOncePerSession: boolean;
+  };
+  guest: {
+    /** URL query keys checked, in order, for the guest's name. */
+    queryKeys: readonly string[];
+    fallbackName: string;
+    maxLength: number;
+  };
+  meta: {
+    siteTitle: string;
+    description: string;
+  };
+}
+
+export const wedding: WeddingConfig = {
+  couple: {
+    bride: { displayName: "Bride", fullName: null }, // PLACEHOLDER
+    groom: { displayName: "Groom", fullName: null }, // PLACEHOLDER
+  },
+  wedding: {
+    dateTime: null, // awaiting confirmed date & time
+    timeZone: "Asia/Kolkata",
+  },
+  invitation: {
+    // PLACEHOLDER wording — replace with the couple's approved invitation text.
+    invocation: { odia: "ଶ୍ରୀ ଜଗନ୍ନାଥ ସହାୟ", english: "Sri Jagannath Sahaya" },
+    greeting: "Dear {guest},",
+    message:
+      "With the blessings of Lord Jagannath and our elders, we joyfully invite you to celebrate the wedding of",
+    ctaLabel: "Open Invitation",
+  },
+  venue: {
+    name: null,
+    city: null,
+    address: null,
+    mapsUrl: null,
+  },
+  assets: {
+    deityArtwork: null, // awaiting approved artwork
+  },
+  opening: {
+    playOncePerSession: true,
+  },
+  guest: {
+    // Share links like https://…/?guest=Priya%20Mishra
+    queryKeys: ["guest", "to", "g"],
+    fallbackName: "Guest",
+    maxLength: 60,
+  },
+  meta: {
+    siteTitle: "Wedding Invitation",
+    description: "You are warmly invited to celebrate our wedding.",
+  },
+};

@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* PRD palette — RGB channels for Tailwind alpha support */
+    --cream: 245 235 221; /* #F5EBDD */
+    --cream-light: 250 244 236; /* #FAF4EC — raised surfaces, cards */
+    --cream-deep: 236 224 207; /* #ECE0CF — desktop backdrop around the phone */
+    --sindoor: 167 45 50; /* #A72D32 */
+    --sindoor-dark: 138 35 40; /* #8A2328 — pressed state */
+    --gold: 197 164 109; /* #C5A46D */
+    --gold-soft: 220 199 159; /* #DCC79F — hairlines on light surfaces */
+    --gold-deep: 140 109 58; /* #8C6D3A — gold for large text */
+    --ink: 43 36 32; /* #2B2420 — body text, ~13:1 on cream */
+    --ink-soft: 94 82 74; /* #5E524A — secondary text, ~6.4:1 on cream */
+
+    /* Layout rhythm (mobile-first) */
+    --gutter: 1.5rem;
+    --section-y: 5.5rem;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-cream font-sans text-ink antialiased;
+    font-size: 0.9375rem; /* 15px — comfortable body size on phones */
+    line-height: 1.65;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display font-medium text-sindoor;
+    line-height: 1.15;
+  }
+
+  ::selection {
+    @apply bg-sindoor/15 text-ink;
+  }
+
+  :focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-sindoor;
+  }
+
+  /* Inside the desktop phone mockup: scroll, but no visible scrollbar */
+  html.is-framed,
+  html.is-framed body {
+    scrollbar-width: none;
+  }
+  html.is-framed::-webkit-scrollbar,
+  html.is-framed body::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer components {
+  .section {
+    padding: var(--section-y) var(--gutter);
+  }
+
+  .eyebrow {
+    @apply font-sans text-[0.6875rem] font-medium uppercase tracking-eyebrow text-ink-soft;
+  }
+
+  /* Odia script needs taller line boxes for its vowel signs */
+  .odia {
+    @apply font-odia;
+    line-height: 1.9;
+  }
+}
+
+/* Global reduced-motion safety net; JS-driven motion also checks
+   usePrefersReducedMotion() and skips sequences entirely. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
