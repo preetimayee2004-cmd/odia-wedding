@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { wedding } from "@/config/wedding";
 import { useInView } from "@/hooks/useInView";
 import { EASE } from "@/lib/motion";
@@ -17,9 +17,25 @@ import { Pending } from "@/components/ui/Pending";
 const DAY = 86_400_000;
 
 /** Re-renders on every whole second. */
-function useNow(): number {
+/** Whether the element is currently on screen (unlike useInView, not one-shot). */
+function useOnScreen(ref: RefObject<Element>): boolean {
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { rootMargin: "100px 0px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ref]);
+  return visible;
+}
+
+/** Re-renders on every whole second while `active`, so off-screen it costs nothing. */
+function useNow(active: boolean): number {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
+    if (!active) return;
+    setNow(Date.now());
     let timer = 0;
     const schedule = () => {
       timer = window.setTimeout(() => {
@@ -29,7 +45,7 @@ function useNow(): number {
     };
     schedule();
     return () => clearTimeout(timer);
-  }, []);
+  }, [active]);
   return now;
 }
 
@@ -48,7 +64,7 @@ type Phase = "pending" | "counting" | "today" | "after";
 function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { threshold: 0.3 });
-  const now = useNow();
+  const now = useNow(useOnScreen(ref));
   const tz = wedding.wedding.timeZone;
   const { heading, weddingDayMessage, completedMessage } = wedding.countdown;
 

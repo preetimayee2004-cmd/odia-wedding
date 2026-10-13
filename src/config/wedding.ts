@@ -216,8 +216,19 @@ export interface WeddingConfig {
     maxLength: number;
   };
   meta: {
-    siteTitle: string;
+    /** Page / link-preview title. {bride} and {groom} are filled in. */
+    title: string;
     description: string;
+    /**
+     * Public address of the deployed site, e.g. "https://our-wedding.example".
+     * WhatsApp needs an absolute image URL for the link preview.
+     */
+    siteUrl: string | null;
+    /** Preview image in /public (1200×630). Regenerate with 
+pm run og. */
+    ogImage: string;
+    /** Keep the invitation out of search engines (it holds personal details). */
+    noindex: boolean;
   };
 }
 
@@ -359,7 +370,10 @@ export const wedding: WeddingConfig = {
     maxLength: 60,
   },
   meta: {
-    siteTitle: "Wedding Invitation",
-    description: "You are warmly invited to celebrate our wedding.",
+    title: "{bride} & {groom} · Wedding Invitation",
+    description: "With the blessings of Lord Jagannath, you are warmly invited to celebrate our wedding.",
+    siteUrl: null,
+    ogImage: "/og-image.png",
+    noindex: true,
   },
 };

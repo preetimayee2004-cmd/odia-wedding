@@ -36,8 +36,22 @@ export function smoothScrollTo(targetY: number, duration = 1100): Promise<void> 
   });
 }
 
-export function scrollToSection(id: string, duration?: number) {
-  const el = document.getElementById(id);
-  if (!el) return Promise.resolve();
-  return smoothScrollTo(el.getBoundingClientRect().top + window.scrollY, duration);
+/** Resolves with the element once it exists (e.g. after a lazy chunk mounts). */
+function waitForElement(id: string, timeoutMs = 4000): Promise<HTMLElement | null> {
+  return new Promise((resolve) => {
+    const start = performance.now();
+    const check = () => {
+      const el = document.getElementById(id);
+      if (el) resolve(el);
+      else if (performance.now() - start > timeoutMs) resolve(null);
+      else requestAnimationFrame(check);
+    };
+    check();
+  });
+}
+
+export async function scrollToSection(id: string, duration?: number) {
+  const el = await waitForElement(id);
+  if (!el) return;
+  await smoothScrollTo(el.getBoundingClientRect().top + window.scrollY, duration);
 }

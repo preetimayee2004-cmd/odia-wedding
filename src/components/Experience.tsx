@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { wedding } from "@/config/wedding";
 import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { useScrollLock } from "@/hooks/useScrollLock";
@@ -6,18 +6,11 @@ import { readSessionFlag, writeSessionFlag } from "@/lib/session";
 import { scrollToSection } from "@/lib/scroll";
 import { OpeningSequence, type RevealMode } from "@/components/opening/OpeningSequence";
 import { Invitation } from "@/components/sections/Invitation";
-import { Couple } from "@/components/sections/Couple";
-import { Countdown } from "@/components/sections/Countdown";
-import { Story } from "@/components/sections/Story";
-import { Family } from "@/components/sections/Family";
-import { Events } from "@/components/sections/Events";
-import { Venue } from "@/components/sections/Venue";
-import { Travel } from "@/components/sections/Travel";
-import { WishingWall } from "@/components/sections/WishingWall";
-import { Rsvp } from "@/components/sections/Rsvp";
-import { Contact } from "@/components/sections/Contact";
-import { ThankYou } from "@/components/sections/ThankYou";
-import { Footer } from "@/components/sections/Footer";
+
+// Everything after the invitation is a separate chunk, fetched in the
+// background while the guest reads the invitation.
+const loadRest = () => import("@/components/RestOfSite");
+const RestOfSite = lazy(loadRest);
 
 const OPENING_SEEN = "tila:opening-seen";
 const INVITATION_OPENED = "tila:invitation-opened";
@@ -61,16 +54,23 @@ export function Experience() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
   }, []);
 
+  // Warm the rest of the site once the opening has finished.
+  useEffect(() => {
+    if (intro !== "done") return;
+    const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 300));
+    idle(() => void loadRest());
+  }, [intro]);
+
   // After the next sections mount, glide down to the couple.
   useEffect(() => {
     if (!opened || !scrollAfterOpen.current) return;
     scrollAfterOpen.current = false;
-    scrollToSection("couple", 1300);
+    void scrollToSection("couple", 1300);
   }, [opened]);
 
   const handleOpen = () => {
     if (opened) {
-      scrollToSection("couple", 1300);
+      void scrollToSection("couple", 1300);
       return;
     }
     scrollAfterOpen.current = true;
@@ -103,20 +103,9 @@ export function Experience() {
       />
 
       {opened && (
-        <>
-          <Couple />
-          <Countdown />
-          <Story />
-          <Family />
-          <Events />
-          <Venue />
-          <Travel />
-          <WishingWall />
-          <Rsvp />
-          <Contact />
-          <ThankYou />
-          <Footer />
-        </>
+        <Suspense fallback={<div className="min-h-[100dvh]" aria-busy="true" />}>
+          <RestOfSite />
+        </Suspense>
       )}
     </>
   );
