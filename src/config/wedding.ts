@@ -213,7 +213,11 @@ export interface WeddingConfig {
     coupleIllustration: { src: string; alt: string } | null;
   };
   opening: {
-    /** Play the temple opening once per browser session (always in dev). */
+    /**
+     * true: play the opening once per browser session and keep the invitation
+     * open on reload. false: every visit and every reload starts again from
+     * the temple opening.
+     */
     playOncePerSession: boolean;
     /**
      * Optional photo of the temple to use instead of the illustrated scene.
@@ -387,7 +391,7 @@ export const wedding: WeddingConfig = {
     coupleIllustration: null, // awaiting approved illustration
   },
   opening: {
-    playOncePerSession: true,
+    playOncePerSession: false, // every load starts from the opening animation
     templePhoto: {
       // Supplied Puri temple image with its text removed, enlarged 2x and sharpened.
       src: "/art/temple-photo.jpg",

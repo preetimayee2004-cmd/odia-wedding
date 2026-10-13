@@ -40,7 +40,9 @@ export function Experience() {
     shouldPlayOpening(reducedMotion) ? "playing" : "done",
   );
   const [revealMode, setRevealMode] = useState<RevealMode>("handoff");
-  const [opened, setOpened] = useState(() => devOpen || remembers(INVITATION_OPENED));
+  const [opened, setOpened] = useState(
+    () => devOpen || (wedding.opening.playOncePerSession && remembers(INVITATION_OPENED)),
+  );
   const deitySlotRef = useRef<HTMLDivElement>(null);
   const scrollAfterOpen = useRef(false);
 
