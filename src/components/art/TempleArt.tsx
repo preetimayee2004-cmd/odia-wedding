@@ -3,11 +3,13 @@
  * rekha deula (tower) with amalaka, kalasa, Nilachakra and flag, and the
  * stepped pidha jagamohana with its doorway in front.
  *
- * The doorway centre is at (200, DOOR_Y) in the 400×560 viewBox — the opening
- * animation zooms into that point.
+ * The doorway (closed double door) is described by DOOR in the 400×560
+ * viewBox — the opening animation zooms until it matches the close-up door.
  */
 export const TEMPLE_VIEWBOX = { w: 400, h: 560 };
-export const DOOR_Y = 495;
+/** Doorway box in viewBox units; the arch peaks at 	op. */
+export const DOOR = { cx: 200, top: 466, bottom: 520, width: 40 };
+export const DOOR_Y = (DOOR.top + DOOR.bottom) / 2;
 
 const PIDHA_TIERS: Array<[y: number, w: number]> = [
   [424, 236], [412, 224], [400, 212],
@@ -40,11 +42,10 @@ export function TempleArt({ className = "" }: { className?: string }) {
           <stop offset="0.5" style={{ stopColor: "rgb(var(--gold))" }} />
           <stop offset="1" style={{ stopColor: "rgb(var(--gold))", stopOpacity: 0 }} />
         </linearGradient>
-        <radialGradient id="tmpl-door" cx="0.5" cy="0.75" r="0.75">
-          <stop offset="0" stopColor="#F3D9A4" />
-          <stop offset="0.55" style={{ stopColor: "rgb(var(--gold))" }} />
-          <stop offset="1" style={{ stopColor: "rgb(var(--sindoor))" }} />
-        </radialGradient>
+        <linearGradient id="tmpl-door" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" style={{ stopColor: "rgb(var(--sindoor))" }} />
+          <stop offset="1" style={{ stopColor: "rgb(var(--sindoor-dark))" }} />
+        </linearGradient>
       </defs>
 
       <g className="fill-cream-light stroke-sindoor" strokeWidth="1.4">
@@ -102,8 +103,12 @@ export function TempleArt({ className = "" }: { className?: string }) {
         <rect x="92" y="436" width="216" height="84" />
         <path d="M112 436v84M140 436v84M260 436v84M288 436v84" className="stroke-gold" strokeWidth="0.8" />
         {/* Doorway */}
-        <path d="M174 520v-44q26-28 52 0v44" className="stroke-gold" strokeWidth="0.9" />
-        <path d="M182 520v-40q18-22 36 0v40Z" fill="url(#tmpl-door)" />
+        <path d="M172 520v-46q28-30 56 0v46" className="stroke-gold" strokeWidth="0.9" />
+        {/* Closed double door: matches the close-up door in the opening */}
+        <path d="M180 520v-42q20-24 40 0v42Z" fill="url(#tmpl-door)" />
+        <path d="M200 467v53" className="stroke-gold" strokeWidth="0.7" />
+        <circle cx="197" cy="495" r="1" className="fill-gold" stroke="none" />
+        <circle cx="203" cy="495" r="1" className="fill-gold" stroke="none" />
 
         {/* Platform and steps */}
         <rect x="56" y="520" width="288" height="12" />

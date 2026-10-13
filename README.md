@@ -37,7 +37,7 @@ Everything a guest reads lives in [`src/config/wedding.ts`](src/config/wedding.t
 | Couple's names | `couple.bride` / `couple.groom` |
 | Wedding date & time | `wedding.dateTime` |
 | Invitation wording, Odia invocation | `invitation` |
-| Lord Jagannath artwork | `assets.deityArtwork` (put the file in `/public`) |
+| Lord Jagannath artwork ✓ supplied (`public/art/jagannath.jpg`) | `assets.deityArtwork`: `focus` is the crown-and-face square used for the medallion |
 | Couple illustration (Odia attire) | `assets.coupleIllustration` |
 | Our Story milestones (the couple's own words) | `story.milestones` |
 | Family names, parents, photos | `family` |
@@ -81,7 +81,7 @@ Each section has its own entrance. All of them respect *reduced motion*.
 
 | Section | Motion |
 |---|---|
-| Opening | Temple rises, camera pushes into the doorway, deity glides into the invitation (Skip / Esc) |
+| Opening | Temple rises, whole temple zooms in to its door, the doors swing open on Lord Jagannath, and the deity shrinks into a medallion at the top of the invitation (Skip / Esc) |
 | Invitation | Staggered rise; slow parallax drift on scroll |
 | Couple | Arched frame rises; names written on left → right |
 | Countdown | Lotus mandala draws itself |

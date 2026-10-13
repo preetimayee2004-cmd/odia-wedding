@@ -192,11 +192,18 @@ export interface WeddingConfig {
   };
   assets: {
     /**
-     * Approved Lord Jagannath artwork (PRD §8). Path under /public, e.g.
-     * "/art/jagannath.webp" — square, transparent background, ≥ 512px.
-     * While null, a Nilachakra emblem stands in.
+     * Approved Lord Jagannath artwork (PRD §8), revealed behind the temple
+     * door in the opening. ocus is the square (in source pixels) around the
+     * deity's crown and face — it becomes the round medallion at the top of the
+     * invitation. While null, a Nilachakra emblem stands in.
      */
-    deityArtwork: string | null;
+    deityArtwork: {
+      src: string;
+      alt: string;
+      width: number;
+      height: number;
+      focus: { x: number; y: number; size: number };
+    } | null;
     /**
      * Couple illustration in traditional Odia attire (PRD §4.03): bride in
      * Banarasi pata with yellow mukut, groom in sherwani with yellow turban/mukut.
@@ -357,7 +364,13 @@ export const wedding: WeddingConfig = {
     image: null,
   },
   assets: {
-    deityArtwork: null, // awaiting approved artwork
+    deityArtwork: {
+      src: "/art/jagannath.jpg",
+      alt: "Lord Jagannath",
+      width: 736,
+      height: 1308,
+      focus: { x: 140, y: 315, size: 465 },
+    },
     coupleIllustration: null, // awaiting approved illustration
   },
   opening: {

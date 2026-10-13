@@ -2,20 +2,32 @@ import { wedding } from "@/config/wedding";
 
 /**
  * The deity focal point shared by the opening and the invitation header.
- * Renders the approved Lord Jagannath artwork when it is configured;
- * until then, a Nilachakra emblem holds the place respectfully.
+ * With the approved artwork, it is a round medallion cropped to the deity's
+ * crown and face (`focus` in config) with a fine gold ring. Until then, a
+ * Nilachakra emblem holds the place respectfully.
  */
-export function DeityArt({ className = "" }: { className?: string }) {
-  const src = wedding.assets.deityArtwork;
+export function DeityArt({ className = "", ring = true }: { className?: string; ring?: boolean }) {
+  const art = wedding.assets.deityArtwork;
 
-  if (src) {
+  if (art) {
+    const { width, height, focus } = art;
+    // Position the full image so exactly the focus square fills the circle.
+    // (top % is relative to the container's height — it's square, so it matches.)
+    const pct = (v: number) => `${(v / focus.size) * 100}%`;
     return (
-      <img
-        src={src}
-        alt="Lord Jagannath"
-        className={`h-full w-full object-contain ${className}`}
-        draggable={false}
-      />
+      <div className={`relative h-full w-full ${className}`}>
+        {ring && <span aria-hidden className="absolute -inset-[5px] rounded-full border border-gold" />}
+        <div className="relative h-full w-full overflow-hidden rounded-full bg-ink">
+          <img
+            src={art.src}
+            alt={art.alt}
+            draggable={false}
+            decoding="async"
+            className="absolute max-w-none select-none"
+            style={{ width: pct(width), height: pct(height), left: pct(-focus.x), top: pct(-focus.y) }}
+          />
+        </div>
+      </div>
     );
   }
 
