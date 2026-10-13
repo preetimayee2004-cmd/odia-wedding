@@ -158,7 +158,7 @@ export function OpeningSequence({ targetRef, onReveal, onDone }: OpeningSequence
         el.flyer.style.opacity = "1";
         // Start clipped to the doorway width (the circle can be wider than a
         // narrow door), then open out to the full medallion as it lifts away.
-        const doorHalf = el.sanctum.offsetWidth / 2;
+        const doorHalf = Math.min(el.sanctum.getBoundingClientRect().width, window.innerWidth) / 2;
         const startClip = `circle(${Math.min(50, (doorHalf / from.size) * 100).toFixed(2)}% at 50% 50%)`;
         el.flyerArt.style.clipPath = startClip;
 
@@ -245,7 +245,9 @@ export function OpeningSequence({ targetRef, onReveal, onDone }: OpeningSequence
       // Doors appear exactly over the photo's doorway…
       const startScale = (door.width * zoom) / el.sanctum.offsetWidth;
       const small = `translate(-50%, -50%) scale(${startScale})`;
-      const full = "translate(-50%, -50%) scale(1)";
+      // Move all the way in: the sanctum ends up filling the screen, like the temple did.
+      const cover = Math.max(window.innerWidth / el.sanctum.offsetWidth, window.innerHeight / el.sanctum.offsetHeight) * 1.02;
+      const full = `translate(-50%, -50%) scale(${cover})`;
       await play(el.sanctum, [{ opacity: 0, transform: small }, { opacity: 1, transform: small }], {
         duration: 350,
         easing: "ease-out",
@@ -256,7 +258,7 @@ export function OpeningSequence({ targetRef, onReveal, onDone }: OpeningSequence
 
       // …then the camera moves in through the doorway to the deity.
       // Camera and doorway grow by the same factor, so they stay locked together.
-      const grow = 1 / startScale;
+      const grow = cover / startScale;
       await Promise.all([
         play(el.camera, [{ transform: `${shift} scale(${zoom})` }, { transform: `${shift} scale(${zoom * grow})` }], {
           duration: T.pushIn,
@@ -437,6 +439,15 @@ export function OpeningSequence({ targetRef, onReveal, onDone }: OpeningSequence
                 </div>
               )}
             </div>
+
+            {/* Lamp-lit sanctum: soft dark edges, so the inner scene reads as lit
+                from within and seen through the temple's dark doorway. */}
+            {PHOTO && (
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{ background: "radial-gradient(ellipse 75% 65% at 50% 42%, transparent 55%, rgb(20 11 7 / 0.72) 100%)" }}
+              />
+            )}
 
             <div
               ref={flashRef}
