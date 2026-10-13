@@ -387,10 +387,11 @@ export const wedding: WeddingConfig = {
   opening: {
     playOncePerSession: true,
     templePhoto: {
-      src: "/art/temple-photo.png",
-      width: 412,
-      height: 402,
-      door: { x: 282, y: 321, width: 10, height: 23 },
+      // 3x enlarged + sharpened from the supplied 412x402 image.
+      src: "/art/temple-photo.jpg",
+      width: 1236,
+      height: 1206,
+      door: { x: 846, y: 963, width: 30, height: 69 },
     },
   },
   guest: {

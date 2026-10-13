@@ -17,7 +17,7 @@ export const TIMING = {
   doorPause: 350, // a beat on the closed door
   doorOpen: 1500, // the two leaves swing inward
   pushIn: 1500, // photo temple: camera moves in through the open doorway
-  photoMaxZoom: 6, // photo temple: zoom limit before the photo turns blurry
+  photoMaxZoom: 4, // photo temple: zoom limit before the photo turns blurry
   focus: 1100, // Lord Jagannath holds as the focal point
   handoff: 1300, // the medallion glides into the invitation header
   skipFade: 450,
@@ -261,8 +261,8 @@ export function OpeningSequence({ targetRef, onReveal, onDone }: OpeningSequence
         }),
         play(el.sanctum, [{ transform: small }, { transform: full }], { duration: T.pushIn, easing: EASE.dolly }),
         play(el.camera, [{ opacity: 1 }, { opacity: 0 }], {
-          duration: T.pushIn * 0.6,
-          delay: T.pushIn * 0.4,
+          duration: T.pushIn * 0.7,
+          delay: T.pushIn * 0.15,
           easing: "ease-in",
         }),
         play(
@@ -353,7 +353,8 @@ export function OpeningSequence({ targetRef, onReveal, onDone }: OpeningSequence
       <div aria-hidden className="absolute inset-0">
         <div ref={backdropRef} className="absolute inset-0 bg-cream" />
         {/* The scene: sky → crows → temple (rises) → sand & sea, zoomed as one camera */}
-        <div ref={cameraRef} className="absolute inset-0 will-change-transform">
+        {/* No will-change: lets the browser re-render the photo sharply as it zooms */}
+        <div ref={cameraRef} className="absolute inset-0">
           <div ref={backRef} className="absolute inset-0" style={{ opacity: 0 }}>
             {PHOTO ? (
               <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #E5C6A1 0%, #EFD9BF 40%, #F4E6D4 100%)" }} />
