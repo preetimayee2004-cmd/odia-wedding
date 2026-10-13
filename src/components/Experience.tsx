@@ -7,6 +7,7 @@ import { scrollToSection } from "@/lib/scroll";
 import { OpeningSequence, type RevealMode } from "@/components/opening/OpeningSequence";
 import { Invitation } from "@/components/sections/Invitation";
 import { Couple } from "@/components/sections/Couple";
+import { Countdown } from "@/components/sections/Countdown";
 
 const OPENING_SEEN = "tila:opening-seen";
 const INVITATION_OPENED = "tila:invitation-opened";
@@ -88,7 +89,12 @@ export function Experience() {
         onOpen={handleOpen}
       />
 
-      {opened && <Couple />}
+      {opened && (
+        <>
+          <Couple />
+          <Countdown />
+        </>
+      )}
     </>
   );
 }

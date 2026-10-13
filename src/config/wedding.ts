@@ -37,6 +37,13 @@ export interface WeddingConfig {
     message: string;
     ctaLabel: string;
   };
+  countdown: {
+    heading: string;
+    /** Shown from the start time until the end of the wedding day (venue time). */
+    weddingDayMessage: string;
+    /** Shown after the wedding day. {date} → the wedding date. */
+    completedMessage: string;
+  };
   venue: {
     name: string | null;
     city: string | null;
@@ -93,6 +100,11 @@ export const wedding: WeddingConfig = {
     message:
       "With the blessings of Lord Jagannath and our elders, we joyfully invite you to celebrate the wedding of",
     ctaLabel: "Open Invitation",
+  },
+  countdown: {
+    heading: "Counting the Moments",
+    weddingDayMessage: "Today is the day — thank you for celebrating with us.",
+    completedMessage: "We were married on {date}. Thank you for your love and blessings.",
   },
   venue: {
     name: null,
