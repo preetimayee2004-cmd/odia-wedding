@@ -26,6 +26,36 @@ export interface FamilySide {
   photo: { src: string; alt: string } | null;
 }
 
+export type EventMotif =
+  | "mehendi"
+  | "sangeet"
+  | "barajatra"
+  | "batabarana"
+  | "hastaganthi"
+  | "sindoor"
+  | "bidaai"
+  | "reception";
+
+export interface WeddingEvent {
+  id: string;
+  name: string;
+  /** Confirm spelling with the family. */
+  odiaName: string | null;
+  motif: EventMotif;
+  /** Venue-local date, "YYYY-MM-DD". */
+  date: string | null;
+  /** Venue-local 24h times, "HH:MM". */
+  start: string | null;
+  end: string | null;
+  venueName: string | null;
+  address: string | null;
+  dressCode: string | null;
+  /** Ceremony meaning or instructions — confirmed by the family, never invented. */
+  description: string | null;
+  /** Exact map link; otherwise one is built from the address. */
+  mapsUrl: string | null;
+}
+
 export interface WeddingConfig {
   couple: {
     bride: Person;
@@ -77,6 +107,11 @@ export interface WeddingConfig {
     groom: FamilySide;
     /** Single shared Odia wedding-family illustration, used when no photos exist. */
     illustration: { src: string; alt: string } | null;
+  };
+  events: {
+    heading: string;
+    odiaHeading: string | null;
+    items: WeddingEvent[];
   };
   venue: {
     name: string | null;
@@ -153,6 +188,36 @@ export const wedding: WeddingConfig = {
     bride: { label: "The Bride's Family", familyName: null, parents: null, photo: null },
     groom: { label: "The Groom's Family", familyName: null, parents: null, photo: null },
     illustration: null,
+  },
+  events: {
+    heading: "Wedding Celebrations",
+    odiaHeading: "ବିବାହ ଉତ୍ସବ",
+    // Odia names are best-effort — confirm every spelling with the family.
+    items: (
+      [
+        ["mehendi", "Mehendi", "ମେହେନ୍ଦି"],
+        ["sangeet", "Sangeet", "ସଙ୍ଗୀତ"],
+        ["barajatra", "Bara Jatra", "ବର ଯାତ୍ରା"],
+        ["batabarana", "Bata Barana", "ବାଟ ବରଣ"],
+        ["hastaganthi", "Hasta Ganthi", "ହସ୍ତଗଣ୍ଠି"],
+        ["sindoor", "Sindoor Daan", "ସିନ୍ଦୂର ଦାନ"],
+        ["bidaai", "Bidaai", "ବିଦାୟ"],
+        ["reception", "Reception", null],
+      ] as const
+    ).map(([motif, name, odiaName]) => ({
+      id: motif,
+      name,
+      odiaName,
+      motif,
+      date: null,
+      start: i === 0 ? "17:00" : null, // TEMP-TEST
+      end: i === 0 ? "21:30" : null, // TEMP-TEST
+      venueName: null,
+      address: null,
+      dressCode: null,
+      description: null,
+      mapsUrl: null,
+    })),
   },
   venue: {
     name: null,

@@ -88,3 +88,19 @@ export function zoneLabel(utcMs: number, timeZone: string): string {
   const parts = new Intl.DateTimeFormat("en-IN", { timeZone, timeZoneName: "short" }).formatToParts(new Date(utcMs));
   return parts.find((p) => p.type === "timeZoneName")?.value ?? timeZone;
 }
+
+/** "18:30" → "6:30 PM" (wall-clock, no zone shift). */
+export function formatClock(hhmm: string | null, locale = "en-IN"): string | null {
+  const m = hhmm ? /^(\d{1,2}):(\d{2})$/.exec(hhmm) : null;
+  if (!m) return null;
+  return new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit", hour12: true, timeZone: "UTC" })
+    .format(new Date(Date.UTC(2000, 0, 1, +m[1], +m[2])))
+    .toUpperCase();
+}
+
+/** Time range text, e.g. "6:30 PM – 10:00 PM" or just the start. */
+export function formatTimeRange(start: string | null, end: string | null): string | null {
+  const s = formatClock(start);
+  const e = formatClock(end);
+  return s && e ? `${s} – ${e}` : s;
+}
