@@ -142,6 +142,17 @@ export interface WeddingConfig {
     previewCount: number;
     maxLength: number;
   };
+  rsvp: {
+    invitationLine: string;
+    heading: string;
+    explanation: string;
+    /** Revealed after "Accept Invitation". */
+    quote: string;
+    /** Largest party one response may include (the guest included). */
+    maxAttendees: number;
+    /** Venue-local date "YYYY-MM-DD" after which responses close; null = open. */
+    deadline: string | null;
+  };
   venue: {
     name: string | null;
     city: string | null;
@@ -271,6 +282,14 @@ export const wedding: WeddingConfig = {
     requireApproval: false,
     previewCount: 3,
     maxLength: 280,
+  },
+  rsvp: {
+    invitationLine: "It would mean the world to us to have you there.",
+    heading: "Kindly Confirm Your Presence",
+    explanation: "Please let us know whether you'll be able to join us, so we can welcome you properly.",
+    quote: "Your presence will make our celebration even more special.",
+    maxAttendees: 4,
+    deadline: null,
   },
   venue: {
     name: null,
