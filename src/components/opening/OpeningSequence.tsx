@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
 import { Crows, DOOR, SceneBack, SceneFront, SceneTemple } from "@/components/art/TempleArt";
 import { DeityArt } from "@/components/art/DeityArt";
 import { wedding } from "@/config/wedding";
@@ -25,7 +25,10 @@ export const TIMING = {
 };
 
 // The temple: a configured photo, or the illustrated scene.
-const PHOTO = wedding.opening.templePhoto;
+const LAYERED = wedding.opening.templeScene;
+const PHOTO_ONLY = LAYERED ? null : wedding.opening.templePhoto;
+// Any image-based temple (layered illustration or photo): door box, plain dark doors, push-in.
+const PHOTO = LAYERED ?? PHOTO_ONLY;
 
 // Close-up door matches the temple doorway's proportions exactly.
 const DOOR_H = DOOR.bottom - DOOR.top;
@@ -39,10 +42,11 @@ const LEAF_BG = PHOTO
   ? "linear-gradient(180deg, #2B1A12 0%, #140B06 100%)" // dark doorway wood, like the photo
   : "linear-gradient(180deg, rgb(var(--sindoor)) 0%, rgb(var(--sindoor-dark)) 100%)";
 // How far below its resting place the temple starts (just out of view).
-const RISE_FROM = PHOTO ? "translateY(88%)" : "translateY(82%)";
-const SCENE_POSITION = { x: 0.5, y: 0.4 };
+const RISE_FROM = LAYERED ? "translateY(90%)" : PHOTO ? "translateY(88%)" : "translateY(82%)";
+// Where the deity scene is centred inside the narrow doorway, and any extra zoom.
+const SCENE_POSITION = wedding.assets.deityArtwork?.scenePosition ?? { x: 0.5, y: 0.4 };
 const SANCTUM_DARK = "#140B07";
-const DEITY_CLOSEUP = 1.3;
+const DEITY_CLOSEUP = wedding.assets.deityArtwork?.closeup ?? 1.3;
 
 export type RevealMode = "handoff" | "skip";
 
@@ -367,10 +371,14 @@ export function OpeningSequence({ targetRef, onReveal, onDone }: OpeningSequence
         {/* No will-change: lets the browser re-render the photo sharply as it zooms */}
         <div ref={cameraRef} className="absolute inset-0">
           <div ref={backRef} className="absolute inset-0">
-            {PHOTO ? (
-              PHOTO.sky ? (
+            {LAYERED ? (
+              <LayerStage scene={LAYERED}>
+                <img src={LAYERED.sky} alt="" draggable={false} className="absolute inset-0 h-full w-full select-none" />
+              </LayerStage>
+            ) : PHOTO_ONLY ? (
+              PHOTO_ONLY.sky ? (
                 // A tiny sky-only image stretched to fill: naturally soft, matches the photo.
-                <img src={PHOTO.sky} alt="" className="absolute inset-0 h-full w-full scale-110 object-cover blur-md" />
+                <img src={PHOTO_ONLY.sky} alt="" className="absolute inset-0 h-full w-full scale-110 object-cover blur-md" />
               ) : (
                 <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #E5C6A1 0%, #EFD9BF 40%, #F4E6D4 100%)" }} />
               )
@@ -382,10 +390,22 @@ export function OpeningSequence({ targetRef, onReveal, onDone }: OpeningSequence
             <Crows />
           </div>
           <div ref={templeRef} className="absolute inset-0" style={{ transform: RISE_FROM }}>
-            {PHOTO ? <PhotoTemple photo={PHOTO} doorRef={photoDoorRef} /> : <SceneTemple doorRef={doorRef} />}
+            {LAYERED ? (
+              <LayeredTemple scene={LAYERED} doorRef={photoDoorRef} />
+            ) : PHOTO_ONLY ? (
+              <PhotoTemple photo={PHOTO_ONLY} doorRef={photoDoorRef} />
+            ) : (
+              <SceneTemple doorRef={doorRef} />
+            )}
           </div>
           <div ref={frontRef} className="absolute inset-0">
-            {!PHOTO && <SceneFront />}
+            {LAYERED ? (
+              <LayerStage scene={LAYERED}>
+                <MaskedLayer src={LAYERED.src} mask={LAYERED.seaMask} />
+              </LayerStage>
+            ) : (
+              !PHOTO && <SceneFront />
+            )}
           </div>
         </div>
 
@@ -518,7 +538,62 @@ function DoorPanel({ handle }: { handle: "left" | "right" }) {
   );
 }
 
-type TemplePhoto = NonNullable<typeof PHOTO>;
+type TemplePhoto = NonNullable<typeof wedding.opening.templePhoto>;
+type TempleScene = NonNullable<typeof LAYERED>;
+
+/**
+ * Covers the screen with a scene of the given proportions, centred — the same
+ * box for every layer, so sky, temple and sea always line up exactly.
+ */
+function LayerStage({ scene, children }: { scene: TempleScene; children: ReactNode }) {
+  const ratio = scene.width / scene.height;
+  return (
+    <div
+      className="absolute left-1/2 top-1/2"
+      style={{
+        width: `max(100%, ${(ratio * 100).toFixed(3)}dvh)`,
+        aspectRatio: `${scene.width} / ${scene.height}`,
+        transform: "translate(-50%, -50%)",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** The scene image cut out by an alpha mask (temple or sea). */
+function MaskedLayer({ src, mask }: { src: string; mask: string }) {
+  const m = `url(${mask})`;
+  return (
+    <img
+      src={src}
+      alt=""
+      draggable={false}
+      className="absolute inset-0 h-full w-full select-none"
+      style={{ maskImage: m, WebkitMaskImage: m, maskSize: "100% 100%", WebkitMaskSize: "100% 100%" }}
+    />
+  );
+}
+
+/** Temple layer of the layered scene, with an invisible box over the doorway to aim the zoom. */
+function LayeredTemple({ scene, doorRef }: { scene: TempleScene; doorRef: RefObject<HTMLDivElement> }) {
+  const { door, width, height } = scene;
+  return (
+    <LayerStage scene={scene}>
+      <MaskedLayer src={scene.src} mask={scene.templeMask} />
+      <div
+        ref={doorRef}
+        className="absolute"
+        style={{
+          left: `${(door.x / width) * 100}%`,
+          top: `${(door.y / height) * 100}%`,
+          width: `${(door.width / width) * 100}%`,
+          height: `${(door.height / height) * 100}%`,
+        }}
+      />
+    </LayerStage>
+  );
+}
 
 /**
  * Photo version of the temple: spans the screen width at the bottom, its top

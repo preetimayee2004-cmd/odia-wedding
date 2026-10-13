@@ -193,7 +193,7 @@ export interface WeddingConfig {
   assets: {
     /**
      * Approved Lord Jagannath artwork (PRD §8), revealed behind the temple
-     * door in the opening. ocus is the square (in source pixels) around the
+     * door in the opening. `focus` is the square (in source pixels) around the
      * deity's crown and face — it becomes the round medallion at the top of the
      * invitation. While null, a Nilachakra emblem stands in.
      */
@@ -203,6 +203,10 @@ export interface WeddingConfig {
       width: number;
       height: number;
       focus: { x: number; y: number; size: number };
+      /** Where to centre a wide image inside the narrow doorway (0–1; default 0.5, 0.4). */
+      scenePosition?: { x: number; y: number };
+      /** Extra zoom on the scene inside the doorway (default 1). */
+      closeup?: number;
     } | null;
     /**
      * Couple illustration in traditional Odia attire (PRD §4.03): bride in
@@ -221,6 +225,23 @@ export interface WeddingConfig {
      * the temple opening.
      */
     playOncePerSession: boolean;
+    /**
+     * Layered temple illustration (takes priority over templePhoto). One colour
+     * image plus a sky plate and two masks, so the temple can rise from behind
+     * the sea while the sky stays still. Fills the screen (cover). `door` is
+     * the doorway box in the colour image's pixels.
+     */
+    templeScene: {
+      src: string;
+      width: number;
+      height: number;
+      /** Sky with the temple area filled in (sits behind the rising temple). */
+      sky: string;
+      /** Alpha masks (same proportions as src): temple layer and sea layer. */
+      templeMask: string;
+      seaMask: string;
+      door: { x: number; y: number; width: number; height: number };
+    } | null;
     /**
      * Optional photo of the temple to use instead of the illustrated scene.
      * door is the doorway the camera zooms into, in the photo's pixels.
@@ -383,18 +404,34 @@ export const wedding: WeddingConfig = {
     image: null,
   },
   assets: {
+    // Illustrated Sri Jagannath, Subhadra and Balabhadra (2x enlarged). The doorway
+    // frames Lord Jagannath on the right; the medallion is his crown and face.
+    // (Previous photo artwork is still in /art/jagannath.jpg.)
     deityArtwork: {
-      src: "/art/jagannath.jpg",
+      src: "/art/jagannath-trio.jpg",
       alt: "Lord Jagannath",
-      width: 736,
-      height: 1308,
-      focus: { x: 140, y: 315, size: 465 },
+      width: 2048,
+      height: 1144,
+      focus: { x: 1156, y: 130, size: 560 },
+      scenePosition: { x: 0.84, y: 0.5 },
+      closeup: 1,
     },
     coupleIllustration: null, // awaiting approved illustration
     desktopBackdrop: "/art/desktop-backdrop.jpg",
   },
   opening: {
     playOncePerSession: false, // every load starts from the opening animation
+    // Illustrated temple by the sea, split into sky / temple / sea layers.
+    templeScene: {
+      src: "/art/temple-scene.jpg",
+      width: 2048,
+      height: 1144,
+      sky: "/art/temple-scene-sky.jpg",
+      templeMask: "/art/temple-scene-temple.png",
+      seaMask: "/art/temple-scene-sea.png",
+      door: { x: 992, y: 794, width: 70, height: 124 },
+    },
+    // Used when templeScene is null.
     templePhoto: {
       // Supplied Puri temple image with its text removed, enlarged 2x and sharpened.
       src: "/art/temple-photo.jpg",
