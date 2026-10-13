@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { wedding } from "@/config/wedding";
 
 // iPhone 17 Pro Max: 6.9" display, 440 × 956 CSS px viewport.
 const SCREEN_W = 440;
@@ -29,16 +30,20 @@ function useFitScale(): number {
 /** Desktop-only frame that hosts the live site in an iframe. */
 export function PhoneMockup({ src }: { src: string }) {
   const scale = useFitScale();
+  const backdrop = wedding.assets.desktopBackdrop;
 
   return (
     <div
-      className="flex min-h-[100dvh] flex-col items-center bg-cream-deep"
+      className={`relative isolate flex min-h-[100dvh] flex-col items-center overflow-hidden ${backdrop ? "" : "bg-cream-deep"}`}
       style={{
         paddingTop: PAD_TOP,
-        backgroundImage:
-          "radial-gradient(ellipse 60% 55% at 50% 45%, rgb(var(--cream-light)) 0%, transparent 70%)",
+        backgroundColor: backdrop ? BACKDROP_BASE : undefined,
+        backgroundImage: backdrop
+          ? undefined
+          : "radial-gradient(ellipse 60% 55% at 50% 45%, rgb(var(--cream-light)) 0%, transparent 70%)",
       }}
     >
+      {backdrop && <Backdrop src={backdrop} />}
       {/* Reserves the scaled footprint so layout matches what's visible */}
       <div style={{ width: FRAME_W * scale, height: FRAME_H * scale }}>
         <div
@@ -80,7 +85,32 @@ export function PhoneMockup({ src }: { src: string }) {
         </div>
       </div>
 
-      <p className="eyebrow mt-6 text-center">Best experienced on your phone</p>
+      <p className={`eyebrow mt-6 text-center ${backdrop ? "text-cream-light/85" : ""}`}>Best experienced on your phone</p>
+    </div>
+  );
+}
+
+// Plain maroon of the backdrop artwork, filling the space between the side panels.
+const BACKDROP_BASE = "#751C28";
+
+/**
+ * Portrait artwork framing the phone on wide screens: the full image on the
+ * left and a mirrored copy on the right (a centred copy would sit hidden
+ * behind the phone). Inner edges fade into the artwork's own maroon.
+ */
+function Backdrop({ src }: { src: string }) {
+  // The mirrored copy flips its mask too, so one fade direction serves both.
+  const fade = "linear-gradient(to right, #000 62%, transparent 100%)";
+  const panel = "absolute inset-y-0 h-full w-auto max-w-none select-none";
+  return (
+    <div aria-hidden className="absolute inset-0 -z-10">
+      <img src={src} alt="" className={`${panel} left-0`} style={{ maskImage: fade, WebkitMaskImage: fade }} />
+      <img
+        src={src}
+        alt=""
+        className={`${panel} right-0 -scale-x-100`}
+        style={{ maskImage: fade, WebkitMaskImage: fade }}
+      />
     </div>
   );
 }

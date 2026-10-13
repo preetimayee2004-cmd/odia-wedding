@@ -211,6 +211,8 @@ export interface WeddingConfig {
      * Odia wedding mukuts stands in.
      */
     coupleIllustration: { src: string; alt: string } | null;
+    /** Desktop only: artwork shown around the phone mockup (portrait works best). */
+    desktopBackdrop: string | null;
   };
   opening: {
     /**
@@ -389,6 +391,7 @@ export const wedding: WeddingConfig = {
       focus: { x: 140, y: 315, size: 465 },
     },
     coupleIllustration: null, // awaiting approved illustration
+    desktopBackdrop: "/art/desktop-backdrop.jpg",
   },
   opening: {
     playOncePerSession: false, // every load starts from the opening animation
