@@ -3,7 +3,7 @@ import { wedding } from "@/config/wedding";
 import { useInView } from "@/hooks/useInView";
 import { formatVenueDate, parseVenueDateTime } from "@/lib/venueTime";
 import { EASE } from "@/lib/motion";
-import { MukutPair } from "@/components/art/MukutPair";
+import { CoupleArt } from "@/components/art/CoupleArt";
 import { Pending } from "@/components/ui/Pending";
 
 // Entrance choreography (ms from the section entering view).
@@ -24,7 +24,6 @@ export function Couple() {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { threshold: 0.3 });
   const { bride, groom, message } = wedding.couple;
-  const art = wedding.assets.coupleIllustration;
 
   return (
     <section
@@ -53,17 +52,7 @@ export function Couple() {
         {/* Arched frame — outer gold hairline, inner cream panel */}
         <div className="rounded-t-full border border-gold/60 p-1.5">
           <div className="relative aspect-[4/5] overflow-hidden rounded-t-full border border-gold/30 bg-cream-light">
-            {art ? (
-              <img
-                src={art.src}
-                alt={art.alt}
-                loading="lazy"
-                decoding="async"
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <MukutPair className="absolute inset-x-4 bottom-[13%] h-auto" />
-            )}
+            <CoupleArt imgClassName="h-full w-full object-cover" fallbackClassName="absolute inset-x-4 bottom-[13%] h-auto" />
           </div>
         </div>
       </figure>
