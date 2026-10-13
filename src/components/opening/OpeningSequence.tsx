@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
-import { DOOR, DOOR_Y, TEMPLE_VIEWBOX, TempleArt } from "@/components/art/TempleArt";
+import { Crows, DOOR, SceneBack, SceneFront, SceneTemple } from "@/components/art/TempleArt";
 import { DeityArt } from "@/components/art/DeityArt";
 import { wedding } from "@/config/wedding";
 import { EASE } from "@/lib/motion";
@@ -9,8 +9,8 @@ import { EASE } from "@/lib/motion";
  * Full run ≈ 10s; Skip is available from 0.7s.
  */
 export const TIMING = {
-  start: 300, // cream stillness
-  rise: 1800, // temple rises from below
+  start: 300, // sky and shore fade in
+  rise: 2100, // temple rises from behind the shore
   settle: 300, // breath before the camera moves
   zoom: 2400, // whole temple zooms in until the doorway fills the frame
   crossfade: 0.22, // last part of the zoom where the crisp close-up door takes over
@@ -49,9 +49,12 @@ export function OpeningSequence({ targetRef, onReveal, onDone }: OpeningSequence
 
   const rootRef = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
-  const auraRef = useRef<HTMLDivElement>(null);
   const cameraRef = useRef<HTMLDivElement>(null);
+  const backRef = useRef<HTMLDivElement>(null);
+  const crowsRef = useRef<HTMLDivElement>(null);
   const templeRef = useRef<HTMLDivElement>(null);
+  const frontRef = useRef<HTMLDivElement>(null);
+  const doorRef = useRef<SVGRectElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
   const sanctumRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<HTMLDivElement>(null);
@@ -73,9 +76,12 @@ export function OpeningSequence({ targetRef, onReveal, onDone }: OpeningSequence
     const el = {
       root: rootRef.current!,
       backdrop: backdropRef.current!,
-      aura: auraRef.current!,
       camera: cameraRef.current!,
+      back: backRef.current!,
+      crows: crowsRef.current!,
       temple: templeRef.current!,
+      front: frontRef.current!,
+      door: doorRef.current!,
       glow: glowRef.current!,
       sanctum: sanctumRef.current!,
       scene: sceneRef.current!,
@@ -96,43 +102,48 @@ export function OpeningSequence({ targetRef, onReveal, onDone }: OpeningSequence
     const wait = (ms: number) => play(el.root, [], { duration: ms });
 
     (async () => {
-      // 1 — The temple rises from the bottom of the screen.
+      // 1 — Sky and shore appear, crows glide across, and the temple rises
+      //     up from behind the sand and sea.
+      void play(el.crows, [{ transform: "translateX(-8vw)" }, { transform: "translateX(10vw)" }], {
+        duration: T.start + T.rise + T.settle + T.zoom,
+        easing: "linear",
+      });
       await Promise.all([
-        play(
-          el.camera,
-          [
-            { transform: "translateY(60vh)", opacity: 0 },
-            { opacity: 1, offset: 0.45 },
-            { transform: "translateY(0)", opacity: 1 },
-          ],
-          { duration: T.rise, delay: T.start, easing: EASE.temple },
-        ),
-        play(el.aura, [{ opacity: 0 }, { opacity: 1 }], { duration: T.rise, delay: T.start, easing: "ease-out" }),
+        play(el.back, [{ opacity: 0 }, { opacity: 1 }], { duration: 700, delay: T.start, easing: "ease-out" }),
+        play(el.front, [{ opacity: 0 }, { opacity: 1 }], { duration: 700, delay: T.start, easing: "ease-out" }),
+        play(el.crows, [{ opacity: 0 }, { opacity: 1 }], { duration: 900, delay: T.start + 400, easing: "ease-out" }),
+        play(el.temple, [{ transform: "translateY(82%)" }, { transform: "translateY(0)" }], {
+          duration: T.rise,
+          delay: T.start + 650, // once the shore in front is fully opaque
+          easing: EASE.temple,
+        }),
       ]);
 
-      // 2 — The whole temple zooms in until its doorway exactly matches the
-      //     close-up door, which then takes over (crisp at any screen size).
-      const doorFraction = DOOR_Y / TEMPLE_VIEWBOX.h;
-      const box = el.camera.getBoundingClientRect();
-      const doorPx = box.width * (DOOR.width / TEMPLE_VIEWBOX.w);
-      const scale = el.sanctum.getBoundingClientRect().width / doorPx;
-      const lift = window.innerHeight / 2 - (box.top + box.height * doorFraction);
-      el.camera.style.transformOrigin = `50% ${doorFraction * 100}%`;
+      // 2 — The whole scene zooms in on the temple door until it exactly
+      //     matches the close-up door, which then takes over (crisp at any size).
+      const cam = el.camera.getBoundingClientRect();
+      const door = el.door.getBoundingClientRect();
+      const doorX = door.left + door.width / 2;
+      const doorY = door.top + door.height / 2;
+      const scale = el.sanctum.getBoundingClientRect().width / door.width;
+      el.camera.style.transformOrigin = `${doorX - cam.left}px ${doorY - cam.top}px`;
+      const to = `translate(${window.innerWidth / 2 - doorX}px, ${window.innerHeight / 2 - doorY}px) scale(${scale})`;
       const z = T.settle;
       const handover = z + T.zoom * (1 - T.crossfade);
 
       await Promise.all([
-        play(
-          el.camera,
-          [{ transform: "translateY(0) scale(1)" }, { transform: `translateY(${lift}px) scale(${scale})` }],
-          { duration: T.zoom, delay: z, easing: EASE.dolly },
-        ),
+        play(el.camera, [{ transform: "translate(0, 0) scale(1)" }, { transform: to }], {
+          duration: T.zoom,
+          delay: z,
+          easing: EASE.dolly,
+        }),
+        play(el.crows, [{ opacity: 1 }, { opacity: 0 }], { duration: 600, delay: z, easing: "ease-in" }),
         play(el.sanctum, [{ opacity: 0 }, { opacity: 1 }], {
           duration: T.zoom * T.crossfade,
           delay: handover,
           easing: "ease-out",
         }),
-        play(el.temple, [{ opacity: 1 }, { opacity: 0 }], {
+        play(el.camera, [{ opacity: 1 }, { opacity: 0 }], {
           duration: T.zoom * 0.25,
           delay: z + T.zoom * 0.9,
           easing: "ease-in",
@@ -193,7 +204,6 @@ export function OpeningSequence({ targetRef, onReveal, onDone }: OpeningSequence
           }),
           play(el.sanctum, [{ opacity: 1 }, { opacity: 0 }], { duration: T.handoff * 0.45, easing: "ease-out" }),
           play(el.glow, [{ opacity: 1 }, { opacity: 0 }], { duration: T.handoff * 0.6, easing: "ease-out" }),
-          play(el.aura, [{ opacity: 1 }, { opacity: 0 }], { duration: T.handoff, easing: "ease-out" }),
           play(el.backdrop, [{ opacity: 1 }, { opacity: 0 }], {
             duration: T.handoff - textDelay,
             delay: textDelay,
@@ -245,24 +255,19 @@ export function OpeningSequence({ targetRef, onReveal, onDone }: OpeningSequence
     >
       <div aria-hidden className="absolute inset-0">
         <div ref={backdropRef} className="absolute inset-0 bg-cream" />
-        {/* Warm morning light behind the temple */}
-        <div
-          ref={auraRef}
-          className="absolute inset-0"
-          style={{
-            opacity: 0,
-            background:
-              "radial-gradient(ellipse 85% 55% at 50% 72%, rgb(var(--gold) / 0.22) 0%, rgb(var(--gold) / 0.06) 45%, transparent 70%)",
-          }}
-        />
-
-        <div
-          ref={cameraRef}
-          className="absolute inset-x-0 bottom-[8dvh] mx-auto w-[min(80vw,340px)] will-change-transform"
-          style={{ opacity: 0 }}
-        >
-          <div ref={templeRef}>
-            <TempleArt className="block h-auto w-full" />
+        {/* The scene: sky → crows → temple (rises) → sand & sea, zoomed as one camera */}
+        <div ref={cameraRef} className="absolute inset-0 will-change-transform">
+          <div ref={backRef} className="absolute inset-0" style={{ opacity: 0 }}>
+            <SceneBack />
+          </div>
+          <div ref={crowsRef} className="absolute inset-x-0 top-0 h-1/2" style={{ opacity: 0 }}>
+            <Crows />
+          </div>
+          <div ref={templeRef} className="absolute inset-0" style={{ transform: "translateY(82%)" }}>
+            <SceneTemple doorRef={doorRef} />
+          </div>
+          <div ref={frontRef} className="absolute inset-0" style={{ opacity: 0 }}>
+            <SceneFront />
           </div>
         </div>
 

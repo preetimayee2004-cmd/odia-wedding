@@ -58,8 +58,11 @@ export default {
       transitionTimingFunction: EASE,
       keyframes: {
         "fade-in": { from: { opacity: "0" }, to: { opacity: "1" } },
+        flap: { "0%, 100%": { transform: "scaleY(1)" }, "50%": { transform: "scaleY(0.3)" } },
       },
       animation: {
+        // Crows' wingbeat in the opening (duration set per bird).
+        flap: "flap 0.7s ease-in-out infinite",
         // Skip button: appears shortly after the opening starts.
         "fade-in-late": `fade-in 600ms ${EASE.silk} 700ms both`,
       },
