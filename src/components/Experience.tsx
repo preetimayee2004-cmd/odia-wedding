@@ -8,6 +8,7 @@ import { OpeningSequence, type RevealMode } from "@/components/opening/OpeningSe
 import { Invitation } from "@/components/sections/Invitation";
 import { Couple } from "@/components/sections/Couple";
 import { Countdown } from "@/components/sections/Countdown";
+import { Story } from "@/components/sections/Story";
 
 const OPENING_SEEN = "tila:opening-seen";
 const INVITATION_OPENED = "tila:invitation-opened";
@@ -15,8 +16,11 @@ const INVITATION_OPENED = "tila:invitation-opened";
 // In dev, always replay the full intro so it can be reviewed.
 const remembers = (key: string) => !import.meta.env.DEV && readSessionFlag(key);
 
+// Dev-only review shortcut: ?open starts with the invitation already open.
+const devOpen = import.meta.env.DEV && new URLSearchParams(window.location.search).has("open");
+
 function shouldPlayOpening(reducedMotion: boolean): boolean {
-  if (reducedMotion) return false;
+  if (reducedMotion || devOpen) return false;
   return !(wedding.opening.playOncePerSession && remembers(OPENING_SEEN));
 }
 
@@ -34,7 +38,7 @@ export function Experience() {
     shouldPlayOpening(reducedMotion) ? "playing" : "done",
   );
   const [revealMode, setRevealMode] = useState<RevealMode>("handoff");
-  const [opened, setOpened] = useState(() => remembers(INVITATION_OPENED));
+  const [opened, setOpened] = useState(() => devOpen || remembers(INVITATION_OPENED));
   const deitySlotRef = useRef<HTMLDivElement>(null);
   const scrollAfterOpen = useRef(false);
 
@@ -93,6 +97,7 @@ export function Experience() {
         <>
           <Couple />
           <Countdown />
+          <Story />
         </>
       )}
     </>

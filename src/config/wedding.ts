@@ -44,6 +44,22 @@ export interface WeddingConfig {
     /** Shown after the wedding day. {date} → the wedding date. */
     completedMessage: string;
   };
+  story: {
+    heading: string;
+    /** Odia subtitle — confirm spelling with the family. */
+    odiaHeading: string | null;
+    /**
+     * The couple's own milestones (PRD §4.05) — never invented. While empty,
+     * the section is hidden in production.
+     */
+    milestones: Array<{
+      title: string;
+      /** Free text, e.g. "Spring 2019". */
+      date: string | null;
+      text: string;
+      image: { src: string; alt: string } | null;
+    }>;
+  };
   venue: {
     name: string | null;
     city: string | null;
@@ -105,6 +121,13 @@ export const wedding: WeddingConfig = {
     heading: "Counting the Moments",
     weddingDayMessage: "Today is the day — thank you for celebrating with us.",
     completedMessage: "We were married on {date}. Thank you for your love and blessings.",
+  },
+  story: {
+    heading: "Our Story",
+    odiaHeading: "ଆମ କାହାଣୀ",
+    // Add milestones supplied by the couple, e.g.
+    // { title: "How we met", date: "June 2019", text: "…", image: null },
+    milestones: [],
   },
   venue: {
     name: null,
