@@ -153,6 +153,32 @@ export interface WeddingConfig {
     /** Venue-local date "YYYY-MM-DD" after which responses close; null = open. */
     deadline: string | null;
   };
+  contact: {
+    heading: string;
+    note: string;
+    /** Message pre-filled when a guest taps WhatsApp. */
+    whatsappMessage: string;
+    people: Array<{
+      name: string;
+      /** e.g. "Bride's brother". */
+      relation: string | null;
+      /** With country code, e.g. "+91 98765 43210". */
+      phone: string;
+      whatsapp: boolean;
+    }>;
+  };
+  thankYou: {
+    heading: string;
+    message: string;
+  };
+  footer: {
+    /** Short closing blessing or sign-off. */
+    blessing: string;
+    /** The couple's love notice — written in their own words. */
+    loveNotice: string;
+    /** Optional website credit, e.g. "Made with love by …". */
+    credit: string | null;
+  };
   venue: {
     name: string | null;
     city: string | null;
@@ -290,6 +316,26 @@ export const wedding: WeddingConfig = {
     quote: "Your presence will make our celebration even more special.",
     maxAttendees: 4,
     deadline: null,
+  },
+  contact: {
+    heading: "Get in Touch",
+    note: "For any questions about the celebrations, travel or stay, please reach out to:",
+    whatsappMessage: "Namaste! I have a question about the wedding.",
+    // Add family contacts, e.g.
+    // { name: "…", relation: "Bride's brother", phone: "+91 …", whatsapp: true },
+    people: [],
+  },
+  thankYou: {
+    heading: "Thank You",
+    message:
+      "Thank you for being a part of our journey and for blessing us as we begin this new chapter together.",
+  },
+  footer: {
+    blessing: "With love and gratitude",
+    // PLACEHOLDER — the couple should write this in their own words.
+    loveNotice:
+      "Every blessing you send becomes a part of our story. We can't wait to celebrate with you.",
+    credit: null,
   },
   venue: {
     name: null,

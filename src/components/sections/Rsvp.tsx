@@ -203,9 +203,11 @@ function RsvpBody() {
             ? `Responses closed on ${deadlineDate}. Please contact the family directly.`
             : "Online responses will open soon. Meanwhile, please reach out to the family directly."}
         </p>
-        <a href="#contact" className="mt-5 inline-block text-[0.75rem] font-medium uppercase tracking-[0.14em] text-sindoor underline underline-offset-4">
-          Contact the family
-        </a>
+        {wedding.contact.people.length > 0 && (
+          <a href="#contact" className="mt-5 inline-block text-[0.75rem] font-medium uppercase tracking-[0.14em] text-sindoor underline underline-offset-4">
+            Contact the family
+          </a>
+        )}
       </div>
     );
   }

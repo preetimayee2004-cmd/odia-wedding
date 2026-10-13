@@ -15,6 +15,7 @@ import { Venue } from "@/components/sections/Venue";
 import { Travel } from "@/components/sections/Travel";
 import { WishingWall } from "@/components/sections/WishingWall";
 import { Rsvp } from "@/components/sections/Rsvp";
+import { Contact } from "@/components/sections/Contact";
 
 const OPENING_SEEN = "tila:opening-seen";
 const INVITATION_OPENED = "tila:invitation-opened";
@@ -110,6 +111,7 @@ export function Experience() {
           <Travel />
           <WishingWall />
           <Rsvp />
+          <Contact />
         </>
       )}
     </>
