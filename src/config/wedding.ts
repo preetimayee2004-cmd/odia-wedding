@@ -20,6 +20,8 @@ export interface WeddingConfig {
   couple: {
     bride: Person;
     groom: Person;
+    /** Short line under the couple's names (Section 03). */
+    message: string;
   };
   wedding: {
     /** ISO 8601 local date-time at the venue, e.g. "2027-02-14T19:30". */
@@ -48,6 +50,13 @@ export interface WeddingConfig {
      * While null, a Nilachakra emblem stands in.
      */
     deityArtwork: string | null;
+    /**
+     * Couple illustration in traditional Odia attire (PRD §4.03): bride in
+     * Banarasi pata with yellow mukut, groom in sherwani with yellow turban/mukut.
+     * Portrait ~4:5, transparent or cream background. While null, a pair of
+     * Odia wedding mukuts stands in.
+     */
+    coupleIllustration: { src: string; alt: string } | null;
   };
   opening: {
     /** Play the temple opening once per browser session (always in dev). */
@@ -69,6 +78,9 @@ export const wedding: WeddingConfig = {
   couple: {
     bride: { displayName: "Bride", fullName: null }, // PLACEHOLDER
     groom: { displayName: "Groom", fullName: null }, // PLACEHOLDER
+    // PLACEHOLDER wording
+    message:
+      "Together with our families, we would be honoured to have you with us as we begin our life together.",
   },
   wedding: {
     dateTime: null, // awaiting confirmed date & time
@@ -90,6 +102,7 @@ export const wedding: WeddingConfig = {
   },
   assets: {
     deityArtwork: null, // awaiting approved artwork
+    coupleIllustration: null, // awaiting approved illustration
   },
   opening: {
     playOncePerSession: true,
