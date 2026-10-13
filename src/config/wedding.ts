@@ -215,6 +215,17 @@ export interface WeddingConfig {
   opening: {
     /** Play the temple opening once per browser session (always in dev). */
     playOncePerSession: boolean;
+    /**
+     * Optional photo of the temple to use instead of the illustrated scene.
+     * door is the doorway the camera zooms into, in the photo's pixels.
+     * Use a high-resolution, licensed image (the zoom magnifies the door a lot).
+     */
+    templePhoto: {
+      src: string;
+      width: number;
+      height: number;
+      door: { x: number; y: number; width: number; height: number };
+    } | null;
   };
   guest: {
     /** URL query keys checked, in order, for the guest's name. */
@@ -375,6 +386,12 @@ export const wedding: WeddingConfig = {
   },
   opening: {
     playOncePerSession: true,
+    templePhoto: {
+      src: "/art/temple-photo.png",
+      width: 412,
+      height: 402,
+      door: { x: 282, y: 321, width: 10, height: 23 },
+    },
   },
   guest: {
     // Share links like https://…/?guest=Priya%20Mishra
