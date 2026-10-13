@@ -116,8 +116,13 @@ export interface WeddingConfig {
   venue: {
     name: string | null;
     city: string | null;
+    /** Full postal address — also used to build the directions link. */
     address: string | null;
+    /** Optional exact map link (e.g. a Google Maps share URL). */
     mapsUrl: string | null;
+    description: string | null;
+    /** Venue photograph; while null, a mandap illustration is shown. */
+    image: { src: string; alt: string } | null;
   };
   assets: {
     /**
@@ -224,6 +229,8 @@ export const wedding: WeddingConfig = {
     city: null,
     address: null,
     mapsUrl: null,
+    description: null,
+    image: null,
   },
   assets: {
     deityArtwork: null, // awaiting approved artwork

@@ -11,6 +11,7 @@ import { Countdown } from "@/components/sections/Countdown";
 import { Story } from "@/components/sections/Story";
 import { Family } from "@/components/sections/Family";
 import { Events } from "@/components/sections/Events";
+import { Venue } from "@/components/sections/Venue";
 
 const OPENING_SEEN = "tila:opening-seen";
 const INVITATION_OPENED = "tila:invitation-opened";
@@ -102,6 +103,7 @@ export function Experience() {
           <Story />
           <Family />
           <Events />
+          <Venue />
         </>
       )}
     </>
