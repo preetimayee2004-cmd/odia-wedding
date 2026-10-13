@@ -56,6 +56,18 @@ export interface WeddingEvent {
   mapsUrl: string | null;
 }
 
+/** Travel information — every value must be verified, never estimated. */
+export interface TravelPlace {
+  name: string | null;
+  location: string | null;
+  /** Verified distance from the venue, e.g. "18 km (about 40 min by road)". */
+  distance: string | null;
+  info: string | null;
+  mapsUrl: string | null;
+  phone: string | null;
+  bookingUrl: string | null;
+}
+
 export interface WeddingConfig {
   couple: {
     bride: Person;
@@ -113,6 +125,13 @@ export interface WeddingConfig {
     odiaHeading: string | null;
     items: WeddingEvent[];
   };
+  travel: {
+    heading: string;
+    airport: TravelPlace;
+    railway: TravelPlace;
+    bus: TravelPlace;
+    stay: TravelPlace;
+  };
   venue: {
     name: string | null;
     city: string | null;
@@ -153,6 +172,10 @@ export interface WeddingConfig {
     siteTitle: string;
     description: string;
   };
+}
+
+function emptyPlace(): TravelPlace {
+  return { name: null, location: null, distance: null, info: null, mapsUrl: null, phone: null, bookingUrl: null };
 }
 
 export const wedding: WeddingConfig = {
@@ -223,6 +246,13 @@ export const wedding: WeddingConfig = {
       description: null,
       mapsUrl: null,
     })),
+  },
+  travel: {
+    heading: "Travel & Stay",
+    airport: emptyPlace(),
+    railway: emptyPlace(),
+    bus: emptyPlace(),
+    stay: emptyPlace(),
   },
   venue: {
     name: null,
