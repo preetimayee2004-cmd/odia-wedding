@@ -210,8 +210,8 @@ export const wedding: WeddingConfig = {
       odiaName,
       motif,
       date: null,
-      start: i === 0 ? "17:00" : null, // TEMP-TEST
-      end: i === 0 ? "21:30" : null, // TEMP-TEST
+      start: null,
+      end: null,
       venueName: null,
       address: null,
       dressCode: null,
