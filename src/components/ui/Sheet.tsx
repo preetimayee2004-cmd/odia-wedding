@@ -74,7 +74,7 @@ export function Sheet({ open, onClose, label, variant = "sheet", children }: She
       ) : (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-4" style={panelStyle}>
           <div className="pointer-events-auto max-h-full max-w-full">{children}</div>
-          <CloseButton onClose={onClose} className="pointer-events-auto right-3 top-[max(0.75rem,env(safe-area-inset-top))] text-cream-light" />
+          <CloseButton onClose={onClose} className="pointer-events-auto right-3 top-[calc(max(0.75rem,env(safe-area-inset-top))_+_var(--status-bar,0px))] text-cream-light" />
         </div>
       )}
     </dialog>

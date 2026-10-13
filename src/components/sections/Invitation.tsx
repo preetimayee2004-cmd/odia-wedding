@@ -40,13 +40,13 @@ export function Invitation({ deitySlotRef, reveal, deityHidden, opened, onOpen }
 
   return (
     <section id="invitation" aria-label="Wedding invitation" className="relative flex min-h-[100dvh] flex-col">
-      <Reveal show={show} className="pointer-events-none absolute inset-0">
+      <Reveal show={show} className="pointer-events-none absolute inset-x-0 bottom-0 top-[var(--status-bar,0px)]">
         <Frame />
       </Reveal>
 
       <div
         ref={contentRef}
-        className="relative flex flex-1 flex-col items-center px-9 pb-[max(2.25rem,env(safe-area-inset-bottom))] pt-[max(2.5rem,env(safe-area-inset-top))] text-center will-change-transform short:pt-8"
+        className="relative flex flex-1 flex-col items-center px-9 pb-[max(2.25rem,env(safe-area-inset-bottom))] pt-[calc(max(2.5rem,env(safe-area-inset-top))_+_var(--status-bar,0px))] text-center will-change-transform short:pt-[calc(2rem_+_var(--status-bar,0px))]"
       >
         <div
           ref={deitySlotRef}

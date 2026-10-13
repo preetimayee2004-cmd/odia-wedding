@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { wedding } from "@/config/wedding";
+import { STATUS_MESSAGE, type StatusTone } from "@/lib/viewMode";
 
 // iPhone 17 Pro Max: 6.9" display, 440 × 956 CSS px viewport.
 const SCREEN_W = 440;
@@ -7,15 +8,18 @@ const SCREEN_H = 956;
 const BEZEL = 14; // titanium band + black border
 const FRAME_W = SCREEN_W + BEZEL * 2;
 const FRAME_H = SCREEN_H + BEZEL * 2;
-const STATUS_BAR_H = 54;
+export const STATUS_BAR_H = 54;
 
-// Space kept free around the phone (top, and bottom for the caption).
-const PAD_TOP = 28;
-const PAD_BOTTOM = 60;
+// Space kept free above and below the phone.
+const PAD = 28;
+
+// Darkest plain maroon of the backdrop artwork (behind the tiles while they load).
+const BACKDROP_BASE = "#620914";
+// The artwork tile is [original | mirrored], each half 736×1308 (aspect 0.5627).
+const HALF_TILE_ASPECT = 736 / 1308;
 
 function useFitScale(): number {
-  const compute = () =>
-    Math.max(0.5, Math.min(1, (window.innerHeight - PAD_TOP - PAD_BOTTOM) / FRAME_H));
+  const compute = () => Math.max(0.5, Math.min(1, (window.innerHeight - PAD * 2) / FRAME_H));
   const [scale, setScale] = useState(compute);
 
   useEffect(() => {
@@ -27,23 +31,48 @@ function useFitScale(): number {
   return scale;
 }
 
+/** Status bar text colour, set by the site inside the frame (dark scenes → light text). */
+function useStatusTone(): StatusTone {
+  const [tone, setTone] = useState<StatusTone>("dark");
+  useEffect(() => {
+    const onMessage = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin) return;
+      const data = e.data as { type?: string; tone?: StatusTone } | null;
+      if (data?.type === STATUS_MESSAGE && (data.tone === "dark" || data.tone === "light")) setTone(data.tone);
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
+  return tone;
+}
+
 /** Desktop-only frame that hosts the live site in an iframe. */
 export function PhoneMockup({ src }: { src: string }) {
   const scale = useFitScale();
+  const tone = useStatusTone();
   const backdrop = wedding.assets.desktopBackdrop;
 
   return (
     <div
-      className={`relative isolate flex min-h-[100dvh] flex-col items-center overflow-hidden ${backdrop ? "" : "bg-cream-deep"}`}
-      style={{
-        paddingTop: PAD_TOP,
-        backgroundColor: backdrop ? BACKDROP_BASE : undefined,
-        backgroundImage: backdrop
-          ? undefined
-          : "radial-gradient(ellipse 60% 55% at 50% 45%, rgb(var(--cream-light)) 0%, transparent 70%)",
-      }}
+      className={`flex min-h-[100dvh] flex-col items-center justify-center ${backdrop ? "" : "bg-cream-deep"}`}
+      style={
+        backdrop
+          ? {
+              // Artwork as-is, repeated with its mirror so every edge meets its own
+              // reflection (no seams, no blur). The phone covers one couple; the
+              // neighbouring couples show on either side.
+              backgroundColor: BACKDROP_BASE,
+              backgroundImage: `url(${backdrop})`,
+              backgroundRepeat: "repeat-x",
+              backgroundSize: "auto 100%",
+              backgroundPosition: `calc(50vw - ${(HALF_TILE_ASPECT * 50).toFixed(3)}dvh) 0`,
+            }
+          : {
+              backgroundImage:
+                "radial-gradient(ellipse 60% 55% at 50% 45%, rgb(var(--cream-light)) 0%, transparent 70%)",
+            }
+      }
     >
-      {backdrop && <Backdrop src={backdrop} />}
       {/* Reserves the scaled footprint so layout matches what's visible */}
       <div style={{ width: FRAME_W * scale, height: FRAME_H * scale }}>
         <div
@@ -59,67 +88,37 @@ export function PhoneMockup({ src }: { src: string }) {
               background:
                 "linear-gradient(145deg, #ebe8e3 0%, #b8b3ac 35%, #dcd8d2 55%, #a7a29b 100%)",
               boxShadow:
-                "0 40px 80px -20px rgb(43 36 32 / 0.35), 0 18px 36px -18px rgb(43 36 32 / 0.25), inset 0 0 0 1px rgb(255 255 255 / 0.35)",
+                "0 40px 80px -20px rgb(0 0 0 / 0.55), 0 18px 36px -18px rgb(0 0 0 / 0.4), inset 0 0 0 1px rgb(255 255 255 / 0.35)",
             }}
           />
           {/* Black border */}
           <div className="absolute inset-[3px] rounded-[73px] bg-[#0b0b0c]" />
 
-          {/* Screen */}
+          {/* Screen: the site fills it edge to edge; the status bar floats on top, as on a real iPhone */}
           <div
-            className="absolute overflow-hidden rounded-[62px] bg-cream"
+            className="absolute overflow-hidden rounded-[62px] bg-black"
             style={{ inset: BEZEL, width: SCREEN_W, height: SCREEN_H }}
           >
-            <StatusBar />
-            <iframe
-              src={src}
-              title="Wedding invitation — phone preview"
-              className="block w-full border-0 bg-cream"
-              style={{ height: SCREEN_H - STATUS_BAR_H }}
-            />
+            <iframe src={src} title="Wedding invitation — phone preview" className="block w-full border-0" style={{ height: SCREEN_H }} />
+            <StatusBar tone={tone} />
             {/* Dynamic Island */}
             <div className="pointer-events-none absolute left-1/2 top-[11px] h-[37px] w-[125px] -translate-x-1/2 rounded-full bg-black" />
             {/* Home indicator */}
-            <div className="pointer-events-none absolute bottom-2 left-1/2 h-[5px] w-[140px] -translate-x-1/2 rounded-full bg-ink/80" />
+            <div
+              className={`pointer-events-none absolute bottom-2 left-1/2 h-[5px] w-[140px] -translate-x-1/2 rounded-full transition-colors duration-500 ${tone === "light" ? "bg-white/80" : "bg-ink/80"}`}
+            />
           </div>
         </div>
       </div>
-
-      <p className={`eyebrow mt-6 text-center ${backdrop ? "text-cream-light/85" : ""}`}>Best experienced on your phone</p>
     </div>
   );
 }
 
-// Plain maroon of the backdrop artwork, filling the space between the side panels.
-const BACKDROP_BASE = "#751C28";
-
-/**
- * Portrait artwork framing the phone on wide screens: the full image on the
- * left and a mirrored copy on the right (a centred copy would sit hidden
- * behind the phone). Inner edges fade into the artwork's own maroon.
- */
-function Backdrop({ src }: { src: string }) {
-  // The mirrored copy flips its mask too, so one fade direction serves both.
-  const fade = "linear-gradient(to right, #000 62%, transparent 100%)";
-  const panel = "absolute inset-y-0 h-full w-auto max-w-none select-none";
-  return (
-    <div aria-hidden className="absolute inset-0 -z-10">
-      <img src={src} alt="" className={`${panel} left-0`} style={{ maskImage: fade, WebkitMaskImage: fade }} />
-      <img
-        src={src}
-        alt=""
-        className={`${panel} right-0 -scale-x-100`}
-        style={{ maskImage: fade, WebkitMaskImage: fade }}
-      />
-    </div>
-  );
-}
-
-function StatusBar() {
+function StatusBar({ tone }: { tone: StatusTone }) {
   return (
     <div
       aria-hidden
-      className="flex items-center justify-between bg-cream px-[34px] pt-[6px] font-sans text-ink"
+      className={`pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between px-[34px] pt-[6px] font-sans transition-colors duration-500 ${tone === "light" ? "text-white" : "text-ink"}`}
       style={{ height: STATUS_BAR_H }}
     >
       <span className="w-[54px] text-center text-[16px] font-medium tracking-tight">9:41</span>

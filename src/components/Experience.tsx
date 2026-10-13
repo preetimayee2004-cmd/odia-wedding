@@ -56,6 +56,13 @@ export function Experience() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
   }, []);
 
+  // The page itself stays dark (index.html) until the invitation is reached,
+  // then becomes cream, so overscroll at the page edges matches the site.
+  useEffect(() => {
+    if (intro === "playing") return;
+    document.documentElement.style.background = "rgb(var(--cream))";
+  }, [intro]);
+
   // Warm the rest of the site once the opening has finished.
   useEffect(() => {
     if (intro !== "done") return;

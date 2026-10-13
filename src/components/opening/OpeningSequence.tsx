@@ -3,6 +3,7 @@ import { Crows, DOOR, SceneBack, SceneFront, SceneTemple } from "@/components/ar
 import { DeityArt } from "@/components/art/DeityArt";
 import { wedding } from "@/config/wedding";
 import { EASE } from "@/lib/motion";
+import { setStatusTone } from "@/lib/viewMode";
 
 /**
  * PLACEHOLDER timing (ms) — tune against the reference video.
@@ -40,6 +41,7 @@ const LEAF_BG = PHOTO
 // How far below its resting place the temple starts (just out of view).
 const RISE_FROM = PHOTO ? "translateY(88%)" : "translateY(82%)";
 const SCENE_POSITION = { x: 0.5, y: 0.4 };
+const SANCTUM_DARK = "#140B07";
 const DEITY_CLOSEUP = 1.3;
 
 export type RevealMode = "handoff" | "skip";
@@ -127,12 +129,10 @@ export function OpeningSequence({ targetRef, onReveal, onDone }: OpeningSequence
         easing: "linear",
       });
       await Promise.all([
-        play(el.back, [{ opacity: 0 }, { opacity: 1 }], { duration: 700, delay: T.start, easing: "ease-out" }),
-        play(el.front, [{ opacity: 0 }, { opacity: 1 }], { duration: 700, delay: T.start, easing: "ease-out" }),
         play(el.crows, [{ opacity: 0 }, { opacity: 1 }], { duration: 900, delay: T.start + 400, easing: "ease-out" }),
         play(el.temple, [{ transform: RISE_FROM }, { transform: "translateY(0)" }], {
           duration: T.rise,
-          delay: T.start + 650, // once the shore in front is fully opaque
+          delay: T.start,
           easing: EASE.temple,
         }),
       ]);
@@ -184,8 +184,10 @@ export function OpeningSequence({ targetRef, onReveal, onDone }: OpeningSequence
         ]);
         await wait(textDelay);
         callbacks.current.onReveal("handoff");
+        setStatusTone("dark");
         await flight;
       } else {
+        setStatusTone("dark");
         callbacks.current.onReveal("skip");
       }
 
@@ -249,6 +251,7 @@ export function OpeningSequence({ targetRef, onReveal, onDone }: OpeningSequence
         easing: "ease-out",
       });
       await wait(T.doorPause);
+      setStatusTone("light");
       await openDoors();
 
       // …then the camera moves in through the doorway to the deity.
@@ -317,16 +320,21 @@ export function OpeningSequence({ targetRef, onReveal, onDone }: OpeningSequence
 
       await wait(T.doorPause);
       void play(el.glow, [{ opacity: 0.7 }, { opacity: 1 }], { duration: T.doorOpen, easing: EASE.silk });
+      setStatusTone("light");
       await openDoors();
     }
 
-    return () => running.current.forEach((a) => a.cancel());
+    return () => {
+      running.current.forEach((a) => a.cancel());
+      setStatusTone("dark");
+    };
   }, [targetRef]);
 
   const skip = useCallback(() => {
     if (ended.current) return;
     ended.current = true;
     running.current.forEach((a) => a.pause()); // freeze the frame, then dissolve it
+    setStatusTone("dark");
     callbacks.current.onReveal("skip");
     setLeaving(true);
     window.setTimeout(() => callbacks.current.onDone(), TIMING.skipFade);
@@ -351,11 +359,12 @@ export function OpeningSequence({ targetRef, onReveal, onDone }: OpeningSequence
       style={{ opacity: leaving ? 0 : 1, transitionDuration: `${TIMING.skipFade}ms` }}
     >
       <div aria-hidden className="absolute inset-0">
-        <div ref={backdropRef} className="absolute inset-0 bg-cream" />
+        {/* Dark sanctum behind the opened doorway; the cream page appears only with the invitation */}
+        <div ref={backdropRef} className="absolute inset-0" style={{ backgroundColor: SANCTUM_DARK }} />
         {/* The scene: sky → crows → temple (rises) → sand & sea, zoomed as one camera */}
         {/* No will-change: lets the browser re-render the photo sharply as it zooms */}
         <div ref={cameraRef} className="absolute inset-0">
-          <div ref={backRef} className="absolute inset-0" style={{ opacity: 0 }}>
+          <div ref={backRef} className="absolute inset-0">
             {PHOTO ? (
               PHOTO.sky ? (
                 // A tiny sky-only image stretched to fill: naturally soft, matches the photo.
@@ -373,7 +382,7 @@ export function OpeningSequence({ targetRef, onReveal, onDone }: OpeningSequence
           <div ref={templeRef} className="absolute inset-0" style={{ transform: RISE_FROM }}>
             {PHOTO ? <PhotoTemple photo={PHOTO} doorRef={photoDoorRef} /> : <SceneTemple doorRef={doorRef} />}
           </div>
-          <div ref={frontRef} className="absolute inset-0" style={{ opacity: 0 }}>
+          <div ref={frontRef} className="absolute inset-0">
             {!PHOTO && <SceneFront />}
           </div>
         </div>
@@ -460,7 +469,7 @@ export function OpeningSequence({ targetRef, onReveal, onDone }: OpeningSequence
       <button
         type="button"
         onClick={skip}
-        className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] inline-flex min-h-11 animate-fade-in-late items-center gap-1.5 rounded-full border border-gold/50 bg-cream-light/70 px-4 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.2em] text-ink-soft"
+        className="absolute right-4 top-[calc(max(1rem,env(safe-area-inset-top))_+_var(--status-bar,0px))] inline-flex min-h-11 animate-fade-in-late items-center gap-1.5 rounded-full border border-gold/50 bg-cream-light/70 px-4 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.2em] text-ink-soft"
       >
         Skip
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>

@@ -26,3 +26,18 @@ export function framedUrl(): string {
   url.searchParams.set(FRAME_PARAM, "1");
   return url.toString();
 }
+
+// Inside the mockup the site runs edge to edge under a floating status bar
+// (like a real iPhone), so content that hugs the top adds this inset.
+const FRAMED_STATUS_BAR = "54px";
+if (isFramed) document.documentElement.style.setProperty("--status-bar", FRAMED_STATUS_BAR);
+
+/** Status bar text colour in the mockup: "light" over dark scenes. */
+export type StatusTone = "dark" | "light";
+export const STATUS_MESSAGE = "tila:status-tone";
+
+/** Tells the desktop mockup (if any) which status bar colour suits the scene. */
+export function setStatusTone(tone: StatusTone) {
+  if (!isFramed || window.parent === window) return;
+  window.parent.postMessage({ type: STATUS_MESSAGE, tone }, window.location.origin);
+}
