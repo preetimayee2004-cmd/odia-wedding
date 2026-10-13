@@ -16,6 +16,16 @@ export interface Person {
   fullName: string | null;
 }
 
+export interface FamilySide {
+  /** Heading, e.g. "The Bride's Family". */
+  label: string;
+  /** e.g. "The Mishra Family". */
+  familyName: string | null;
+  /** e.g. "Daughter of Smt. … & Shri …". */
+  parents: string | null;
+  photo: { src: string; alt: string } | null;
+}
+
 export interface WeddingConfig {
   couple: {
     bride: Person;
@@ -59,6 +69,14 @@ export interface WeddingConfig {
       text: string;
       image: { src: string; alt: string } | null;
     }>;
+  };
+  family: {
+    heading: string;
+    odiaHeading: string | null;
+    bride: FamilySide;
+    groom: FamilySide;
+    /** Single shared Odia wedding-family illustration, used when no photos exist. */
+    illustration: { src: string; alt: string } | null;
   };
   venue: {
     name: string | null;
@@ -128,6 +146,13 @@ export const wedding: WeddingConfig = {
     // Add milestones supplied by the couple, e.g.
     // { title: "How we met", date: "June 2019", text: "…", image: null },
     milestones: [],
+  },
+  family: {
+    heading: "Our Families",
+    odiaHeading: "ପରିବାର",
+    bride: { label: "The Bride's Family", familyName: null, parents: null, photo: null },
+    groom: { label: "The Groom's Family", familyName: null, parents: null, photo: null },
+    illustration: null,
   },
   venue: {
     name: null,

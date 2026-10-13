@@ -9,6 +9,7 @@ import { Invitation } from "@/components/sections/Invitation";
 import { Couple } from "@/components/sections/Couple";
 import { Countdown } from "@/components/sections/Countdown";
 import { Story } from "@/components/sections/Story";
+import { Family } from "@/components/sections/Family";
 
 const OPENING_SEEN = "tila:opening-seen";
 const INVITATION_OPENED = "tila:invitation-opened";
@@ -98,6 +99,7 @@ export function Experience() {
           <Couple />
           <Countdown />
           <Story />
+          <Family />
         </>
       )}
     </>
