@@ -38,7 +38,7 @@ Everything a guest reads lives in [`src/config/wedding.ts`](src/config/wedding.t
 | Wedding date & time | `wedding.dateTime` |
 | Invitation wording, Odia invocation | `invitation` |
 | Lord Jagannath artwork ✓ supplied (`public/art/jagannath.jpg`) | `assets.deityArtwork`: `focus` is the crown-and-face square used for the medallion |
-| Temple photo for the opening (optional) | `opening.templePhoto`: `door` = doorway box in the photo's pixels; set to `null` to use the illustrated temple. The current `public/art/temple-photo.png` is a low-resolution third-party image carrying the artist's watermark ("graphics_bysiddhi"). Get the artist's permission and a high-resolution file before going live. |
+| Temple photo for the opening (optional) | `opening.templePhoto`: `door` = doorway box in the photo pixels, `sky` = tiny sky-only image used as the backdrop; set to `null` to use the illustrated temple. Current photo: the supplied Puri temple image with its title text and signboard lettering removed, enlarged 2x and sharpened. Confirm you may use the image before going live. |
 | Couple illustration (Odia attire) | `assets.coupleIllustration` |
 | Our Story milestones (the couple's own words) | `story.milestones` |
 | Family names, parents, photos | `family` |

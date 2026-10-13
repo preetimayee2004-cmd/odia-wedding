@@ -225,6 +225,8 @@ export interface WeddingConfig {
       width: number;
       height: number;
       door: { x: number; y: number; width: number; height: number };
+      /** Tiny image of just the sky, stretched to fill the screen above the photo. */
+      sky: string | null;
     } | null;
   };
   guest: {
@@ -387,11 +389,12 @@ export const wedding: WeddingConfig = {
   opening: {
     playOncePerSession: true,
     templePhoto: {
-      // 3x enlarged + sharpened from the supplied 412x402 image.
+      // Supplied Puri temple image with its text removed, enlarged 2x and sharpened.
       src: "/art/temple-photo.jpg",
-      width: 1236,
-      height: 1206,
-      door: { x: 846, y: 963, width: 30, height: 69 },
+      width: 1472,
+      height: 2208,
+      door: { x: 856, y: 1700, width: 134, height: 244 },
+      sky: "/art/temple-sky.jpg",
     },
   },
   guest: {

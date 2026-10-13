@@ -38,7 +38,7 @@ const LEAF_BG = PHOTO
   ? "linear-gradient(180deg, #2B1A12 0%, #140B06 100%)" // dark doorway wood, like the photo
   : "linear-gradient(180deg, rgb(var(--sindoor)) 0%, rgb(var(--sindoor-dark)) 100%)";
 // How far below its resting place the temple starts (just out of view).
-const RISE_FROM = PHOTO ? "translateY(62%)" : "translateY(82%)";
+const RISE_FROM = PHOTO ? "translateY(88%)" : "translateY(82%)";
 const SCENE_POSITION = { x: 0.5, y: 0.4 };
 const DEITY_CLOSEUP = 1.3;
 
@@ -357,7 +357,12 @@ export function OpeningSequence({ targetRef, onReveal, onDone }: OpeningSequence
         <div ref={cameraRef} className="absolute inset-0">
           <div ref={backRef} className="absolute inset-0" style={{ opacity: 0 }}>
             {PHOTO ? (
-              <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #E5C6A1 0%, #EFD9BF 40%, #F4E6D4 100%)" }} />
+              PHOTO.sky ? (
+                // A tiny sky-only image stretched to fill: naturally soft, matches the photo.
+                <img src={PHOTO.sky} alt="" className="absolute inset-0 h-full w-full scale-110 object-cover blur-md" />
+              ) : (
+                <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, #E5C6A1 0%, #EFD9BF 40%, #F4E6D4 100%)" }} />
+              )
             ) : (
               <SceneBack />
             )}
@@ -502,9 +507,9 @@ type TemplePhoto = NonNullable<typeof PHOTO>;
  */
 function PhotoTemple({ photo, doorRef }: { photo: TemplePhoto; doorRef: RefObject<HTMLDivElement> }) {
   const { door, width, height } = photo;
-  const fade = "linear-gradient(to bottom, transparent 0%, #000 20%)";
+  const fade = "linear-gradient(to bottom, transparent 0%, #000 16%)";
   return (
-    <div className="absolute bottom-0 left-1/2 w-[118%] -translate-x-1/2">
+    <div className="absolute bottom-0 left-1/2 w-[112%] -translate-x-1/2">
       <img
         src={photo.src}
         alt=""
@@ -512,6 +517,9 @@ function PhotoTemple({ photo, doorRef }: { photo: TemplePhoto; doorRef: RefObjec
         className="block w-full select-none"
         style={{ maskImage: fade, WebkitMaskImage: fade }}
       />
+      {/* Floor continues below the photo (off-screen at rest), so zooming near
+          its bottom edge shows more floor instead of a gap. */}
+      <div className="absolute inset-x-0 top-full h-[50vh]" style={{ background: "linear-gradient(#643210, #3A1C0A)" }} />
       <div
         ref={doorRef}
         className="absolute"
