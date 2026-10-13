@@ -132,6 +132,16 @@ export interface WeddingConfig {
     bus: TravelPlace;
     stay: TravelPlace;
   };
+  wishes: {
+    heading: string;
+    odiaHeading: string | null;
+    /** Let guests leave a wish without a name (shown as "A well-wisher"). */
+    allowAnonymous: boolean;
+    /** Must match the database: true when new wishes default to 'pending'. */
+    requireApproval: boolean;
+    previewCount: number;
+    maxLength: number;
+  };
   venue: {
     name: string | null;
     city: string | null;
@@ -253,6 +263,14 @@ export const wedding: WeddingConfig = {
     railway: emptyPlace(),
     bus: emptyPlace(),
     stay: emptyPlace(),
+  },
+  wishes: {
+    heading: "Wishing Wall",
+    odiaHeading: "ଶୁଭେଚ୍ଛା",
+    allowAnonymous: false,
+    requireApproval: false,
+    previewCount: 3,
+    maxLength: 280,
   },
   venue: {
     name: null,
