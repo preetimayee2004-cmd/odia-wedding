@@ -90,8 +90,16 @@ export interface WeddingConfig {
   couple: {
     bride: Person;
     groom: Person;
-    /** Short line under the couple's names (Section 03). */
-    message: string;
+    /** Section 03, top to bottom: invocation under the Ganesha icon. */
+    invocation: string;
+    /** `{guest}` is replaced with the guest's name from the share link. */
+    greeting: string;
+    /** Line under the greeting. */
+    invite: string;
+    /** Shown under the names; null hides it. */
+    hashtag: string | null;
+    /** Closing quote, under a small lotus. */
+    quote: string;
   };
   wedding: {
     /** ISO 8601 local date-time at the venue, e.g. "2027-02-14T19:30". */
@@ -288,9 +296,11 @@ export const wedding: WeddingConfig = {
   couple: {
     bride: { displayName: "Bride", fullName: null }, // PLACEHOLDER
     groom: { displayName: "Groom", fullName: null }, // PLACEHOLDER
-    // PLACEHOLDER wording
-    message:
-      "Together with our families, we would be honoured to have you with us as we begin our life together.",
+    invocation: "|| Om Ganeshaya Namah ||",
+    greeting: "Dear {guest},",
+    invite: "We joyfully invite you to celebrate with us.",
+    hashtag: "#AviWedsPragyan",
+    quote: "Two souls, one journey, blessed by Lord Jagannath.",
   },
   wedding: {
     dateTime: null, // awaiting confirmed date & time

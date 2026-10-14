@@ -4,8 +4,14 @@ import { useEffect, type RefObject } from "react";
  * Scales `block` (absolutely positioned and vertically centred in `area`
  * with translateY(-50%)) down just enough to fit `area`. If it would have to
  * go below `minFit`, the area grows instead (and the page scrolls a little).
+ * With `spread`, a block that fits is stretched to the area's full height
+ * (so a flex column inside it can space its items evenly).
  */
-export function useFitToArea(areaRef: RefObject<HTMLElement>, blockRef: RefObject<HTMLElement>, minFit = 0.72) {
+export function useFitToArea(
+  areaRef: RefObject<HTMLElement>,
+  blockRef: RefObject<HTMLElement>,
+  { minFit = 0.72, spread = false }: { minFit?: number; spread?: boolean } = {},
+) {
   useEffect(() => {
     const area = areaRef.current;
     const block = blockRef.current;
@@ -14,10 +20,12 @@ export function useFitToArea(areaRef: RefObject<HTMLElement>, blockRef: RefObjec
     const fit = () => {
       frame = 0;
       area.style.minHeight = "";
+      block.style.height = "";
       const natural = block.offsetHeight;
       const avail = area.clientHeight;
       if (!natural || !avail) return;
       const scale = Math.min(1, Math.max(minFit, avail / natural));
+      if (spread && natural <= avail) block.style.height = `${avail}px`;
       if (natural * scale > avail) area.style.minHeight = `${Math.ceil(natural * scale)}px`;
       block.style.transform = `translateY(-50%) scale(${scale.toFixed(4)})`;
     };
@@ -35,5 +43,5 @@ export function useFitToArea(areaRef: RefObject<HTMLElement>, blockRef: RefObjec
       window.removeEventListener("resize", schedule);
       cancelAnimationFrame(frame);
     };
-  }, [areaRef, blockRef, minFit]);
+  }, [areaRef, blockRef, minFit, spread]);
 }
