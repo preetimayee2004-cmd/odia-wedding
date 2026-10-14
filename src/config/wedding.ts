@@ -14,6 +14,8 @@ export interface Person {
   displayName: string;
   /** Optional full name for formal lines (e.g. "Son of …"). */
   fullName: string | null;
+  /** Portrait for the couple card (about 3:4). While null, a soft silhouette shows. */
+  photo: { src: string; alt: string } | null;
 }
 
 export interface FamilySide {
@@ -248,8 +250,8 @@ function emptyPlace(): TravelPlace {
 
 export const wedding: WeddingConfig = {
   couple: {
-    bride: { displayName: "Bride", fullName: null }, // PLACEHOLDER
-    groom: { displayName: "Groom", fullName: null }, // PLACEHOLDER
+    bride: { displayName: "Bride", fullName: null, photo: null }, // PLACEHOLDER
+    groom: { displayName: "Groom", fullName: null, photo: null }, // PLACEHOLDER
     // PLACEHOLDER wording
     message:
       "Together with our families, we would be honoured to have you with us as we begin our life together.",
