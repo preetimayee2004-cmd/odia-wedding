@@ -36,8 +36,7 @@ Everything a guest reads lives in [`src/config/wedding.ts`](src/config/wedding.t
 |---|---|
 | Couple's names | `couple.bride` / `couple.groom` |
 | Wedding date & time | `wedding.dateTime` |
-| Invitation wording, Odia invocation | `invitation` |
-| Lord Jagannath artwork ✓ supplied (`public/art/jagannath.jpg`) | `assets.deityArtwork`: `focus` is the crown-and-face square used for the medallion |
+| Invitation wording (Talapatra scroll: heading, two paragraphs) | `invitation` |
 | Sankha (conch) recording for the opening (optional) | `assets.sankhaSound`, e.g. `"/audio/sankha.mp3"` in `/public`. While `null`, a conch-like call is synthesised in the browser. |
 | Couple illustration (Odia attire) | `assets.coupleIllustration` |
 | Our Story milestones (the couple's own words) | `story.milestones` |
@@ -83,7 +82,7 @@ Each section has its own entrance. All of them respect *reduced motion*.
 | Section | Motion |
 |---|---|
 | Opening | Kalinga door sketch draws itself in the dark; on tap the sankha sounds, the doors split into golden light revealing Mahaprabhu's eyes, then the scene rises like a curtain (Skip / Esc) |
-| Invitation | Staggered rise; slow parallax drift on scroll |
+| Invitation | Talapatra palm leaves unroll one by one, threaded on a sindoor cord, between Pattachitra borders; slow parallax drift on scroll |
 | Couple | Arched frame rises; names written on left → right |
 | Countdown | Lotus mandala draws itself |
 | Our Story | Thread grows with the scroll; Chandua medallions stitch on |

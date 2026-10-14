@@ -42,7 +42,6 @@ export function Experience() {
   const [opened, setOpened] = useState(
     () => devOpen || (wedding.opening.playOncePerSession && remembers(INVITATION_OPENED)),
   );
-  const deitySlotRef = useRef<HTMLDivElement>(null);
   const scrollAfterOpen = useRef(false);
 
   useScrollLock(intro !== "done");
@@ -99,9 +98,7 @@ export function Experience() {
       )}
 
       <Invitation
-        deitySlotRef={deitySlotRef}
         reveal={intro === "playing" ? "hidden" : intro === "revealing" ? "revealing" : "shown"}
-        deityHidden={false}
         opened={opened}
         onOpen={handleOpen}
       />

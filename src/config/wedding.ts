@@ -82,11 +82,14 @@ export interface WeddingConfig {
     timeZone: string;
   };
   invitation: {
-    /** Odia blessing line above the greeting. Confirm spelling with the family. */
-    invocation: { odia: string; english: string } | null;
-    /** {guest} is replaced with the guest's name from the share link. */
+    /** First line of the Talapatra scroll. */
+    heading: string;
+    /** `{guest}` is replaced with the guest's name from the share link. */
     greeting: string;
+    /** Paragraph before the couple's names. */
     message: string;
+    /** Paragraph after the couple's names. */
+    blessing: string;
     ctaLabel: string;
   };
   countdown: {
@@ -192,19 +195,6 @@ export interface WeddingConfig {
   };
   assets: {
     /**
-     * Approved Lord Jagannath artwork (PRD §8), revealed behind the temple
-     * door in the opening. `focus` is the square (in source pixels) around the
-     * deity's crown and face — it becomes the round medallion at the top of the
-     * invitation. While null, a Nilachakra emblem stands in.
-     */
-    deityArtwork: {
-      src: string;
-      alt: string;
-      width: number;
-      height: number;
-      focus: { x: number; y: number; size: number };
-    } | null;
-    /**
      * Couple illustration in traditional Odia attire (PRD §4.03): bride in
      * Banarasi pata with yellow mukut, groom in sherwani with yellow turban/mukut.
      * Portrait ~4:5, transparent or cream background. While null, a pair of
@@ -269,11 +259,12 @@ export const wedding: WeddingConfig = {
     timeZone: "Asia/Kolkata",
   },
   invitation: {
-    // PLACEHOLDER wording — replace with the couple's approved invitation text.
-    invocation: { odia: "ଶ୍ରୀ ଜଗନ୍ନାଥ ସହାୟ", english: "Sri Jagannath Sahaya" },
+    heading: "|| Jai Jagannath ||",
     greeting: "Dear {guest},",
     message:
-      "With the blessings of Lord Jagannath and our elders, we joyfully invite you to celebrate the wedding of",
+      "Under the eternal protection and grace of the Lord of the Universe, we cordially invite you to witness the union of our families.",
+    blessing:
+      "Together with our parents, we seek your presence and blessings as we embark on our most sacred journey.",
     ctaLabel: "Open Invitation",
   },
   countdown: {
@@ -377,13 +368,6 @@ export const wedding: WeddingConfig = {
     image: null,
   },
   assets: {
-    deityArtwork: {
-      src: "/art/jagannath.jpg",
-      alt: "Lord Jagannath",
-      width: 736,
-      height: 1308,
-      focus: { x: 140, y: 315, size: 465 },
-    },
     coupleIllustration: null, // awaiting approved illustration
     desktopBackdrop: "/art/desktop-backdrop.jpg",
     sankhaSound: null, // awaiting a recording (synthesised until then)

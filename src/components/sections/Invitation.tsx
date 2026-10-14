@@ -1,34 +1,36 @@
-import { useRef, type RefObject } from "react";
+import { useRef, type CSSProperties, type ReactNode } from "react";
 import { wedding } from "@/config/wedding";
 import { useGuest } from "@/context/GuestContext";
 import { useScrollFade } from "@/hooks/useScrollFade";
-import { formatVenueDate, parseVenueDateTime, type FormattedVenueDate } from "@/lib/venueTime";
-import { DeityArt } from "@/components/art/DeityArt";
+import { EASE } from "@/lib/motion";
+import { formatVenueDate, parseVenueDateTime } from "@/lib/venueTime";
+import { PattachitraBorder } from "@/components/art/Pattachitra";
 import { Button } from "@/components/ui/Button";
-import { GoldDivider } from "@/components/ui/GoldDivider";
 import { Pending } from "@/components/ui/Pending";
-import { Reveal } from "@/components/ui/Reveal";
 
 export type RevealState = "hidden" | "revealing" | "shown";
 
 interface InvitationProps {
-  /** Where the opening's deity lands. */
-  deitySlotRef: RefObject<HTMLDivElement>;
   reveal: RevealState;
-  /** Hidden while the opening's own copy of the deity is still in flight. */
-  deityHidden: boolean;
   /** Guest has tapped "Open Invitation" — enables the hero parallax. */
   opened: boolean;
   onOpen: () => void;
 }
 
+// Binding holes near each end of every leaf; the cord threads through them.
+const HOLES = ["left-[8%]", "left-[92%]"] as const;
+
+// Unrolling choreography (ms)
+const LEAF_STAGGER = 230;
+const LEAF_DURATION = 900;
+
 /**
- * Section 02 — Main invitation (PRD §4.02).
- * Deity → Odia invocation → personalised greeting → names → date → venue →
- * "Open Invitation". Identity: a staggered rise on arrival, then a slow
- * parallax drift as the guest scrolls on.
+ * Section 02 — The Royal Scroll.
+ * The invitation as a Talapatra (palm-leaf manuscript): leaves bound by a
+ * sindoor cord, the words etched into them, unrolling one by one between
+ * crisp black-and-white Pattachitra borders.
  */
-export function Invitation({ deitySlotRef, reveal, deityHidden, opened, onOpen }: InvitationProps) {
+export function Invitation({ reveal, opened, onOpen }: InvitationProps) {
   const { guestName } = useGuest();
   const { couple, invitation } = wedding;
   const contentRef = useRef<HTMLDivElement>(null);
@@ -37,158 +39,120 @@ export function Invitation({ deitySlotRef, reveal, deityHidden, opened, onOpen }
   const show = reveal !== "hidden";
   const parts = parseVenueDateTime(wedding.wedding.dateTime);
   const date = parts && formatVenueDate(parts);
+  const { name: venueName, city } = wedding.venue;
+
+  const leaves: ReactNode[] = [
+    <p key="h" className="font-display text-[1.2rem] font-semibold tracking-[0.12em] text-[#7A1F24]">
+      {invitation.heading}
+    </p>,
+    <div key="g">
+      <p className="font-display text-[1.25rem] italic leading-tight">{invitation.greeting.replace("{guest}", guestName)}</p>
+      <p className="mt-1.5 font-display text-[1.02rem] leading-snug">{invitation.message}</p>
+    </div>,
+    <h1 key="n" className="flex flex-col items-center font-normal leading-none text-[#7A1F24]">
+      <span className="font-script text-[2.6rem] leading-[1.15] short:text-[2.2rem]">{couple.bride.displayName}</span>
+      <span className="my-0.5 font-display text-base italic text-[#5C3A1C]">and</span>
+      <span className="font-script text-[2.6rem] leading-[1.15] short:text-[2.2rem]">{couple.groom.displayName}</span>
+    </h1>,
+    <p key="b" className="font-display text-[1.02rem] leading-snug">
+      {invitation.blessing}
+    </p>,
+    <div key="d" className="text-[0.75rem] font-medium uppercase tracking-[0.16em]">
+      {date ? (
+        <time dateTime={wedding.wedding.dateTime!} className="block">
+          {date.weekday} · {date.day} {date.month} {date.year}
+          {date.time && ` · ${date.time}`}
+        </time>
+      ) : (
+        <Pending label="Wedding date awaiting confirmation">Weekday · Day Month Year · Time</Pending>
+      )}
+      <span className="mt-1 block">
+        {venueName ? (
+          [venueName, city].filter(Boolean).join(", ")
+        ) : (
+          <Pending label="Venue awaiting confirmation">Venue, City</Pending>
+        )}
+      </span>
+    </div>,
+  ];
 
   return (
     <section id="invitation" aria-label="Wedding invitation" className="relative flex min-h-[100dvh] flex-col">
-      <Reveal show={show} className="pointer-events-none absolute inset-x-0 bottom-0 top-[var(--status-bar,0px)]">
-        <Frame />
-      </Reveal>
+      <PattachitraBorder className="absolute bottom-0 left-0 top-0" />
+      <PattachitraBorder flip className="absolute bottom-0 right-0 top-0" />
 
       <div
         ref={contentRef}
-        className="relative flex flex-1 flex-col items-center px-9 pb-[max(2.25rem,env(safe-area-inset-bottom))] pt-[calc(max(2.5rem,env(safe-area-inset-top))_+_var(--status-bar,0px))] text-center will-change-transform short:pt-[calc(2rem_+_var(--status-bar,0px))]"
+        className="relative flex flex-1 flex-col items-center justify-center px-[38px] pb-[max(1.75rem,env(safe-area-inset-bottom))] pt-[calc(max(1.75rem,env(safe-area-inset-top))_+_var(--status-bar,0px))] text-center will-change-transform"
       >
+        <div className="relative w-full max-w-[22rem]">
+          {/* The binding cord, threaded down through every leaf's holes */}
+          {HOLES.map((x) => (
+            <span
+              key={x}
+              aria-hidden
+              className={`absolute bottom-6 top-6 w-[2px] -translate-x-1/2 origin-top rounded-full bg-[#7A1F24] ${x}`}
+              style={{
+                transform: show ? "scaleY(1)" : "scaleY(0)",
+                transition: `transform ${leaves.length * LEAF_STAGGER + LEAF_DURATION}ms ${EASE.silk}`,
+              }}
+            />
+          ))}
+
+          <div className="relative flex flex-col gap-2.5 short:gap-1.5">
+            {leaves.map((content, i) => (
+              <Leaf key={i} show={show} order={i}>
+                {content}
+              </Leaf>
+            ))}
+          </div>
+        </div>
+
         <div
-          ref={deitySlotRef}
-          className="h-[6.5rem] w-[6.5rem] shrink-0 short:h-20 short:w-20"
-          style={{ visibility: deityHidden ? "hidden" : "visible" }}
+          className="mt-6 short:mt-4"
+          style={{
+            opacity: show ? 1 : 0,
+            transform: show ? "none" : "translateY(10px)",
+            transition: `opacity 700ms ${EASE.silk} ${leaves.length * LEAF_STAGGER + 300}ms, transform 700ms ${EASE.silk} ${leaves.length * LEAF_STAGGER + 300}ms`,
+          }}
         >
-          <DeityArt />
-        </div>
-
-        {invitation.invocation && (
-          <Reveal show={show} order={1}>
-            <p lang="or" className="odia mt-3 text-[0.95rem] text-sindoor short:mt-2">
-              {invitation.invocation.odia}
-            </p>
-            <span className="sr-only">({invitation.invocation.english})</span>
-          </Reveal>
-        )}
-
-        <div className="flex w-full flex-1 flex-col items-center justify-center py-6 short:py-3">
-          <Reveal show={show} order={2}>
-            <p className="font-display text-[1.45rem] italic leading-tight text-ink">
-              {invitation.greeting.replace("{guest}", guestName)}
-            </p>
-          </Reveal>
-          <Reveal show={show} order={3}>
-            <p className="mx-auto mt-2.5 max-w-[17.5rem] text-[0.8125rem] leading-relaxed text-ink-soft">
-              {invitation.message}
-            </p>
-          </Reveal>
-
-          <Reveal show={show} order={4} className="mt-5 short:mt-3">
-            <h1 className="flex flex-col items-center font-normal">
-              <span className="font-script text-[3.5rem] leading-[1.1] text-sindoor short:text-[2.75rem]">
-                {couple.bride.displayName}
-              </span>
-              <span className="-my-0.5 font-display text-2xl italic text-gold-deep">and</span>
-              <span className="font-script text-[3.5rem] leading-[1.1] text-sindoor short:text-[2.75rem]">
-                {couple.groom.displayName}
-              </span>
-            </h1>
-          </Reveal>
-
-          <Reveal show={show} order={5}>
-            <GoldDivider className="my-6 short:my-3" />
-          </Reveal>
-
-          <Reveal show={show} order={6}>
-            <WeddingDate date={date} iso={wedding.wedding.dateTime} />
-          </Reveal>
-          <Reveal show={show} order={7} className="mt-5 short:mt-3">
-            <Venue />
-          </Reveal>
-        </div>
-
-        <Reveal show={show} order={8}>
           <Button onClick={onOpen} aria-controls="couple" className="px-9">
             {invitation.ctaLabel}
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
               <path d="M3.5 5.5 7 9l3.5-3.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </Button>
-        </Reveal>
+        </div>
       </div>
     </section>
   );
 }
 
-function WeddingDate({ date, iso }: { date: FormattedVenueDate | null; iso: string | null }) {
-  const d = date ?? { weekday: "Weekday", day: "DD", month: "Month", year: "YYYY", time: "Time" };
-
-  const block = (
-    <div>
-      <div aria-hidden className="flex items-center justify-center gap-3.5">
-        <span className="w-[5.5rem] text-right text-[0.6875rem] font-medium uppercase tracking-[0.16em] text-ink-soft">
-          {d.weekday}
-        </span>
-        <span className="h-10 w-px bg-gold/60" />
-        <span className="min-w-[2.75rem] font-display text-[2.75rem] font-medium leading-none text-sindoor">
-          {d.day}
-        </span>
-        <span className="h-10 w-px bg-gold/60" />
-        <span className="w-[5.5rem] text-left text-[0.6875rem] font-medium uppercase leading-snug tracking-[0.16em] text-ink-soft">
-          {d.month}
-          <br />
-          {d.year}
-        </span>
-      </div>
-      {d.time && <p aria-hidden className="mt-2 text-xs tracking-wide text-ink-soft">{d.time}</p>}
-    </div>
-  );
-
-  if (!date || !iso) return <Pending label="Wedding date awaiting confirmation">{block}</Pending>;
-
+/** One palm leaf: straw-coloured, fibre-lined, with two binding holes; unrolls from its centre. */
+function Leaf({ show, order, children }: { show: boolean; order: number; children: ReactNode }) {
+  const delay = order * LEAF_STAGGER;
+  const style: CSSProperties = {
+    clipPath: show ? "inset(0 0 0 0 round 18px)" : "inset(0 50% 0 50% round 18px)",
+    transform: show ? "none" : "scaleY(0.86)",
+    transition: `clip-path ${LEAF_DURATION}ms ${EASE.temple} ${delay}ms, transform ${LEAF_DURATION}ms ${EASE.silk} ${delay}ms`,
+    background: [
+      // fine horizontal fibres of the dried palm leaf
+      "repeating-linear-gradient(180deg, rgb(110 70 25 / 0.07) 0 1px, transparent 1px 5px)",
+      "linear-gradient(180deg, #F2DFAE 0%, #E7CB8E 52%, #DCBA77 100%)",
+    ].join(","),
+    boxShadow: "inset 0 0 0 1px rgb(110 70 25 / 0.35), inset 0 0 18px rgb(120 75 25 / 0.22), 0 6px 14px -10px rgb(60 35 10 / 0.6)",
+    textShadow: "0 1px 0 rgb(255 245 220 / 0.55)", // etched into the leaf
+  };
   return (
-    <time dateTime={iso}>
-      {block}
-      <span className="sr-only">
-        {d.weekday}, {d.day} {d.month} {d.year}
-        {d.time ? ` at ${d.time}` : ""}
-      </span>
-    </time>
-  );
-}
-
-function Venue() {
-  const { name, city } = wedding.venue;
-  if (!name) {
-    return (
-      <Pending label="Venue awaiting confirmation">
-        <p className="font-display text-xl">Venue name</p>
-        <p className="text-xs text-ink-soft">City</p>
-      </Pending>
-    );
-  }
-  return (
-    <div>
-      <p className="font-display text-xl font-medium leading-snug text-ink">{name}</p>
-      {city && <p className="mt-0.5 text-xs tracking-wide text-ink-soft">{city}</p>}
-    </div>
-  );
-}
-
-/** Single gold hairline frame with small jhoti-inspired corner marks. */
-function Frame() {
-  const corners = [
-    "left-[18px] top-[18px]",
-    "right-[18px] top-[18px] rotate-90",
-    "bottom-[18px] right-[18px] rotate-180",
-    "bottom-[18px] left-[18px] -rotate-90",
-  ];
-  return (
-    <>
-      <div className="absolute inset-3 border border-gold/45" />
-      {corners.map((pos) => (
-        <svg key={pos} viewBox="0 0 24 24" className={`absolute h-6 w-6 text-gold ${pos}`} fill="none" aria-hidden>
-          <path d="M2 15C2 7.8 7.8 2 15 2" stroke="currentColor" strokeWidth="0.9" />
-          <path d="M6.5 15c0-4.7 3.8-8.5 8.5-8.5" stroke="currentColor" strokeWidth="0.7" opacity="0.6" />
-          <circle cx="13.5" cy="13.5" r="1.4" fill="currentColor" />
-          <circle cx="20" cy="5.5" r="0.9" fill="currentColor" />
-          <circle cx="5.5" cy="20" r="0.9" fill="currentColor" />
-        </svg>
+    <div className="relative rounded-[18px] px-[13%] py-3 text-[#3B2414] short:py-2" style={style}>
+      {HOLES.map((x) => (
+        <span
+          key={x}
+          aria-hidden
+          className={`absolute top-1/2 h-[9px] w-[9px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#5B3A1E]/70 bg-[#7A1F24] ${x}`}
+        />
       ))}
-    </>
+      {children}
+    </div>
   );
 }
