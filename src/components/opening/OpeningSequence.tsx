@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
-import { JagannathEyes } from "@/components/art/JagannathEyes";
 import { EASE } from "@/lib/motion";
 import { setStatusTone } from "@/lib/viewMode";
 
@@ -8,13 +7,15 @@ export const TIMING = {
   appear: 1100, // the temple door fades in out of the dark
   rest: 900, // a moment before the doors stir; light gathers at the seam
   doorOpen: 2600, // the leaves swing smoothly inward on their hinges, into golden light
-  hold: 2000, // Mahaprabhu's eyes, centred, before the curtain rises
+  hold: 2800, // darshan of Mahaprabhu Jagannath before the curtain rises
   curtain: 1300, // the whole scene slides up like an opening curtain
   skip: 500,
 };
 
 /** The temple door artwork, and where its two leaves sit in it (image pixels). */
 const IMG = { src: "/art/temple-door.webp", w: 1024, h: 765 };
+/** Mahaprabhu Jagannath, revealed beyond the doors (portrait artwork, shown uncropped). */
+const DARSHAN = { src: "/art/jagannath-darshan.jpg", alt: "Mahaprabhu Jagannath in golden light" };
 const DOOR = { x: 191, y: 176, w: 644, h: 572 };
 const SEAM = 512;
 const LEFT_W = SEAM - DOOR.x;
@@ -42,7 +43,7 @@ type Phase = "waiting" | "opening" | "lifting";
  * The carved temple door fills the screen, fading in from the dark. Light
  * gathers at the seam, then the two leaves swing smoothly inward on their
  * hinges into golden light, the view passes through the doorway, and
- * Mahaprabhu Jagannath's round eyes emerge; after two seconds the scene
+ * Mahaprabhu Jagannath's darshan emerges from the light; then the scene
  * rises like a curtain onto the invitation. It plays by itself (Skip / Esc).
  */
 export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
@@ -56,7 +57,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
   const rightShadeRef = useRef<HTMLDivElement>(null);
   const bloomRef = useRef<HTMLDivElement>(null);
   const flashRef = useRef<HTMLDivElement>(null);
-  const eyesRef = useRef<HTMLDivElement>(null);
+  const darshanRef = useRef<HTMLDivElement>(null);
   const skipRef = useRef<HTMLButtonElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
@@ -79,6 +80,8 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
   };
 
   useEffect(() => {
+    const warm = new Image();
+    warm.src = DARSHAN.src;
     setStatusTone("light");
     return () => {
       running.current.forEach((a) => a.cancel());
@@ -149,14 +152,14 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
           delay: T.doorOpen * 0.8,
           easing: "ease-in-out",
         }),
-        // Mahaprabhu's eyes emerge from the light
-        play(eyesRef.current!, [{ opacity: 0, transform: "scale(0.9)" }, { opacity: 1, transform: "scale(1)" }], {
-          duration: 1100,
-          delay: T.doorOpen * 1.05,
+        // Mahaprabhu Jagannath's darshan emerges from the light
+        play(darshanRef.current!, [{ opacity: 0, transform: "scale(1.06)" }, { opacity: 1, transform: "scale(1)" }], {
+          duration: 1600,
+          delay: T.doorOpen * 0.95,
           easing: EASE.silk,
         }),
       ]);
-      setStatusTone("dark");
+      setStatusTone("light"); // over the blue sky at the top of the artwork
       await play(curtainRef.current!, [], { duration: T.hold });
       if ((phaseRef.current as Phase) === "opening") void lift(false); // not skipped meanwhile
     } catch {
@@ -281,17 +284,19 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
           }}
         />
 
+        {/* Darshan: the whole artwork, uncropped, over a soft blurred copy of itself */}
+        <div ref={darshanRef} className="absolute inset-0 overflow-hidden" style={{ opacity: 0 }}>
+          <img
+            src={DARSHAN.src}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl brightness-90"
+          />
+          <img src={DARSHAN.src} alt={DARSHAN.alt} decoding="async" className="absolute inset-0 h-full w-full object-contain" />
+        </div>
+
         {/* Blinding flash */}
         <div ref={flashRef} aria-hidden className="absolute inset-0" style={{ opacity: 0, backgroundColor: "#FFF8EA" }} />
-
-        {/* Mahaprabhu's eyes */}
-        <div
-          ref={eyesRef}
-          className="absolute left-1/2 top-[46%] -ml-[min(42vw,170px)] -mt-[min(24vw,96px)] w-[min(84vw,340px)]"
-          style={{ opacity: 0 }}
-        >
-          <JagannathEyes className="h-auto w-full" />
-        </div>
 
         <CurtainHem />
       </div>
