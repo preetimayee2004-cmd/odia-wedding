@@ -85,7 +85,7 @@ Each section has its own entrance. All of them respect *reduced motion*.
 | Invitation | Talapatra palm leaves unroll one by one, threaded on a sindoor cord, between Pattachitra borders; slow parallax drift on scroll |
 | Couple | Portrait cards in Tarakasi silver-filigree frames; a white Odia mukuta drops onto the bride’s frame and the groom’s crown onto his |
 | Countdown | On a matte-black strip, the Konark Sun Temple wheel turns into alignment with the scroll; days, hours and minutes sit in its hub |
-| Our Story | Thread grows with the scroll; Chandua medallions stitch on |
+| Our Story | Sambalpuri Ikat thread grows with the scroll; chapters alternate either side, each marked by a Pattachitra icon (peacocks, Koka lotus, pana-gua) |
 | Family | Two sides slide in towards each other |
 | Events | Cards dealt in with a 3D tilt; details in a bottom sheet |
 | Venue | Image parts from the centre like a curtain |

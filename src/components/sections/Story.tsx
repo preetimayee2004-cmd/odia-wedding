@@ -1,25 +1,24 @@
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useRef, type ComponentType, type RefObject } from "react";
 import { wedding, type WeddingConfig } from "@/config/wedding";
 import { useInView } from "@/hooks/useInView";
 import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { EASE } from "@/lib/motion";
-import { ChanduaBorder, ChanduaPatch } from "@/components/art/Chandua";
+import { KokaIcon, PanaGuaIcon, PeacocksIcon } from "@/components/art/StoryIcons";
 import { Pending } from "@/components/ui/Pending";
 
 type Milestone = WeddingConfig["story"]["milestones"][number];
 
-// Dev-only shape of the section until the couple supplies their story.
-const PLACEHOLDERS: Milestone[] = [
-  { title: "How we met", date: "Date", text: "In the couple's own words.", image: null },
-  { title: "A first memory", date: "Date", text: "In the couple's own words.", image: null },
-  { title: "The engagement", date: "Date", text: "In the couple's own words.", image: null },
-  { title: "Beginning our life together", date: "Date", text: "In the couple's own words.", image: null },
-];
+const ICONS: Record<Milestone["icon"], ComponentType<{ className?: string }>> = {
+  peacocks: PeacocksIcon,
+  koka: KokaIcon,
+  panagua: PanaGuaIcon,
+};
 
 /**
- * Section 05 — Our Story (PRD §4.05), in a restrained Pipili Chandua language.
- * Identity: a timeline thread that grows with the scroll, and applique
- * medallions that "stitch on" as each milestone arrives.
+ * Section 05 — The Heritage Timeline.
+ * A single centre line styled as a Sambalpuri Ikat warp thread (bandha)
+ * grows with the scroll; the couple's chapters alternate either side, each
+ * marked by a Pattachitra icon. Chapters appear only once their words are in.
  */
 export function Story() {
   const { heading, odiaHeading, milestones } = wedding.story;
@@ -29,14 +28,12 @@ export function Story() {
   const headerIn = useInView(headerRef);
   useThreadProgress(trackRef, threadRef);
 
-  if (milestones.length === 0 && !import.meta.env.DEV) return null;
-  const placeholder = milestones.length === 0;
-  const items = placeholder ? PLACEHOLDERS : milestones;
+  const written = milestones.filter((m) => m.text);
+  if (written.length === 0 && !import.meta.env.DEV) return null;
+  const items = import.meta.env.DEV ? milestones : written;
 
   return (
-    <section id="story" aria-labelledby="story-heading" className="relative bg-cream-light py-[var(--section-y)]">
-      <ChanduaBorder className="absolute inset-x-0 top-0" />
-
+    <section id="story" aria-labelledby="story-heading" className="relative py-[var(--section-y)]">
       <div
         ref={headerRef}
         className="px-[var(--gutter)] text-center"
@@ -52,36 +49,42 @@ export function Story() {
         </h2>
       </div>
 
-      <ol ref={trackRef} className="relative mx-[var(--gutter)] mt-12 pl-[3.75rem]">
-        {/* Thread: faint gold track, sindoor progress that grows with the scroll */}
-        <span aria-hidden className="absolute bottom-0 left-[27px] top-5 w-px bg-gold/40" />
+      <ol ref={trackRef} className="relative mx-[var(--gutter)] mt-12 flex flex-col gap-12">
+        {/* The ikat thread: a faint full-length track, and the dyed thread growing over it */}
+        <span aria-hidden className="ikat-thread absolute bottom-0 left-[calc(50%-3px)] top-0 w-[6px] rounded-full opacity-20" />
         <span
           ref={threadRef}
           aria-hidden
-          className="absolute bottom-0 left-[27px] top-5 w-px origin-top bg-sindoor"
+          className="ikat-thread absolute bottom-0 left-[calc(50%-3px)] top-0 w-[6px] origin-top rounded-full"
           style={{ transform: "scaleY(0)" }}
         />
         {items.map((m, i) => (
-          <MilestoneItem key={i} milestone={m} index={i} placeholder={placeholder} />
+          <Chapter key={m.icon} milestone={m} side={i % 2 === 0 ? "left" : "right"} />
         ))}
       </ol>
-
-      <ChanduaBorder flip className="absolute inset-x-0 bottom-0" />
     </section>
   );
 }
 
-function MilestoneItem({ milestone: m, index, placeholder }: { milestone: Milestone; index: number; placeholder: boolean }) {
+function Chapter({ milestone: m, side }: { milestone: Milestone; side: "left" | "right" }) {
   const ref = useRef<HTMLLIElement>(null);
   const inView = useInView(ref, { threshold: 0.35 });
+  const Icon = ICONS[m.icon];
+  const fromCentre = side === "left" ? 18 : -18;
 
-  const content = (
+  const words = (
     <>
       {m.date && <p className="eyebrow">{m.date}</p>}
-      <h3 className="mt-1 text-[1.6rem]">{m.title}</h3>
-      <p className="mt-2 text-[0.875rem] leading-relaxed">{m.text}</p>
+      <h3 className="mt-1 text-[1.35rem] leading-tight">{m.title}</h3>
+      {m.text ? (
+        <p className="mt-1.5 text-[0.8125rem] leading-relaxed">{m.text}</p>
+      ) : (
+        <Pending label="Awaiting the couple's own words">
+          <p className="text-[0.8125rem]">In the couple's own words.</p>
+        </Pending>
+      )}
       {m.image && (
-        <div className="mt-4 border border-gold/50 p-1">
+        <div className="mt-3 border border-gold/50 p-1">
           <img src={m.image.src} alt={m.image.alt} loading="lazy" decoding="async" className="aspect-[4/3] w-full object-cover" />
         </div>
       )}
@@ -89,22 +92,47 @@ function MilestoneItem({ milestone: m, index, placeholder }: { milestone: Milest
   );
 
   return (
-    <li ref={ref} className="relative pb-14 last:pb-0">
+    <li ref={ref} className="relative grid grid-cols-[1fr_4.25rem_1fr] items-start gap-2">
       <div
-        className="absolute -left-[3.25rem] top-0 h-10 w-10"
+        className={side === "left" ? "pt-2 text-right" : "invisible"}
+        style={
+          side === "left"
+            ? {
+                opacity: inView ? 1 : 0,
+                transform: inView ? "none" : `translateX(${fromCentre}px)`,
+                transition: `opacity 800ms ${EASE.silk} 200ms, transform 900ms ${EASE.silk} 200ms`,
+              }
+            : undefined
+        }
+      >
+        {side === "left" && words}
+      </div>
+
+      {/* Icon medallion, threaded on the ikat line */}
+      <div
+        className="relative mx-auto flex h-[4.25rem] w-[4.25rem] items-center justify-center rounded-full bg-cream-light shadow-[0_0_0_1px_#1C1410,0_0_0_4px_rgb(var(--cream)),0_0_0_5px_rgb(var(--gold))]"
         style={{
           opacity: inView ? 1 : 0,
-          transform: inView ? "none" : "scale(0.55) rotate(-35deg)",
-          transition: `transform 900ms ${EASE.silk}, opacity 500ms ${EASE.silk}`,
+          transform: inView ? "none" : "scale(0.6)",
+          transition: `opacity 600ms ${EASE.silk}, transform 900ms cubic-bezier(0.34, 1.3, 0.64, 1)`,
         }}
       >
-        <ChanduaPatch variant={index} className="h-full w-full" />
+        <Icon className="h-[3.1rem] w-[3.1rem]" />
       </div>
+
       <div
-        className="pt-1"
-        style={{ opacity: inView ? 1 : 0, transition: `opacity 900ms ${EASE.silk} 250ms` }}
+        className={side === "right" ? "pt-2 text-left" : "invisible"}
+        style={
+          side === "right"
+            ? {
+                opacity: inView ? 1 : 0,
+                transform: inView ? "none" : `translateX(${fromCentre}px)`,
+                transition: `opacity 800ms ${EASE.silk} 200ms, transform 900ms ${EASE.silk} 200ms`,
+              }
+            : undefined
+        }
       >
-        {placeholder ? <Pending label="Awaiting the couple's story">{content}</Pending> : content}
+        {side === "right" && words}
       </div>
     </li>
   );

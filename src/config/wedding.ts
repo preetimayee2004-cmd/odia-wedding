@@ -106,14 +106,16 @@ export interface WeddingConfig {
     /** Odia subtitle — confirm spelling with the family. */
     odiaHeading: string | null;
     /**
-     * The couple's own milestones (PRD §4.05) — never invented. While empty,
-     * the section is hidden in production.
+     * The three chapters of the Heritage Timeline, each with its Pattachitra
+     * icon. The words must be the couple's own — never invented. A chapter
+     * appears once its `text` is filled in; with none, the section is hidden.
      */
     milestones: Array<{
+      icon: "peacocks" | "koka" | "panagua";
       title: string;
       /** Free text, e.g. "Spring 2019". */
       date: string | null;
-      text: string;
+      text: string | null;
       image: { src: string; alt: string } | null;
     }>;
   };
@@ -277,9 +279,11 @@ export const wedding: WeddingConfig = {
   story: {
     heading: "Our Story",
     odiaHeading: "ଆମ କାହାଣୀ",
-    // Add milestones supplied by the couple, e.g.
-    // { title: "How we met", date: "June 2019", text: "…", image: null },
-    milestones: [],
+    milestones: [
+      { icon: "peacocks", title: "First Chapter", date: null, text: null, image: null },
+      { icon: "koka", title: "The Promise", date: null, text: null, image: null },
+      { icon: "panagua", title: "Nirbandha (Engagement)", date: null, text: null, image: null },
+    ],
   },
   family: {
     heading: "Our Families",
