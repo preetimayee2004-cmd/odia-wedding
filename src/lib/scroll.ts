@@ -50,6 +50,13 @@ function waitForElement(id: string, timeoutMs = 4000): Promise<HTMLElement | nul
   });
 }
 
+/** Jumps straight to a section (e.g. behind closed doors), once it exists. */
+export async function jumpToSection(id: string) {
+  const el = await waitForElement(id);
+  if (!el) return;
+  window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY, behavior: "instant" });
+}
+
 export async function scrollToSection(id: string, duration?: number) {
   const el = await waitForElement(id);
   if (!el) return;

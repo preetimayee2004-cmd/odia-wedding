@@ -1,9 +1,9 @@
-import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect, useState } from "react";
 import { wedding } from "@/config/wedding";
 import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { readSessionFlag, writeSessionFlag } from "@/lib/session";
-import { scrollToSection } from "@/lib/scroll";
+import { jumpToSection } from "@/lib/scroll";
 import { watchStatusTone } from "@/lib/viewMode";
 import { OpeningSequence } from "@/components/opening/OpeningSequence";
 import { Invitation } from "@/components/sections/Invitation";
@@ -43,7 +43,6 @@ export function Experience() {
   const [opened, setOpened] = useState(
     () => devOpen || (wedding.opening.playOncePerSession && remembers(INVITATION_OPENED)),
   );
-  const scrollAfterOpen = useRef(false);
 
   useScrollLock(intro !== "done");
 
@@ -75,21 +74,15 @@ export function Experience() {
     idle(() => void loadRest());
   }, [intro]);
 
-  // After the next sections mount, glide down to the couple.
-  useEffect(() => {
-    if (!opened || !scrollAfterOpen.current) return;
-    scrollAfterOpen.current = false;
-    void scrollToSection("couple", 1300);
-  }, [opened]);
-
-  const handleOpen = () => {
-    if (opened) {
-      void scrollToSection("couple", 1300);
-      return;
+  // The invitation's temple doors close over the screen, the next sections
+  // mount (if needed) and the page jumps to the couple behind them; the doors
+  // then swing open onto it.
+  const handleOpen = async () => {
+    if (!opened) {
+      writeSessionFlag(INVITATION_OPENED);
+      setOpened(true);
     }
-    scrollAfterOpen.current = true;
-    writeSessionFlag(INVITATION_OPENED);
-    setOpened(true);
+    await jumpToSection("couple");
   };
 
   return (
@@ -106,7 +99,6 @@ export function Experience() {
 
       <Invitation
         reveal={intro === "playing" ? "hidden" : intro === "revealing" ? "revealing" : "shown"}
-        opened={opened}
         onOpen={handleOpen}
       />
 
