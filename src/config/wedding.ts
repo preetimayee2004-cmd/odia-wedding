@@ -106,8 +106,8 @@ export interface WeddingConfig {
     heading: string;
     /** `{guest}` is replaced with the guest's name from the share link. */
     greeting: string;
-    /** Opening paragraph. */
-    message: string;
+    /** Opening line, in its two printed lines. */
+    message: [string, string];
     /** Small line above the names. */
     saveTheDate: string;
     /** The couple's names as they appear on the card. */
@@ -301,8 +301,10 @@ export const wedding: WeddingConfig = {
   invitation: {
     heading: "|| Jai Jagannath ||",
     greeting: "Dear {guest},",
-    message:
-      "Under the eternal protection and grace of the Lord of the Universe, we cordially invite you to witness the union of our families.",
+    message: [
+      "Under the eternal protection and grace of the Lord of the Universe,",
+      "we cordially invite you to witness the union of our families.",
+    ],
     saveTheDate: "Save the Date",
     names: ["Avi", "Pragyan"],
     announcement: "are getting married",

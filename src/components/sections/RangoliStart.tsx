@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 
-const SIZE = 170;
 const CAPTION = "#2E1A10";
 const MAROON = "#8A1C2B";
 
@@ -47,11 +46,11 @@ type Stage = "waiting" | "building" | "ready" | "opening" | "opened";
 /**
  * The way into the site: a colourful Odia jhoti and flower rangoli. Once on
  * screen it builds itself ring by ring from the centre outward, then breathes
- * gently above "Tap to begin". A tap (or, 5s after the build, no tap) spins
+ * gently above "Tap the rangoli". A tap (or, 5s after the build, no tap) spins
  * its petals as it grows into a golden wash over the whole screen, which
  * fades into the Couple section. Runs once.
  */
-export function RangoliStart({ active, onOpen }: { active: boolean; onOpen: () => Promise<void> }) {
+export function RangoliStart({ active, onOpen, size = 170 }: { active: boolean; onOpen: () => Promise<void>; size?: number }) {
   const reducedMotion = usePrefersReducedMotion();
   const rootRef = useRef<HTMLButtonElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -197,13 +196,13 @@ export function RangoliStart({ active, onOpen }: { active: boolean; onOpen: () =
         ref={rootRef}
         type="button"
         onClick={() => void open()}
-        aria-label="Tap to begin: open the invitation"
+        aria-label="Tap the rangoli to open the invitation"
         aria-controls="couple"
         className="flex flex-col items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[#B8863B]/60"
         style={{ WebkitTapHighlightColor: "transparent" }}
       >
         <span className={`block ${stage === "ready" ? "rangoli-pulse" : ""}`}>
-          <svg ref={svgRef} viewBox="0 0 200 200" width={SIZE} height={SIZE} className="block overflow-visible" aria-hidden>
+          <svg ref={svgRef} viewBox="0 0 200 200" width={size} height={size} className="block overflow-visible" aria-hidden>
             {/* Outer scalloped edge, thin maroon */}
             <g {...layer(5)} fill="none" stroke={MAROON} strokeWidth="1.6" strokeLinecap="round">
               {ring(24).map((a) => (
@@ -252,10 +251,10 @@ export function RangoliStart({ active, onOpen }: { active: boolean; onOpen: () =
           </svg>
         </span>
         <span
-          className="mt-1 font-serif text-[14px] font-semibold italic leading-none"
+          className="mt-1 font-serif text-[15px] font-bold leading-none"
           style={{ color: CAPTION, opacity: stage === "ready" ? 1 : 0, transition: "opacity 700ms ease-out" }}
         >
-          Tap to begin
+          Tap the rangoli
         </span>
       </button>
 
