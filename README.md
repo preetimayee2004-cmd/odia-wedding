@@ -37,8 +37,8 @@ Everything a guest reads lives in [`src/config/wedding.ts`](src/config/wedding.t
 | Couple's names | `couple.bride` / `couple.groom` |
 | Wedding date & time | `wedding.dateTime` |
 | Invitation wording, Odia invocation | `invitation` |
-| Temple for the opening | `opening.templeScene` (current): illustrated temple split into a sky plate, a temple mask and a sea mask, so the temple rises from behind the sea; `door` = doorway box in the image pixels. Set it to `null` to fall back to `opening.templePhoto` (the earlier photo), or set both to `null` for the drawn temple. |
-| Lord Jagannath artwork | `assets.deityArtwork` (current: illustrated Jagannath, Subhadra and Balabhadra). `scenePosition` centres Lord Jagannath in the doorway; `focus` is his crown and face for the medallion. The earlier photo is still in `public/art/jagannath.jpg`. |
+| Lord Jagannath artwork ✓ supplied (`public/art/jagannath.jpg`) | `assets.deityArtwork`: `focus` is the crown-and-face square used for the medallion |
+| Sankha (conch) recording for the opening (optional) | `assets.sankhaSound`, e.g. `"/audio/sankha.mp3"` in `/public`. While `null`, a conch-like call is synthesised in the browser. |
 | Couple illustration (Odia attire) | `assets.coupleIllustration` |
 | Our Story milestones (the couple's own words) | `story.milestones` |
 | Family names, parents, photos | `family` |
@@ -82,7 +82,7 @@ Each section has its own entrance. All of them respect *reduced motion*.
 
 | Section | Motion |
 |---|---|
-| Opening | Temple rises, whole temple zooms in to its door, the doors swing open on Lord Jagannath, and the deity shrinks into a medallion at the top of the invitation (Skip / Esc) |
+| Opening | Kalinga door sketch draws itself in the dark; on tap the sankha sounds, the doors split into golden light revealing Mahaprabhu's eyes, then the scene rises like a curtain (Skip / Esc) |
 | Invitation | Staggered rise; slow parallax drift on scroll |
 | Couple | Arched frame rises; names written on left → right |
 | Countdown | Lotus mandala draws itself |

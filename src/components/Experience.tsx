@@ -4,7 +4,7 @@ import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { readSessionFlag, writeSessionFlag } from "@/lib/session";
 import { scrollToSection } from "@/lib/scroll";
-import { OpeningSequence, type RevealMode } from "@/components/opening/OpeningSequence";
+import { OpeningSequence } from "@/components/opening/OpeningSequence";
 import { Invitation } from "@/components/sections/Invitation";
 
 // Everything after the invitation is a separate chunk, fetched in the
@@ -39,7 +39,6 @@ export function Experience() {
   const [intro, setIntro] = useState<IntroState>(() =>
     shouldPlayOpening(reducedMotion) ? "playing" : "done",
   );
-  const [revealMode, setRevealMode] = useState<RevealMode>("handoff");
   const [opened, setOpened] = useState(
     () => devOpen || (wedding.opening.playOncePerSession && remembers(INVITATION_OPENED)),
   );
@@ -91,11 +90,7 @@ export function Experience() {
     <>
       {intro !== "done" && (
         <OpeningSequence
-          targetRef={deitySlotRef}
-          onReveal={(mode) => {
-            setRevealMode(mode);
-            setIntro("revealing");
-          }}
+          onReveal={() => setIntro("revealing")}
           onDone={() => {
             writeSessionFlag(OPENING_SEEN);
             setIntro("done");
@@ -106,7 +101,7 @@ export function Experience() {
       <Invitation
         deitySlotRef={deitySlotRef}
         reveal={intro === "playing" ? "hidden" : intro === "revealing" ? "revealing" : "shown"}
-        deityHidden={intro === "playing" || (intro === "revealing" && revealMode === "handoff")}
+        deityHidden={false}
         opened={opened}
         onOpen={handleOpen}
       />

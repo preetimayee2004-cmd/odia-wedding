@@ -203,10 +203,6 @@ export interface WeddingConfig {
       width: number;
       height: number;
       focus: { x: number; y: number; size: number };
-      /** Where to centre a wide image inside the narrow doorway (0–1; default 0.5, 0.4). */
-      scenePosition?: { x: number; y: number };
-      /** Extra zoom on the scene inside the doorway (default 1). */
-      closeup?: number;
     } | null;
     /**
      * Couple illustration in traditional Odia attire (PRD §4.03): bride in
@@ -217,44 +213,21 @@ export interface WeddingConfig {
     coupleIllustration: { src: string; alt: string } | null;
     /** Desktop only: artwork shown around the phone mockup (portrait works best). */
     desktopBackdrop: string | null;
+    /**
+     * Sankha (conch) recording for the opening, e.g. "/audio/sankha.mp3".
+     * While null, a conch-like call is synthesised in the browser.
+     */
+    sankhaSound: string | null;
   };
   opening: {
     /**
      * true: play the opening once per browser session and keep the invitation
      * open on reload. false: every visit and every reload starts again from
-     * the temple opening.
+     * the opening.
      */
     playOncePerSession: boolean;
-    /**
-     * Layered temple illustration (takes priority over templePhoto). One colour
-     * image plus a sky plate and two masks, so the temple can rise from behind
-     * the sea while the sky stays still. Fills the screen (cover). `door` is
-     * the doorway box in the colour image's pixels.
-     */
-    templeScene: {
-      src: string;
-      width: number;
-      height: number;
-      /** Sky with the temple area filled in (sits behind the rising temple). */
-      sky: string;
-      /** Alpha masks (same proportions as src): temple layer and sea layer. */
-      templeMask: string;
-      seaMask: string;
-      door: { x: number; y: number; width: number; height: number };
-    } | null;
-    /**
-     * Optional photo of the temple to use instead of the illustrated scene.
-     * door is the doorway the camera zooms into, in the photo's pixels.
-     * Use a high-resolution, licensed image (the zoom magnifies the door a lot).
-     */
-    templePhoto: {
-      src: string;
-      width: number;
-      height: number;
-      door: { x: number; y: number; width: number; height: number };
-      /** Tiny image of just the sky, stretched to fill the screen above the photo. */
-      sky: string | null;
-    } | null;
+    /** Small prompt under the temple door (the tap also starts the sankha sound). */
+    tapHint: string;
   };
   guest: {
     /** URL query keys checked, in order, for the guest's name. */
@@ -404,42 +377,20 @@ export const wedding: WeddingConfig = {
     image: null,
   },
   assets: {
-    // Illustrated Sri Jagannath, Subhadra and Balabhadra (2x enlarged). The doorway
-    // frames Lord Jagannath on the right; the medallion is his crown and face.
-    // (Previous photo artwork is still in /art/jagannath.jpg.)
     deityArtwork: {
-      src: "/art/jagannath-trio.jpg",
+      src: "/art/jagannath.jpg",
       alt: "Lord Jagannath",
-      width: 2048,
-      height: 1144,
-      focus: { x: 1156, y: 130, size: 560 },
-      scenePosition: { x: 0.84, y: 0.5 },
-      closeup: 1,
+      width: 736,
+      height: 1308,
+      focus: { x: 140, y: 315, size: 465 },
     },
     coupleIllustration: null, // awaiting approved illustration
     desktopBackdrop: "/art/desktop-backdrop.jpg",
+    sankhaSound: null, // awaiting a recording (synthesised until then)
   },
   opening: {
-    playOncePerSession: false, // every load starts from the opening animation
-    // Illustrated temple by the sea, split into sky / temple / sea layers.
-    templeScene: {
-      src: "/art/temple-scene.jpg",
-      width: 2048,
-      height: 1144,
-      sky: "/art/temple-scene-sky.jpg",
-      templeMask: "/art/temple-scene-temple.png",
-      seaMask: "/art/temple-scene-sea.png",
-      door: { x: 992, y: 794, width: 70, height: 124 },
-    },
-    // Used when templeScene is null.
-    templePhoto: {
-      // Supplied Puri temple image with its text removed, enlarged 2x and sharpened.
-      src: "/art/temple-photo.jpg",
-      width: 1472,
-      height: 2208,
-      door: { x: 856, y: 1700, width: 134, height: 244 },
-      sky: "/art/temple-sky.jpg",
-    },
+    playOncePerSession: false, // every load starts from the opening
+    tapHint: "Tap to open",
   },
   guest: {
     // Share links like https://…/?guest=Priya%20Mishra
