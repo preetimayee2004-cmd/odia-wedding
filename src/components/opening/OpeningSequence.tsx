@@ -15,15 +15,14 @@ export const TIMING = {
 };
 
 /** The temple door artwork, and where its two leaves sit in it (image pixels). */
-const IMG = { src: "/art/temple-door.webp", w: 1024, h: 765 };
-/**
- * Mahaprabhu Jagannath, revealed in golden light beyond the doors: a cut-out
- * on a transparent background. `focusY` is the figure's vertical centre in
- * the image, so the figure (not the empty space above it) sits mid-screen.
- */
-const DARSHAN = { src: "/art/jagannath.png", alt: "Mahaprabhu Jagannath", focusY: 0.635 };
-const DOOR = { x: 191, y: 176, w: 644, h: 572 };
-const SEAM = 512;
+const IMG = { src: "/art/temple-door.webp", w: 992, h: 1586 };
+/** Mahaprabhu Jagannath, revealed in golden light beyond the doors (portrait artwork, shown whole). */
+const DARSHAN = { src: "/art/jagannath-darshan.webp", alt: "Mahaprabhu Jagannath", w: 1045, h: 1505 };
+// The artwork's top and bottom edges melt into its own golden glow.
+const DARSHAN_FADE = "linear-gradient(to bottom, transparent 0%, #000 7%, #000 93%, transparent 100%)";
+// The two leaves: below the carved Lakshmi lintel, edge to edge, meeting at the centre post.
+const DOOR = { x: 8, y: 420, w: 976, h: 1166 };
+const SEAM = 496;
 const LEFT_W = SEAM - DOOR.x;
 const RIGHT_W = DOOR.x + DOOR.w - SEAM;
 /** The door's centre, as a fraction of the image — where the view moves in. */
@@ -315,41 +314,23 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
           }}
         />
 
-        {/* Darshan: Mahaprabhu Jagannath in a radiant golden glow */}
+        {/* Darshan: the whole artwork, its golden sunburst extended in the artwork's own colours */}
         <div ref={darshanRef} className="absolute inset-0 overflow-hidden" style={{ opacity: 0 }}>
           <div
             aria-hidden
             className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(ellipse 85% 60% at 50% 46%, #FFF4D0 0%, #F8D982 30%, #E8B04C 62%, #B9772A 100%)",
-            }}
-          />
-          {/* Sunburst rays behind the Lord, fading towards the edges */}
-          <div
-            aria-hidden
-            className="absolute inset-0"
-            style={{
-              background:
-                "repeating-conic-gradient(from 0deg at 50% 44%, rgb(255 250 230 / 0.32) 0deg 4deg, transparent 4deg 12deg)",
-              maskImage: "radial-gradient(circle at 50% 44%, #000 0%, #000 25%, transparent 70%)",
-              WebkitMaskImage: "radial-gradient(circle at 50% 44%, #000 0%, #000 25%, transparent 70%)",
-            }}
-          />
-          {/* Halo */}
-          <div
-            aria-hidden
-            className="absolute left-1/2 top-[39%] aspect-square w-[min(92vw,400px)] -translate-x-1/2 -translate-y-1/2 rounded-full"
-            style={{ background: "radial-gradient(circle, rgb(255 252 236 / 0.95) 0%, rgb(255 236 170 / 0.6) 45%, transparent 70%)" }}
+            style={{ background: "radial-gradient(ellipse 110% 62% at 50% 50%, #FFE27A 0%, #FBD23A 42%, #F2B21A 72%, #E08903 100%)" }}
           />
           <img
             src={DARSHAN.src}
             alt={DARSHAN.alt}
             decoding="async"
-            className="absolute left-1/2 top-1/2 w-[min(108vw,470px)] max-w-none"
+            className="absolute left-1/2 top-1/2 max-w-none -translate-x-1/2 -translate-y-1/2"
             style={{
-              transform: `translate(-50%, -${DARSHAN.focusY * 100}%)`,
-              filter: "drop-shadow(0 0 18px rgb(255 214 120 / 0.75))",
+              width: `min(100%, calc(100dvh * ${DARSHAN.w / DARSHAN.h}))`,
+              aspectRatio: `${DARSHAN.w} / ${DARSHAN.h}`,
+              maskImage: DARSHAN_FADE,
+              WebkitMaskImage: DARSHAN_FADE,
             }}
           />
         </div>
