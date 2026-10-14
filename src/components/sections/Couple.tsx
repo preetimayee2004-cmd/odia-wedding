@@ -1,165 +1,113 @@
-import { useRef, type ComponentType, type ReactNode } from "react";
-import { wedding, type Person } from "@/config/wedding";
+import { useRef, type CSSProperties, type ReactNode } from "react";
+import { wedding } from "@/config/wedding";
+import { useFitToArea } from "@/hooks/useFitToArea";
 import { useInView } from "@/hooks/useInView";
-import { formatVenueDate, parseVenueDateTime } from "@/lib/venueTime";
 import { EASE } from "@/lib/motion";
-import { BrideMukuta, FiligreeCorner, FiligreeKnot, GroomTopi, PortraitSilhouette } from "@/components/art/Crowns";
-import { Pending } from "@/components/ui/Pending";
-
-// Entrance choreography (ms from the section entering view).
-const T = {
-  cards: 0, // portrait cards rise into place
-  crowns: 650, // both crowns drop at the same moment
-  names: 1300,
-  details: 1700, // small text: fade only, never moves
-};
-
-// A gentle settle with the slightest overshoot — a crown being placed, not bouncing.
-const PLACE = "cubic-bezier(0.34, 1.25, 0.64, 1)";
+import { CardBackdrop, cardCq, cardMinHeight, type CardArt } from "@/components/art/CardBackdrop";
+import { Divider, PinIcon } from "@/components/ui/CardOrnaments";
 
 /**
- * Section 03 — The Crowned Royals.
- * Two portrait cards framed in Tarakasi silver filigree; on scroll a white
- * Odia mukuta drops into place above the bride's frame and the groom's crown
- * (topi) anchors above his.
+ * The couple card artwork (768×1376): a carved arch in a red-and-gold border,
+ * with the illustrated bride and groom at the bottom right. Its top (the
+ * arch) and bottom (the couple) are kept whole; a plain band of the middle
+ * repeats between them so the card fills the screen undistorted.
+ */
+const CARD: CardArt = { src: "/art/couple-card.jpg", middle: "/art/couple-card-middle.png", w: 768, h: 1376, top: 606, bottomFrom: 723 };
+const cq = (px: number) => cardCq(CARD, px);
+const ARCH_INSIDE = 215; // the words start below the arch's peak (card px)
+const COUPLE_FROM = 745; // the illustrated couple (their crowns) begins here
+const ARCH_EDGE = 100; // the arch's inner edge, in from each side
+
+const INK = "#2E1A10";
+const MAROON = "#7A1424";
+const GOLD = "#B8863B";
+const DARK_GOLD = "#8F6420";
+const LINE_STAGGER = 140;
+
+/**
+ * Section 03 — The couple.
+ * The couple's card fills the screen; inside its arch, above the illustrated
+ * bride and groom, their names, the date and place, and a few words of
+ * welcome rise in one by one as the section comes into view.
  */
 export function Couple() {
   const ref = useRef<HTMLElement>(null);
+  const areaRef = useRef<HTMLDivElement>(null);
+  const blockRef = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { threshold: 0.3 });
-  const { bride, groom, message } = wedding.couple;
+  useFitToArea(areaRef, blockRef);
+  const { invitation } = wedding;
+  const [first, second] = invitation.names;
+
+  const line = (order: number): CSSProperties => {
+    const delay = 150 + order * LINE_STAGGER;
+    return {
+      opacity: inView ? 1 : 0,
+      transform: inView ? "none" : "translateY(10px)",
+      transition: `opacity 800ms ${EASE.silk} ${delay}ms, transform 800ms ${EASE.silk} ${delay}ms`,
+    };
+  };
+
+  const lines: ReactNode[] = [
+    <p key="e" className="mb-1 text-[13px] font-bold tracking-[0.3em] [font-variant-caps:small-caps]" style={{ color: DARK_GOLD }}>
+      The Couple
+    </p>,
+    <p key="n" aria-hidden className="mb-2 flex flex-col items-center leading-[1.05]" style={{ color: MAROON }}>
+      <span className="font-vibes text-[44px]">{first}</span>
+      <span className="font-vibes text-[26px] leading-none" style={{ color: GOLD }}>
+        &amp;
+      </span>
+      <span className="font-vibes text-[44px]">{second}</span>
+    </p>,
+    <Divider key="d" className="mb-2.5" />,
+    invitation.dateLine && (
+      <p key="dt" className="mb-1 text-[19px] font-bold leading-snug" style={{ color: MAROON }}>
+        {invitation.dateLine}
+      </p>
+    ),
+    invitation.place && (
+      <div key="pl" className="mb-3 flex flex-col items-center">
+        <PinIcon />
+        <p className="mt-0.5 max-w-[15rem] text-[14.5px] font-semibold leading-snug">{invitation.place}</p>
+      </div>
+    ),
+    <p key="m" className="mx-auto max-w-[17rem] text-[15.5px] font-semibold italic leading-relaxed">
+      {wedding.couple.message}
+    </p>,
+  ].filter(Boolean);
 
   return (
     <section
       ref={ref}
       id="couple"
       aria-labelledby="couple-heading"
-      className="section flex min-h-[100dvh] flex-col items-center justify-center pt-16 text-center short:pt-12"
+      data-status-tone="light"
+      className="relative [container-type:inline-size]"
     >
-      <Fade show={inView} delay={T.cards}>
-        <p className="eyebrow">The Couple</p>
-      </Fade>
       <h2 id="couple-heading" className="sr-only">
-        {bride.displayName} and {groom.displayName}
+        {first} and {second}
       </h2>
+      <CardBackdrop card={CARD} />
 
-      <div className="mt-6 grid w-full grid-cols-2 gap-4">
-        <CoupleCard person={bride} role="The Bride" Crown={BrideMukuta} show={inView} />
-        <CoupleCard person={groom} role="The Groom" Crown={GroomTopi} show={inView} />
-      </div>
-
-      <Fade show={inView} delay={T.details} className="mt-8">
-        <WhenAndWhere />
-      </Fade>
-      <Fade show={inView} delay={T.details + 150}>
-        <p className="mx-auto mt-5 max-w-[17rem] text-[0.8125rem] leading-relaxed text-ink-soft">{message}</p>
-      </Fade>
-    </section>
-  );
-}
-
-function CoupleCard({
-  person,
-  role,
-  Crown,
-  show,
-}: {
-  person: Person;
-  role: string;
-  Crown: ComponentType<{ className?: string }>;
-  show: boolean;
-}) {
-  return (
-    <figure className="flex flex-col items-center">
-      {/* The crown drops in and settles on top of the frame */}
       <div
-        className="relative z-10 -mb-4 w-[74%]"
-        style={{
-          opacity: show ? 1 : 0,
-          transform: show ? "none" : "translateY(-72px) rotate(-7deg)",
-          transition: `opacity 500ms ${EASE.silk} ${T.crowns}ms, transform 1100ms ${PLACE} ${T.crowns}ms`,
-        }}
+        className="relative z-20 flex flex-col"
+        style={{ minHeight: cardMinHeight(CARD), paddingTop: cq(ARCH_INSIDE), paddingBottom: cq(CARD.h - COUPLE_FROM), color: INK }}
       >
-        <Crown className="h-auto w-full drop-shadow-[0_6px_6px_rgb(60_40_15_/_0.25)]" />
-      </div>
-
-      {/* Portrait in a Tarakasi (silver filigree) frame */}
-      <div
-        className="relative aspect-[3/4] w-full"
-        style={{
-          opacity: show ? 1 : 0,
-          transform: show ? "none" : "translateY(18px)",
-          transition: `opacity 800ms ${EASE.silk} ${T.cards}ms, transform 900ms ${EASE.silk} ${T.cards}ms`,
-        }}
-      >
-        <span aria-hidden className="absolute inset-0 rounded-[12px] border-[1.5px] border-[#8E959E] shadow-[inset_0_0_0_1px_rgb(238_241_244_/_0.7)]" />
-        <span aria-hidden className="absolute inset-[5px] rounded-[9px] border border-[#B9C0C8]" />
-        <div className="absolute inset-[9px] overflow-hidden rounded-[6px] bg-cream-light">
-          {person.photo ? (
-            <img src={person.photo.src} alt={person.photo.alt} loading="lazy" decoding="async" className="h-full w-full object-cover" />
-          ) : (
-            <PortraitSilhouette className="h-full w-full" />
-          )}
+        {/* Inside the arch, above the illustrated couple; shrinks if needed to fit */}
+        <div ref={areaRef} className="relative min-h-0 flex-1">
+          <div
+            ref={blockRef}
+            className="absolute inset-x-0 top-1/2 py-2 text-center font-serif"
+            style={{ paddingInline: `calc(${cq(ARCH_EDGE)} + 10px)`, transform: "translateY(-50%)" }}
+          >
+            {lines.map((node, i) => (
+              <div key={i} style={line(i)}>
+                {node}
+              </div>
+            ))}
+          </div>
         </div>
-        <FiligreeCorner className="absolute -left-1 -top-1 h-8 w-8" />
-        <FiligreeCorner className="absolute -right-1 -top-1 h-8 w-8 rotate-90" />
-        <FiligreeCorner className="absolute -bottom-1 -right-1 h-8 w-8 rotate-180" />
-        <FiligreeCorner className="absolute -bottom-1 -left-1 h-8 w-8 -rotate-90" />
-        <FiligreeKnot className="absolute -bottom-[7px] left-1/2 h-3 w-6 -translate-x-1/2 rotate-180" />
       </div>
-
-      <Fade show={show} delay={T.names} className="mt-3">
-        <figcaption>
-          <span className="eyebrow block">{role}</span>
-          <span className="mt-0.5 block font-script text-[2rem] leading-tight text-sindoor">{person.displayName}</span>
-        </figcaption>
-      </Fade>
-    </figure>
-  );
-}
-
-/** Small text only fades — it never moves, so it's easy to read. */
-function Fade({
-  show,
-  delay,
-  className = "",
-  children,
-}: {
-  show: boolean;
-  delay: number;
-  className?: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className={className} style={{ opacity: show ? 1 : 0, transition: `opacity 900ms ${EASE.silk} ${delay}ms` }}>
-      {children}
-    </div>
-  );
-}
-
-function WhenAndWhere() {
-  const parts = parseVenueDateTime(wedding.wedding.dateTime);
-  const date = parts && formatVenueDate(parts);
-  const { name, city } = wedding.venue;
-
-  const dateLine = date ? (
-    <time dateTime={wedding.wedding.dateTime!} className="block">
-      {date.day} {date.month} {date.year}
-    </time>
-  ) : (
-    <Pending label="Wedding date awaiting confirmation">Day Month Year</Pending>
-  );
-
-  const venueLine = name ? (
-    <span className="block">{[name, city].filter(Boolean).join(", ")}</span>
-  ) : (
-    <Pending label="Venue awaiting confirmation">Venue, City</Pending>
-  );
-
-  return (
-    <div className="flex flex-col items-center gap-1.5 text-[0.75rem] font-medium uppercase tracking-[0.18em] text-ink">
-      {dateLine}
-      <span aria-hidden className="h-1 w-1 rotate-45 bg-gold" />
-      <span className="text-ink-soft">{venueLine}</span>
-    </div>
+    </section>
   );
 }

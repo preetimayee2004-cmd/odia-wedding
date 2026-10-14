@@ -1,8 +1,11 @@
-import { useEffect, useRef, type CSSProperties, type ReactNode, type RefObject } from "react";
+import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import { wedding } from "@/config/wedding";
 import { useGuest } from "@/context/GuestContext";
+import { useFitToArea } from "@/hooks/useFitToArea";
 import { EASE } from "@/lib/motion";
+import { CardBackdrop, cardCq, cardMinHeight, type CardArt } from "@/components/art/CardBackdrop";
 import { RangoliStart } from "@/components/sections/RangoliStart";
+import { Divider, PinIcon } from "@/components/ui/CardOrnaments";
 
 export type RevealState = "hidden" | "revealing" | "shown";
 
@@ -18,9 +21,8 @@ interface InvitationProps {
  * kept whole; a plain 70px band of its middle (border and dotted lines only)
  * repeats between them, so the card fills any screen height undistorted.
  */
-const CARD = { src: "/art/invitation-card.jpg", middle: "/art/invitation-card-middle.png", w: 768, h: 1376, top: 580, bottomFrom: 650 };
-// Lengths in card pixels → container width units (the card spans the section's width).
-const cq = (px: number) => `${((px / CARD.w) * 100).toFixed(3)}cqw`;
+const CARD: CardArt = { src: "/art/invitation-card.jpg", middle: "/art/invitation-card-middle.png", w: 768, h: 1376, top: 580, bottomFrom: 650 };
+const cq = (px: number) => cardCq(CARD, px);
 const DEITIES_BASE = 490; // the deities' platform ends here (card px)
 const PANEL_BOTTOM = 1262; // the cream panel's bottom dotted line (card px)
 const PANEL_EDGE = 62; // the dotted inner border, in from each side
@@ -35,8 +37,6 @@ const RANGOLI_SIZE = 124;
 // Each half of the opening line, measured in EB Garamond 600, is up to
 // 27.2 × its font size wide (27.6 leaves a little slack); sized to fit one line.
 const QUOTE_WIDTH_PER_PX = 27.6;
-// Never shrink the words below this to fit the screen; scroll instead.
-const MIN_FIT = 0.72;
 
 /**
  * Section 02 — The invitation card.
@@ -55,6 +55,11 @@ export function Invitation({ reveal, onOpen }: InvitationProps) {
   const areaRef = useRef<HTMLDivElement>(null);
   const blockRef = useRef<HTMLDivElement>(null);
   useFitToArea(areaRef, blockRef);
+
+  // Warm the couple card so it's ready the moment the golden wash fades
+  useEffect(() => {
+    for (const src of ["/art/couple-card.jpg", "/art/couple-card-middle.png"]) new Image().src = src;
+  }, []);
 
   const line = (order: number): CSSProperties => {
     const delay = 250 + order * LINE_STAGGER;
@@ -120,27 +125,13 @@ export function Invitation({ reveal, onOpen }: InvitationProps) {
       data-status-tone="light"
       className="relative [container-type:inline-size]"
     >
-      {/* The card: whole top, repeating plain middle, whole bottom */}
-      <div aria-hidden className="absolute inset-0 flex flex-col">
-        <div
-          className="relative z-10 shrink-0"
-          style={{ height: cq(CARD.top), backgroundImage: `url(${CARD.src})`, backgroundSize: "100% auto", backgroundPosition: "top", backgroundRepeat: "no-repeat" }}
-        />
-        <div
-          className="-my-px flex-1"
-          style={{ backgroundImage: `url(${CARD.middle})`, backgroundSize: "100% auto", backgroundRepeat: "no-repeat round" }}
-        />
-        <div
-          className="relative z-10 shrink-0"
-          style={{ height: cq(CARD.h - CARD.bottomFrom), backgroundImage: `url(${CARD.src})`, backgroundSize: "100% auto", backgroundPosition: "bottom", backgroundRepeat: "no-repeat" }}
-        />
-      </div>
+      <CardBackdrop card={CARD} />
 
       <div
         className="relative z-20 flex flex-col"
         style={{
           // One screen tall; never shorter than the card's own top and bottom
-          minHeight: `max(100dvh, ${cq(CARD.top + CARD.h - CARD.bottomFrom)})`,
+          minHeight: cardMinHeight(CARD),
           paddingTop: cq(DEITIES_BASE),
           // Clear of the bottom dotted line, so "Tap the rangoli" reads easily
           paddingBottom: `calc(${cq(CARD.h - PANEL_BOTTOM)} + 22px)`,
@@ -169,63 +160,5 @@ export function Invitation({ reveal, onOpen }: InvitationProps) {
         </div>
       </div>
     </section>
-  );
-}
-
-/**
- * Scales `block` (absolutely positioned, centred) down to fit `area`. If it
- * would have to go below MIN_FIT, the area grows instead and the card scrolls.
- */
-function useFitToArea(areaRef: RefObject<HTMLElement>, blockRef: RefObject<HTMLElement>) {
-  useEffect(() => {
-    const area = areaRef.current;
-    const block = blockRef.current;
-    if (!area || !block) return;
-    let frame = 0;
-    const fit = () => {
-      frame = 0;
-      area.style.minHeight = "";
-      const natural = block.offsetHeight;
-      const avail = area.clientHeight;
-      if (!natural || !avail) return;
-      const scale = Math.min(1, Math.max(MIN_FIT, avail / natural));
-      if (natural * scale > avail) area.style.minHeight = `${Math.ceil(natural * scale)}px`;
-      block.style.transform = `translateY(-50%) scale(${scale.toFixed(4)})`;
-    };
-    const schedule = () => {
-      if (!frame) frame = requestAnimationFrame(fit);
-    };
-    const ro = new ResizeObserver(schedule);
-    ro.observe(area);
-    ro.observe(block);
-    window.addEventListener("resize", schedule);
-    void document.fonts?.ready.then(schedule);
-    fit();
-    return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", schedule);
-      cancelAnimationFrame(frame);
-    };
-  }, [areaRef, blockRef]);
-}
-
-/** A small gold map pin with a lotus-bud head, above the place. */
-function PinIcon() {
-  return (
-    <svg width="13" height="16" viewBox="0 0 16 20" aria-hidden>
-      <path d="M8 19.2C4.4 14.6 1.6 11.4 1.6 7.7a6.4 6.4 0 0 1 12.8 0c0 3.7-2.8 6.9-6.4 11.5Z" fill={GOLD} />
-      <path d="M8 4.2c1.5 1.3 1.9 3 0 4.8-1.9-1.8-1.5-3.5 0-4.8Z" fill="#FFF6DF" />
-    </svg>
-  );
-}
-
-/** A thin gold rule with a small diamond at its centre. */
-function Divider({ className = "" }: { className?: string }) {
-  return (
-    <span aria-hidden className={`mx-auto flex w-36 items-center gap-2 ${className}`}>
-      <span className="h-px flex-1" style={{ background: `linear-gradient(to left, ${GOLD}, transparent)` }} />
-      <span className="h-1.5 w-1.5 rotate-45" style={{ background: GOLD }} />
-      <span className="h-px flex-1" style={{ background: `linear-gradient(to right, ${GOLD}, transparent)` }} />
-    </span>
   );
 }
