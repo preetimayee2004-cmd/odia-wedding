@@ -14,11 +14,12 @@ export const TIMING = {
 
 /** The temple door artwork, and where its two leaves sit in it (image pixels). */
 const IMG = { src: "/art/temple-door.webp", w: 1024, h: 765 };
-/** Mahaprabhu Jagannath, revealed in golden light beyond the doors (square artwork, shown uncropped). */
-// Soft top and bottom edges (the sides meet the screen edges), stopping short
-// of the corner marks so they stay visible.
-const DARSHAN_FADE = "linear-gradient(to bottom, transparent 0%, #000 18%, #000 94%, transparent 100%)";
-const DARSHAN = { src: "/art/jagannath-darshan.jpg", alt: "Mahaprabhu Jagannath in golden light between temple pillars" };
+/**
+ * Mahaprabhu Jagannath, revealed in golden light beyond the doors: a cut-out
+ * on a transparent background. `focusY` is the figure's vertical centre in
+ * the image, so the figure (not the empty space above it) sits mid-screen.
+ */
+const DARSHAN = { src: "/art/jagannath.png", alt: "Mahaprabhu Jagannath", focusY: 0.635 };
 const DOOR = { x: 191, y: 176, w: 644, h: 572 };
 const SEAM = 512;
 const LEFT_W = SEAM - DOOR.x;
@@ -162,7 +163,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
           easing: EASE.silk,
         }),
       ]);
-      setStatusTone("dark"); // over the golden light around the artwork
+      setStatusTone("dark"); // over the golden glow
       await play(curtainRef.current!, [], { duration: T.hold });
       if ((phaseRef.current as Phase) === "opening") void lift(false); // not skipped meanwhile
     } catch {
@@ -287,26 +288,42 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
           }}
         />
 
-        {/* Darshan: the whole artwork, uncropped, its top and bottom edges melting
-            into golden light drawn from its own colours */}
+        {/* Darshan: Mahaprabhu Jagannath in a radiant golden glow */}
         <div ref={darshanRef} className="absolute inset-0 overflow-hidden" style={{ opacity: 0 }}>
-          <img
-            src={DARSHAN.src}
-            alt=""
-            aria-hidden
-            className="absolute inset-0 h-full w-full scale-125 object-cover blur-3xl"
-          />
           <div
             aria-hidden
             className="absolute inset-0"
-            style={{ background: "radial-gradient(ellipse 100% 75% at 50% 50%, rgb(255 230 160 / 0.6), rgb(236 190 110 / 0.45) 60%, rgb(200 140 60 / 0.4))" }}
+            style={{
+              background:
+                "radial-gradient(ellipse 85% 60% at 50% 46%, #FFF4D0 0%, #F8D982 30%, #E8B04C 62%, #B9772A 100%)",
+            }}
+          />
+          {/* Sunburst rays behind the Lord, fading towards the edges */}
+          <div
+            aria-hidden
+            className="absolute inset-0"
+            style={{
+              background:
+                "repeating-conic-gradient(from 0deg at 50% 44%, rgb(255 250 230 / 0.32) 0deg 4deg, transparent 4deg 12deg)",
+              maskImage: "radial-gradient(circle at 50% 44%, #000 0%, #000 25%, transparent 70%)",
+              WebkitMaskImage: "radial-gradient(circle at 50% 44%, #000 0%, #000 25%, transparent 70%)",
+            }}
+          />
+          {/* Halo */}
+          <div
+            aria-hidden
+            className="absolute left-1/2 top-[40%] aspect-square w-[min(78vw,340px)] -translate-x-1/2 -translate-y-1/2 rounded-full"
+            style={{ background: "radial-gradient(circle, rgb(255 252 236 / 0.95) 0%, rgb(255 236 170 / 0.6) 45%, transparent 70%)" }}
           />
           <img
             src={DARSHAN.src}
             alt={DARSHAN.alt}
             decoding="async"
-            className="absolute left-1/2 top-1/2 aspect-square w-[min(100%,100dvh)] max-w-none -translate-x-1/2 -translate-y-1/2"
-            style={{ maskImage: DARSHAN_FADE, WebkitMaskImage: DARSHAN_FADE }}
+            className="absolute left-1/2 top-1/2 w-[min(92vw,400px)] max-w-none"
+            style={{
+              transform: `translate(-50%, -${DARSHAN.focusY * 100}%)`,
+              filter: "drop-shadow(0 0 18px rgb(255 214 120 / 0.75))",
+            }}
           />
         </div>
 

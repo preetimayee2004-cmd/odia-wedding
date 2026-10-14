@@ -80,7 +80,7 @@ Each section has its own entrance. All of them respect *reduced motion*.
 
 | Section | Motion |
 |---|---|
-| Opening | The carved temple door artwork (`public/art/temple-door.webp`) fills the screen, fading in from the dark; light gathers at the seam, then the two leaves swing smoothly inward on their own into golden light, the view glides through the doorway and Mahaprabhu Jagannath's darshan (`public/art/jagannath-darshan.jpg`, shown uncropped over a blurred copy) emerges from the light, then the scene rises like a curtain (Skip / Esc) |
+| Opening | The carved temple door artwork (`public/art/temple-door.webp`) fills the screen, fading in from the dark; light gathers at the seam, then the two leaves swing smoothly inward on their own into golden light, the view glides through the doorway and Mahaprabhu Jagannath (`public/art/jagannath.png`, a transparent cut-out) emerges in a radiant golden glow, then the scene rises like a curtain (Skip / Esc) |
 | Invitation | Talapatra palm leaves unroll one by one, threaded on a sindoor cord, between Pattachitra borders; slow parallax drift on scroll |
 | Couple | Portrait cards in Tarakasi silver-filigree frames; a white Odia mukuta drops onto the bride’s frame and the groom’s crown onto his |
 | Countdown | On a matte-black strip, the Konark Sun Temple wheel turns into alignment with the scroll; days, hours and minutes sit in its hub |
