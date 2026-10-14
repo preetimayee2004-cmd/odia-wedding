@@ -4,7 +4,6 @@ import { useGuest } from "@/context/GuestContext";
 import { useScrollFade } from "@/hooks/useScrollFade";
 import { EASE } from "@/lib/motion";
 import { formatVenueDate, parseVenueDateTime } from "@/lib/venueTime";
-import { PattachitraBorder } from "@/components/art/Pattachitra";
 import { Button } from "@/components/ui/Button";
 import { Pending } from "@/components/ui/Pending";
 
@@ -17,18 +16,26 @@ interface InvitationProps {
   onOpen: () => void;
 }
 
-// Binding holes near each end of every leaf; the cord threads through them.
-const HOLES = ["left-[8%]", "left-[92%]"] as const;
+/**
+ * The invitation card artwork (768×1376). Its decorated top (garlands,
+ * Jagannath, Balabhadra and Subhadra) and bottom (banana trees, kalash) are
+ * kept whole; a plain 70px band of its middle (border and dotted lines only)
+ * repeats between them, so the card fills any screen height undistorted.
+ */
+const CARD = { src: "/art/invitation-card.jpg", middle: "/art/invitation-card-middle.png", w: 768, h: 1376, top: 580, bottomFrom: 650 };
+// Lengths in card pixels → container width units (the card spans the section's width).
+const cq = (px: number) => `${((px / CARD.w) * 100).toFixed(3)}cqw`;
 
-// Unrolling choreography (ms)
-const LEAF_STAGGER = 230;
-const LEAF_DURATION = 900;
+const INK = "#3B2414";
+const SINDOOR = "#7A1F24";
+const LINE_STAGGER = 150;
+const LINE_DURATION = 800;
 
 /**
- * Section 02 — The Royal Scroll.
- * The invitation as a Talapatra (palm-leaf manuscript): leaves bound by a
- * sindoor cord, the words etched into them, unrolling one by one between
- * crisp black-and-white Pattachitra borders.
+ * Section 02 — The invitation card.
+ * The words sit on the card's cream panel: the main lines below the deities,
+ * the date and "Open Invitation" in the clear space between the banana trees.
+ * Lines rise in one by one as the opening curtain lifts.
  */
 export function Invitation({ reveal, opened, onOpen }: InvitationProps) {
   const { guestName } = useGuest();
@@ -41,118 +48,113 @@ export function Invitation({ reveal, opened, onOpen }: InvitationProps) {
   const date = parts && formatVenueDate(parts);
   const { name: venueName, city } = wedding.venue;
 
-  const leaves: ReactNode[] = [
-    <p key="h" className="font-display text-[1.2rem] font-semibold tracking-[0.12em] text-[#7A1F24]">
+  const line = (order: number): CSSProperties => {
+    const delay = 250 + order * LINE_STAGGER;
+    return {
+      opacity: show ? 1 : 0,
+      transform: show ? "none" : "translateY(10px)",
+      transition: `opacity ${LINE_DURATION}ms ${EASE.silk} ${delay}ms, transform ${LINE_DURATION}ms ${EASE.silk} ${delay}ms`,
+    };
+  };
+
+  const upper: ReactNode[] = [
+    <p key="h" className="font-display text-[1.15rem] font-semibold tracking-[0.12em]" style={{ color: SINDOOR }}>
       {invitation.heading}
     </p>,
-    <div key="g">
-      <p className="font-display text-[1.25rem] italic leading-tight">{invitation.greeting.replace("{guest}", guestName)}</p>
-      <p className="mt-1.5 font-display text-[1.02rem] leading-snug">{invitation.message}</p>
-    </div>,
-    <h1 key="n" className="flex flex-col items-center font-normal leading-none text-[#7A1F24]">
-      <span className="font-script text-[2.6rem] leading-[1.15] short:text-[2.2rem]">{couple.bride.displayName}</span>
-      <span className="my-0.5 font-display text-base italic text-[#5C3A1C]">and</span>
-      <span className="font-script text-[2.6rem] leading-[1.15] short:text-[2.2rem]">{couple.groom.displayName}</span>
+    <p key="g" className="font-display text-[1.2rem] italic leading-tight">
+      {invitation.greeting.replace("{guest}", guestName)}
+    </p>,
+    <p key="m" className="font-display text-[1rem] leading-snug">
+      {invitation.message}
+    </p>,
+    <h1 key="n" className="flex flex-wrap items-baseline justify-center gap-x-2 font-normal leading-none" style={{ color: SINDOOR }}>
+      <span className="font-script text-[2.5rem] leading-[1.2] short:text-[2.2rem]">{couple.bride.displayName}</span>
+      <span className="font-display text-lg italic text-[#8C6D3A]">&amp;</span>
+      <span className="font-script text-[2.5rem] leading-[1.2] short:text-[2.2rem]">{couple.groom.displayName}</span>
     </h1>,
-    <p key="b" className="font-display text-[1.02rem] leading-snug">
+    <p key="b" className="font-display text-[1rem] leading-snug">
       {invitation.blessing}
     </p>,
-    <div key="d" className="text-[0.75rem] font-medium uppercase tracking-[0.16em]">
-      {date ? (
-        <time dateTime={wedding.wedding.dateTime!} className="block">
-          {date.weekday} · {date.day} {date.month} {date.year}
-          {date.time && ` · ${date.time}`}
-        </time>
-      ) : (
-        <Pending label="Wedding date awaiting confirmation">Weekday · Day Month Year · Time</Pending>
-      )}
-      <span className="mt-1 block">
-        {venueName ? (
-          [venueName, city].filter(Boolean).join(", ")
-        ) : (
-          <Pending label="Venue awaiting confirmation">Venue, City</Pending>
-        )}
-      </span>
-    </div>,
   ];
 
   return (
-    <section id="invitation" aria-label="Wedding invitation" className="relative flex min-h-[100dvh] flex-col">
-      <PattachitraBorder className="absolute bottom-0 left-0 top-0" />
-      <PattachitraBorder flip className="absolute bottom-0 right-0 top-0" />
+    <section
+      id="invitation"
+      aria-label="Wedding invitation"
+      data-status-tone="light"
+      className="relative [container-type:inline-size]"
+    >
+      {/* The card: whole top, repeating plain middle, whole bottom */}
+      <div aria-hidden className="absolute inset-0 flex flex-col">
+        <div
+          className="relative z-10 shrink-0"
+          style={{ height: cq(CARD.top), backgroundImage: `url(${CARD.src})`, backgroundSize: "100% auto", backgroundPosition: "top", backgroundRepeat: "no-repeat" }}
+        />
+        <div
+          className="-my-px flex-1"
+          style={{ backgroundImage: `url(${CARD.middle})`, backgroundSize: "100% auto", backgroundRepeat: "no-repeat round" }}
+        />
+        <div
+          className="relative z-10 shrink-0"
+          style={{ height: cq(CARD.h - CARD.bottomFrom), backgroundImage: `url(${CARD.src})`, backgroundSize: "100% auto", backgroundPosition: "bottom", backgroundRepeat: "no-repeat" }}
+        />
+      </div>
 
       <div
         ref={contentRef}
-        className="relative flex flex-1 flex-col items-center justify-center px-[38px] pb-[max(1.75rem,env(safe-area-inset-bottom))] pt-[calc(max(1.75rem,env(safe-area-inset-top))_+_var(--status-bar,0px))] text-center will-change-transform"
+        className="relative z-20 flex flex-col items-center text-center will-change-transform"
+        style={{
+          // Always tall enough for the card's top and bottom plus one band of middle
+          minHeight: `max(100dvh, ${cq(CARD.top + 70 + CARD.h - CARD.bottomFrom)})`,
+          // Below the deities (their base sits ~490px down the card)
+          paddingTop: cq(505),
+          // Clear of the bottom border band
+          paddingBottom: cq(95),
+          paddingInline: cq(80),
+          color: INK,
+        }}
       >
-        <div className="relative w-full max-w-[22rem]">
-          {/* The binding cord, threaded down through every leaf's holes */}
-          {HOLES.map((x) => (
-            <span
-              key={x}
-              aria-hidden
-              className={`absolute bottom-6 top-6 w-[2px] -translate-x-1/2 origin-top rounded-full bg-[#7A1F24] ${x}`}
-              style={{
-                transform: show ? "scaleY(1)" : "scaleY(0)",
-                transition: `transform ${leaves.length * LEAF_STAGGER + LEAF_DURATION}ms ${EASE.silk}`,
-              }}
-            />
+        <div className="flex w-full max-w-[19rem] flex-col gap-2.5 short:gap-1.5">
+          {upper.map((node, i) => (
+            <div key={i} style={line(i)}>
+              {node}
+            </div>
           ))}
-
-          <div className="relative flex flex-col gap-2.5 short:gap-1.5">
-            {leaves.map((content, i) => (
-              <Leaf key={i} show={show} order={i}>
-                {content}
-              </Leaf>
-            ))}
-          </div>
         </div>
 
+        {/* Between the banana trees: the date, venue and the way in */}
         <div
-          className="mt-6 short:mt-4"
-          style={{
-            opacity: show ? 1 : 0,
-            transform: show ? "none" : "translateY(10px)",
-            transition: `opacity 700ms ${EASE.silk} ${leaves.length * LEAF_STAGGER + 300}ms, transform 700ms ${EASE.silk} ${leaves.length * LEAF_STAGGER + 300}ms`,
-          }}
+          className="mt-auto flex flex-col items-center justify-end gap-4 pt-4"
+          style={{ minHeight: cq(CARD.h - 870 - 95), maxWidth: cq(370) }}
         >
-          <Button onClick={onOpen} aria-controls="couple" className="px-9">
-            {invitation.ctaLabel}
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-              <path d="M3.5 5.5 7 9l3.5-3.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </Button>
+          <div className="text-[0.7rem] font-medium uppercase leading-relaxed tracking-[0.14em]" style={line(upper.length)}>
+            {date ? (
+              <time dateTime={wedding.wedding.dateTime!} className="block">
+                {date.weekday} · {date.day} {date.month} {date.year}
+                {date.time && ` · ${date.time}`}
+              </time>
+            ) : (
+              <Pending label="Wedding date awaiting confirmation">Weekday · Day Month Year</Pending>
+            )}
+            <span className="mt-1 block">
+              {venueName ? (
+                [venueName, city].filter(Boolean).join(", ")
+              ) : (
+                <Pending label="Venue awaiting confirmation">Venue, City</Pending>
+              )}
+            </span>
+          </div>
+
+          <div style={line(upper.length + 1)}>
+            <Button onClick={onOpen} aria-controls="couple" className="px-6">
+              {invitation.ctaLabel}
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
+                <path d="M3.5 5.5 7 9l3.5-3.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Button>
+          </div>
         </div>
       </div>
     </section>
-  );
-}
-
-/** One palm leaf: straw-coloured, fibre-lined, with two binding holes; unrolls from its centre. */
-function Leaf({ show, order, children }: { show: boolean; order: number; children: ReactNode }) {
-  const delay = order * LEAF_STAGGER;
-  const style: CSSProperties = {
-    clipPath: show ? "inset(0 0 0 0 round 18px)" : "inset(0 50% 0 50% round 18px)",
-    transform: show ? "none" : "scaleY(0.86)",
-    transition: `clip-path ${LEAF_DURATION}ms ${EASE.temple} ${delay}ms, transform ${LEAF_DURATION}ms ${EASE.silk} ${delay}ms`,
-    background: [
-      // fine horizontal fibres of the dried palm leaf
-      "repeating-linear-gradient(180deg, rgb(110 70 25 / 0.07) 0 1px, transparent 1px 5px)",
-      "linear-gradient(180deg, #F2DFAE 0%, #E7CB8E 52%, #DCBA77 100%)",
-    ].join(","),
-    boxShadow: "inset 0 0 0 1px rgb(110 70 25 / 0.35), inset 0 0 18px rgb(120 75 25 / 0.22), 0 6px 14px -10px rgb(60 35 10 / 0.6)",
-    textShadow: "0 1px 0 rgb(255 245 220 / 0.55)", // etched into the leaf
-  };
-  return (
-    <div className="relative rounded-[18px] px-[13%] py-3 text-[#3B2414] short:py-2" style={style}>
-      {HOLES.map((x) => (
-        <span
-          key={x}
-          aria-hidden
-          className={`absolute top-1/2 h-[9px] w-[9px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#5B3A1E]/70 bg-[#7A1F24] ${x}`}
-        />
-      ))}
-      {children}
-    </div>
   );
 }

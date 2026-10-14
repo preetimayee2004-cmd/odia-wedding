@@ -20,7 +20,7 @@ const RULES = "shadow-[inset_0_0_0_3px_#F1E2C0,inset_0_0_0_4px_rgb(162_122_60/0.
  * dignity of a royal decree: a parchment banner pinned to the bottom of the
  * screen, sealed at its corner with a brass Konark-wheel stamp. Tapping it
  * opens the full decree; dismissing it leaves only the seal. It steps aside
- * on the closing screen. Hidden in production until a notice is configured.
+ * on the invitation card and the closing screens. Hidden in production until a notice is configured.
  */
 export function Rajagya() {
   if (wedding.rajagya.notices.length === 0 && !import.meta.env.DEV) return null;
@@ -32,15 +32,15 @@ function Decree() {
   const [open, setOpen] = useState(false);
   const [dismissed, setDismissed] = useState(() => readSessionFlag(DISMISSED));
   const [arrived, setArrived] = useState(false);
-  const atClose = useClosingInView();
+  const stepAside = useQuietScreensInView();
 
   useEffect(() => {
     const timer = window.setTimeout(() => setArrived(true), ARRIVE_MS);
     return () => clearTimeout(timer);
   }, []);
 
-  const bannerShown = arrived && !dismissed && !atClose;
-  const sealShown = arrived && dismissed && !atClose;
+  const bannerShown = arrived && !dismissed && !stepAside;
+  const sealShown = arrived && dismissed && !stepAside;
   const first = notices[0];
   const title = `${label}, ${gloss}`;
 
@@ -189,11 +189,15 @@ function slide(shown: boolean): CSSProperties {
   };
 }
 
-/** True while the closing screens (thank-you, footer) are on screen. */
-function useClosingInView(): boolean {
+/**
+ * True while a screen that must stay uncovered is in view: the invitation
+ * card (its "Open Invitation" button sits at the bottom) and the closing
+ * screens (thank-you, footer).
+ */
+function useQuietScreensInView(): boolean {
   const [inView, setInView] = useState(false);
   useEffect(() => {
-    const els = ["thank-you", "closing"]
+    const els = ["invitation", "thank-you", "closing"]
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => el !== null);
     if (els.length === 0 || !("IntersectionObserver" in window)) return;

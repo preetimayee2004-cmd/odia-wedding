@@ -81,7 +81,7 @@ Each section has its own entrance. All of them respect *reduced motion*.
 | Section | Motion |
 |---|---|
 | Opening | The carved temple door artwork (`public/art/temple-door.webp`) fills the screen, fading in from the dark; light gathers at the seam, then the two leaves swing smoothly inward on their own into golden light, the view glides through the doorway and Mahaprabhu Jagannath (`public/art/jagannath.png`, a transparent cut-out) emerges in a radiant golden glow, then the scene rises like a curtain (Skip / Esc) |
-| Invitation | Talapatra palm leaves unroll one by one, threaded on a sindoor cord, between Pattachitra borders; slow parallax drift on scroll |
+| Invitation | The illustrated invitation card (`public/art/invitation-card.jpg`: garlands, Jagannath, Balabhadra and Subhadra, banana trees) fills the screen; its plain middle band (`invitation-card-middle.png`) repeats so it fits any height undistorted. The words rise in line by line on the cream panel, with the date and Open Invitation between the trees |
 | Couple | Portrait cards in Tarakasi silver-filigree frames; a white Odia mukuta drops onto the bride’s frame and the groom’s crown onto his |
 | Countdown | On a matte-black strip, the Konark Sun Temple wheel turns into alignment with the scroll; days, hours and minutes sit in its hub |
 | Our Story | Sambalpuri Ikat thread grows with the scroll; chapters alternate either side, each marked by a Pattachitra icon (peacocks, Koka lotus, pana-gua) |
@@ -93,5 +93,5 @@ Each section has its own entrance. All of them respect *reduced motion*.
 | RSVP | Torana arch rises; accepting blooms a gold ornament |
 | Contact | Circular wipe reveal |
 | Thank you | The Mahaprasad Grace: one screen of evening sky over the Bay of Bengal; golden Pranam hands holding a Tulsi leaf trace themselves in, then the words of gratitude |
-| Rajagya | Parchment decree banner pinned to the bottom, sealed with a brass Konark-wheel stamp; opens the full decree, dismisses to the seal, steps aside on the closing screen |
+| Rajagya | Parchment decree banner pinned to the bottom, sealed with a brass Konark-wheel stamp; opens the full decree, dismisses to the seal, steps aside on the invitation card and the closing screen |
 | Footer | Continues the evening sea; gold thread draws outward |
