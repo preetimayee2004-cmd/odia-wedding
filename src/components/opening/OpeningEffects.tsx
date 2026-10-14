@@ -172,7 +172,7 @@ export const Swirl = forwardRef<HTMLDivElement>(function Swirl(_, ref) {
     });
   }, []);
   return (
-    <div ref={ref} aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[min(90vw,420px)] -translate-x-1/2 -translate-y-1/2" style={{ opacity: 0 }}>
+    <div ref={ref} aria-hidden className="pointer-events-none absolute left-1/2 top-[44%] aspect-square w-[min(90vw,420px)] -translate-x-1/2 -translate-y-1/2" style={{ opacity: 0 }}>
       {items.map((m, i) =>
         m.petal ? (
           <svg key={i} className="absolute" width={m.size} height={m.size * 1.3} viewBox="-8 -10.5 16 21" style={{ left: `${m.x}%`, top: `${m.y}%`, transform: `rotate(${m.rot}deg)` }}>

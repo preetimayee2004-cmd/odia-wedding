@@ -30,28 +30,29 @@ const CENTRE = "translate(-50%, -50%)"; // kept in the keyframes of centred elem
 const FINGER_H = 72; // px
 
 /**
- * The opening timeline (ms from the doors starting to open), ~11 s:
- *  0–3.8   a thread of light at the seam; the doors swing outward into golden
- *          light, rays and drifting dust; the gate dims into the dark sanctum
- *  3.2–5.8 a golden glow in the dark; Mahaprabhu's darshan emerges slowly
- *  4.4–8   petals fall during the darshan
- *  8–10.2  the halo swells; he dissolves into golden motes; petals and motes
- *          swirl into a circle of light as the dark warms to golden-white
- *  10–11.2 the light settles onto the invitation's rangoli as the card appears
+ * The opening, as scenes in strict sequence — each starts only when the one
+ * before has finished, and the gate is removed from the page before the
+ * darshan begins (~11 s):
+ *  gate     a thread of light at the seam; the doors part into golden light,
+ *           rays and dust; the whole gate fades out and is removed
+ *  darshan  on a solid dark background: a golden glow, then Mahaprabhu
+ *           emerges slowly in his halo; petals fall; held ~2 s
+ *  dissolve he dissolves into golden motes; petals and motes swirl in; the
+ *           halo becomes a circle of golden light
+ *  ending   that circle settles onto the invitation's rangoli while the dark
+ *           cross-fades straight to the invitation card (no white screen)
  */
 const T = {
-  doors: 400,
+  doorsDelay: 400,
   doorsMs: 2400,
-  darkFrom: 2600,
-  darkMs: 1200,
-  glowFrom: 3200,
-  deityFrom: 3800,
+  gateFadeMs: 900,
+  glowMs: 1400,
+  deityDelay: 600,
   deityMs: 2000,
-  petalsFrom: 4.4, // seconds (CSS)
-  dissolveFrom: 8000,
-  revealAt: 10000,
-  fadeFrom: 10300,
-  fadeMs: 900,
+  holdMs: 2200,
+  dissolveMs: 1700,
+  settleMs: 1000,
+  fadeMs: 1000,
 };
 
 interface OpeningSequenceProps {
@@ -61,7 +62,7 @@ interface OpeningSequenceProps {
   onDone: () => void;
 }
 
-type Phase = "loading" | "waiting" | "opening" | "ending";
+type Phase = "loading" | "waiting" | "gate" | "darshan" | "dissolve" | "ending";
 
 /** Waits for an image to load (or fail) without relying on decode(). */
 function loadImage(src: string) {
@@ -83,6 +84,7 @@ function loadImage(src: string) {
  */
 export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<HTMLDivElement>(null);
   const zoomRef = useRef<HTMLDivElement>(null);
   const seamRef = useRef<HTMLDivElement>(null);
@@ -100,7 +102,6 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
   const backPetalsRef = useRef<HTMLDivElement>(null);
   const frontPetalsRef = useRef<HTMLDivElement>(null);
   const swirlRef = useRef<HTMLDivElement>(null);
-  const brightRef = useRef<HTMLDivElement>(null);
   const discRef = useRef<HTMLDivElement>(null);
   const skipRef = useRef<HTMLButtonElement>(null);
   const soundRef = useRef<HTMLButtonElement>(null);
@@ -114,6 +115,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
   const [phase, setPhase] = useState<Phase>("loading");
   const phaseRef = useRef<Phase>("loading");
   const [hint, setHint] = useState(false);
+  const [gateGone, setGateGone] = useState(false);
   const [deityRect, setDeityRect] = useState<{ left: number; top: number; width: number; height: number } | null>(null);
   const callbacks = useRef({ onReveal, onDone });
   callbacks.current = { onReveal, onDone };
@@ -129,6 +131,8 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
     return anim.finished.then(() => undefined);
   };
   const later = (ms: number, fn: () => void) => timers.current.push(window.setTimeout(fn, ms));
+  /** A pause in the sequence (cancelled, never resolving, if the opening is skipped). */
+  const wait = (ms: number) => new Promise<void>((resolve) => later(ms, resolve));
   const clearTimers = () => {
     timers.current.forEach(clearTimeout);
     timers.current = [];
@@ -146,7 +150,11 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
     };
   }, []);
 
-  /** The overlay goes away: a soft golden-white fade (also used by Skip). */
+  /**
+   * The hand-off to the invitation. Normally the circle of golden light
+   * settles onto the invitation's rangoli while the dark background and the
+   * darshan cross-fade away to the card beneath; Skip simply fades out.
+   */
   const finish = useCallback(async (fast: boolean) => {
     if (phaseRef.current === "ending") return;
     clearTimers();
@@ -156,10 +164,31 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
     setStatusTone("dark");
     for (const b of [skipRef.current, soundRef.current]) void play(b, [{ opacity: 1 }, { opacity: 0 }], { duration: 250 });
     try {
-      await play(rootRef.current, [{ opacity: 1, transform: "translateY(0)" }, { opacity: 0, transform: "translateY(-10px)" }], {
-        duration: fast ? SKIP_MS : T.fadeMs,
-        easing: "ease-in-out",
-      });
+      if (fast) {
+        await play(rootRef.current, [{ opacity: 1 }, { opacity: 0 }], { duration: SKIP_MS, easing: "ease-in-out" });
+      } else {
+        const disc = discRef.current;
+        const target = document.querySelector("#invitation [aria-label^='Tap the rangoli'] svg")?.getBoundingClientRect();
+        const moves: Promise<void>[] = [
+          play(bgRef.current, [{ opacity: 1 }, { opacity: 0 }], { duration: T.fadeMs, easing: "ease-in-out" }),
+          play(darshanRef.current, [{ opacity: 1 }, { opacity: 0 }], { duration: T.fadeMs * 0.8, easing: "ease-in-out" }),
+          play(swirlRef.current, [{ opacity: 1 }, { opacity: 0 }], { duration: T.fadeMs * 0.6, easing: "ease-out" }),
+        ];
+        if (disc && target && target.width) {
+          const d = disc.getBoundingClientRect();
+          const dx = target.left + target.width / 2 - (d.left + d.width / 2);
+          const dy = target.top + target.height / 2 - (d.top + d.height / 2);
+          moves.push(
+            play(disc, [
+              { transform: `${CENTRE} scale(1)` },
+              { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(${(target.width / d.width).toFixed(3)})` },
+            ], { duration: T.settleMs, easing: SMOOTH }),
+          );
+        }
+        await Promise.all(moves);
+        // the light gives way to the rangoli as it builds itself
+        await play(disc, [{ opacity: 1 }, { opacity: 0 }], { duration: 450, easing: "ease-out" });
+      }
     } catch {
       /* unmounted */
     }
@@ -170,69 +199,65 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
   const start = useCallback(() => {
     if (phaseRef.current !== "waiting") return;
     clearTimers(); // cancels the 5-second countdown
-    go("opening");
+    go("gate");
     setHint(false);
     void play(skipRef.current, [{ opacity: 0 }, { opacity: 1 }], { duration: 500 });
 
-    const D = T.doors;
-    // A thread of light at the seam, then the doors swing outward
-    void play(seamRef.current, [{ opacity: 0.35, transform: "scaleX(1)" }, { opacity: 1, transform: "scaleX(2.2)" }, { opacity: 0, transform: "scaleX(4)" }], { duration: D + 900, easing: "ease-in-out" });
-    // They part from the centre to either side, swinging into the sanctum
-    for (const [leaf, angle] of [[leftRef.current, 84], [rightRef.current, -84]] as const) {
-      void play(leaf, [{ transform: "rotateY(0deg)" }, { transform: `rotateY(${angle}deg)` }], { duration: T.doorsMs, delay: D, easing: SMOOTH });
-      void play(leaf, [{ opacity: 1 }, { opacity: 1, offset: 0.65 }, { opacity: 0 }], { duration: T.doorsMs, delay: D, easing: "ease-in" });
-    }
-    for (const shade of [leftShadeRef.current, rightShadeRef.current]) {
-      void play(shade, [{ opacity: 0 }, { opacity: 0.55 }], { duration: T.doorsMs, delay: D, easing: SMOOTH });
-    }
-    // Golden light behind the doors grows; rays and dust; the gentlest push in
-    void play(interiorRef.current, [{ opacity: 0.55 }, { opacity: 1 }], { duration: T.doorsMs, delay: D, easing: "ease-in" });
-    void play(doorGlowRef.current, [{ opacity: 0 }, { opacity: 0.9, offset: 0.6 }, { opacity: 0 }], { duration: T.darkFrom + T.darkMs + 400 - D, delay: D + 200, easing: "ease-in-out" });
-    void play(doorRaysRef.current, [{ opacity: 0 }, { opacity: 0.6, offset: 0.55 }, { opacity: 0 }], { duration: T.darkFrom + T.darkMs + 600 - D, delay: D + 400, easing: "ease-in-out" });
-    void play(zoomRef.current, [{ transform: "scale(1)" }, { transform: "scale(1.06)" }], { duration: T.darkFrom + T.darkMs, easing: SMOOTH });
-    // The gate dims into the dark sanctum
-    void play(sceneRef.current, [{ opacity: 1 }, { opacity: 0 }], { duration: T.darkMs, delay: T.darkFrom, easing: "ease-in-out" });
-
-    // The darshan: a glow in the dark, then Mahaprabhu, slowly
-    void play(darshanRef.current, [{ opacity: 0 }, { opacity: 1 }], { duration: 10, delay: T.glowFrom });
-    void play(glowRef.current, [{ opacity: 0, transform: "scale(0.6)" }, { opacity: 1, transform: "scale(1)" }], { duration: 1600, delay: T.glowFrom, easing: "ease-out" });
-    void play(haloRef.current, [{ opacity: 0, transform: `${CENTRE} scale(0.8)` }, { opacity: 1, transform: `${CENTRE} scale(1)` }], { duration: 1800, delay: T.glowFrom + 400, easing: "ease-out" });
-    void play(deityRef.current, [{ opacity: 0, transform: `${CENTRE} scale(0.96)` }, { opacity: 1, transform: `${CENTRE} scale(1)` }], { duration: T.deityMs, delay: T.deityFrom, easing: EASE.silk });
-    later(T.deityFrom, () => setStatusTone("light"));
-
-    // It dissolves into golden light; petals and motes swirl into a circle
-    const X = T.dissolveFrom;
-    void play(haloRef.current, [{ transform: `${CENTRE} scale(1)` }, { transform: `${CENTRE} scale(1.4)` }], { duration: 1400, delay: X, easing: "ease-in-out" });
-    void play(deityRef.current, [{ opacity: 1, transform: `${CENTRE} scale(1)` }, { opacity: 0, transform: `${CENTRE} scale(1.03)` }], { duration: 1600, delay: X + 200, easing: "ease-in-out" });
-    for (const layer of [backPetalsRef.current, frontPetalsRef.current]) {
-      void play(layer, [{ opacity: 1 }, { opacity: 0 }], { duration: 1200, delay: X + 400, easing: "ease-in" });
-    }
-    void play(swirlRef.current, [
-      { opacity: 0, transform: "translate(-50%, -50%) rotate(0deg) scale(1.25)" },
-      { opacity: 1, offset: 0.3 },
-      { opacity: 1, transform: "translate(-50%, -50%) rotate(300deg) scale(0.3)" },
-    ], { duration: 1800, delay: X + 600, easing: "cubic-bezier(0.5, 0, 0.3, 1)" });
-    void play(brightRef.current, [{ opacity: 0 }, { opacity: 1 }], { duration: 1400, delay: X + 800, easing: "ease-in-out" });
-    void play(discRef.current, [{ opacity: 0, transform: "translate(-50%, -50%) scale(0.4)" }, { opacity: 1, transform: "translate(-50%, -50%) scale(1)" }], { duration: 600, delay: X + 1600, easing: "ease-out" });
-    later(X + 800, () => setStatusTone("dark"));
-
-    // The circle of light settles onto the invitation's rangoli as the card appears
-    later(T.revealAt, () => {
-      if (phaseRef.current !== "opening") return;
-      callbacks.current.onReveal();
-      const target = document.querySelector("#invitation [aria-label^='Tap the rangoli'] svg")?.getBoundingClientRect();
-      const disc = discRef.current;
-      if (disc && target && target.width) {
-        const d = disc.getBoundingClientRect();
-        const dx = target.left + target.width / 2 - (d.left + d.width / 2);
-        const dy = target.top + target.height / 2 - (d.top + d.height / 2);
-        void play(disc, [
-          { transform: "translate(-50%, -50%) scale(1)", opacity: 1 },
-          { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(${(target.width / d.width).toFixed(3)})`, opacity: 0.85 },
-        ], { duration: 900, easing: SMOOTH });
+    void (async () => {
+      // ---- Gate: a thread of light, then the doors part into golden light
+      const D = T.doorsDelay;
+      void play(seamRef.current, [{ opacity: 0.35, transform: "scaleX(1)" }, { opacity: 1, transform: "scaleX(2.2)" }, { opacity: 0, transform: "scaleX(4)" }], { duration: D + 900, easing: "ease-in-out" });
+      // They part from the centre to either side, swinging into the sanctum
+      for (const [leaf, angle] of [[leftRef.current, 84], [rightRef.current, -84]] as const) {
+        void play(leaf, [{ transform: "rotateY(0deg)" }, { transform: `rotateY(${angle}deg)` }], { duration: T.doorsMs, delay: D, easing: SMOOTH });
+        void play(leaf, [{ opacity: 1 }, { opacity: 1, offset: 0.65 }, { opacity: 0 }], { duration: T.doorsMs, delay: D, easing: "ease-in" });
       }
-    });
-    later(T.fadeFrom, () => void finish(false));
+      for (const shade of [leftShadeRef.current, rightShadeRef.current]) {
+        void play(shade, [{ opacity: 0 }, { opacity: 0.55 }], { duration: T.doorsMs, delay: D, easing: SMOOTH });
+      }
+      void play(interiorRef.current, [{ opacity: 0.55 }, { opacity: 1 }], { duration: T.doorsMs, delay: D, easing: "ease-in" });
+      void play(doorGlowRef.current, [{ opacity: 0 }, { opacity: 0.9 }], { duration: T.doorsMs, delay: D + 200, easing: "ease-in-out" });
+      void play(doorRaysRef.current, [{ opacity: 0 }, { opacity: 0.6 }], { duration: T.doorsMs, delay: D + 400, easing: "ease-in-out" });
+      void play(zoomRef.current, [{ transform: "scale(1)" }, { transform: "scale(1.06)" }], { duration: D + T.doorsMs + T.gateFadeMs, easing: SMOOTH });
+      await wait(D + T.doorsMs);
+      if ((phaseRef.current as Phase) !== "gate") return; // skipped meanwhile
+
+      // The whole gate fades out and is removed — nothing of it stays behind
+      await play(sceneRef.current, [{ opacity: 1 }, { opacity: 0 }], { duration: T.gateFadeMs, easing: "ease-in-out" });
+      if ((phaseRef.current as Phase) !== "gate") return; // skipped meanwhile
+      setGateGone(true);
+
+      // ---- Darshan, on the solid dark background
+      go("darshan");
+      setStatusTone("light");
+      if (darshanRef.current) darshanRef.current.style.opacity = "1";
+      void play(glowRef.current, [{ opacity: 0, transform: "scale(0.6)" }, { opacity: 1, transform: "scale(1)" }], { duration: T.glowMs, easing: "ease-out" });
+      void play(haloRef.current, [{ opacity: 0, transform: `${CENTRE} scale(0.8)` }, { opacity: 1, transform: `${CENTRE} scale(1)` }], { duration: T.glowMs + 200, delay: 200, easing: "ease-out" });
+      await play(deityRef.current, [{ opacity: 0, transform: `${CENTRE} scale(0.96)` }, { opacity: 1, transform: `${CENTRE} scale(1)` }], { duration: T.deityMs, delay: T.deityDelay, easing: EASE.silk });
+      await wait(T.holdMs);
+      if ((phaseRef.current as Phase) !== "darshan") return; // skipped meanwhile
+
+      // ---- Dissolve: golden motes; petals swirl in; the halo becomes a circle of light
+      const r = deityRef.current?.getBoundingClientRect();
+      if (r) setDeityRect({ left: r.left, top: r.top, width: r.width, height: r.height });
+      go("dissolve");
+      void play(deityRef.current, [{ opacity: 1, transform: `${CENTRE} scale(1)` }, { opacity: 0, transform: `${CENTRE} scale(1.03)` }], { duration: 1500, easing: "ease-in-out" });
+      void play(haloRef.current, [{ opacity: 1, transform: `${CENTRE} scale(1)` }, { opacity: 0, transform: `${CENTRE} scale(1.3)` }], { duration: T.dissolveMs, easing: "ease-in-out" });
+      for (const layer of [backPetalsRef.current, frontPetalsRef.current]) {
+        void play(layer, [{ opacity: 1 }, { opacity: 0 }], { duration: 1200, delay: 200, easing: "ease-in" });
+      }
+      void play(swirlRef.current, [
+        { opacity: 0, transform: `${CENTRE} rotate(0deg) scale(1.25)` },
+        { opacity: 1, offset: 0.3 },
+        { opacity: 1, transform: `${CENTRE} rotate(300deg) scale(0.35)` },
+      ], { duration: T.dissolveMs + 300, delay: 200, easing: "cubic-bezier(0.5, 0, 0.3, 1)" });
+      void play(discRef.current, [{ opacity: 0, transform: `${CENTRE} scale(0.5)` }, { opacity: 1, transform: `${CENTRE} scale(1)` }], { duration: 900, delay: T.dissolveMs - 700, easing: "ease-out" });
+      await wait(T.dissolveMs + 300);
+      if ((phaseRef.current as Phase) !== "dissolve") return; // skipped meanwhile
+
+      // ---- The light settles onto the invitation
+      await finish(false);
+    })();
   }, [finish]);
 
   // Prepare: the gate (and the darshan images) load, the gate fades in, then
@@ -246,8 +271,6 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
     ]);
     void ready.then(async () => {
       if (phaseRef.current !== "loading") return;
-      const r = deityRef.current?.getBoundingClientRect();
-      if (r) setDeityRect({ left: r.left, top: r.top, width: r.width, height: r.height });
       try {
         await Promise.all([
           play(sceneRef.current, [{ opacity: 0 }, { opacity: 1 }], { duration: 1000, easing: "ease-out" }),
@@ -317,144 +340,150 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
     const x = side === "left" ? DOOR.x : SEAM;
     return { left: pct(-x, w), top: pct(-DOOR.y, DOOR.h), width: pct(IMG.w, w), height: pct(IMG.h, DOOR.h), maxWidth: "none" };
   };
-  const opening = phase === "opening";
+  const darshanOn = phase === "darshan" || phase === "dissolve";
 
   return (
     <div
       ref={rootRef}
       className="fixed inset-0 z-50 overflow-hidden"
-      style={{ backgroundColor: DARK, touchAction: "none" }}
+      style={{ touchAction: "none" }}
     >
-      {/* ---------------- The temple gate ---------------- */}
-      <div
-        ref={sceneRef}
-        className="absolute left-1/2 top-1/2"
-        style={{
-          width: `max(100%, calc(100dvh * ${IMG.w / IMG.h}))`,
-          aspectRatio: `${IMG.w} / ${IMG.h}`,
-          transform: `translate(-${FOCUS.x * 100}%, -50%)`,
-          opacity: 0,
-        }}
-      >
-        <div ref={zoomRef} className="absolute inset-0 will-change-transform" style={{ transformOrigin: `${FOCUS.x * 100}% ${FOCUS.y * 100}%` }}>
-          <img ref={imgRef} src={IMG.src} alt="" aria-hidden decoding="async" className="absolute inset-0 h-full w-full" />
+      {/* The solid dark background (the sanctum) */}
+      <div ref={bgRef} aria-hidden className="absolute inset-0" style={{ backgroundColor: DARK }} />
 
-          <div
-            aria-hidden
-            className="absolute"
-            style={{ left: pct(DOOR.x, IMG.w), top: pct(DOOR.y, IMG.h), width: pct(DOOR.w, IMG.w), height: pct(DOOR.h, IMG.h), perspective: "1600px" }}
-          >
-            {/* The sanctum's golden light, behind the doors */}
+      {/* ---------------- The temple gate (removed once it has faded out) ---------------- */}
+      {!gateGone && (
+        <div
+          ref={sceneRef}
+          className="absolute left-1/2 top-1/2"
+          style={{
+            width: `max(100%, calc(100dvh * ${IMG.w / IMG.h}))`,
+            aspectRatio: `${IMG.w} / ${IMG.h}`,
+            transform: `translate(-${FOCUS.x * 100}%, -50%)`,
+            opacity: 0,
+          }}
+        >
+          <div ref={zoomRef} className="absolute inset-0 will-change-transform" style={{ transformOrigin: `${FOCUS.x * 100}% ${FOCUS.y * 100}%` }}>
+            <img ref={imgRef} src={IMG.src} alt="" aria-hidden decoding="async" className="absolute inset-0 h-full w-full" />
+
             <div
-              ref={interiorRef}
-              className="absolute inset-0"
-              style={{ opacity: 0.55, background: "radial-gradient(ellipse 55% 60% at 50% 45%, #FFF4D6 0%, #F6D489 30%, #C98A34 62%, #3A1C0A 100%)" }}
-            />
-            <div ref={leftRef} className="absolute inset-y-0 overflow-hidden" style={leaf("left")}>
-              <img src={IMG.src} alt="" className="absolute" style={leafArt("left")} />
-              <div ref={leftShadeRef} className="absolute inset-0 bg-[#140904]" style={{ opacity: 0 }} />
+              aria-hidden
+              className="absolute"
+              style={{ left: pct(DOOR.x, IMG.w), top: pct(DOOR.y, IMG.h), width: pct(DOOR.w, IMG.w), height: pct(DOOR.h, IMG.h), perspective: "1600px" }}
+            >
+              {/* The sanctum's golden light, behind the doors */}
+              <div
+                ref={interiorRef}
+                className="absolute inset-0"
+                style={{ opacity: 0.55, background: "radial-gradient(ellipse 55% 60% at 50% 45%, #FFF4D6 0%, #F6D489 30%, #C98A34 62%, #3A1C0A 100%)" }}
+              />
+              <div ref={leftRef} className="absolute inset-y-0 overflow-hidden" style={leaf("left")}>
+                <img src={IMG.src} alt="" className="absolute" style={leafArt("left")} />
+                <div ref={leftShadeRef} className="absolute inset-0 bg-[#140904]" style={{ opacity: 0 }} />
+              </div>
+              <div ref={rightRef} className="absolute inset-y-0 overflow-hidden" style={leaf("right")}>
+                <img src={IMG.src} alt="" className="absolute" style={leafArt("right")} />
+                <div ref={rightShadeRef} className="absolute inset-0 bg-[#140904]" style={{ opacity: 0 }} />
+              </div>
+              {/* The first thread of light between the doors */}
+              <div
+                ref={seamRef}
+                className="absolute inset-y-[1%] w-[3px] -translate-x-1/2 rounded-full"
+                style={{
+                  left: pct(LEFT_W, DOOR.w),
+                  opacity: 0,
+                  background: "linear-gradient(180deg, transparent, #FFE7A6 12%, #FFF8E4 50%, #FFE7A6 88%, transparent)",
+                  boxShadow: "0 0 14px 4px rgb(255 210 120 / 0.7)",
+                }}
+              />
             </div>
-            <div ref={rightRef} className="absolute inset-y-0 overflow-hidden" style={leaf("right")}>
-              <img src={IMG.src} alt="" className="absolute" style={leafArt("right")} />
-              <div ref={rightShadeRef} className="absolute inset-0 bg-[#140904]" style={{ opacity: 0 }} />
-            </div>
-            {/* The first thread of light between the doors */}
+
+            {/* Warm light over the carvings, and a soft vignette */}
             <div
-              ref={seamRef}
-              className="absolute inset-y-[1%] w-[3px] -translate-x-1/2 rounded-full"
+              aria-hidden
+              className="pointer-events-none absolute inset-0"
               style={{
-                left: pct(LEFT_W, DOOR.w),
-                opacity: 0,
-                background: "linear-gradient(180deg, transparent, #FFE7A6 12%, #FFF8E4 50%, #FFE7A6 88%, transparent)",
-                boxShadow: "0 0 14px 4px rgb(255 210 120 / 0.7)",
+                background:
+                  "radial-gradient(ellipse 70% 55% at 50% 52%, rgb(255 214 140 / 0.16), transparent 70%), radial-gradient(ellipse 120% 90% at 50% 50%, transparent 60%, rgb(20 10 4 / 0.45) 100%)",
               }}
             />
-          </div>
 
-          {/* Warm light over the carvings, and a soft vignette */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(ellipse 70% 55% at 50% 52%, rgb(255 214 140 / 0.16), transparent 70%), radial-gradient(ellipse 120% 90% at 50% 50%, transparent 60%, rgb(20 10 4 / 0.45) 100%)",
-            }}
-          />
-
-          {/* Golden glow and volumetric rays pouring through the doorway */}
-          <div
-            ref={doorGlowRef}
-            aria-hidden
-            className="pointer-events-none absolute inset-0"
-            style={{ opacity: 0, background: `radial-gradient(ellipse 60% 45% at ${FOCUS.x * 100}% ${FOCUS.y * 100}%, rgb(255 236 180 / 0.95), rgb(242 190 90 / 0.5) 45%, transparent 75%)` }}
-          />
-          <div
-            ref={doorRaysRef}
-            aria-hidden
-            className="pointer-events-none absolute"
-            style={{ left: `${FOCUS.x * 100}%`, top: `${FOCUS.y * 100}%`, width: "220%", aspectRatio: "1", transform: "translate(-50%, -50%)", opacity: 0, mixBlendMode: "screen" }}
-          >
+            {/* Golden glow and volumetric rays pouring through the doorway */}
             <div
-              className="rays-spin absolute inset-0 rounded-full"
-              style={{
-                background: "repeating-conic-gradient(from 0deg, rgb(255 226 150 / 0.5) 0deg 3deg, transparent 3deg 14deg)",
-                maskImage: "radial-gradient(circle, #000 0%, rgb(0 0 0 / 0.6) 25%, transparent 60%)",
-                WebkitMaskImage: "radial-gradient(circle, #000 0%, rgb(0 0 0 / 0.6) 25%, transparent 60%)",
-              }}
+              ref={doorGlowRef}
+              aria-hidden
+              className="pointer-events-none absolute inset-0"
+              style={{ opacity: 0, background: `radial-gradient(ellipse 60% 45% at ${FOCUS.x * 100}% ${FOCUS.y * 100}%, rgb(255 236 180 / 0.95), rgb(242 190 90 / 0.5) 45%, transparent 75%)` }}
             />
-          </div>
-          {opening && <Motes count={22} seed={5} region={{ x: 20, y: 35, w: 60, h: 55 }} />}
+            <div
+              ref={doorRaysRef}
+              aria-hidden
+              className="pointer-events-none absolute"
+              style={{ left: `${FOCUS.x * 100}%`, top: `${FOCUS.y * 100}%`, width: "220%", aspectRatio: "1", transform: "translate(-50%, -50%)", opacity: 0, mixBlendMode: "screen" }}
+            >
+              <div
+                className="rays-spin absolute inset-0 rounded-full"
+                style={{
+                  background: "repeating-conic-gradient(from 0deg, rgb(255 226 150 / 0.5) 0deg 3deg, transparent 3deg 14deg)",
+                  maskImage: "radial-gradient(circle, #000 0%, rgb(0 0 0 / 0.6) 25%, transparent 60%)",
+                  WebkitMaskImage: "radial-gradient(circle, #000 0%, rgb(0 0 0 / 0.6) 25%, transparent 60%)",
+                }}
+              />
+            </div>
+            {phase === "gate" && <Motes count={22} seed={5} region={{ x: 20, y: 35, w: 60, h: 55 }} />}
 
-          {/* The tap hint, at the brass lock */}
-          <div className="absolute" style={{ left: pct(LOCK.x, IMG.w), top: pct(LOCK.y, IMG.h) }}>
-            <div aria-hidden style={{ opacity: hint ? 1 : 0, transition: "opacity 300ms ease-out" }}>
-              {[0, 0.6].map((d) => (
-                <span
-                  key={d}
-                  className="tap-ripple absolute -left-9 -top-9 rounded-full"
-                  style={{ "--delay": `${d * 2.6 * 0.38}s`, width: 72, height: 72, border: "2px solid rgb(255 220 140 / 0.9)", boxShadow: "0 0 16px 2px rgb(255 205 110 / 0.6)" } as CSSProperties}
-                />
-              ))}
-              {/* The hand, placed and tilted from its fingertip, pressing the lock */}
-              <div className="fingertip-press absolute left-0 top-0">
-                <div
-                  className="absolute drop-shadow-[0_3px_6px_rgb(0_0_0/0.5)]"
-                  style={{
-                    left: -FINGERTIP.x * FINGER_H * FINGERTIP.aspect,
-                    top: -FINGERTIP.y * FINGER_H,
-                    transform: "rotate(-24deg)",
-                    transformOrigin: `${FINGERTIP.x * 100}% ${FINGERTIP.y * 100}%`,
-                  }}
-                >
-                  <Fingertip height={FINGER_H} />
+            {/* The tap hint, at the brass lock */}
+            <div className="absolute" style={{ left: pct(LOCK.x, IMG.w), top: pct(LOCK.y, IMG.h) }}>
+              <div aria-hidden style={{ opacity: hint ? 1 : 0, transition: "opacity 300ms ease-out" }}>
+                {[0, 0.6].map((d) => (
+                  <span
+                    key={d}
+                    className="tap-ripple absolute -left-9 -top-9 rounded-full"
+                    style={{ "--delay": `${d * 2.6 * 0.38}s`, width: 72, height: 72, border: "2px solid rgb(255 220 140 / 0.9)", boxShadow: "0 0 16px 2px rgb(255 205 110 / 0.6)" } as CSSProperties}
+                  />
+                ))}
+                {/* The hand, placed and tilted from its fingertip, pressing the lock */}
+                <div className="fingertip-press absolute left-0 top-0">
+                  <div
+                    className="absolute drop-shadow-[0_3px_6px_rgb(0_0_0/0.5)]"
+                    style={{
+                      left: -FINGERTIP.x * FINGER_H * FINGERTIP.aspect,
+                      top: -FINGERTIP.y * FINGER_H,
+                      transform: "rotate(-24deg)",
+                      transformOrigin: `${FINGERTIP.x * 100}% ${FINGERTIP.y * 100}%`,
+                    }}
+                  >
+                    <Fingertip height={FINGER_H} />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div
-            aria-hidden
-            className="absolute -translate-x-1/2"
-            style={{ left: pct(LOCK.x, IMG.w), top: pct(LOCK.y + 150, IMG.h), visibility: hint ? "visible" : "hidden" }}
-          >
-            <p
-              className="tap-text whitespace-nowrap pl-[0.32em] font-serif text-[19px] font-bold tracking-[0.32em]"
-              style={{ color: "#FFE3A0", textShadow: "0 0 10px rgb(255 196 90 / 0.85), 0 0 2px rgb(60 30 5 / 0.9), 0 2px 4px rgb(0 0 0 / 0.6)" }}
+            <div
+              aria-hidden
+              className="absolute -translate-x-1/2"
+              style={{ left: pct(LOCK.x, IMG.w), top: pct(LOCK.y + 150, IMG.h), visibility: hint ? "visible" : "hidden" }}
             >
-              TAP TO OPEN
-            </p>
+              <p
+                className="tap-text whitespace-nowrap pl-[0.32em] font-serif text-[19px] font-bold tracking-[0.32em]"
+                style={{ color: "#FFE3A0", textShadow: "0 0 10px rgb(255 196 90 / 0.85), 0 0 2px rgb(60 30 5 / 0.9), 0 2px 4px rgb(0 0 0 / 0.6)" }}
+              >
+                TAP TO OPEN
+              </p>
+            </div>
+            {/* The lock is the tap target (large enough for a thumb) */}
+            <button
+              type="button"
+              onClick={start}
+              onKeyDown={onLockKey}
+              aria-label="Tap to open the temple doors"
+              disabled={phase !== "waiting"}
+              className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[#E9C46A]/80"
+              style={{ left: pct(LOCK.x, IMG.w), top: pct(LOCK.y + 40, IMG.h), width: "40%", height: pct(320, IMG.h), WebkitTapHighlightColor: "transparent" }}
+            />
           </div>
-          {/* The lock is the tap target (large enough for a thumb) */}
-          <button
-            type="button"
-            onClick={start}
-            onKeyDown={onLockKey}
-            aria-label="Tap to open the temple doors"
-            disabled={phase !== "waiting"}
-            className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[#E9C46A]/80"
-            style={{ left: pct(LOCK.x, IMG.w), top: pct(LOCK.y + 40, IMG.h), width: "40%", height: pct(320, IMG.h), WebkitTapHighlightColor: "transparent" }}
-          />
         </div>
-      </div>
+
+      )}
 
       {/* ---------------- The darshan ---------------- */}
       <div ref={darshanRef} aria-hidden={phase === "loading" || phase === "waiting"} className="pointer-events-none absolute inset-0" style={{ opacity: 0 }}>
@@ -476,7 +505,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
           <div className="absolute inset-[22%] rounded-full" style={{ background: "radial-gradient(circle, rgb(255 238 190 / 0.95) 0%, rgb(255 205 110 / 0.55) 40%, transparent 70%)" }} />
         </div>
         <div ref={backPetalsRef} className="absolute inset-0">
-          {opening && <Petals baseDelay={T.petalsFrom} />}
+          {darshanOn && <Petals baseDelay={0.8} />}
         </div>
         <img
           ref={deityRef}
@@ -496,24 +525,18 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
           }}
         />
         <div ref={frontPetalsRef} className="absolute inset-0">
-          {opening && <Petals front baseDelay={T.petalsFrom + 0.6} />}
+          {darshanOn && <Petals front baseDelay={1.4} />}
         </div>
-        {opening && deityRect && <MoteBurst rect={deityRect} baseDelay={(T.dissolveFrom + 200) / 1000} />}
-        {opening && <Motes count={14} seed={9} region={{ x: 8, y: 10, w: 84, h: 80 }} />}
+        {phase === "dissolve" && deityRect && <MoteBurst rect={deityRect} baseDelay={0.1} />}
+        {darshanOn && <Motes count={14} seed={9} region={{ x: 8, y: 10, w: 84, h: 80 }} />}
       </div>
 
       {/* ---------------- Into the light ---------------- */}
       <Swirl ref={swirlRef} />
       <div
-        ref={brightRef}
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{ opacity: 0, background: "radial-gradient(ellipse 85% 65% at 50% 50%, #FFFDF5 0%, #FFF3D9 40%, #F4DFB4 100%)" }}
-      />
-      <div
         ref={discRef}
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 aspect-square w-[min(48vw,220px)] rounded-full"
+        className="pointer-events-none absolute left-1/2 top-[44%] aspect-square w-[min(48vw,220px)] rounded-full"
         style={{
           opacity: 0,
           transform: "translate(-50%, -50%)",
