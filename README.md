@@ -84,7 +84,7 @@ Each section has its own entrance. All of them respect *reduced motion*.
 | Opening | Kalinga door sketch draws itself in the dark; on tap the sankha sounds, the doors split into golden light revealing Mahaprabhu's eyes, then the scene rises like a curtain (Skip / Esc) |
 | Invitation | Talapatra palm leaves unroll one by one, threaded on a sindoor cord, between Pattachitra borders; slow parallax drift on scroll |
 | Couple | Portrait cards in Tarakasi silver-filigree frames; a white Odia mukuta drops onto the bride’s frame and the groom’s crown onto his |
-| Countdown | Lotus mandala draws itself |
+| Countdown | On a matte-black strip, the Konark Sun Temple wheel turns into alignment with the scroll; days, hours and minutes sit in its hub |
 | Our Story | Thread grows with the scroll; Chandua medallions stitch on |
 | Family | Two sides slide in towards each other |
 | Events | Cards dealt in with a 3D tilt; details in a bottom sheet |
