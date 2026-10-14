@@ -15,6 +15,9 @@ export const TIMING = {
 /** The temple door artwork, and where its two leaves sit in it (image pixels). */
 const IMG = { src: "/art/temple-door.webp", w: 1024, h: 765 };
 /** Mahaprabhu Jagannath, revealed in golden light beyond the doors (square artwork, shown uncropped). */
+// Soft top and bottom edges (the sides meet the screen edges), stopping short
+// of the corner marks so they stay visible.
+const DARSHAN_FADE = "linear-gradient(to bottom, transparent 0%, #000 18%, #000 94%, transparent 100%)";
 const DARSHAN = { src: "/art/jagannath-darshan.jpg", alt: "Mahaprabhu Jagannath in golden light between temple pillars" };
 const DOOR = { x: 191, y: 176, w: 644, h: 572 };
 const SEAM = 512;
@@ -284,15 +287,27 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
           }}
         />
 
-        {/* Darshan: the whole artwork, uncropped, over a soft blurred copy of itself */}
+        {/* Darshan: the whole artwork, uncropped, its top and bottom edges melting
+            into golden light drawn from its own colours */}
         <div ref={darshanRef} className="absolute inset-0 overflow-hidden" style={{ opacity: 0 }}>
           <img
             src={DARSHAN.src}
             alt=""
             aria-hidden
-            className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl"
+            className="absolute inset-0 h-full w-full scale-125 object-cover blur-3xl"
           />
-          <img src={DARSHAN.src} alt={DARSHAN.alt} decoding="async" className="absolute inset-0 h-full w-full object-contain" />
+          <div
+            aria-hidden
+            className="absolute inset-0"
+            style={{ background: "radial-gradient(ellipse 100% 75% at 50% 50%, rgb(255 230 160 / 0.6), rgb(236 190 110 / 0.45) 60%, rgb(200 140 60 / 0.4))" }}
+          />
+          <img
+            src={DARSHAN.src}
+            alt={DARSHAN.alt}
+            decoding="async"
+            className="absolute left-1/2 top-1/2 aspect-square w-[min(100%,100dvh)] max-w-none -translate-x-1/2 -translate-y-1/2"
+            style={{ maskImage: DARSHAN_FADE, WebkitMaskImage: DARSHAN_FADE }}
+          />
         </div>
 
         {/* Blinding flash */}
