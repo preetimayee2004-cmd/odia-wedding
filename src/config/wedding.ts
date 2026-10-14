@@ -408,7 +408,7 @@ export const wedding: WeddingConfig = {
     image: null,
   },
   assets: {
-    desktopBackdrop: "/art/desktop-backdrop.jpg",
+    desktopBackdrop: "/art/desktop-backdrop.png",
   },
   opening: {
     playOncePerSession: false, // every load starts from the opening
