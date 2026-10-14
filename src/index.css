@@ -174,3 +174,14 @@
     animation: none !important;
   }
 }
+
+/* Aged, cream-toned parchment for the Rajagya: darkened edges, faint
+   stains and paper fibres. */
+.parchment {
+  background-color: #f1e2c0;
+  background-image:
+    radial-gradient(130% 110% at 50% 50%, transparent 52%, rgb(140 95 35 / 0.24) 100%),
+    radial-gradient(38% 30% at 18% 28%, rgb(165 115 45 / 0.09), transparent 70%),
+    radial-gradient(30% 26% at 84% 74%, rgb(165 115 45 / 0.08), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27160%27 height=%27160%27%3E%3Cfilter id=%27p%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.75 0.22%27 numOctaves=%273%27 stitchTiles=%27stitch%27/%3E%3CfeColorMatrix values=%270 0 0 0 0.45 0 0 0 0 0.3 0 0 0 0 0.1 0.8 0 0 0 0%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23p)%27 opacity=%270.2%27/%3E%3C/svg%3E");
+}

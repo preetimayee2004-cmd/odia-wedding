@@ -3,15 +3,19 @@ import { wedding } from "@/config/wedding";
 import { useInView } from "@/hooks/useInView";
 import { EASE } from "@/lib/motion";
 import { formatVenueDate, parseVenueDateTime } from "@/lib/venueTime";
-import { ChanduaPatch } from "@/components/art/Chandua";
+
+// Continues the calm evening sea at the foot of the thank-you screen.
+const SEA = "#141539";
+const GOLD = "#D9B877";
+const TEXT_SOFT = "#BFB3A0";
 
 /**
- * Section 14 — Footer and love notice (PRD §4.13).
- * Identity: a gold thread draws outward from a small applique medallion,
- * then the closing words settle beneath it. Deliberately not a "site footer".
+ * Closing sign-off, beneath the thank-you screen.
+ * Identity: a gold thread draws outward from a small diamond, then the
+ * couple's names settle beneath it. Deliberately not a "site footer".
  */
 export function Footer() {
-  const { blessing, loveNotice, credit } = wedding.footer;
+  const { blessing, credit } = wedding.footer;
   const { bride, groom } = wedding.couple;
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { threshold: 0.3 });
@@ -29,33 +33,36 @@ export function Footer() {
   return (
     <footer
       ref={ref}
+      id="closing"
       aria-label="Closing note"
-      className="px-[var(--gutter)] pb-[max(3.5rem,env(safe-area-inset-bottom))] pt-16 text-center"
+      data-status-tone="light"
+      className="px-[var(--gutter)] pb-[max(3.5rem,env(safe-area-inset-bottom))] pt-8 text-center"
+      style={{ backgroundColor: SEA }}
     >
       <div aria-hidden className="flex items-center justify-center gap-3">
-        <span className="h-px w-20 bg-gradient-to-l from-gold to-transparent" style={thread("right")} />
-        <span style={{ ...fade(0), transform: inView ? "none" : "scale(0.6)", transition: `opacity 600ms, transform 800ms ${EASE.silk}` }}>
-          <ChanduaPatch variant={2} className="h-7 w-7" />
-        </span>
-        <span className="h-px w-20 bg-gradient-to-r from-gold to-transparent" style={thread("left")} />
+        <span className="h-px w-20 bg-gradient-to-l from-[#D9B877]/80 to-transparent" style={thread("right")} />
+        <span className="h-2 w-2 rotate-45" style={{ ...fade(0), backgroundColor: GOLD }} />
+        <span className="h-px w-20 bg-gradient-to-r from-[#D9B877]/80 to-transparent" style={thread("left")} />
       </div>
 
-      <p className="mx-auto mt-8 max-w-[18rem] font-display text-[1.15rem] italic leading-relaxed text-ink" style={fade(700)}>
-        {loveNotice}
-      </p>
-
-      <div style={fade(1100)}>
-        <p className="eyebrow mt-8">{blessing}</p>
-        <p className="mt-2 font-script text-[2.6rem] leading-tight text-sindoor">
-          {bride.displayName} <span className="font-display text-2xl italic text-gold-deep">&amp;</span>{" "}
+      <div style={fade(600)}>
+        <p className="mt-8 text-[0.6875rem] font-medium uppercase tracking-eyebrow" style={{ color: TEXT_SOFT }}>
+          {blessing}
+        </p>
+        <p className="mt-2 font-script text-[2.6rem] leading-tight" style={{ color: GOLD }}>
+          {bride.displayName} <span className="font-display text-2xl italic text-[#F3E4C4]/70">&amp;</span>{" "}
           {groom.displayName}
         </p>
         {date && (
-          <p className="mt-1 text-[0.75rem] font-medium uppercase tracking-[0.18em] text-ink-soft">
+          <p className="mt-1 text-[0.75rem] font-medium uppercase tracking-[0.18em]" style={{ color: TEXT_SOFT }}>
             {date.day} {date.month} {date.year}
           </p>
         )}
-        {credit && <p className="mt-10 text-[0.6875rem] text-ink-soft/80">{credit}</p>}
+        {credit && (
+          <p className="mt-10 text-[0.6875rem]" style={{ color: TEXT_SOFT }}>
+            {credit}
+          </p>
+        )}
       </div>
     </footer>
   );

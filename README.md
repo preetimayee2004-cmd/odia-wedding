@@ -46,7 +46,7 @@ Everything a guest reads lives in [`src/config/wedding.ts`](src/config/wedding.t
 | Verified travel & stay details | `travel` |
 | Contacts (with country code) | `contact.people` |
 | RSVP deadline, party-size limit | `rsvp` |
-| Love notice, thank-you message | `footer`, `thankYou` |
+| Rajagya notices (parking, RSVP deadline, live stream), thank-you message | `rajagya`, `thankYou` |
 | Public URL (for WhatsApp previews) | `meta.siteUrl`, then `npm run og` |
 
 ## Wishing Wall & RSVP storage (Supabase)
@@ -94,4 +94,5 @@ Each section has its own entrance. All of them respect *reduced motion*.
 | RSVP | Torana arch rises; accepting blooms a gold ornament |
 | Contact | Circular wipe reveal |
 | Thank you | The Mahaprasad Grace: one screen of evening sky over the Bay of Bengal; golden Pranam hands holding a Tulsi leaf trace themselves in, then the words of gratitude |
-| Footer | Gold thread draws outward |
+| Rajagya | Parchment decree banner pinned to the bottom, sealed with a brass Konark-wheel stamp; opens the full decree, dismisses to the seal, steps aside on the closing screen |
+| Footer | Continues the evening sea; gold thread draws outward |

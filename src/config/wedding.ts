@@ -202,10 +202,27 @@ export interface WeddingConfig {
   footer: {
     /** Short closing blessing or sign-off. */
     blessing: string;
-    /** The couple's love notice — written in their own words. */
-    loveNotice: string;
     /** Optional website credit, e.g. "Made with love by …". */
     credit: string | null;
+  };
+  /** The Rajagya (Royal Decree): practical updates, pinned to the bottom of the screen. */
+  rajagya: {
+    label: string;
+    /** Confirm spelling with the family. */
+    odia: string | null;
+    gloss: string;
+    /**
+     * Logistics only (parking, RSVP deadline, live-stream link), most
+     * important first: the first one shows on the banner. Facts exactly as
+     * the family confirms them. With none, the decree is not shown.
+     */
+    notices: Array<{
+      /** Short heading, e.g. "RSVP". */
+      title: string;
+      /** e.g. "Please RSVP before 1 November." */
+      text: string;
+      link: { href: string; label: string } | null;
+    }>;
   };
   venue: {
     name: string | null;
@@ -380,10 +397,14 @@ export const wedding: WeddingConfig = {
   },
   footer: {
     blessing: "With love and gratitude",
-    // PLACEHOLDER — the couple should write this in their own words.
-    loveNotice:
-      "Every blessing you send becomes a part of our story. We can't wait to celebrate with you.",
     credit: null,
+  },
+  rajagya: {
+    label: "Rajagya",
+    odia: "ରାଜାଜ୍ଞା",
+    gloss: "The Royal Decree",
+    // e.g. { title: "RSVP", text: "Please RSVP before …", link: null }
+    notices: [],
   },
   venue: {
     name: null,

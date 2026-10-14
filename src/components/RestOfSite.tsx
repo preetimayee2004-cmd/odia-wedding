@@ -10,6 +10,7 @@ import { Rsvp } from "@/components/sections/Rsvp";
 import { Contact } from "@/components/sections/Contact";
 import { ThankYou } from "@/components/sections/ThankYou";
 import { Footer } from "@/components/sections/Footer";
+import { Rajagya } from "@/components/sections/Rajagya";
 
 /**
  * Everything after the main invitation, in PRD order. Loaded as its own
@@ -30,6 +31,7 @@ export default function RestOfSite() {
       <Contact />
       <ThankYou />
       <Footer />
+      <Rajagya />
     </>
   );
 }
