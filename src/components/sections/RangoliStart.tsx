@@ -8,7 +8,6 @@ const MAROON = "#8A1C2B";
 /** Timing (ms). */
 const RING_GAP = 250; // each ring builds this long after the one inside it
 const RING_MS = 320;
-const AUTO_OPEN = 5000; // after the build, opens by itself if not tapped
 const EXPAND = 900; // the petals spin while it grows into a golden wash
 const SPIN = 20; // degrees
 const FADE = 600; // the wash fades into the Couple section
@@ -46,7 +45,7 @@ type Stage = "waiting" | "building" | "ready" | "opening" | "opened";
 /**
  * The way into the site: a colourful Odia jhoti and flower rangoli. Once on
  * screen it builds itself ring by ring from the centre outward, then breathes
- * gently above "Tap the rangoli". A tap (or, 5s after the build, no tap) spins
+ * gently above "Tap the rangoli" until the guest taps it. The tap spins
  * its petals as it grows into a golden wash over the whole screen, which
  * fades into the Couple section. Runs once.
  */
@@ -58,7 +57,6 @@ export function RangoliStart({ active, onOpen, size = 170 }: { active: boolean; 
   const [stage, setStage] = useState<Stage>("waiting");
   const [wash, setWash] = useState<{ x: number; y: number; size: number; scale: number } | null>(null);
   const stageRef = useRef<Stage>("waiting");
-  const autoTimer = useRef(0);
   const anims = useRef<Animation[]>([]);
   const openRef = useRef(onOpen);
   openRef.current = onOpen;
@@ -75,7 +73,6 @@ export function RangoliStart({ active, onOpen, size = 170 }: { active: boolean; 
 
   useEffect(
     () => () => {
-      clearTimeout(autoTimer.current);
       anims.current.forEach((a) => a.cancel());
     },
     [],
@@ -84,7 +81,6 @@ export function RangoliStart({ active, onOpen, size = 170 }: { active: boolean; 
   /** The opening transition — guarded so it can only ever run once. */
   const open = useCallback(async () => {
     if (stageRef.current !== "ready") return;
-    clearTimeout(autoTimer.current);
     go("opening");
     if (reducedMotion) {
       await openRef.current();
@@ -159,8 +155,6 @@ export function RangoliStart({ active, onOpen, size = 170 }: { active: boolean; 
         () => {
           if (stageRef.current !== "building") return;
           go("ready");
-          // Opens by itself if the guest hasn't tapped 5s after the build
-          autoTimer.current = window.setTimeout(() => void open(), AUTO_OPEN);
         },
         () => {},
       );
@@ -181,7 +175,7 @@ export function RangoliStart({ active, onOpen, size = 170 }: { active: boolean; 
     );
     io.observe(root);
     return () => io.disconnect();
-  }, [active, open, reducedMotion]);
+  }, [active, reducedMotion]);
 
   const hidden = !reducedMotion || stage === "waiting";
   const layer = (n: number) => ({
