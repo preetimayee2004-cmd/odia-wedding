@@ -45,6 +45,8 @@ export default {
       fontFamily: {
         // Couple's names only.
         script: ['"Pinyon Script"', "cursive"],
+        // The couple's names on the invitation card.
+        vibes: ['"Great Vibes"', '"Pinyon Script"', "cursive"],
         // English headings, event names, quotations.
         display: ['"Cormorant Garamond"', "Georgia", "serif"],
         // Body, dates, times, venues, buttons, forms.

@@ -245,8 +245,14 @@ export function RangoliStart({ active, onOpen, size = 170 }: { active: boolean; 
           </svg>
         </span>
         <span
-          className="mt-1 font-serif text-[15px] font-bold leading-none"
-          style={{ color: CAPTION, opacity: stage === "ready" ? 1 : 0, transition: "opacity 700ms ease-out" }}
+          className="mt-2 rounded-full px-3.5 py-1 font-serif text-[16px] font-bold leading-tight"
+          style={{
+            color: CAPTION,
+            background: "rgb(250 243 228 / 0.95)",
+            boxShadow: "0 0 0 1px rgb(184 134 59 / 0.45)",
+            opacity: stage === "ready" ? 1 : 0,
+            transition: "opacity 700ms ease-out",
+          }}
         >
           Tap the rangoli
         </span>

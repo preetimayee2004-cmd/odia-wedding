@@ -90,11 +90,11 @@ export function Invitation({ reveal, onOpen }: InvitationProps) {
     </p>,
     // The names, one above the other with the ampersand between
     <h1 key="n" className="flex flex-col items-center font-normal leading-[1.05]" style={{ color: MAROON }}>
-      <span className="font-script text-[36px]">{first}</span>
-      <span className="font-script text-[21.6px] leading-none" style={{ color: GOLD }}>
+      <span className="font-vibes text-[40px]">{first}</span>
+      <span className="font-vibes text-[24px] leading-none" style={{ color: GOLD }}>
         &amp;
       </span>
-      <span className="font-script text-[36px]">{second}</span>
+      <span className="font-vibes text-[40px]">{second}</span>
     </h1>,
     <p key="a" className="mb-1.5 text-[16px] font-semibold italic">
       {invitation.announcement}
@@ -142,7 +142,8 @@ export function Invitation({ reveal, onOpen }: InvitationProps) {
           // One screen tall; never shorter than the card's own top and bottom
           minHeight: `max(100dvh, ${cq(CARD.top + CARD.h - CARD.bottomFrom)})`,
           paddingTop: cq(DEITIES_BASE),
-          paddingBottom: `calc(${cq(CARD.h - PANEL_BOTTOM)} + 4px)`,
+          // Clear of the bottom dotted line, so "Tap the rangoli" reads easily
+          paddingBottom: `calc(${cq(CARD.h - PANEL_BOTTOM)} + 22px)`,
           color: INK,
         }}
       >
