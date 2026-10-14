@@ -14,8 +14,8 @@ export const TIMING = {
 
 /** The temple door artwork, and where its two leaves sit in it (image pixels). */
 const IMG = { src: "/art/temple-door.webp", w: 1024, h: 765 };
-/** Mahaprabhu Jagannath, revealed beyond the doors (portrait artwork, shown uncropped). */
-const DARSHAN = { src: "/art/jagannath-darshan.jpg", alt: "Mahaprabhu Jagannath in golden light" };
+/** Mahaprabhu Jagannath's darshan, revealed beyond the doors (portrait photo, shown uncropped). */
+const DARSHAN = { src: "/art/jagannath-darshan.webp", alt: "Darshan of Mahaprabhu Jagannath, adorned with flower garlands" };
 const DOOR = { x: 191, y: 176, w: 644, h: 572 };
 const SEAM = 512;
 const LEFT_W = SEAM - DOOR.x;
@@ -159,7 +159,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
           easing: EASE.silk,
         }),
       ]);
-      setStatusTone("light"); // over the blue sky at the top of the artwork
+      setStatusTone("light"); // over the dark sanctum at the top of the photo
       await play(curtainRef.current!, [], { duration: T.hold });
       if ((phaseRef.current as Phase) === "opening") void lift(false); // not skipped meanwhile
     } catch {
@@ -290,7 +290,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
             src={DARSHAN.src}
             alt=""
             aria-hidden
-            className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl brightness-90"
+            className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl brightness-[0.45]"
           />
           <img src={DARSHAN.src} alt={DARSHAN.alt} decoding="async" className="absolute inset-0 h-full w-full object-contain" />
         </div>
