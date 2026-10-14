@@ -14,8 +14,8 @@ export const TIMING = {
 
 /** The temple door artwork, and where its two leaves sit in it (image pixels). */
 const IMG = { src: "/art/temple-door.webp", w: 1024, h: 765 };
-/** Mahaprabhu Jagannath's darshan, revealed beyond the doors (portrait photo, shown uncropped). */
-const DARSHAN = { src: "/art/jagannath-darshan.webp", alt: "Darshan of Mahaprabhu Jagannath, adorned with flower garlands" };
+/** Mahaprabhu Jagannath, revealed in golden light beyond the doors (square artwork, shown uncropped). */
+const DARSHAN = { src: "/art/jagannath-darshan.jpg", alt: "Mahaprabhu Jagannath in golden light between temple pillars" };
 const DOOR = { x: 191, y: 176, w: 644, h: 572 };
 const SEAM = 512;
 const LEFT_W = SEAM - DOOR.x;
@@ -154,12 +154,12 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
         }),
         // Mahaprabhu Jagannath's darshan emerges from the light
         play(darshanRef.current!, [{ opacity: 0, transform: "scale(1.06)" }, { opacity: 1, transform: "scale(1)" }], {
-          duration: 1600,
-          delay: T.doorOpen * 0.95,
+          duration: 1700,
+          delay: T.doorOpen * 1.3, // after a moment of pure golden light
           easing: EASE.silk,
         }),
       ]);
-      setStatusTone("light"); // over the dark sanctum at the top of the photo
+      setStatusTone("dark"); // over the golden light around the artwork
       await play(curtainRef.current!, [], { duration: T.hold });
       if ((phaseRef.current as Phase) === "opening") void lift(false); // not skipped meanwhile
     } catch {
@@ -290,7 +290,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
             src={DARSHAN.src}
             alt=""
             aria-hidden
-            className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl brightness-[0.45]"
+            className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl"
           />
           <img src={DARSHAN.src} alt={DARSHAN.alt} decoding="async" className="absolute inset-0 h-full w-full object-contain" />
         </div>
