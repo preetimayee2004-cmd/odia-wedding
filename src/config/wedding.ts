@@ -238,11 +238,6 @@ export interface WeddingConfig {
   assets: {
     /** Desktop only: artwork shown around the phone mockup (portrait works best). */
     desktopBackdrop: string | null;
-    /**
-     * Sankha (conch) recording for the opening, e.g. "/audio/sankha.mp3".
-     * While null, a conch-like call is synthesised in the browser.
-     */
-    sankhaSound: string | null;
   };
   opening: {
     /**
@@ -251,7 +246,7 @@ export interface WeddingConfig {
      * the opening.
      */
     playOncePerSession: boolean;
-    /** Small prompt under the temple door (the tap also starts the sankha sound). */
+    /** Small prompt under the temple door. */
     tapHint: string;
   };
   guest: {
@@ -416,7 +411,6 @@ export const wedding: WeddingConfig = {
   },
   assets: {
     desktopBackdrop: "/art/desktop-backdrop.jpg",
-    sankhaSound: null, // awaiting a recording (synthesised until then)
   },
   opening: {
     playOncePerSession: false, // every load starts from the opening

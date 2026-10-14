@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState, type KeyboardEvent as ReactKe
 import { DOOR_OPENING, DOOR_VIEW, DoorFrame, DoorLeaf, JagannathEyes } from "@/components/art/KalingaDoor";
 import { wedding } from "@/config/wedding";
 import { EASE } from "@/lib/motion";
-import { playSankha } from "@/lib/sankha";
 import { setStatusTone } from "@/lib/viewMode";
 
 /** Timing (ms). */
@@ -28,11 +27,10 @@ type Phase = "waiting" | "opening" | "lifting";
 
 /**
  * Section 01 — The Sacred Awakening.
- * A minimal Kalinga temple door in darkness. The guest's tap sounds the
- * sankha; the doors split open and dissolve into golden light that reveals
- * Mahaprabhu Jagannath's round eyes; after two seconds the scene rises like
- * a curtain onto the invitation. (Tap-to-begin also lets the browser play
- * the conch, which it blocks until a gesture.)
+ * A minimal Kalinga temple door in darkness. On the guest's tap the doors
+ * split open and dissolve into golden light that reveals Mahaprabhu
+ * Jagannath's round eyes; after two seconds the scene rises like a curtain
+ * onto the invitation.
  */
 export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
   const curtainRef = useRef<HTMLDivElement>(null);
@@ -108,11 +106,10 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
     callbacks.current.onDone();
   }, []);
 
-  /** The guest's tap: conch, doors, light, eyes, then the curtain. */
+  /** The guest's tap: doors, light, eyes, then the curtain. */
   const begin = useCallback(async () => {
     if (phaseRef.current !== "waiting") return;
     go("opening");
-    playSankha(wedding.assets.sankhaSound); // must run inside the tap
     running.current.forEach((a) => a.finish()); // complete the draw-in if tapped early
 
     const T = TIMING;
@@ -170,7 +167,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
     void lift(true);
   }, [lift]);
 
-  // Escape skips at any point (without sound).
+  // Escape skips at any point.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && skip();
     window.addEventListener("keydown", onKey);

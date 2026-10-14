@@ -37,7 +37,6 @@ Everything a guest reads lives in [`src/config/wedding.ts`](src/config/wedding.t
 | Couple's names | `couple.bride` / `couple.groom` |
 | Wedding date & time | `wedding.dateTime` |
 | Invitation wording (Talapatra scroll: heading, two paragraphs) | `invitation` |
-| Sankha (conch) recording for the opening (optional) | `assets.sankhaSound`, e.g. `"/audio/sankha.mp3"` in `/public`. While `null`, a conch-like call is synthesised in the browser. |
 | Couple portraits (about 3:4) | `couple.bride.photo`, `couple.groom.photo` |
 | Our Story milestones (the couple's own words) | `story.milestones` |
 | Gurujana Pranam: grandparents and parents (`late: true` lights a dipa beside the name) | `family` |
@@ -81,7 +80,7 @@ Each section has its own entrance. All of them respect *reduced motion*.
 
 | Section | Motion |
 |---|---|
-| Opening | Kalinga door sketch draws itself in the dark; on tap the sankha sounds, the doors split into golden light revealing Mahaprabhu's eyes, then the scene rises like a curtain (Skip / Esc) |
+| Opening | Kalinga door sketch draws itself in the dark; on tap the doors split into golden light revealing Mahaprabhu's eyes, then the scene rises like a curtain (Skip / Esc) |
 | Invitation | Talapatra palm leaves unroll one by one, threaded on a sindoor cord, between Pattachitra borders; slow parallax drift on scroll |
 | Couple | Portrait cards in Tarakasi silver-filigree frames; a white Odia mukuta drops onto the bride’s frame and the groom’s crown onto his |
 | Countdown | On a matte-black strip, the Konark Sun Temple wheel turns into alignment with the scroll; days, hours and minutes sit in its hub |
