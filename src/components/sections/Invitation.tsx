@@ -58,7 +58,7 @@ export function Invitation({ reveal, onOpen }: InvitationProps) {
 
   // Warm the couple card so it's ready the moment the golden wash fades
   useEffect(() => {
-    for (const src of ["/art/couple-card.jpg", "/art/couple-card-middle.png"]) new Image().src = src;
+    for (const src of ["/art/couple-card.jpg", "/art/couple-card-middle.png", "/art/couple-havan.png"]) new Image().src = src;
   }, []);
 
   const line = (order: number): CSSProperties => {

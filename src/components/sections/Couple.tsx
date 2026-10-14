@@ -19,6 +19,8 @@ const cq = (px: number) => cardCq(CARD, px);
 const UNDER_ARCH = 160; // below the arch's peak (card px)
 const BORDER_BOTTOM = 1300; // the bottom border band begins here
 const PANEL_EDGE = 62; // the inner red line of the side borders
+/** The couple seated at the sacred fire, centred at the bottom of the card. */
+const COUPLE_ART = { src: "/art/couple-havan.png", alt: "The bride and groom seated together before the sacred fire", aspect: 242 / 303 };
 
 const INK = "#2E1A10";
 const QUOTE_INK = "#4A2C1A";
@@ -30,7 +32,8 @@ const DARK_GOLD = "#8F6420";
  * Section 03 — The couple.
  * Under Ganesha and the invocation, the guest is greeted by name, then the
  * couple's names rise in one after another, with their hashtag and a short
- * quote — spread evenly down the card, inside its arch and border.
+ * quote — spread evenly down the card, inside its arch and border, above the
+ * illustrated couple seated at the sacred fire.
  */
 export function Couple() {
   const ref = useRef<HTMLElement>(null);
@@ -136,6 +139,21 @@ export function Couple() {
             </div>
           </div>
         </div>
+
+        {/* The couple at the sacred fire, centred at the bottom */}
+        <img
+          src={COUPLE_ART.src}
+          alt={COUPLE_ART.alt}
+          decoding="async"
+          className="mx-auto mt-2 block h-auto shrink-0"
+          style={{
+            width: "min(52cqw, 230px)",
+            aspectRatio: `${COUPLE_ART.aspect}`,
+            opacity: inView ? 1 : 0,
+            transform: inView ? "none" : "translateY(16px)",
+            transition: `opacity 900ms ${EASE.silk} 300ms, transform 1000ms ${EASE.silk} 300ms`,
+          }}
+        />
       </div>
     </section>
   );
