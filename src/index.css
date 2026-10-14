@@ -96,12 +96,6 @@
   }
 }
 
-/* Opening: the Kalinga door sketch draws itself in (stroke-dashoffset 1 → 0). */
-.door-draw {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-}
-
 /* Used directly in inline `animation:` styles (e.g. RSVP), so define it here
    rather than relying on Tailwind emitting it for a utility class. */
 @keyframes fade-in {

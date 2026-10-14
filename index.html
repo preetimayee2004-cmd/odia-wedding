@@ -8,10 +8,12 @@
     <!-- Dark until the app starts, so the opening never flashes the cream page.
          The app switches the page to cream once the invitation is reached. -->
     <style>
-      html { background: #140b07; }
+      html { background: #3b2010; }
       html body { background: transparent; }
     </style>
 
+    <!-- The opening's temple door: needed on the very first screen -->
+    <link rel="preload" as="image" href="/art/temple-door.webp" type="image/webp" fetchpriority="high" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
