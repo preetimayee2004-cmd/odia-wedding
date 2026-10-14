@@ -36,7 +36,7 @@ Everything a guest reads lives in [`src/config/wedding.ts`](src/config/wedding.t
 |---|---|
 | Couple's names | `couple.bride` / `couple.groom` |
 | Wedding date & time | `wedding.dateTime` |
-| Invitation wording (Talapatra scroll: heading, two paragraphs) | `invitation` |
+| Invitation wording (card: heading, greeting, two paragraphs) | `invitation` |
 | Couple portraits (about 3:4) | `couple.bride.photo`, `couple.groom.photo` |
 | Our Story milestones (the couple's own words) | `story.milestones` |
 | Gurujana Pranam: grandparents and parents (`late: true` lights a dipa beside the name) | `family` |
