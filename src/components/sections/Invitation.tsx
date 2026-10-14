@@ -2,9 +2,7 @@ import { type CSSProperties, type ReactNode } from "react";
 import { wedding } from "@/config/wedding";
 import { useGuest } from "@/context/GuestContext";
 import { EASE } from "@/lib/motion";
-import { formatVenueDate, parseVenueDateTime } from "@/lib/venueTime";
 import { RangoliStart } from "@/components/sections/RangoliStart";
-import { Pending } from "@/components/ui/Pending";
 
 export type RevealState = "hidden" | "revealing" | "shown";
 
@@ -24,30 +22,30 @@ const CARD = { src: "/art/invitation-card.jpg", middle: "/art/invitation-card-mi
 // Lengths in card pixels → container width units (the card spans the section's width).
 const cq = (px: number) => `${((px / CARD.w) * 100).toFixed(3)}cqw`;
 const DEITIES_BASE = 490; // the deities' platform ends here (card px)
-const TREES_FROM = 870; // the bottom banana leaves begin here
+const PANEL_BOTTOM = 1262; // the cream panel's bottom dotted line (card px)
+const RANGOLI_FROM = 848; // the rangoli zone: the clear column between the banana trees
 const PANEL_EDGE = 62; // the dotted inner border, in from each side
 
-const INK = "#4A2C1A";
-const MAROON = "#8A1C2B";
+const INK = "#2E1A10";
+const MAROON = "#7A1424";
 const GOLD = "#B8863B";
+const DARK_GOLD = "#8F6420";
 const LINE_STAGGER = 150;
 const LINE_DURATION = 800;
 
 /**
  * Section 02 — The invitation card.
- * The words sit on the card's cream panel between the deities and the
- * banana trees, with an Odia jhoti rangoli beneath them as the way in:
- * tapped (or after a pause) it blooms into a golden wash that fades into the
- * Couple section.
+ * The words sit on the card's cream panel, centred between the deities
+ * and a colourful jhoti rangoli that stands between the banana trees as the
+ * way in: tapped (or after a pause) it spins into a golden wash that fades
+ * into the Couple section.
  */
 export function Invitation({ reveal, onOpen }: InvitationProps) {
   const { guestName } = useGuest();
-  const { couple, invitation } = wedding;
+  const { invitation } = wedding;
+  const [first, second] = invitation.names;
 
   const show = reveal !== "hidden";
-  const parts = parseVenueDateTime(wedding.wedding.dateTime);
-  const date = parts && formatVenueDate(parts);
-  const { name: venueName, city } = wedding.venue;
 
   const line = (order: number): CSSProperties => {
     const delay = 250 + order * LINE_STAGGER;
@@ -59,45 +57,43 @@ export function Invitation({ reveal, onOpen }: InvitationProps) {
   };
 
   const lines: ReactNode[] = [
-    <p key="h" className="mb-3.5 font-display text-[1.05rem] font-semibold tracking-[0.12em]" style={{ color: MAROON }}>
+    <p key="h" className="mb-3 text-[16px] font-bold tracking-[0.15em]" style={{ color: MAROON }}>
       {invitation.heading}
     </p>,
-    <p key="g" className="mb-4 font-display text-[20px] italic leading-tight">
+    <p key="g" className="mb-3 text-[20px] font-semibold italic leading-tight">
       {invitation.greeting.replace("{guest}", guestName)}
     </p>,
-    <Divider key="d1" className="mb-4" />,
-    <p key="m" className="font-display text-[15.5px] leading-[1.7]">
+    <Divider key="d1" className="mb-3" />,
+    <p key="m" className="mb-5 text-[17.5px] font-semibold leading-[1.7]">
       {invitation.message}
     </p>,
-    <h1 key="n" className="my-3 flex flex-wrap items-center justify-center gap-x-2.5 font-normal leading-[1.1]" style={{ color: MAROON }}>
-      <span className="font-script text-[46px]">{couple.bride.displayName}</span>
-      <span className="font-script text-[27.6px]" style={{ color: GOLD }}>
+    <p key="s" className="text-[14px] font-bold tracking-[0.3em] [font-variant-caps:small-caps]" style={{ color: DARK_GOLD }}>
+      {invitation.saveTheDate}
+    </p>,
+    // The names may run into the side padding (still inside the border) rather than wrap
+    <h1 key="n" className="-mx-7 flex flex-wrap items-center justify-center gap-x-2.5 font-normal leading-[1.2]" style={{ color: MAROON }}>
+      <span className="font-script text-[52px]">{first}</span>
+      <span className="font-script text-[31.2px]" style={{ color: GOLD }}>
         &amp;
       </span>
-      <span className="font-script text-[46px]">{couple.groom.displayName}</span>
+      <span className="font-script text-[52px]">{second}</span>
     </h1>,
-    <Divider key="d2" className="mb-5" />,
-    <p key="b" className="font-display text-[15.5px] leading-[1.7]">
-      {invitation.blessing}
+    <p key="a" className="mb-3 text-[19px] font-semibold italic">
+      {invitation.announcement}
     </p>,
-    <div key="w" className="mt-5 text-[0.7rem] font-medium uppercase leading-relaxed tracking-[0.14em] opacity-80">
-      {date ? (
-        <time dateTime={wedding.wedding.dateTime!} className="block">
-          {date.weekday} · {date.day} {date.month} {date.year}
-          {date.time && ` · ${date.time}`}
-        </time>
-      ) : (
-        <Pending label="Wedding date awaiting confirmation">Weekday · Day Month Year</Pending>
-      )}
-      <span className="mt-1 block">
-        {venueName ? (
-          [venueName, city].filter(Boolean).join(", ")
-        ) : (
-          <Pending label="Venue awaiting confirmation">Venue, City</Pending>
-        )}
-      </span>
-    </div>,
-  ];
+    <Divider key="d2" className="mb-3" />,
+    invitation.dateLine && (
+      <p key="dt" className="mb-3 text-[22px] font-bold leading-snug" style={{ color: MAROON }}>
+        {invitation.dateLine}
+      </p>
+    ),
+    invitation.place && (
+      <div key="pl" className="flex flex-col items-center">
+        <PinIcon />
+        <p className="mt-1 max-w-[17rem] text-[17px] font-semibold leading-snug">{invitation.place}</p>
+      </div>
+    ),
+  ].filter(Boolean);
 
   return (
     <section
@@ -128,28 +124,37 @@ export function Invitation({ reveal, onOpen }: InvitationProps) {
           // Always tall enough for the card's top and bottom plus one band of middle
           minHeight: `max(100dvh, ${cq(CARD.top + 70 + CARD.h - CARD.bottomFrom)})`,
           paddingTop: cq(DEITIES_BASE),
-          paddingBottom: cq(CARD.h - TREES_FROM),
+          paddingBottom: cq(CARD.h - PANEL_BOTTOM),
           color: INK,
         }}
       >
-        {/* Centred in the free space between the deities and the banana trees */}
-        <div className="my-auto py-5">
-          <div className="text-center" style={{ paddingInline: `calc(${cq(PANEL_EDGE)} + 28px)` }}>
+        {/* Centred in the free space between the deities and the rangoli */}
+        <div className="flex flex-1 flex-col justify-center py-6">
+          <div className="text-center font-serif" style={{ paddingInline: `calc(${cq(PANEL_EDGE)} + 28px)` }}>
             {lines.map((node, i) => (
               <div key={i} style={line(i)}>
                 {node}
               </div>
             ))}
           </div>
+        </div>
 
-          {/* The way in: a jhoti rangoli above the banana trees */}
-          <div className="mt-6 flex justify-center">
-            <RangoliStart active={show} onOpen={onOpen} />
-          </div>
+        {/* The way in: a rangoli in the clear space between the banana trees */}
+        <div className="flex shrink-0 items-center justify-center" style={{ height: cq(PANEL_BOTTOM - RANGOLI_FROM) }}>
+          <RangoliStart active={show} onOpen={onOpen} />
         </div>
       </div>
-
     </section>
+  );
+}
+
+/** A small gold map pin with a lotus-bud head, above the place. */
+function PinIcon() {
+  return (
+    <svg width="16" height="20" viewBox="0 0 16 20" aria-hidden>
+      <path d="M8 19.2C4.4 14.6 1.6 11.4 1.6 7.7a6.4 6.4 0 0 1 12.8 0c0 3.7-2.8 6.9-6.4 11.5Z" fill={GOLD} />
+      <path d="M8 4.2c1.5 1.3 1.9 3 0 4.8-1.9-1.8-1.5-3.5 0-4.8Z" fill="#FFF6DF" />
+    </svg>
   );
 }
 

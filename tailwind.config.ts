@@ -49,6 +49,8 @@ export default {
         display: ['"Cormorant Garamond"', "Georgia", "serif"],
         // Body, dates, times, venues, buttons, forms.
         sans: ["Poppins", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+        // Invitation card: sturdy, readable serif.
+        serif: ['"EB Garamond"', '"Cormorant Garamond"', "Georgia", "serif"],
         // Odia phrases and Odia event names.
         odia: ['"Noto Serif Oriya"', '"Noto Sans Oriya"', "serif"],
       },

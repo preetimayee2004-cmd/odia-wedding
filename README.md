@@ -36,7 +36,7 @@ Everything a guest reads lives in [`src/config/wedding.ts`](src/config/wedding.t
 |---|---|
 | Couple's names | `couple.bride` / `couple.groom` |
 | Wedding date & time | `wedding.dateTime` |
-| Invitation wording (card: heading, greeting, two paragraphs) | `invitation` |
+| Invitation card wording, names, date and place (date and place are SAMPLES — replace) | `invitation` |
 | Couple portraits (about 3:4) | `couple.bride.photo`, `couple.groom.photo` |
 | Our Story milestones (the couple's own words) | `story.milestones` |
 | Gurujana Pranam: grandparents and parents (`late: true` lights a dipa beside the name) | `family` |
@@ -45,6 +45,7 @@ Everything a guest reads lives in [`src/config/wedding.ts`](src/config/wedding.t
 | Verified travel & stay details | `travel` |
 | Contacts (with country code) | `contact.people` |
 | RSVP deadline, party-size limit | `rsvp` |
+| Opening sound button: a recording to play instead of the synthesised sankha (optional) | `assets.openingSound`, e.g. `"/audio/opening.mp3"` in `/public` |
 | Rajagya notices (parking, RSVP deadline, live stream), thank-you message | `rajagya`, `thankYou` |
 | Public URL (for WhatsApp previews) | `meta.siteUrl`, then `npm run og` |
 
@@ -80,8 +81,8 @@ Each section has its own entrance. All of them respect *reduced motion*.
 
 | Section | Motion |
 |---|---|
-| Opening | The carved temple door artwork (`public/art/temple-door.webp`) fills the screen, fading in from the dark; light gathers at the seam, then the two leaves swing smoothly inward on their own into golden light, the view glides through the doorway and Mahaprabhu Jagannath (`public/art/jagannath.png`, a transparent cut-out) emerges in a radiant golden glow, then the scene rises like a curtain (Skip / Esc) |
-| Invitation | The illustrated invitation card (`public/art/invitation-card.jpg`) fills the screen; its plain middle band repeats so it fits any height undistorted. The words are centred between the deities and the banana trees, with an Odia jhoti rangoli beneath them: it draws itself once on screen and breathes above "Tap to begin". A tap — or 5s after the draw, none — blooms its petals in gold and maroon, grows it into a golden wash over the screen and fades into the couple (once only) |
+| Opening | The carved temple door artwork (`public/art/temple-door.webp`) fills the screen, fading in from the dark; light gathers at the seam, then the two leaves swing smoothly inward on their own into golden light, the view glides through the doorway and Mahaprabhu Jagannath (`public/art/jagannath.png`, a transparent cut-out) emerges in a radiant golden glow, then the scene rises like a curtain (Skip / Esc; a sound button opposite Skip plays the sankha) |
+| Invitation | The illustrated invitation card (`public/art/invitation-card.jpg`) fills the screen; its plain middle band repeats so it fits any height undistorted. Bold EB Garamond text (greeting, opening line, Save the Date, the names in script, the date and place) is centred between the deities and a colourful filled jhoti rangoli standing between the banana trees. The rangoli builds ring by ring once on screen and breathes above "Tap to begin"; a tap — or 5s after the build, none — spins its petals as it grows into a golden wash that fades into the couple (once only) |
 | Couple | Portrait cards in Tarakasi silver-filigree frames; a white Odia mukuta drops onto the bride’s frame and the groom’s crown onto his |
 | Countdown | On a matte-black strip, the Konark Sun Temple wheel turns into alignment with the scroll; days, hours and minutes sit in its hub |
 | Our Story | Sambalpuri Ikat thread grows with the scroll; chapters alternate either side, each marked by a Pattachitra icon (peacocks, Koka lotus, pana-gua) |

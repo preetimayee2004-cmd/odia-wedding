@@ -2,38 +2,54 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 
-const MAROON = "#5A1620";
-const GOLD = "#C9973F";
-const CAPTION = "#4A2C1A";
+const SIZE = 170;
+const CAPTION = "#2E1A10";
+const MAROON = "#8A1C2B";
 
 /** Timing (ms). */
-const DRAW = 1500; // the lines trace out: petals, then jhoti curves, then dots
-const AUTO_OPEN = 5000; // after the draw, opens by itself if not tapped
-const BLOOM = 800; // petals fill and bloom outward in sequence
-const PETAL_MS = 360; // each petal's own bloom
-const EXPAND = 900; // the rangoli grows into a golden wash over the screen
+const RING_GAP = 250; // each ring builds this long after the one inside it
+const RING_MS = 320;
+const AUTO_OPEN = 5000; // after the build, opens by itself if not tapped
+const EXPAND = 900; // the petals spin while it grows into a golden wash
+const SPIN = 20; // degrees
 const FADE = 600; // the wash fades into the Couple section
 
-// Geometry (viewBox 0 0 200 200, centre 100,100; angles clockwise from the top)
-const PETAL = "M100 84C89 74 87 56 100 40C113 56 111 74 100 84Z";
-const PETALS = Array.from({ length: 8 }, (_, i) => i * 45);
-const DOTS = Array.from({ length: 16 }, (_, i) => i * 22.5);
-// One scallop of the outer jhoti border, and one curling flourish where two meet
-const SCALLOP = "M67.9 22.4C80 6 120 6 132.1 22.4";
-const CURL = "M100 25C93 19 107 13 100 6";
-const ORIGIN = { transformOrigin: "100px 100px" };
-// Shown at 150px, so 2px on screen is 2 × 200/150 in the 200-unit drawing
-const SIZE = 150;
-const STROKE = (2 * 200) / SIZE;
+// Drawing in a 200-unit box, centre 100,100; angles clockwise from the top.
+const C = 100;
+const polar = (r: number, deg: number) => {
+  const a = (deg * Math.PI) / 180;
+  return [C + r * Math.sin(a), C - r * Math.cos(a)] as const;
+};
+const f = (n: number) => n.toFixed(2);
+/** A petal (or leaf) pointing up, from radius `inner` to `outer`, `w` wide. */
+const petal = (inner: number, outer: number, w: number, tip = 0.25) => {
+  const len = outer - inner;
+  const y0 = C - inner;
+  const y1 = C - outer;
+  return `M${C} ${y0}C${C - w} ${f(y0 - len * 0.3)} ${f(C - w * tip * 2)} ${f(y1 + len * 0.2)} ${C} ${y1}C${f(C + w * tip * 2)} ${f(y1 + len * 0.2)} ${C + w} ${f(y0 - len * 0.3)} ${C} ${y0}Z`;
+};
+const ring = (n: number, offset = 0) => Array.from({ length: n }, (_, i) => offset + (i * 360) / n);
 
-type Stage = "waiting" | "drawing" | "ready" | "opening" | "opened";
+const LOTUS_OUTER = petal(9, 44, 13, 0.3);
+const LOTUS_INNER = petal(9, 33, 7, 0.3);
+const POINTED = petal(36, 66, 8, 0.12);
+const LEAF = petal(62, 82, 6.5, 0.2);
+const SCALLOP = (() => {
+  const [x0, y0] = polar(90, -7.5);
+  const [cx, cy] = polar(99, 0);
+  const [x1, y1] = polar(90, 7.5);
+  return `M${f(x0)} ${f(y0)}Q${f(cx)} ${f(cy)} ${f(x1)} ${f(y1)}`;
+})();
+const ORIGIN = { transformOrigin: "100px 100px" };
+
+type Stage = "waiting" | "building" | "ready" | "opening" | "opened";
 
 /**
- * The way into the site: an Odia jhoti rangoli on the invitation card.
- * It draws itself once it's on screen, then breathes gently above "Tap to
- * begin". A tap (or, 5s after the draw, no tap) fills it with gold and
- * maroon, blooms the petals, grows it into a golden wash over the whole
- * screen, and fades into the Couple section. Runs once.
+ * The way into the site: a colourful Odia jhoti and flower rangoli. Once on
+ * screen it builds itself ring by ring from the centre outward, then breathes
+ * gently above "Tap to begin". A tap (or, 5s after the build, no tap) spins
+ * its petals as it grows into a golden wash over the whole screen, which
+ * fades into the Couple section. Runs once.
  */
 export function RangoliStart({ active, onOpen }: { active: boolean; onOpen: () => Promise<void> }) {
   const reducedMotion = usePrefersReducedMotion();
@@ -68,40 +84,22 @@ export function RangoliStart({ active, onOpen }: { active: boolean; onOpen: () =
 
   /** The opening transition — guarded so it can only ever run once. */
   const open = useCallback(async () => {
-    if (stageRef.current === "opening" || stageRef.current === "opened") return;
+    if (stageRef.current !== "ready") return;
     clearTimeout(autoTimer.current);
     go("opening");
-    const svg = svgRef.current!;
     if (reducedMotion) {
       await openRef.current();
       go("opened");
       return;
     }
-    try {
-      // Petals fill with gold and bloom outward one after another
-      const blooms = [...svg.querySelectorAll(".rangoli-bloom")].map((el, i) =>
-        play(el, [
-          { opacity: 0, transform: "scale(0.45)" },
-          { opacity: 1, transform: "scale(1.1)", offset: 0.7 },
-          { opacity: 1, transform: "scale(1)" },
-        ], { duration: PETAL_MS, delay: (i * (BLOOM - PETAL_MS)) / (PETALS.length - 1), easing: "cubic-bezier(0.34, 1.3, 0.64, 1)" }),
-      );
-      const heart = svg.querySelector(".rangoli-heart")!;
-      blooms.push(play(heart, [{ opacity: 0, transform: "scale(0.5)" }, { opacity: 1, transform: "scale(1)" }], { duration: 400, easing: "ease-out" }));
-      await Promise.all(blooms);
-
-      // The rangoli grows into a soft golden wash over the whole screen
-      const r = rootRef.current!.querySelector("svg")!.getBoundingClientRect();
-      const x = r.left + r.width / 2;
-      const y = r.top + r.height / 2;
-      const reach = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-      setWash({ x, y, size: r.width, scale: ((reach * 2) / r.width) * 1.05 });
-    } catch {
-      /* unmounted */
-    }
+    const r = svgRef.current!.getBoundingClientRect();
+    const x = r.left + r.width / 2;
+    const y = r.top + r.height / 2;
+    const reach = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    setWash({ x, y, size: r.width, scale: ((reach * 2) / r.width) * 1.05 });
   }, [reducedMotion]);
 
-  // Run the wash once it's mounted
+  // The petals spin as the rangoli grows into a golden wash, then it fades onto the couple
   useEffect(() => {
     const el = washRef.current;
     const svg = svgRef.current;
@@ -110,11 +108,14 @@ export function RangoliStart({ active, onOpen }: { active: boolean; onOpen: () =
     void (async () => {
       try {
         await Promise.all([
-          play(el, [{ opacity: 0, transform: "scale(0.6)" }, { opacity: 1, transform: `scale(${wash.scale})` }], {
+          ...[...svg.querySelectorAll(".rangoli-spin")].map((g) =>
+            play(g, [{ transform: "rotate(0deg)" }, { transform: `rotate(${SPIN}deg)` }], { duration: EXPAND, easing: "ease-in-out" }),
+          ),
+          play(svg, [{ transform: "scale(1)", opacity: 1 }, { transform: "scale(1.7)", opacity: 0 }], { duration: EXPAND, easing: "ease-in" }),
+          play(el, [{ opacity: 0, transform: "scale(0.5)" }, { opacity: 1, transform: `scale(${wash.scale})` }], {
             duration: EXPAND,
             easing: "cubic-bezier(0.55, 0, 0.35, 1)",
           }),
-          play(svg, [{ transform: "scale(1)", opacity: 1 }, { transform: "scale(1.6)", opacity: 0 }], { duration: EXPAND, easing: "ease-in" }),
         ]);
         await openRef.current(); // the Couple section, behind the wash
         await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
@@ -124,7 +125,7 @@ export function RangoliStart({ active, onOpen }: { active: boolean; onOpen: () =
         /* unmounted */
       }
       if (cancelled) return;
-      // Leave the rangoli bloomed (not expanded) for anyone scrolling back up
+      // Leave the rangoli in place (spun) for anyone scrolling back up
       svg.getAnimations().forEach((a) => a.cancel());
       setWash(null);
       go("opened");
@@ -134,41 +135,32 @@ export function RangoliStart({ active, onOpen }: { active: boolean; onOpen: () =
     };
   }, [wash]);
 
-  // Draw itself once the invitation is showing and the rangoli is on screen
+  // Builds itself once the invitation is showing and the rangoli is on screen
   useEffect(() => {
     const root = rootRef.current;
     const svg = svgRef.current;
     if (!active || !root || !svg || stageRef.current !== "waiting") return;
 
-    const startDraw = () => {
+    const build = () => {
       if (stageRef.current !== "waiting") return;
-      go("drawing");
-      const lines = [...svg.querySelectorAll<SVGGeometryElement>(".rangoli-line")];
-      const dots = [...svg.querySelectorAll(".rangoli-dot")];
+      go("building");
+      const layers = [...svg.querySelectorAll<SVGGElement>(".rangoli-layer")];
       const done = reducedMotion
         ? Promise.resolve()
-        : Promise.all([
-            ...lines.map((el) => {
-              const at = Number(el.dataset.at); // 0–1 through the draw
-              return play(el, [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], {
-                duration: DRAW * 0.42,
-                delay: at * DRAW * 0.45,
-                easing: "ease-in-out",
-              });
-            }),
-            ...dots.map((el, i) =>
-              play(el, [{ opacity: 0, transform: "scale(0.2)" }, { opacity: 1, transform: "scale(1)" }], {
-                duration: 260,
-                delay: DRAW * 0.66 + (i / dots.length) * DRAW * 0.17,
-                easing: "ease-out",
+        : Promise.all(
+            layers.map((g) =>
+              play(g, [{ opacity: 0, transform: "scale(0.6)" }, { opacity: 1, transform: "scale(1)" }], {
+                duration: RING_MS,
+                delay: Number(g.dataset.ring) * RING_GAP,
+                easing: "cubic-bezier(0.33, 1.2, 0.6, 1)",
               }),
             ),
-          ]);
+          );
       void done.then(
         () => {
-          if (stageRef.current !== "drawing") return;
+          if (stageRef.current !== "building") return;
           go("ready");
-          // Opens by itself if the guest hasn't tapped 5s after the draw
+          // Opens by itself if the guest hasn't tapped 5s after the build
           autoTimer.current = window.setTimeout(() => void open(), AUTO_OPEN);
         },
         () => {},
@@ -176,14 +168,14 @@ export function RangoliStart({ active, onOpen }: { active: boolean; onOpen: () =
     };
 
     if (!("IntersectionObserver" in window)) {
-      startDraw();
+      build();
       return;
     }
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           io.disconnect();
-          startDraw();
+          build();
         }
       },
       { threshold: 0.6 },
@@ -192,12 +184,11 @@ export function RangoliStart({ active, onOpen }: { active: boolean; onOpen: () =
     return () => io.disconnect();
   }, [active, open, reducedMotion]);
 
-  const drawn = stage !== "waiting";
-  const line = (at: number) => ({
-    pathLength: 1,
-    className: "rangoli-line",
-    "data-at": at,
-    style: { strokeDasharray: 1, strokeDashoffset: reducedMotion && drawn ? 0 : 1 },
+  const hidden = !reducedMotion || stage === "waiting";
+  const layer = (n: number) => ({
+    className: "rangoli-layer",
+    "data-ring": n,
+    style: { ...ORIGIN, opacity: hidden ? 0 : 1 },
   });
 
   return (
@@ -206,70 +197,63 @@ export function RangoliStart({ active, onOpen }: { active: boolean; onOpen: () =
         ref={rootRef}
         type="button"
         onClick={() => void open()}
-        disabled={stage === "waiting" || stage === "opening"}
         aria-label="Tap to begin: open the invitation"
         aria-controls="couple"
-        className="mx-auto flex flex-col items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[#B8863B]/60 disabled:cursor-default"
+        className="flex flex-col items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[#B8863B]/60"
         style={{ WebkitTapHighlightColor: "transparent" }}
       >
         <span className={`block ${stage === "ready" ? "rangoli-pulse" : ""}`}>
-          <svg ref={svgRef} viewBox="0 0 200 200" className="block overflow-visible" width={SIZE} height={SIZE} fill="none" aria-hidden>
-            {/* Filled bloom (shown on tap): gold petals, maroon heart */}
-            <g>
-              {PETALS.map((a) => (
-                <g key={a} transform={`rotate(${a} 100 100)`}>
-                  <path className="rangoli-bloom" d={PETAL} fill={GOLD} stroke={MAROON} strokeWidth={STROKE} style={{ ...ORIGIN, opacity: 0 }} />
-                </g>
+          <svg ref={svgRef} viewBox="0 0 200 200" width={SIZE} height={SIZE} className="block overflow-visible" aria-hidden>
+            {/* Outer scalloped edge, thin maroon */}
+            <g {...layer(5)} fill="none" stroke={MAROON} strokeWidth="1.6" strokeLinecap="round">
+              {ring(24).map((a) => (
+                <path key={a} d={SCALLOP} transform={`rotate(${a} 100 100)`} />
               ))}
-              <circle className="rangoli-heart" cx="100" cy="100" r="16" fill={MAROON} style={{ ...ORIGIN, opacity: 0 }} />
             </g>
-
-            <g stroke={MAROON} strokeWidth={STROKE} strokeLinecap="round" strokeLinejoin="round">
-              {/* Lotus: eight petals first */}
-              {PETALS.map((a, i) => (
-                <g key={a} transform={`rotate(${a} 100 100)`}>
-                  <path {...line(i * 0.06)} d={PETAL} />
-                </g>
-              ))}
-              <circle {...line(0.1)} cx="100" cy="100" r="16" />
-              <circle cx="100" cy="100" r="4.5" fill={MAROON} stroke="none" className="rangoli-dot" style={{ ...ORIGIN, opacity: reducedMotion && drawn ? 1 : 0 }} />
-              {/* Jhoti: scalloped border with curling flourishes */}
-              {PETALS.map((a, i) => (
-                <g key={a} transform={`rotate(${a} 100 100)`}>
-                  <path {...line(0.5 + i * 0.04)} d={SCALLOP} />
-                  <g transform="rotate(22.5 100 100)">
-                    <path {...line(0.6 + i * 0.04)} d={CURL} />
+            {/* Ring of dots: white, a few maroon */}
+            <g {...layer(4)}>
+              {ring(24).map((a, i) => {
+                const [x, y] = polar(84.5, a);
+                const maroon = i % 4 === 0;
+                return <circle key={a} cx={f(x)} cy={f(y)} r="2.7" fill={maroon ? MAROON : "#FFFFFF"} stroke={maroon ? "none" : MAROON} strokeWidth="0.7" />;
+              })}
+            </g>
+            {/* Leaves, two greens */}
+            <g {...layer(3)}>
+              <g className="rangoli-spin" style={ORIGIN}>
+                {ring(16, 11.25).map((a, i) => (
+                  <path key={a} d={LEAF} fill={i % 2 ? "#66BB6A" : "#2E7D32"} transform={`rotate(${a} 100 100)`} />
+                ))}
+              </g>
+            </g>
+            {/* Pointed petals, marigold orange and yellow */}
+            <g {...layer(2)}>
+              <g className="rangoli-spin" style={ORIGIN}>
+                {ring(16).map((a, i) => (
+                  <path key={a} d={POINTED} fill={i % 2 ? "#FBC02D" : "#F57C00"} transform={`rotate(${a} 100 100)`} />
+                ))}
+              </g>
+            </g>
+            {/* Eight-petal lotus: deep pink, lighter pink within */}
+            <g {...layer(1)}>
+              <g className="rangoli-spin" style={ORIGIN}>
+                {ring(8, 22.5).map((a) => (
+                  <g key={a} transform={`rotate(${a} 100 100)`}>
+                    <path d={LOTUS_OUTER} fill="#C2185B" />
+                    <path d={LOTUS_INNER} fill="#F48FB1" />
                   </g>
-                </g>
-              ))}
+                ))}
+              </g>
             </g>
-
-            {/* Ring of dots, last */}
-            {DOTS.map((a) => {
-              const rad = (a * Math.PI) / 180;
-              const cx = 100 + 72 * Math.sin(rad);
-              const cy = 100 - 72 * Math.cos(rad);
-              return (
-                <circle
-                  key={a}
-                  className="rangoli-dot"
-                  cx={cx.toFixed(2)}
-                  cy={cy.toFixed(2)}
-                  r="2.6"
-                  fill={MAROON}
-                  style={{ transformOrigin: `${cx.toFixed(2)}px ${cy.toFixed(2)}px`, opacity: reducedMotion && drawn ? 1 : 0 }}
-                />
-              );
-            })}
+            {/* Gold centre */}
+            <g {...layer(0)}>
+              <circle cx="100" cy="100" r="10" fill="#E0A526" />
+            </g>
           </svg>
         </span>
         <span
-          className="mt-2 font-display text-[14px] italic"
-          style={{
-            color: CAPTION,
-            opacity: stage === "ready" ? 1 : 0,
-            transition: "opacity 700ms ease-out",
-          }}
+          className="mt-1 font-serif text-[14px] font-semibold italic leading-none"
+          style={{ color: CAPTION, opacity: stage === "ready" ? 1 : 0, transition: "opacity 700ms ease-out" }}
         >
           Tap to begin
         </span>

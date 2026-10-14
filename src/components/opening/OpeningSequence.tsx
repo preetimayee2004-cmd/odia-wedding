@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { wedding } from "@/config/wedding";
 import { EASE } from "@/lib/motion";
+import { playSankha, type SoundHandle } from "@/lib/sankha";
 import { setStatusTone } from "@/lib/viewMode";
 
 /** Timing (ms). */
@@ -63,6 +65,9 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
   const flashRef = useRef<HTMLDivElement>(null);
   const darshanRef = useRef<HTMLDivElement>(null);
   const skipRef = useRef<HTMLButtonElement>(null);
+  const soundRef = useRef<HTMLButtonElement>(null);
+  const sound = useRef<SoundHandle | null>(null);
+  const [soundOn, setSoundOn] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
   const running = useRef<Animation[]>([]);
@@ -90,6 +95,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
     return () => {
       running.current.forEach((a) => a.cancel());
       running.current = [];
+      sound.current?.stop();
       started.current = false; // a remount (StrictMode) starts the sequence again
       setStatusTone("dark");
     };
@@ -101,7 +107,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
     setStatusTone("dark");
     const curtain = curtainRef.current!;
     const duration = fast ? TIMING.skip : TIMING.curtain;
-    if (skipRef.current) void play(skipRef.current, [{ opacity: 1 }, { opacity: 0 }], { duration: 250 });
+    for (const b of [skipRef.current, soundRef.current]) if (b) void play(b, [{ opacity: 1 }, { opacity: 0 }], { duration: 250 });
     try {
       await play(curtain, [{ transform: "translateY(0)" }, { transform: "translateY(-100%)" }], {
         duration,
@@ -120,6 +126,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
     const T = TIMING;
     try {
       void play(skipRef.current!, [{ opacity: 0 }, { opacity: 1 }], { duration: 600, delay: T.appear });
+      void play(soundRef.current!, [{ opacity: 0 }, { opacity: 1 }], { duration: 600, delay: T.appear });
       await Promise.all([
         play(sceneRef.current!, [{ opacity: 0 }, { opacity: 1 }], { duration: T.appear, easing: "ease-out" }),
         // Light gathers at the seam between the leaves
@@ -177,6 +184,24 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
   useEffect(() => {
     if (imgRef.current?.complete) void start();
   }, [start]);
+
+  /** Sound button: plays the sankha (must run inside the tap); a second tap stops it. */
+  const toggleSound = () => {
+    if (sound.current) {
+      sound.current.stop();
+      sound.current = null;
+      setSoundOn(false);
+      return;
+    }
+    const handle = playSankha(wedding.assets.openingSound);
+    sound.current = handle;
+    setSoundOn(true);
+    void handle.ended.then(() => {
+      if (sound.current !== handle) return;
+      sound.current = null;
+      setSoundOn(false);
+    });
+  };
 
   const skip = useCallback(() => {
     if (phaseRef.current === "lifting") return;
@@ -335,6 +360,20 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
         <CurtainHem />
       </div>
 
+      {/* Sound, opposite Skip */}
+      <button
+        ref={soundRef}
+        type="button"
+        onClick={toggleSound}
+        aria-label={soundOn ? "Stop the sankha" : "Play the sankha"}
+        aria-pressed={soundOn}
+        className="absolute left-4 top-[calc(max(1rem,env(safe-area-inset-top))_+_var(--status-bar,0px))] inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#D9B877]/50 bg-black/25 text-[#F3E3C0]"
+        style={{ opacity: 0, pointerEvents: phase === "lifting" ? "none" : "auto" }}
+        tabIndex={phase === "lifting" ? -1 : 0}
+      >
+        <SoundIcon on={soundOn} />
+      </button>
+
       <button
         ref={skipRef}
         type="button"
@@ -349,6 +388,23 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
         </svg>
       </button>
     </div>
+  );
+}
+
+/** A speaker; with sound waves while playing, crossed out when silent. */
+function SoundIcon({ on }: { on: boolean }) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M2.5 7h2.5l3.5-3v10l-3.5-3H2.5Z" fill="currentColor" fillOpacity="0.25" />
+      {on ? (
+        <>
+          <path d="M11.3 6.4a3.2 3.2 0 0 1 0 5.2" />
+          <path d="M13.3 4.4a6 6 0 0 1 0 9.2" />
+        </>
+      ) : (
+        <path d="M11.5 7l4 4M15.5 7l-4 4" />
+      )}
+    </svg>
   );
 }
 

@@ -102,15 +102,22 @@ export interface WeddingConfig {
     timeZone: string;
   };
   invitation: {
-    /** First line of the Talapatra scroll. */
+    /** First line of the card. */
     heading: string;
     /** `{guest}` is replaced with the guest's name from the share link. */
     greeting: string;
-    /** Paragraph before the couple's names. */
+    /** Opening paragraph. */
     message: string;
-    /** Paragraph after the couple's names. */
-    blessing: string;
-    ctaLabel: string;
+    /** Small line above the names. */
+    saveTheDate: string;
+    /** The couple's names as they appear on the card. */
+    names: [string, string];
+    /** Line below the names. */
+    announcement: string;
+    /** The date exactly as printed on the card, e.g. "Friday, 12 February 2027". */
+    dateLine: string | null;
+    /** The place as printed on the card. */
+    place: string | null;
   };
   countdown: {
     heading: string;
@@ -238,6 +245,11 @@ export interface WeddingConfig {
   assets: {
     /** Desktop only: artwork shown around the phone mockup (portrait works best). */
     desktopBackdrop: string | null;
+    /**
+     * Sound for the opening's sound button, e.g. "/audio/opening.mp3".
+     * While null, a conch-like call (sankha) is synthesised in the browser.
+     */
+    openingSound: string | null;
   };
   opening: {
     /**
@@ -291,9 +303,12 @@ export const wedding: WeddingConfig = {
     greeting: "Dear {guest},",
     message:
       "Under the eternal protection and grace of the Lord of the Universe, we cordially invite you to witness the union of our families.",
-    blessing:
-      "Together with our parents, we seek your presence and blessings as we embark on our most sacred journey.",
-    ctaLabel: "Open Invitation",
+    saveTheDate: "Save the Date",
+    names: ["Avi", "Pragyan"],
+    announcement: "are getting married",
+    // SAMPLE — replace with the real date and venue (12 Feb 2027 is a Friday)
+    dateLine: "Friday, 12 February 2027",
+    place: "Jagannath Kalyan Mandap, Bhubaneswar, Odisha",
   },
   countdown: {
     heading: "Counting the Moments",
@@ -409,6 +424,7 @@ export const wedding: WeddingConfig = {
   },
   assets: {
     desktopBackdrop: "/art/desktop-backdrop.png",
+    openingSound: null, // synthesised sankha until a recording is supplied
   },
   opening: {
     playOncePerSession: false, // every load starts from the opening
