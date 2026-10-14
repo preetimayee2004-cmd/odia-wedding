@@ -6,8 +6,8 @@ import { setStatusTone } from "@/lib/viewMode";
 export const TIMING = {
   appear: 1100, // the temple door fades in out of the dark
   rest: 900, // a moment before the doors stir; light gathers at the seam
-  doorOpen: 2600, // the leaves swing smoothly inward on their hinges, into golden light
-  hold: 2800, // darshan of Mahaprabhu Jagannath before the curtain rises
+  doorOpen: 2400, // the leaves swing smoothly inward on their hinges, into golden light
+  hold: 2600, // darshan of Mahaprabhu Jagannath before the curtain rises
   curtain: 1300, // the whole scene slides up like an opening curtain
   skip: 500,
 };
@@ -142,25 +142,27 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
         play(seamRef.current!, [{ opacity: 0.9 }, { opacity: 0 }], { duration: 700 }),
         // ...while the view glides in through the doorway, into the light
         play(zoomRef.current!, [{ transform: "scale(1)" }, { transform: `scale(${ZOOM_IN})` }], {
-          duration: T.doorOpen + 700,
-          delay: T.doorOpen * 0.4,
+          duration: T.doorOpen + 300,
+          delay: T.doorOpen * 0.3,
           easing: SMOOTH,
         }),
+        // Golden light rises smoothly as the doorway fills the view...
         play(bloomRef.current!, [{ opacity: 0 }, { opacity: 1 }], {
-          duration: T.doorOpen * 0.6,
-          delay: T.doorOpen * 0.7,
-          easing: "ease-in",
-        }),
-        play(flashRef.current!, [{ opacity: 0 }, { opacity: 0.9, offset: 0.45 }, { opacity: 0 }], {
-          duration: 1500,
-          delay: T.doorOpen * 0.8,
+          duration: T.doorOpen * 0.5,
+          delay: T.doorOpen * 0.5,
           easing: "ease-in-out",
         }),
-        // Mahaprabhu Jagannath's darshan emerges from the light
-        play(darshanRef.current!, [{ opacity: 0, transform: "scale(1.06)" }, { opacity: 1, transform: "scale(1)" }], {
-          duration: 1700,
-          delay: T.doorOpen * 1.3, // after a moment of pure golden light
-          easing: EASE.silk,
+        // ...with a soft luminous swell (not a harsh flash)...
+        play(flashRef.current!, [{ opacity: 0 }, { opacity: 0.35, offset: 0.5 }, { opacity: 0 }], {
+          duration: 1200,
+          delay: T.doorOpen * 0.75,
+          easing: "ease-in-out",
+        }),
+        // ...and Mahaprabhu Jagannath's darshan emerges from it, without delay
+        play(darshanRef.current!, [{ opacity: 0, transform: "scale(1.05)" }, { opacity: 1, transform: "scale(1)" }], {
+          duration: 1300,
+          delay: T.doorOpen * 0.85,
+          easing: "cubic-bezier(0.33, 0, 0.2, 1)",
         }),
       ]);
       setStatusTone("dark"); // over the golden glow
@@ -312,14 +314,14 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
           {/* Halo */}
           <div
             aria-hidden
-            className="absolute left-1/2 top-[40%] aspect-square w-[min(78vw,340px)] -translate-x-1/2 -translate-y-1/2 rounded-full"
+            className="absolute left-1/2 top-[39%] aspect-square w-[min(92vw,400px)] -translate-x-1/2 -translate-y-1/2 rounded-full"
             style={{ background: "radial-gradient(circle, rgb(255 252 236 / 0.95) 0%, rgb(255 236 170 / 0.6) 45%, transparent 70%)" }}
           />
           <img
             src={DARSHAN.src}
             alt={DARSHAN.alt}
             decoding="async"
-            className="absolute left-1/2 top-1/2 w-[min(92vw,400px)] max-w-none"
+            className="absolute left-1/2 top-1/2 w-[min(108vw,470px)] max-w-none"
             style={{
               transform: `translate(-50%, -${DARSHAN.focusY * 100}%)`,
               filter: "drop-shadow(0 0 18px rgb(255 214 120 / 0.75))",
