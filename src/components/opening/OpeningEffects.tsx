@@ -1,4 +1,4 @@
-import { forwardRef, useMemo, type CSSProperties } from "react";
+import { useMemo, type CSSProperties } from "react";
 
 /** Small deterministic random generator, so effects look the same each render. */
 function seeded(seed: number) {
@@ -41,11 +41,10 @@ export function Fingertip({ height = 68 }: { height?: number }) {
   );
 }
 
-const PETAL_COLOURS = ["#FFF8EE", "#FFF3DE", "#F9C433", "#F5B21E", "#C62828", "#B71C1C", "#F48FB1"];
+const PETAL_COLOURS = ["#FFF8EE", "#FFF3DE", "#F9C433", "#F5B21E", "#C62828", "#B71C1C"];
 
 /**
- * A gentle shower of petals (white, yellow, red, a few pink) with golden
- * motes. `front` petals are larger and faster and keep to the side lanes, so
+ * A gentle shower of petals (white, yellow, red). `front` petals are larger and faster and keep to the side lanes, so
  * the deity's face and ornaments stay clear.
  */
 export function Petals({ front = false, baseDelay = 0 }: { front?: boolean; baseDelay?: number }) {
@@ -88,100 +87,3 @@ export function Petals({ front = false, baseDelay = 0 }: { front?: boolean; base
     </div>
   );
 }
-
-/** Tiny golden motes drifting in a region (percentages of the parent). */
-export function Motes({ count = 18, seed = 11, region = { x: 0, y: 0, w: 100, h: 100 } }: { count?: number; seed?: number; region?: { x: number; y: number; w: number; h: number } }) {
-  const motes = useMemo(() => {
-    const rnd = seeded(seed);
-    return Array.from({ length: count }, () => ({
-      left: `${(region.x + rnd() * region.w).toFixed(1)}%`,
-      top: `${(region.y + rnd() * region.h).toFixed(1)}%`,
-      size: 2 + rnd() * 3,
-      style: vars({
-        "--dur": `${(3 + rnd() * 4).toFixed(1)}s`,
-        "--delay": `${(-rnd() * 4).toFixed(1)}s`,
-        "--dx": `${(rnd() * 40 - 20).toFixed(0)}px`,
-        "--dy": `${(-20 - rnd() * 50).toFixed(0)}px`,
-      }),
-    }));
-  }, [count, seed, region.x, region.y, region.w, region.h]);
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-0">
-      {motes.map((m, i) => (
-        <span
-          key={i}
-          className="mote-float absolute rounded-full"
-          style={{ ...m.style, left: m.left, top: m.top, width: m.size, height: m.size, background: "#FFE7A3", boxShadow: "0 0 6px 2px rgb(255 205 110 / 0.7)" }}
-        />
-      ))}
-    </div>
-  );
-}
-
-/** Golden particles bursting out of a rectangle (the deity dissolving into light). */
-export function MoteBurst({
-  rect,
-  count = 46,
-  baseDelay = 0,
-}: {
-  rect: { left: number; top: number; width: number; height: number };
-  count?: number;
-  /** Seconds before the burst begins. */
-  baseDelay?: number;
-}) {
-  const motes = useMemo(() => {
-    const rnd = seeded(23);
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height * 0.45;
-    return Array.from({ length: count }, () => {
-      const x = rect.left + rnd() * rect.width;
-      const y = rect.top + rnd() * rect.height;
-      // drift outward from the centre and gently upward
-      const dx = (x - cx) * (0.3 + rnd() * 0.5) + (rnd() * 30 - 15);
-      const dy = (y - cy) * (0.2 + rnd() * 0.3) - (30 + rnd() * 70);
-      return {
-        x,
-        y,
-        size: 2 + rnd() * 4,
-        style: vars({ "--dur": `${(1.4 + rnd() * 1.2).toFixed(2)}s`, "--delay": `${(baseDelay + rnd() * 0.9).toFixed(2)}s`, "--dx": `${dx.toFixed(0)}px`, "--dy": `${dy.toFixed(0)}px` }),
-      };
-    });
-  }, [rect.left, rect.top, rect.width, rect.height, count, baseDelay]);
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-0">
-      {motes.map((m, i) => (
-        <span
-          key={i}
-          className="mote-burst absolute rounded-full"
-          style={{ ...m.style, left: m.x, top: m.y, width: m.size, height: m.size, background: "#FFF0C2", boxShadow: "0 0 8px 3px rgb(255 205 110 / 0.75)" }}
-        />
-      ))}
-    </div>
-  );
-}
-
-/** A ring of golden motes and petals; animated (rotate + contract) by the parent. */
-export const Swirl = forwardRef<HTMLDivElement>(function Swirl(_, ref) {
-  const items = useMemo(() => {
-    const rnd = seeded(31);
-    return Array.from({ length: 30 }, (_, i) => {
-      const a = (i / 30) * Math.PI * 2;
-      const r = 38 + rnd() * 10; // % of the ring's box
-      const petal = i % 4 === 0;
-      return { x: 50 + r * Math.cos(a), y: 50 + r * Math.sin(a), petal, size: petal ? 9 : 3 + rnd() * 3, colour: PETAL_COLOURS[i % PETAL_COLOURS.length], rot: (a * 180) / Math.PI };
-    });
-  }, []);
-  return (
-    <div ref={ref} aria-hidden className="pointer-events-none absolute left-1/2 top-[44%] aspect-square w-[min(90vw,420px)] -translate-x-1/2 -translate-y-1/2" style={{ opacity: 0 }}>
-      {items.map((m, i) =>
-        m.petal ? (
-          <svg key={i} className="absolute" width={m.size} height={m.size * 1.3} viewBox="-8 -10.5 16 21" style={{ left: `${m.x}%`, top: `${m.y}%`, transform: `rotate(${m.rot}deg)` }}>
-            <path d="M0-10C6-6 6.5 5 0 10-6.5 5-6-6 0-10Z" fill={m.colour} />
-          </svg>
-        ) : (
-          <span key={i} className="absolute rounded-full" style={{ left: `${m.x}%`, top: `${m.y}%`, width: m.size, height: m.size, background: "#FFF0C2", boxShadow: "0 0 8px 3px rgb(255 205 110 / 0.7)" }} />
-        ),
-      )}
-    </div>
-  );
-});
