@@ -1,14 +1,13 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { JagannathEyes } from "@/components/art/JagannathEyes";
-import { wedding } from "@/config/wedding";
 import { EASE } from "@/lib/motion";
 import { setStatusTone } from "@/lib/viewMode";
 
 /** Timing (ms). */
 export const TIMING = {
-  appear: 1000, // the temple door fades in out of the dark
-  approach: 1300, // the camera draws close to the door
-  doorOpen: 1700, // the leaves swing inward on their hinges, into golden light
+  appear: 1100, // the temple door fades in out of the dark
+  rest: 900, // a moment before the doors stir; light gathers at the seam
+  doorOpen: 2600, // the leaves swing smoothly inward on their hinges, into golden light
   hold: 2000, // Mahaprabhu's eyes, centred, before the curtain rises
   curtain: 1300, // the whole scene slides up like an opening curtain
   skip: 500,
@@ -20,14 +19,13 @@ const DOOR = { x: 191, y: 176, w: 644, h: 572 };
 const SEAM = 512;
 const LEFT_W = SEAM - DOOR.x;
 const RIGHT_W = DOOR.x + DOOR.w - SEAM;
-/** The door's centre, as a fraction of the image — the camera's focus. */
+/** The door's centre, as a fraction of the image — where the view moves in. */
 const FOCUS = { x: (DOOR.x + DOOR.w / 2) / IMG.w, y: (DOOR.y + DOOR.h / 2) / IMG.h };
-const ZOOM = { approach: 1.45, enter: 2.7 };
+const ZOOM_IN = 1.9;
+const SMOOTH = "cubic-bezier(0.45, 0, 0.25, 1)";
 
 // Matches the dark sky at the top of the artwork.
 const BG = "#3B2010";
-// Melts the artwork's top and bottom edges into the dark.
-const EDGE_FADE = "linear-gradient(to bottom, transparent, #000 5%, #000 95%, transparent)";
 const pct = (v: number, of: number) => `${(v / of) * 100}%`;
 
 interface OpeningSequenceProps {
@@ -41,10 +39,11 @@ type Phase = "waiting" | "opening" | "lifting";
 
 /**
  * Section 01 — The Sacred Awakening.
- * The carved temple door waits in the dark. On the guest's tap the view
- * draws close, the two leaves swing inward on their hinges into golden
- * light, and Mahaprabhu Jagannath's round eyes emerge; after two seconds
- * the scene rises like a curtain onto the invitation.
+ * The carved temple door fills the screen, fading in from the dark. Light
+ * gathers at the seam, then the two leaves swing smoothly inward on their
+ * hinges into golden light, the view passes through the doorway, and
+ * Mahaprabhu Jagannath's round eyes emerge; after two seconds the scene
+ * rises like a curtain onto the invitation. It plays by itself (Skip / Esc).
  */
 export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
   const curtainRef = useRef<HTMLDivElement>(null);
@@ -58,13 +57,11 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
   const bloomRef = useRef<HTMLDivElement>(null);
   const flashRef = useRef<HTMLDivElement>(null);
   const eyesRef = useRef<HTMLDivElement>(null);
-  const hintRef = useRef<HTMLParagraphElement>(null);
   const skipRef = useRef<HTMLButtonElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
   const running = useRef<Animation[]>([]);
-  const pulse = useRef<Animation | null>(null);
-  const appeared = useRef(false);
+  const started = useRef(false);
   const [phase, setPhase] = useState<Phase>("waiting");
   const phaseRef = useRef<Phase>("waiting");
   const callbacks = useRef({ onReveal, onDone });
@@ -86,33 +83,10 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
     return () => {
       running.current.forEach((a) => a.cancel());
       running.current = [];
-      pulse.current?.cancel();
-      appeared.current = false; // a remount (StrictMode) fades the door in again
+      started.current = false; // a remount (StrictMode) starts the sequence again
       setStatusTone("dark");
     };
   }, []);
-
-  // Once the artwork has loaded, the door fades in out of the dark and a thread
-  // of light breathes at the seam between the leaves.
-  const appear = useCallback(() => {
-    if (appeared.current || phaseRef.current !== "waiting") return;
-    appeared.current = true;
-    play(sceneRef.current!, [{ opacity: 0 }, { opacity: 1 }], { duration: TIMING.appear, easing: "ease-out" });
-    play(hintRef.current!, [{ opacity: 0 }, { opacity: 1 }], { duration: 700, delay: TIMING.appear * 0.8, easing: "ease-out" });
-    pulse.current = seamRef.current!.animate([{ opacity: 0.15 }, { opacity: 0.55 }], {
-      duration: 1600,
-      delay: TIMING.appear,
-      iterations: Infinity,
-      direction: "alternate",
-      easing: "ease-in-out",
-      fill: "backwards",
-    });
-  }, []);
-
-  // A cached image may have loaded before React attached onLoad.
-  useEffect(() => {
-    if (imgRef.current?.complete) appear();
-  }, [appear]);
 
   const lift = useCallback(async (fast: boolean) => {
     go("lifting");
@@ -132,54 +106,52 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
     callbacks.current.onDone();
   }, []);
 
-  /** The guest's tap: draw close, doors swing open, light, eyes, then the curtain. */
-  const begin = useCallback(async () => {
-    if (phaseRef.current !== "waiting") return;
-    appear(); // in case the artwork is still loading
-    go("opening");
-    pulse.current?.cancel();
-    running.current.forEach((a) => a.finish()); // complete the fade-in if tapped early
-
+  /** Once the artwork is ready, the whole sequence plays through by itself. */
+  const start = useCallback(async () => {
+    if (started.current || phaseRef.current !== "waiting") return;
+    started.current = true;
     const T = TIMING;
-    const zoom = zoomRef.current!;
-    const swing = "cubic-bezier(0.55, 0, 0.25, 1)";
     try {
-      void play(hintRef.current!, [{ opacity: 1 }, { opacity: 0 }], { duration: 300 });
-      void play(skipRef.current!, [{ opacity: 0 }, { opacity: 1 }], { duration: 500, delay: 400 });
+      void play(skipRef.current!, [{ opacity: 0 }, { opacity: 1 }], { duration: 600, delay: T.appear });
       await Promise.all([
-        play(zoom, [{ transform: "scale(1)" }, { transform: `scale(${ZOOM.approach})` }], {
-          duration: T.approach,
-          easing: EASE.temple,
-        }),
-        play(seamRef.current!, [{ opacity: 0.3 }, { opacity: 1 }], { duration: T.approach, easing: "ease-in" }),
-      ]);
-
-      await Promise.all([
-        // The leaves swing inward on their hinges, darkening as they turn away
-        play(leftRef.current!, [{ transform: "rotateY(0deg)" }, { transform: "rotateY(84deg)" }], { duration: T.doorOpen, easing: swing }),
-        play(rightRef.current!, [{ transform: "rotateY(0deg)" }, { transform: "rotateY(-84deg)" }], { duration: T.doorOpen, easing: swing }),
-        play(leftShadeRef.current!, [{ opacity: 0 }, { opacity: 0.65 }], { duration: T.doorOpen, easing: swing }),
-        play(rightShadeRef.current!, [{ opacity: 0 }, { opacity: 0.65 }], { duration: T.doorOpen, easing: swing }),
-        play(seamRef.current!, [{ opacity: 1 }, { opacity: 0 }], { duration: 500 }),
-        // ...and the view passes through the doorway into the light
-        play(zoom, [{ transform: `scale(${ZOOM.approach})` }, { transform: `scale(${ZOOM.enter})` }], {
-          duration: T.doorOpen + 500,
-          delay: T.doorOpen * 0.35,
-          easing: "cubic-bezier(0.5, 0, 0.3, 1)",
-        }),
-        play(bloomRef.current!, [{ opacity: 0 }, { opacity: 1 }], {
-          duration: T.doorOpen * 0.7,
-          delay: T.doorOpen * 0.6,
+        play(sceneRef.current!, [{ opacity: 0 }, { opacity: 1 }], { duration: T.appear, easing: "ease-out" }),
+        // Light gathers at the seam between the leaves
+        play(seamRef.current!, [{ opacity: 0 }, { opacity: 0.9 }], {
+          duration: T.rest + 400,
+          delay: T.appear - 400,
           easing: "ease-in",
         }),
-        play(flashRef.current!, [{ opacity: 0 }, { opacity: 0.95, offset: 0.45 }, { opacity: 0 }], {
-          duration: 1400,
-          delay: T.doorOpen * 0.75,
+        play(curtainRef.current!, [], { duration: T.appear + T.rest }),
+      ]);
+      if (phaseRef.current !== "waiting") return; // skipped meanwhile
+      go("opening");
+
+      await Promise.all([
+        // The leaves swing smoothly inward on their hinges, darkening as they turn away
+        play(leftRef.current!, [{ transform: "rotateY(0deg)" }, { transform: "rotateY(84deg)" }], { duration: T.doorOpen, easing: SMOOTH }),
+        play(rightRef.current!, [{ transform: "rotateY(0deg)" }, { transform: "rotateY(-84deg)" }], { duration: T.doorOpen, easing: SMOOTH }),
+        play(leftShadeRef.current!, [{ opacity: 0 }, { opacity: 0.65 }], { duration: T.doorOpen, easing: SMOOTH }),
+        play(rightShadeRef.current!, [{ opacity: 0 }, { opacity: 0.65 }], { duration: T.doorOpen, easing: SMOOTH }),
+        play(seamRef.current!, [{ opacity: 0.9 }, { opacity: 0 }], { duration: 700 }),
+        // ...while the view glides in through the doorway, into the light
+        play(zoomRef.current!, [{ transform: "scale(1)" }, { transform: `scale(${ZOOM_IN})` }], {
+          duration: T.doorOpen + 700,
+          delay: T.doorOpen * 0.4,
+          easing: SMOOTH,
+        }),
+        play(bloomRef.current!, [{ opacity: 0 }, { opacity: 1 }], {
+          duration: T.doorOpen * 0.6,
+          delay: T.doorOpen * 0.7,
+          easing: "ease-in",
+        }),
+        play(flashRef.current!, [{ opacity: 0 }, { opacity: 0.9, offset: 0.45 }, { opacity: 0 }], {
+          duration: 1500,
+          delay: T.doorOpen * 0.8,
           easing: "ease-in-out",
         }),
         // Mahaprabhu's eyes emerge from the light
         play(eyesRef.current!, [{ opacity: 0, transform: "scale(0.9)" }, { opacity: 1, transform: "scale(1)" }], {
-          duration: 1000,
+          duration: 1100,
           delay: T.doorOpen * 1.05,
           easing: EASE.silk,
         }),
@@ -190,7 +162,12 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
     } catch {
       /* skipped or unmounted */
     }
-  }, [appear, lift]);
+  }, [lift]);
+
+  // A cached image may have loaded before React attached onLoad.
+  useEffect(() => {
+    if (imgRef.current?.complete) void start();
+  }, [start]);
 
   const skip = useCallback(() => {
     if (phaseRef.current === "lifting") return;
@@ -205,20 +182,13 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
     return () => window.removeEventListener("keydown", onKey);
   }, [skip]);
 
-  const onKeyDown = (e: ReactKeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      void begin();
-    }
-  };
-
   const leaf = (side: "left" | "right"): CSSProperties => ({
     left: side === "left" ? 0 : pct(LEFT_W, DOOR.w),
     width: pct(side === "left" ? LEFT_W : RIGHT_W, DOOR.w),
     transformOrigin: side,
     backfaceVisibility: "hidden",
   });
-  // The leaf shows its own slice of the artwork.
+  // Each leaf shows its own slice of the artwork.
   const leafArt = (side: "left" | "right"): CSSProperties => {
     const w = side === "left" ? LEFT_W : RIGHT_W;
     const x = side === "left" ? DOOR.x : SEAM;
@@ -227,22 +197,18 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
-      <div
-        ref={curtainRef}
-        role={phase === "waiting" ? "button" : undefined}
-        tabIndex={phase === "waiting" ? 0 : -1}
-        aria-label={phase === "waiting" ? "Tap to open the temple doors" : undefined}
-        onClick={() => void begin()}
-        onKeyDown={onKeyDown}
-        className="absolute inset-0 cursor-pointer select-none outline-none will-change-transform"
-        style={{ backgroundColor: BG }}
-      >
-        {/* The temple door, its centre held at the focus point of the screen */}
+      <div ref={curtainRef} className="absolute inset-0 overflow-hidden will-change-transform" style={{ backgroundColor: BG }}>
+        {/* The temple door, filling the screen (cover), centred on the doors */}
         <div
           ref={sceneRef}
           aria-hidden
-          className="absolute inset-x-0 top-[46%]"
-          style={{ aspectRatio: `${IMG.w} / ${IMG.h}`, transform: `translateY(-${FOCUS.y * 100}%)`, opacity: 0 }}
+          className="absolute left-1/2 top-1/2"
+          style={{
+            width: `max(100%, calc(100dvh * ${IMG.w / IMG.h}))`,
+            aspectRatio: `${IMG.w} / ${IMG.h}`,
+            transform: `translate(-${FOCUS.x * 100}%, -50%)`,
+            opacity: 0,
+          }}
         >
           <div
             ref={zoomRef}
@@ -250,14 +216,13 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
             style={{ transformOrigin: `${FOCUS.x * 100}% ${FOCUS.y * 100}%` }}
           >
             <img
+              ref={imgRef}
               src={IMG.src}
               alt=""
               decoding="async"
-              onLoad={appear}
-              onError={appear}
-              ref={imgRef}
+              onLoad={() => void start()}
+              onError={() => void start()}
               className="absolute inset-0 h-full w-full"
-              style={{ maskImage: EDGE_FADE, WebkitMaskImage: EDGE_FADE }}
             />
 
             <div
@@ -267,7 +232,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
                 top: pct(DOOR.y, IMG.h),
                 width: pct(DOOR.w, IMG.w),
                 height: pct(DOOR.h, IMG.h),
-                perspective: "700px",
+                perspective: "1400px",
               }}
             >
               {/* Inside the sanctum: warm golden light behind the doors */}
@@ -286,7 +251,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
                 <img src={IMG.src} alt="" className="absolute" style={leafArt("right")} />
                 <div ref={rightShadeRef} className="absolute inset-0 bg-[#140904]" style={{ opacity: 0 }} />
               </div>
-              {/* A thread of light at the seam, hinting that the doors open */}
+              {/* A thread of light at the seam as the doors are about to part */}
               <div
                 ref={seamRef}
                 className="absolute inset-y-[2%] w-[3px] -translate-x-1/2 rounded-full"
@@ -301,8 +266,8 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
           </div>
         </div>
 
-        {/* Vignette over the artwork, so its edges melt into the dark */}
-        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_75%_42%_at_50%_46%,transparent_55%,rgb(59_32_16/0.9)_100%)]" />
+        {/* Soft vignette so the screen edges stay quiet */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_120%_85%_at_50%_55%,transparent_55%,rgb(20_10_4/0.55)_100%)]" />
 
         {/* Golden light filling the view as we pass through the doorway */}
         <div
@@ -328,15 +293,6 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
           <JagannathEyes className="h-auto w-full" />
         </div>
 
-        <p
-          ref={hintRef}
-          aria-hidden
-          className="absolute inset-x-0 bottom-[max(12dvh,4.5rem)] text-center font-sans text-[0.6875rem] font-medium uppercase tracking-[0.32em] text-[#E5C88A]"
-          style={{ opacity: 0 }}
-        >
-          {wedding.opening.tapHint}
-        </p>
-
         <CurtainHem />
       </div>
 
@@ -345,8 +301,8 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
         type="button"
         onClick={skip}
         className="absolute right-4 top-[calc(max(1rem,env(safe-area-inset-top))_+_var(--status-bar,0px))] inline-flex min-h-11 items-center gap-1.5 rounded-full border border-[#D9B877]/50 bg-black/25 px-4 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.2em] text-[#F3E3C0]"
-        style={{ opacity: 0, pointerEvents: phase === "opening" ? "auto" : "none" }}
-        tabIndex={phase === "opening" ? 0 : -1}
+        style={{ opacity: 0, pointerEvents: phase === "lifting" ? "none" : "auto" }}
+        tabIndex={phase === "lifting" ? -1 : 0}
       >
         Skip
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden>

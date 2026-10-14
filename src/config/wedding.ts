@@ -246,8 +246,6 @@ export interface WeddingConfig {
      * the opening.
      */
     playOncePerSession: boolean;
-    /** Small prompt under the temple door. */
-    tapHint: string;
   };
   guest: {
     /** URL query keys checked, in order, for the guest's name. */
@@ -414,7 +412,6 @@ export const wedding: WeddingConfig = {
   },
   opening: {
     playOncePerSession: false, // every load starts from the opening
-    tapHint: "Tap to open",
   },
   guest: {
     // Share links like https://…/?guest=Priya%20Mishra
