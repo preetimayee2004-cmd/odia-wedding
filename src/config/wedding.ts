@@ -18,14 +18,32 @@ export interface Person {
   photo: { src: string; alt: string } | null;
 }
 
+/** An elder named in Gurujana Pranam. */
+export interface Elder {
+  /** Exactly as the family writes it, with honorific, e.g. "Shri … Mishra". */
+  name: string;
+  /** Departed: a lit brass dipa burns beside the name to keep their memory bright. */
+  late: boolean;
+}
+
 export interface FamilySide {
-  /** Heading, e.g. "The Bride's Family". */
+  /** Column heading, e.g. "The Bride's Family". */
   label: string;
   /** e.g. "The Mishra Family". */
   familyName: string | null;
-  /** e.g. "Daughter of Smt. … & Shri …". */
-  parents: string | null;
-  photo: { src: string; alt: string } | null;
+  /** Aja & Aai. Empty until the family confirms the names. */
+  grandparents: Elder[];
+  /** Pitra-Matra. Empty until the family confirms the names. */
+  parents: Elder[];
+}
+
+/** Label for one generation of the Gurujana Pranam grid. */
+export interface ElderTier {
+  label: string;
+  /** Confirm spelling with the family. */
+  odia: string | null;
+  /** Plain-English gloss for guests who don't read Odia. */
+  gloss: string;
 }
 
 export type EventMotif =
@@ -122,10 +140,10 @@ export interface WeddingConfig {
   family: {
     heading: string;
     odiaHeading: string | null;
+    gloss: string;
+    tiers: { grandparents: ElderTier; parents: ElderTier };
     bride: FamilySide;
     groom: FamilySide;
-    /** Single shared Odia wedding-family illustration, used when no photos exist. */
-    illustration: { src: string; alt: string } | null;
   };
   events: {
     heading: string;
@@ -286,11 +304,16 @@ export const wedding: WeddingConfig = {
     ],
   },
   family: {
-    heading: "Our Families",
-    odiaHeading: "ପରିବାର",
-    bride: { label: "The Bride's Family", familyName: null, parents: null, photo: null },
-    groom: { label: "The Groom's Family", familyName: null, parents: null, photo: null },
-    illustration: null,
+    heading: "Gurujana Pranam",
+    odiaHeading: "ଗୁରୁଜନ ପ୍ରଣାମ",
+    gloss: "Salutation to Elders",
+    tiers: {
+      grandparents: { label: "Aja & Aai", odia: "ଅଜା ଓ ଆଈ", gloss: "Grandparents" },
+      parents: { label: "Pitra-Matra", odia: "ପିତୃ-ମାତୃ", gloss: "Parents" },
+    },
+    // Names exactly as the family writes them, e.g. { name: "Shri … Mishra", late: true }
+    bride: { label: "The Bride's Family", familyName: null, grandparents: [], parents: [] },
+    groom: { label: "The Groom's Family", familyName: null, grandparents: [], parents: [] },
   },
   events: {
     heading: "Wedding Celebrations",

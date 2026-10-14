@@ -40,7 +40,7 @@ Everything a guest reads lives in [`src/config/wedding.ts`](src/config/wedding.t
 | Sankha (conch) recording for the opening (optional) | `assets.sankhaSound`, e.g. `"/audio/sankha.mp3"` in `/public`. While `null`, a conch-like call is synthesised in the browser. |
 | Couple portraits (about 3:4) | `couple.bride.photo`, `couple.groom.photo` |
 | Our Story milestones (the couple's own words) | `story.milestones` |
-| Family names, parents, photos | `family` |
+| Gurujana Pranam: grandparents and parents (`late: true` lights a dipa beside the name) | `family` |
 | Event dates, times, venues, dress codes, descriptions | `events.items` |
 | Venue name, address, photo, map link | `venue` |
 | Verified travel & stay details | `travel` |
@@ -86,7 +86,7 @@ Each section has its own entrance. All of them respect *reduced motion*.
 | Couple | Portrait cards in Tarakasi silver-filigree frames; a white Odia mukuta drops onto the bride’s frame and the groom’s crown onto his |
 | Countdown | On a matte-black strip, the Konark Sun Temple wheel turns into alignment with the scroll; days, hours and minutes sit in its hub |
 | Our Story | Sambalpuri Ikat thread grows with the scroll; chapters alternate either side, each marked by a Pattachitra icon (peacocks, Koka lotus, pana-gua) |
-| Family | Two sides slide in towards each other |
+| Family | Gurujana Pranam grid: Aja & Aai above Pitra-Matra in crisp gold boxes; a flickering brass dipa beside departed elders |
 | Events | Cards dealt in with a 3D tilt; details in a bottom sheet |
 | Venue | Image parts from the centre like a curtain |
 | Travel & Stay | Blocks come into focus from a blur |

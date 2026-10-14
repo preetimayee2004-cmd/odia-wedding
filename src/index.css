@@ -128,3 +128,49 @@
       #7a1f24 43px 52px
     );
 }
+
+/* Brass dipa beside a departed elder's name: an uneven, living flicker. */
+.dipa-flame {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: dipa-flicker 1.7s ease-in-out infinite;
+}
+.dipa-glow {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: dipa-glow 2.3s ease-in-out infinite alternate;
+}
+@keyframes dipa-flicker {
+  0%,
+  100% {
+    transform: none;
+  }
+  18% {
+    transform: scale(0.95, 1.08) skewX(2.5deg);
+  }
+  37% {
+    transform: scale(1.04, 0.93) skewX(-1.5deg);
+  }
+  52% {
+    transform: scale(0.97, 1.12) skewX(1deg);
+  }
+  76% {
+    transform: scale(1.02, 0.96) skewX(-2.5deg);
+  }
+}
+@keyframes dipa-glow {
+  from {
+    opacity: 0.45;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 0.85;
+    transform: scale(1.06);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dipa-flame,
+  .dipa-glow {
+    animation: none !important;
+  }
+}
