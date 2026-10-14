@@ -197,3 +197,92 @@
     animation: none !important;
   }
 }
+
+/* ---------- Opening: gate hint, light, petals and golden motes ----------
+   Transform/opacity only. Per-element motion comes from CSS variables. */
+
+/* The golden fingertip presses the lock twice, then rests */
+.fingertip-press {
+  animation: fingertip-press 2.6s ease-in-out infinite;
+}
+@keyframes fingertip-press {
+  0%, 60%, 100% { transform: translate(14px, 14px) scale(1); }
+  12% { transform: translate(0, 0) scale(0.93); }
+  22% { transform: translate(10px, 10px) scale(1); }
+  34% { transform: translate(0, 0) scale(0.93); }
+  46% { transform: translate(14px, 14px) scale(1); }
+}
+/* A soft golden ripple at each press */
+.tap-ripple {
+  animation: tap-ripple 2.6s ease-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes tap-ripple {
+  0%, 9% { transform: scale(0.25); opacity: 0; }
+  12% { transform: scale(0.35); opacity: 0.9; }
+  40% { transform: scale(2.1); opacity: 0; }
+  100% { transform: scale(2.1); opacity: 0; }
+}
+/* "TAP TO OPEN": a gentle breathing glow */
+.tap-text {
+  animation: tap-text 2.6s ease-in-out infinite;
+}
+@keyframes tap-text {
+  0%, 100% { opacity: 0.82; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+
+/* Slow-turning light rays */
+.rays-spin {
+  animation: rays-spin 40s linear infinite;
+}
+@keyframes rays-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Falling petals: an outer fall, an inner sway and flutter */
+.petal-fall {
+  animation: petal-fall var(--dur) linear var(--delay) both;
+}
+@keyframes petal-fall {
+  from { transform: translate3d(var(--x0), -12vh, 0) rotate(0deg); }
+  to { transform: translate3d(var(--x1), 112vh, 0) rotate(var(--rot)); }
+}
+.petal-sway {
+  animation: petal-sway var(--sway-dur) ease-in-out var(--delay) infinite alternate;
+}
+@keyframes petal-sway {
+  from { transform: translateX(calc(var(--sway) * -1)) rotateY(0deg); }
+  to { transform: translateX(var(--sway)) rotateY(160deg); }
+}
+
+/* Golden motes: drifting dust, and a burst outward when the deity dissolves */
+.mote-float {
+  animation: mote-float var(--dur) ease-in-out var(--delay) infinite alternate;
+}
+@keyframes mote-float {
+  from { transform: translate3d(0, 0, 0); opacity: 0.15; }
+  50% { opacity: 0.95; }
+  to { transform: translate3d(var(--dx), var(--dy), 0); opacity: 0.25; }
+}
+.mote-burst {
+  animation: mote-burst var(--dur) cubic-bezier(0.2, 0.6, 0.3, 1) var(--delay) both;
+}
+@keyframes mote-burst {
+  0% { transform: translate3d(0, 0, 0) scale(0.6); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translate3d(var(--dx), var(--dy), 0) scale(1); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fingertip-press,
+  .tap-ripple,
+  .tap-text,
+  .rays-spin,
+  .petal-fall,
+  .petal-sway,
+  .mote-float,
+  .mote-burst {
+    animation: none !important;
+  }
+}
