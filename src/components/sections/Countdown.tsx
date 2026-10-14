@@ -144,6 +144,7 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
       ref={ref}
       id="countdown"
       aria-labelledby="countdown-heading"
+      data-status-tone="light"
       className="relative overflow-hidden px-[var(--gutter)] py-[var(--section-y)] text-center"
       style={{ backgroundColor: MATTE }}
     >

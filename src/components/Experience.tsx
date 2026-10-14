@@ -4,6 +4,7 @@ import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { readSessionFlag, writeSessionFlag } from "@/lib/session";
 import { scrollToSection } from "@/lib/scroll";
+import { watchStatusTone } from "@/lib/viewMode";
 import { OpeningSequence } from "@/components/opening/OpeningSequence";
 import { Invitation } from "@/components/sections/Invitation";
 
@@ -59,6 +60,12 @@ export function Experience() {
   useEffect(() => {
     if (intro === "playing") return;
     document.documentElement.style.background = "rgb(var(--cream))";
+  }, [intro]);
+
+  // In the desktop mockup, flip the status bar to light over dark sections.
+  useEffect(() => {
+    if (intro !== "done") return;
+    return watchStatusTone();
   }, [intro]);
 
   // Warm the rest of the site once the opening has finished.

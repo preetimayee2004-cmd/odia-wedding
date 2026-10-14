@@ -193,8 +193,11 @@ export interface WeddingConfig {
     }>;
   };
   thankYou: {
+    /** First line, set large. */
     heading: string;
     message: string;
+    /** Closing invocation, in gold. */
+    closing: string;
   };
   footer: {
     /** Short closing blessing or sign-off. */
@@ -216,13 +219,6 @@ export interface WeddingConfig {
     image: { src: string; alt: string } | null;
   };
   assets: {
-    /**
-     * Couple illustration in traditional Odia attire (PRD §4.03): bride in
-     * Banarasi pata with yellow mukut, groom in sherwani with yellow turban/mukut.
-     * Portrait ~4:5, transparent or cream background. While null, a pair of
-     * Odia wedding mukuts stands in.
-     */
-    coupleIllustration: { src: string; alt: string } | null;
     /** Desktop only: artwork shown around the phone mockup (portrait works best). */
     desktopBackdrop: string | null;
     /**
@@ -377,9 +373,10 @@ export const wedding: WeddingConfig = {
     people: [],
   },
   thankYou: {
-    heading: "Thank You",
+    heading: "Our hearts are full.",
     message:
-      "Thank you for being a part of our journey and for blessing us as we begin this new chapter together.",
+      "We bow in gratitude to our elders, our families, and to Mahaprabhu for uniting our paths. We look forward to sharing our joy with you under the eternal shadow of the Lord.",
+    closing: "|| Jai Jagannath ||",
   },
   footer: {
     blessing: "With love and gratitude",
@@ -397,7 +394,6 @@ export const wedding: WeddingConfig = {
     image: null,
   },
   assets: {
-    coupleIllustration: null, // awaiting approved illustration
     desktopBackdrop: "/art/desktop-backdrop.jpg",
     sankhaSound: null, // awaiting a recording (synthesised until then)
   },

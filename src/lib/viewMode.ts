@@ -41,3 +41,38 @@ export function setStatusTone(tone: StatusTone) {
   if (!isFramed || window.parent === window) return;
   window.parent.postMessage({ type: STATUS_MESSAGE, tone }, window.location.origin);
 }
+
+/**
+ * Once the opening is over, keeps the mockup's status bar legible: light
+ * while a dark scene (marked data-status-tone="light") passes beneath it.
+ * Returns a cleanup function.
+ */
+export function watchStatusTone(): () => void {
+  if (!isFramed || window.parent === window) return () => {};
+  const y = parseFloat(FRAMED_STATUS_BAR) / 2;
+  let current: StatusTone | null = null;
+  let frame = 0;
+  const update = () => {
+    frame = 0;
+    const dark = Array.from(document.querySelectorAll<HTMLElement>('[data-status-tone="light"]')).some((el) => {
+      const r = el.getBoundingClientRect();
+      return r.top <= y && r.bottom >= y;
+    });
+    const tone: StatusTone = dark ? "light" : "dark";
+    if (tone !== current) {
+      current = tone;
+      setStatusTone(tone);
+    }
+  };
+  const onScroll = () => {
+    if (!frame) frame = requestAnimationFrame(update);
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll);
+  update();
+  return () => {
+    window.removeEventListener("scroll", onScroll);
+    window.removeEventListener("resize", onScroll);
+    cancelAnimationFrame(frame);
+  };
+}

@@ -93,5 +93,5 @@ Each section has its own entrance. All of them respect *reduced motion*.
 | Wishing Wall | Wishes drop in like pinned notes |
 | RSVP | Torana arch rises; accepting blooms a gold ornament |
 | Contact | Circular wipe reveal |
-| Thank you | Slow fade, message word by word |
+| Thank you | The Mahaprasad Grace: one screen of evening sky over the Bay of Bengal; golden Pranam hands holding a Tulsi leaf trace themselves in, then the words of gratitude |
 | Footer | Gold thread draws outward |
