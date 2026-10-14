@@ -16,10 +16,21 @@ export const TIMING = {
 
 /** The temple door artwork, and where its two leaves sit in it (image pixels). */
 const IMG = { src: "/art/temple-door.webp", w: 992, h: 1586 };
-/** Mahaprabhu Jagannath, revealed in golden light beyond the doors (portrait artwork, shown whole). */
-const DARSHAN = { src: "/art/jagannath-darshan.webp", alt: "Mahaprabhu Jagannath", w: 1045, h: 1505 };
-// The artwork's top and bottom edges melt into its own golden glow.
-const DARSHAN_FADE = "linear-gradient(to bottom, transparent 0%, #000 7%, #000 93%, transparent 100%)";
+/**
+ * Mahaprabhu Jagannath, revealed beyond the doors (portrait artwork, shown
+ * whole). `mask` cuts away the artwork's own yellow sunburst, so he stands
+ * on a deeper, softer golden glow instead.
+ */
+const DARSHAN = {
+  src: "/art/jagannath-darshan.webp",
+  mask: "/art/jagannath-darshan-mask.png",
+  alt: "Mahaprabhu Jagannath",
+  w: 1045,
+  h: 1505,
+};
+// Warm antique gold: soft and light at the heart, deepening to bronze at the edges.
+const DARSHAN_GLOW =
+  "radial-gradient(ellipse 95% 70% at 50% 58%, #EBCB8A 0%, #DDB46C 30%, #C9974A 58%, #A06A2C 85%, #7E4E1C 100%)";
 // The two leaves: below the carved Lakshmi lintel, edge to edge, meeting at the centre post.
 const DOOR = { x: 8, y: 420, w: 976, h: 1166 };
 const SEAM = 496;
@@ -88,8 +99,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
   };
 
   useEffect(() => {
-    const warm = new Image();
-    warm.src = DARSHAN.src;
+    for (const src of [DARSHAN.src, DARSHAN.mask]) new Image().src = src;
     setStatusTone("light");
     return () => {
       running.current.forEach((a) => a.cancel());
@@ -171,7 +181,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
           easing: "cubic-bezier(0.33, 0, 0.2, 1)",
         }),
       ]);
-      setStatusTone("dark"); // over the golden glow
+      setStatusTone("light"); // over the deep golden glow
       await play(curtainRef.current!, [], { duration: T.hold });
       if ((phaseRef.current as Phase) === "opening") void lift(false); // not skipped meanwhile
     } catch {
@@ -314,13 +324,9 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
           }}
         />
 
-        {/* Darshan: the whole artwork, its golden sunburst extended in the artwork's own colours */}
+        {/* Darshan: Mahaprabhu Jagannath on a deep, soft golden glow */}
         <div ref={darshanRef} className="absolute inset-0 overflow-hidden" style={{ opacity: 0 }}>
-          <div
-            aria-hidden
-            className="absolute inset-0"
-            style={{ background: "radial-gradient(ellipse 110% 62% at 50% 50%, #FFE27A 0%, #FBD23A 42%, #F2B21A 72%, #E08903 100%)" }}
-          />
+          <div aria-hidden className="absolute inset-0" style={{ background: DARSHAN_GLOW }} />
           <img
             src={DARSHAN.src}
             alt={DARSHAN.alt}
@@ -329,8 +335,10 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
             style={{
               width: `min(100%, calc(100dvh * ${DARSHAN.w / DARSHAN.h}))`,
               aspectRatio: `${DARSHAN.w} / ${DARSHAN.h}`,
-              maskImage: DARSHAN_FADE,
-              WebkitMaskImage: DARSHAN_FADE,
+              maskImage: `url(${DARSHAN.mask})`,
+              WebkitMaskImage: `url(${DARSHAN.mask})`,
+              maskSize: "100% 100%",
+              WebkitMaskSize: "100% 100%",
             }}
           />
         </div>
