@@ -4,9 +4,10 @@ import { useInView } from "@/hooks/useInView";
 import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { EASE } from "@/lib/motion";
 
-const VERMILION = "#922F35"; // headings
-const LABEL = "#A47743"; // chapter labels
-const TEXT = "#665447"; // paragraphs
+// The countdown section's text colours
+const VERMILION = "#7A1424"; // headings (the countdown's maroon)
+const LABEL = "#A6782C"; // eyebrow and chapter labels (the countdown's gold)
+const TEXT = "#2B1A14"; // paragraphs (the countdown's ink)
 const LINE = "#B4483E"; // the doodle line: muted vermilion
 const PENCIL = "#7A5A3C"; // antique brown pencil strokes
 const ART = "/art/story";

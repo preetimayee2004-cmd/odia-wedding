@@ -11,17 +11,10 @@ const ODIA_RED = "#A3161A"; // Odia names
 const LABEL = "#6B4A3A"; // Time / Venue / Dress code
 const VALUE = "#2B1A14"; // their values
 const GOLD = "#C9962B"; // divider lines
-const ART = "/art/events";
 
-/**
- * Artwork from the couple's Wedding Events design (848 px wide): the arched
- * header with Lord Jagannath, palms and lanterns, and the foot with an
- * elephant at each corner.
- */
+/** Measurements from the couple's Wedding Events design (848 px wide). */
 const DESIGN_W = 848;
-const HEADER = { w: 1696, h: 424 }; // the header art, at 2×
-const FOOTER_H = 129;
-/** Where the design's frame lines run (design px): its outer rule, and the arch as it comes down. */
+/** Where the design's frame lines ran (design px); the rows keep this inset. */
 const FRAME = { outer: { x: 19, w: 4 }, inner: { x: 57, w: 5 } };
 const cq = (px: number) => `${((px / DESIGN_W) * 100).toFixed(3)}cqw`;
 
@@ -40,11 +33,10 @@ const PAINTINGS: Record<EventId, { src: string; w: number; h: number; alt: strin
 
 /**
  * Section — Wedding Events.
- * After the couple's design, on the couple card's cream: under the painted
- * arch (Lord Jagannath between palms and lanterns), each ceremony is one
- * row — its painting on one side, alternating left and right, and its name,
- * Odia name, time, venue and dress code on the other — with a small lotus
- * divider between ceremonies, down to the elephants at the foot.
+ * After the couple's design, on the couple card's cream: the title, then
+ * each ceremony as one row — its painting on one side, alternating left and
+ * right, and its name, Odia name, time, venue and dress code on the other —
+ * with a small lotus divider between ceremonies.
  */
 export function Events() {
   const { heading, odiaHeading, items } = wedding.events;
@@ -54,32 +46,21 @@ export function Events() {
 
   return (
     <section id="events" aria-labelledby="events-heading" className="relative [container-type:inline-size]" style={{ backgroundColor: CREAM }}>
-      {/* The arch, with the title inside it */}
-      <div ref={headerRef} className="relative">
-        <img
-          src={`${ART}/header.webp`}
-          alt=""
-          aria-hidden
-          width={HEADER.w}
-          height={HEADER.h}
-          decoding="async"
-          className="block h-auto w-full"
-        />
-        <div className="absolute inset-x-0 flex flex-col items-center" style={{ top: cq(100) }}>
-          <h2 id="events-heading" className="whitespace-nowrap font-serif font-semibold leading-none" style={{ fontSize: cq(54), color: MAROON, ...fade(0) }}>
-            {heading}
-          </h2>
-          {odiaHeading && (
-            <p lang="or" className="odia whitespace-nowrap font-semibold leading-none" style={{ fontSize: `max(13px, ${cq(24)})`, color: ODIA_RED, marginTop: cq(14), ...fade(150) }}>
-              {odiaHeading}
-            </p>
-          )}
-        </div>
+      {/* The title */}
+      <div ref={headerRef} className="flex flex-col items-center px-12 pt-12 text-center">
+        <h2 id="events-heading" className="whitespace-nowrap font-serif text-[2.1rem] font-semibold leading-none" style={{ color: MAROON, ...fade(0) }}>
+          {heading}
+        </h2>
+        {odiaHeading && (
+          <p lang="or" className="odia mt-2.5 whitespace-nowrap text-[1rem] font-semibold leading-none" style={{ color: ODIA_RED, ...fade(150) }}>
+            {odiaHeading}
+          </p>
+        )}
       </div>
 
       {/* The ceremonies, inside the frame */}
       <div className="relative">
-        <ol className="relative mx-auto max-w-[40rem] pb-5 pt-5" style={{ paddingInline: `calc(${cq(FRAME.inner.x + FRAME.inner.w)} + 0.375rem)` }}>
+        <ol className="relative mx-auto max-w-[40rem] pb-12 pt-6" style={{ paddingInline: `calc(${cq(FRAME.inner.x + FRAME.inner.w)} + 0.375rem)` }}>
           {items.map((event, i) => (
             <li key={event.id}>
               {i > 0 && <LotusDivider />}
@@ -88,17 +69,6 @@ export function Events() {
           ))}
         </ol>
       </div>
-
-      {/* The foot, with its elephants */}
-      <img
-        src={`${ART}/footer.webp`}
-        alt=""
-        aria-hidden
-        decoding="async"
-        loading="lazy"
-        className="block w-full"
-        style={{ aspectRatio: `${DESIGN_W} / ${FOOTER_H}` }}
-      />
     </section>
   );
 }
