@@ -46,9 +46,6 @@ export function Family() {
       className="relative px-[var(--gutter)] py-[var(--section-y)] text-center"
       style={{ backgroundColor: CRIMSON, color: TEXT }}
     >
-      {/* Gold border frame around the whole section */}
-      <span aria-hidden className="pointer-events-none absolute inset-3 border" style={{ borderColor: `${GOLD}99` }} />
-      <span aria-hidden className="pointer-events-none absolute inset-[18px] border" style={{ borderColor: `${GOLD}40` }} />
 
       <div ref={headerRef} className="relative" style={{ opacity: headerIn ? 1 : 0, transition: `opacity 900ms ${EASE.silk}` }}>
         {odiaHeading && (

@@ -79,8 +79,6 @@ export function Events() {
 
       {/* The ceremonies, inside the frame */}
       <div className="relative">
-        <FrameRules side="left" />
-        <FrameRules side="right" />
         <ol className="relative mx-auto max-w-[40rem] pb-5 pt-5" style={{ paddingInline: `calc(${cq(FRAME.inner.x + FRAME.inner.w)} + 0.375rem)` }}>
           {items.map((event, i) => (
             <li key={event.id}>
@@ -209,22 +207,6 @@ function LotusDivider() {
         <path d="M8 16h12" strokeLinecap="round" />
       </svg>
       <span className="h-px flex-1" style={{ backgroundColor: GOLD }} />
-    </div>
-  );
-}
-
-/** A fine double rule carrying the arch's frame down to the foot. */
-function FrameRules({ side }: { side: "left" | "right" }) {
-  const rule = (x: number, w: number, opacity: number): CSSProperties => ({
-    [side]: cq(x),
-    width: `max(1px, ${cq(w * 0.5)})`,
-    backgroundColor: MAROON,
-    opacity,
-  });
-  return (
-    <div aria-hidden className="pointer-events-none">
-      <span className="absolute inset-y-0" style={rule(FRAME.outer.x, FRAME.outer.w, 0.75)} />
-      <span className="absolute inset-y-0" style={rule(FRAME.inner.x + 1, FRAME.inner.w, 0.45)} />
     </div>
   );
 }

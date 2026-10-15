@@ -1,3 +1,4 @@
+import { SideBands } from "@/components/art/SideBands";
 import { Couple } from "@/components/sections/Couple";
 import { Countdown } from "@/components/sections/Countdown";
 import { Story } from "@/components/sections/Story";
@@ -20,17 +21,21 @@ export default function RestOfSite() {
   return (
     <>
       <Couple />
-      <Countdown />
-      <Story />
-      <Events />
-      <Family />
-      <Gallery />
-      <Rsvp />
-      <WishingWall />
-      <VenueTravel />
-      <Contact />
-      <ThankYou />
-      <Footer />
+      {/* From here to the end, the couple card's looped band runs down both sides */}
+      <div className="relative">
+        <SideBands />
+        <Countdown />
+        <Story />
+        <Events />
+        <Family />
+        <Gallery />
+        <Rsvp />
+        <WishingWall />
+        <VenueTravel />
+        <Contact />
+        <ThankYou />
+        <Footer />
+      </div>
     </>
   );
 }

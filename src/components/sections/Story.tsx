@@ -48,7 +48,7 @@ export function Story() {
       id="story"
       aria-labelledby="story-heading"
       className="relative overflow-hidden [container-type:inline-size]"
-      style={{ backgroundColor: "#F1E2C8", backgroundImage: `url(${ART}/paper.webp)`, backgroundSize: `100% auto`, backgroundRepeat: "repeat-y" }}
+      style={{ backgroundColor: "#F8F2E5", backgroundImage: `url(${ART}/paper.webp)`, backgroundSize: `100% auto`, backgroundRepeat: "repeat-y" }}
     >
       <img src={`${ART}/top.webp`} alt="" aria-hidden decoding="async" loading="lazy" className="pointer-events-none absolute inset-x-0 top-0 w-full" style={{ aspectRatio: `${PAPER_W} / ${PIECE_H}` }} />
       <img src={`${ART}/bottom.webp`} alt="" aria-hidden decoding="async" loading="lazy" className="pointer-events-none absolute inset-x-0 bottom-0 w-full" style={{ aspectRatio: `${PAPER_W} / ${PIECE_H}` }} />

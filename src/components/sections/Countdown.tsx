@@ -16,7 +16,6 @@ const GOLD = "#A6782C";
 const SOFT = "#A88A5E";
 const BORDER_RED = "#8D0B0B"; // the couple card border's red
 const INK = "#2B1A14";
-const FRAME = "/art/countdown-frame.svg"; // nine-slice: slice 40 of a 120 box
 
 /** Whether the element is currently on screen (unlike useInView, not one-shot). */
 function useOnScreen(ref: RefObject<Element>): boolean {
@@ -142,13 +141,6 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
 
   return (
     <section ref={ref} id="countdown" aria-labelledby="countdown-heading" className="relative text-center" style={{ backgroundColor: CARD }}>
-      {/* The couple's bordered paper: double brown rule, hanging curls, a wave of dots */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-3"
-        style={{ borderStyle: "solid", borderWidth: 0, borderImage: `url(${FRAME}) 40 / 34px round` }}
-      />
-
       <div className="relative px-12 pb-14 pt-[3.25rem]">
         <p className="flex items-center justify-center gap-2 text-[0.6875rem] font-medium uppercase tracking-[0.3em]" style={{ ...fadeIn(0), color: SOFT }}>
           <span aria-hidden>+</span> {eyebrow} <span aria-hidden>+</span>
