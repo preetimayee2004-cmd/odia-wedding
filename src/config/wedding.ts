@@ -128,8 +128,6 @@ export interface WeddingConfig {
     /** Spaced capitals above the heading. */
     lead: string;
     heading: string;
-    /** Short italic note beside the temple at the foot of the section. */
-    caption: string;
     /** Shown from the start time until the end of the wedding day (venue time). */
     weddingDayMessage: string;
     /** Shown after the wedding day. {date} → the wedding date. */
@@ -340,7 +338,6 @@ export const wedding: WeddingConfig = {
     odia: "ଶୁଭ ବିବାହ",
     lead: "The countdown to our",
     heading: "Forever Begins",
-    caption: "Inspired by the timeless wheel of Konark, where art, architecture and the passage of time meet.",
     weddingDayMessage: "Today is the day — thank you for celebrating with us.",
     completedMessage: "We were married on {date}. Thank you for your love and blessings.",
   },
