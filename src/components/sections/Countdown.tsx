@@ -256,10 +256,44 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
           </p>
         )}
 
-        <LotusRule className="mt-7" style={fadeIn(450)} />
+      </div>
+
+      {/* Between the wheel and the date: the Sun Temple chariot among banana leaves, and a note beside it */}
+      <div className="relative mt-3 flex h-[min(52vw,13.5rem)] items-center">
+        <img
+          src={TEMPLE.src}
+          alt="The Konark Sun Temple, the stone chariot of the Sun God, among banana leaves"
+          decoding="async"
+          loading="lazy"
+          className="h-full w-auto max-w-none shrink-0"
+          style={{
+            aspectRatio: `${TEMPLE.aspect}`,
+            WebkitMaskImage:
+              "linear-gradient(to right, #000 70%, transparent), linear-gradient(to bottom, transparent, #000 22%, #000 82%, transparent)",
+            WebkitMaskComposite: "source-in",
+            maskImage: "linear-gradient(to right, #000 70%, transparent), linear-gradient(to bottom, transparent, #000 22%, #000 82%, transparent)",
+            maskComposite: "intersect",
+            ...fadeIn(300),
+          }}
+        />
+        <div className="min-w-0 flex-1 pl-1 pr-[var(--gutter)] text-center" style={fadeIn(600)}>
+          <p className="font-display text-[0.86rem] font-semibold italic leading-snug" style={{ color: "#3B2615" }}>
+            {caption}
+          </p>
+          <span aria-hidden className="mx-auto mt-2 flex w-14 items-center gap-1">
+            <span className="h-px flex-1" style={{ backgroundColor: RULE }} />
+            <span className="h-1 w-1 rotate-45" style={{ backgroundColor: RULE }} />
+            <span className="h-px flex-1" style={{ backgroundColor: RULE }} />
+          </span>
+        </div>
+      </div>
+
+      {/* The date; the section ends 16px below it */}
+      <div className="relative px-[var(--gutter)] pb-4">
+        <LotusRule className="mt-2" style={fadeIn(450)} />
         <div className="mt-3" style={fadeIn(500)}>
           {date ? (
-            <p className="font-display text-[1.6rem] font-medium tracking-[0.22em]" style={{ color: BROWN }}>
+            <p className="font-display text-[1.6rem] font-medium leading-none tracking-[0.22em]" style={{ color: BROWN }}>
               {two(parts!.day)} · {two(parts!.month)} · {parts!.year}
               {date.time && (
                 <span className="mt-1 block font-sans text-[0.6875rem] font-medium tracking-[0.18em]">
@@ -274,35 +308,6 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
               </Pending>
             </div>
           )}
-        </div>
-      </div>
-
-      {/* The Sun Temple chariot among banana leaves, and a note beside it */}
-      <div className="relative mt-2 h-[min(78vw,21rem)]">
-        <img
-          src={TEMPLE.src}
-          alt="The Konark Sun Temple, the stone chariot of the Sun God, among banana leaves"
-          decoding="async"
-          loading="lazy"
-          className="absolute bottom-0 left-0 h-full w-auto max-w-none"
-          style={{
-            aspectRatio: `${TEMPLE.aspect}`,
-            WebkitMaskImage: "linear-gradient(to right, #000 72%, transparent), linear-gradient(to bottom, transparent, #000 24%)",
-            WebkitMaskComposite: "source-in",
-            maskImage: "linear-gradient(to right, #000 72%, transparent), linear-gradient(to bottom, transparent, #000 24%)",
-            maskComposite: "intersect",
-            ...fadeIn(300),
-          }}
-        />
-        <div className="absolute right-[var(--gutter)] top-[22%] w-[42%] text-center" style={fadeIn(600)}>
-          <p className="font-display text-[0.95rem] italic leading-snug" style={{ color: BROWN }}>
-            {caption}
-          </p>
-          <span aria-hidden className="mx-auto mt-2 flex w-16 items-center gap-1">
-            <span className="h-px flex-1" style={{ backgroundColor: RULE }} />
-            <span className="h-1 w-1 rotate-45" style={{ backgroundColor: RULE }} />
-            <span className="h-px flex-1" style={{ backgroundColor: RULE }} />
-          </span>
         </div>
       </div>
     </section>
