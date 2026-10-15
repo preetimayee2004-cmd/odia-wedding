@@ -13,8 +13,8 @@ export const STATUS_BAR_H = 54;
 // Space kept free above and below the phone.
 const PAD = 28;
 
-// Cream of the floral wallpaper, shown while the image loads.
-const BACKDROP_BASE = "#EADBC2";
+// Warm cream of the vintage floral paper, shown while the image loads.
+const BACKDROP_BASE = "#EFE2CE";
 
 function useFitScale(): number {
   const compute = () => Math.max(0.5, Math.min(1, (window.innerHeight - PAD * 2) / FRAME_H));
@@ -57,7 +57,7 @@ export function PhoneMockup({ src }: { src: string }) {
       style={
         backdrop
           ? {
-              // The cream floral wallpaper, covering the screen around the phone.
+              // The vintage floral paper, covering the screen around the phone.
               backgroundColor: BACKDROP_BASE,
               backgroundImage: `url(${backdrop})`,
               backgroundRepeat: "no-repeat",
