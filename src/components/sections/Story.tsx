@@ -11,20 +11,16 @@ const TEXT = "#2B1A14"; // paragraphs (the countdown's ink)
 const LINE = "#B4483E"; // the doodle line: muted vermilion
 const PENCIL = "#7A5A3C"; // antique brown pencil strokes
 const ART = "/art/story";
+const CREAM = "#F8F2E5"; // the couple card cream
 
-/**
- * The couple's parchment (1024 px wide): its top (an Odisha temple, a corner
- * flourish) and bottom (a corner flourish, the Konark wheel) stay whole; a
- * band of plain paper repeats between them. Positions are in its pixels.
- */
+/** Vertical rhythm is measured against a 1024 px design width. */
 const PAPER_W = 1024;
-const PIECE_H = 440;
 const COUPLE = { w: 202, h: 228 };
 const cq = (px: number) => `${((px / PAPER_W) * 100).toFixed(3)}cqw`;
 
 /**
  * Section 05 — Our Story.
- * A handmade illustrated journal on the couple's parchment: "Two Hearts, One
+ * A handmade illustrated journal over the couple's photograph: "Two Hearts, One
  * Journey" over the heading, then four chapters joined by a hand-drawn
  * vermilion line that wanders from side to side — the words alternating
  * either side of it, with small pencil doodles — and draws itself as the
@@ -49,10 +45,22 @@ export function Story() {
       id="story"
       aria-labelledby="story-heading"
       className="relative overflow-hidden [container-type:inline-size]"
-      style={{ backgroundColor: "#F8F2E5", backgroundImage: `url(${ART}/paper.webp)`, backgroundSize: `100% auto`, backgroundRepeat: "repeat-y" }}
+      style={{ backgroundColor: CREAM }}
     >
-      <img src={`${ART}/top.webp`} alt="" aria-hidden decoding="async" loading="lazy" className="pointer-events-none absolute inset-x-0 top-0 w-full" style={{ aspectRatio: `${PAPER_W} / ${PIECE_H}` }} />
-      <img src={`${ART}/bottom.webp`} alt="" aria-hidden decoding="async" loading="lazy" className="pointer-events-none absolute inset-x-0 bottom-0 w-full" style={{ aspectRatio: `${PAPER_W} / ${PIECE_H}` }} />
+      {/* The couple's photograph, softly washed with cream so the story reads over it;
+          it fades in from the countdown above and back to cream at the foot */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-cover"
+        style={{ backgroundImage: `url(${ART}/couple-photo.webp)`, backgroundPosition: "58% 30%" }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: `linear-gradient(to bottom, ${CREAM} 0, rgb(248 242 229 / 0.62) 260px, rgb(248 242 229 / 0.8) 520px, rgb(248 242 229 / 0.84) calc(100% - 320px), ${CREAM} 100%)`,
+        }}
+      />
 
       <ArrivingThread />
 
