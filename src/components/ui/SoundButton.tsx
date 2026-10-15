@@ -2,8 +2,8 @@ import { forwardRef, type CSSProperties } from "react";
 import { toggleSound, useSoundOn } from "@/lib/sound";
 
 /**
- * Round sound button, shared by the opening and the site: solid maroon with
- * a gold rim and a cream speaker, clearly visible over any artwork.
+ * Round sound button, shared by the opening and the site: a cream disc
+ * with a gold rim and a maroon speaker, clearly visible over any artwork.
  */
 export const SoundButton = forwardRef<HTMLButtonElement, { className?: string; style?: CSSProperties; tabIndex?: number }>(
   function SoundButton({ className = "", style, tabIndex }, ref) {
@@ -15,7 +15,7 @@ export const SoundButton = forwardRef<HTMLButtonElement, { className?: string; s
         onClick={toggleSound}
         aria-label={on ? "Mute music" : "Play music"}
         aria-pressed={on}
-        className={`inline-flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#E3A21A] bg-[#7B1E1E] text-[#FBF3E2] shadow-[0_4px_12px_-2px_rgb(40_10_5/0.45)] ${className}`}
+        className={`inline-flex h-11 w-11 items-center justify-center rounded-full border-[1.5px] border-[#C9962B] bg-[rgba(251,243,228,0.92)] text-[#7B1E1E] shadow-[0_2px_8px_rgba(60,20,10,0.25)] ${className}`}
         style={style}
         tabIndex={tabIndex}
       >
@@ -28,7 +28,7 @@ export const SoundButton = forwardRef<HTMLButtonElement, { className?: string; s
 /** A speaker; with sound waves while playing, crossed out when muted. */
 function SoundIcon({ on }: { on: boolean }) {
   return (
-    <svg width="22" height="22" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg width="22" height="22" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <path d="M2.5 7h2.5l3.5-3v10l-3.5-3H2.5Z" fill="currentColor" fillOpacity="0.35" />
       {on ? (
         <>

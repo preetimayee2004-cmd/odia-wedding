@@ -233,25 +233,6 @@ export interface WeddingConfig {
     /** Optional website credit, e.g. "Made with love by …". */
     credit: string | null;
   };
-  /** The Rajagya (Royal Decree): practical updates, pinned to the bottom of the screen. */
-  rajagya: {
-    label: string;
-    /** Confirm spelling with the family. */
-    odia: string | null;
-    gloss: string;
-    /**
-     * Logistics only (parking, RSVP deadline, live-stream link), most
-     * important first: the first one shows on the banner. Facts exactly as
-     * the family confirms them. With none, the decree is not shown.
-     */
-    notices: Array<{
-      /** Short heading, e.g. "RSVP". */
-      title: string;
-      /** e.g. "Please RSVP before 1 November." */
-      text: string;
-      link: { href: string; label: string } | null;
-    }>;
-  };
   /** The "Atithi Culture & Style Guide" pop-up in Venue, Travel & Stay. */
   atithi: {
     button: string;
@@ -471,13 +452,6 @@ export const wedding: WeddingConfig = {
   footer: {
     blessing: "With love and gratitude",
     credit: null,
-  },
-  rajagya: {
-    label: "Rajagya",
-    odia: "ରାଜାଜ୍ଞା",
-    gloss: "The Royal Decree",
-    // e.g. { title: "RSVP", text: "Please RSVP before …", link: null }
-    notices: [],
   },
   // General guidance for guests — the family may edit any of it.
   atithi: {

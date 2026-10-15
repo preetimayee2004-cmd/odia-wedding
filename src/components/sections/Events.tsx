@@ -10,13 +10,13 @@ const MAROON = "#7B1E1E"; // event titles
 const ODIA_RED = "#A3161A"; // Odia names
 const LABEL = "#6B4A3A"; // Time / Venue / Dress code
 const VALUE = "#2B1A14"; // their values
-const THREAD = "#A4553A"; // timeline and medallion ring
+const GOLD = "#C9962B"; // divider lines
 const ART = "/art/events";
 
 /**
- * Artwork cut from the couple's Wedding Events design (848 px wide): the
- * arched header with Lord Jagannath, palms and lanterns, the foot with an
- * elephant at each corner, and a painting for each ceremony.
+ * Artwork from the couple's Wedding Events design (848 px wide): the arched
+ * header with Lord Jagannath, palms and lanterns, and the foot with an
+ * elephant at each corner.
  */
 const DESIGN_W = 848;
 const HEADER = { w: 1696, h: 424 }; // the header art, at 2×
@@ -24,33 +24,27 @@ const FOOTER_H = 129;
 /** Where the design's frame lines run (design px): its outer rule, and the arch as it comes down. */
 const FRAME = { outer: { x: 19, w: 4 }, inner: { x: 57, w: 5 } };
 const cq = (px: number) => `${((px / DESIGN_W) * 100).toFixed(3)}cqw`;
-const ILLUSTRATIONS: Record<EventId, { w: number; h: number; alt: string }> = {
-  mehendi: { w: 178, h: 128, alt: "A bowl of mehendi and hands painted with it" },
-  sangeet: { w: 186, h: 128, alt: "A dhol, tabla and music" },
-  mangana: { w: 158, h: 122, alt: "A kalash among marigolds" },
-  barajatri: { w: 196, h: 128, alt: "The groom on horseback under a parasol, with drummers" },
-  batabarana: { w: 170, h: 104, alt: "A conch and a lit diya on a welcome plate" },
-  hastaganthi: { w: 170, h: 114, alt: "Hands joined, with bridal bangles" },
-  sindoor: { w: 146, h: 112, alt: "Bowls of sindoor among flowers" },
-  bidaai: { w: 172, h: 116, alt: "The bride in a palanquin" },
-  reception: { w: 172, h: 142, alt: "A decorated mandap" },
-};
-const MEDALLION = 64; // px: every painting sits in the same white round medallion
-const MEDALLION_PAD = 8;
-/** 1× size of a painting fitted into the medallion's inner box. */
-const fitted = ({ w, h }: { w: number; h: number }) => {
-  const box = MEDALLION - MEDALLION_PAD * 2;
-  const s = Math.min(box / w, box / h);
-  return { width: Math.round(w * s), height: Math.round(h * s) };
+
+/** Each ceremony's painting: a transparent PNG (2×), placed straight on the cream. */
+const PAINTINGS: Record<EventId, { src: string; w: number; h: number; alt: string }> = {
+  mehendi: { src: "01_mehendi", w: 356, h: 256, alt: "A bowl of mehendi and hands painted with it" },
+  sangeet: { src: "02_sangeet", w: 372, h: 256, alt: "A dhol, tabla and music" },
+  mangana: { src: "03_mangana", w: 316, h: 244, alt: "A kalash among marigolds" },
+  barajatri: { src: "04_barajatri", w: 392, h: 256, alt: "The groom on horseback under a parasol, with drummers" },
+  batabarana: { src: "05_bata_barana", w: 340, h: 208, alt: "A conch and a lit diya on a welcome plate" },
+  hastaganthi: { src: "06_hasta_ganthi", w: 340, h: 228, alt: "Hands joined, with bridal bangles" },
+  sindoor: { src: "07_sindoor_daan", w: 292, h: 224, alt: "Bowls of sindoor among flowers" },
+  bidaai: { src: "08_bidaai", w: 344, h: 232, alt: "The bride in a palanquin" },
+  reception: { src: "09_reception", w: 344, h: 284, alt: "A decorated mandap" },
 };
 
 /**
  * Section — Wedding Events.
- * An editorial timeline on the couple card's cream. Under the painted arch
- * (Lord Jagannath between palms and lanterns), a fine double rule carries
- * the frame down to the elephants at the foot. Each ceremony takes the same
- * row: its painting in a small medallion threaded on the timeline, then its
- * name and Odia name, and the time, venue and dress code on one axis.
+ * After the couple's design, on the couple card's cream: under the painted
+ * arch (Lord Jagannath between palms and lanterns), each ceremony is one
+ * row — its painting on one side, alternating left and right, and its name,
+ * Odia name, time, venue and dress code on the other — with a small lotus
+ * divider between ceremonies, down to the elephants at the foot.
  */
 export function Events() {
   const { heading, odiaHeading, items } = wedding.events;
@@ -83,16 +77,16 @@ export function Events() {
         </div>
       </div>
 
-      {/* The timeline, inside the frame */}
+      {/* The ceremonies, inside the frame */}
       <div className="relative">
         <FrameRules side="left" />
         <FrameRules side="right" />
-        <ol
-          className="relative mx-auto max-w-[30rem] pb-[100px] pt-5"
-          style={{ paddingInline: `calc(${cq(FRAME.inner.x + FRAME.inner.w)} + 0.6rem)` }}
-        >
+        <ol className="relative mx-auto max-w-[40rem] pb-5 pt-5" style={{ paddingInline: `calc(${cq(FRAME.inner.x + FRAME.inner.w)} + 0.375rem)` }}>
           {items.map((event, i) => (
-            <EventRow key={event.id} event={event} last={i === items.length - 1} />
+            <li key={event.id}>
+              {i > 0 && <LotusDivider />}
+              <EventRow event={event} imageRight={i % 2 === 1} />
+            </li>
           ))}
         </ol>
       </div>
@@ -111,53 +105,31 @@ export function Events() {
   );
 }
 
-function EventRow({ event, last }: { event: WeddingEvent; last: boolean }) {
-  const ref = useRef<HTMLLIElement>(null);
+function EventRow({ event, imageRight }: { event: WeddingEvent; imageRight: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { threshold: 0.35 });
-  const art = ILLUSTRATIONS[event.id];
-  const size = fitted(art);
-  const icon = (x: number) => `${ART}/icons/${event.id}@${x}x.webp`;
+  const art = PAINTINGS[event.id];
 
-  const rise = (delay: number): CSSProperties => ({
+  const rise = (delay: number, dx = 0): CSSProperties => ({
     opacity: inView ? 1 : 0,
-    transform: inView ? "none" : "translateY(10px)",
+    transform: inView ? "none" : `translate(${dx}px, 10px)`,
     transition: `opacity 700ms ${EASE.silk} ${delay}ms, transform 800ms ${EASE.silk} ${delay}ms`,
   });
 
   return (
-    <li ref={ref} className={`relative grid items-start gap-x-3 ${last ? "" : "pb-6"}`} style={{ gridTemplateColumns: `${MEDALLION}px minmax(0, 1fr)` }}>
-      {/* The timeline thread, down to the next medallion */}
-      {!last && (
-        <span
-          aria-hidden
-          className="absolute bottom-0 w-px"
-          style={{ left: MEDALLION / 2, top: MEDALLION + 4, background: `linear-gradient(${THREAD}66, ${THREAD}26)` }}
-        />
-      )}
+    <div ref={ref} className={`flex items-center gap-[10px] ${imageRight ? "flex-row-reverse" : ""}`}>
+      <img
+        src={`/images/events/${art.src}.png`}
+        width={art.w}
+        height={art.h}
+        alt={art.alt}
+        decoding="async"
+        loading="lazy"
+        className="block h-auto shrink-0 object-contain"
+        style={{ width: "clamp(110px, 31cqw, 180px)", ...rise(0, imageRight ? 12 : -12) }}
+      />
 
-      <div
-        className="flex items-center justify-center rounded-full bg-white"
-        style={{
-          width: MEDALLION,
-          height: MEDALLION,
-          padding: MEDALLION_PAD,
-          boxShadow: `0 0 0 1px ${THREAD}40, 0 2px 6px -3px rgb(90 40 20 / 0.35)`,
-          ...rise(0),
-        }}
-      >
-        <img
-          src={icon(1)}
-          srcSet={`${icon(1)} 1x, ${icon(2)} 2x, ${icon(3)} 3x`}
-          width={size.width}
-          height={size.height}
-          alt={art.alt}
-          decoding="async"
-          loading="lazy"
-          className="max-h-full max-w-full object-contain"
-        />
-      </div>
-
-      <div className="min-w-0 pt-1" style={rise(100)}>
+      <div className="min-w-0 flex-1" style={rise(100)}>
         <h3 className="font-serif text-[22px] font-semibold leading-[1.25]" style={{ color: MAROON }}>
           {event.name}
           {event.odiaName && (
@@ -166,30 +138,30 @@ function EventRow({ event, last }: { event: WeddingEvent; last: boolean }) {
             </span>
           )}
         </h3>
-        <dl className="mt-1.5 grid gap-x-2.5 gap-y-1 font-serif leading-[1.5]" style={{ gridTemplateColumns: "max-content minmax(0, 1fr)" }}>
+        <dl className="mt-1 space-y-0.5 font-serif leading-[1.5]">
           <Detail label="Time" value={event.when} />
           <Detail label="Venue" value={event.venueName} />
           <Detail label="Dress code" value={event.dressCode} />
         </dl>
       </div>
-    </li>
+    </div>
   );
 }
 
 function Detail({ label, value }: { label: string; value: string | null }) {
   const term = (
-    <dt className="pt-[2px] text-[14px] font-medium" style={{ color: LABEL }}>
+    <dt className="mr-1.5 inline whitespace-nowrap text-[14px] font-medium" style={{ color: LABEL }}>
       {label}
     </dt>
   );
   if (!value) {
     return (
-      <>
+      <div>
         {term}
-        <dd className="text-[16px] font-medium" style={{ color: VALUE }}>
+        <dd className="inline text-[16px] font-medium" style={{ color: VALUE }}>
           <Pending label={`${label} awaiting confirmation`}>To be confirmed</Pending>
         </dd>
-      </>
+      </div>
     );
   }
   // "Traditional wear | Bright & festive" → two phrases with a quiet dot between,
@@ -198,11 +170,11 @@ function Detail({ label, value }: { label: string; value: string | null }) {
     .split("\n")
     .map((line) => line.split(" | "));
   return (
-    <>
+    <div>
       {term}
-      <dd className="text-[16px] font-medium" style={{ color: VALUE }}>
+      <dd className="inline text-[16px] font-medium" style={{ color: VALUE }}>
         {lines.map((parts, i) => (
-          <span key={i} className="block">
+          <span key={i} className={i > 0 ? "block" : undefined}>
             {parts.map((part, j) => (
               <span key={j}>
                 <span className={parts.length > 1 && part.length <= 18 ? "whitespace-nowrap" : undefined}>
@@ -212,18 +184,34 @@ function Detail({ label, value }: { label: string; value: string | null }) {
                       ·
                     </span>
                   )}
-                </span>{" "}
+                </span>
+                {j < parts.length - 1 && " "}
               </span>
             ))}
           </span>
         ))}
       </dd>
-    </>
+    </div>
   );
 }
 
 /** "10:00 AM – 1:00 PM" may break only after the dash, never inside "10:00 AM". */
-const keepTimesTogether = (text: string) => text.replace(/(\d) (AM|PM)/g, "$1\u00a0$2");
+const keepTimesTogether = (text: string) => text.replace(/(\d) (AM|PM)/g, "$1 $2");
+
+/** Between ceremonies: thin gold line — small red lotus — thin gold line. */
+function LotusDivider() {
+  return (
+    <div aria-hidden className="mx-auto my-3 flex w-[58%] items-center gap-2">
+      <span className="h-px flex-1" style={{ backgroundColor: GOLD }} />
+      <svg viewBox="0 0 28 18" className="h-[14px] w-auto shrink-0" fill="none" stroke={ODIA_RED} strokeWidth="1.4" strokeLinejoin="round">
+        <path d="M14 2c2.6 3 2.6 7.5 0 11-2.6-3.5-2.6-8 0-11Z" fill={`${ODIA_RED}40`} />
+        <path d="M14 13c-3-1-6-3.5-6.6-7.6 3.5.5 5.7 3 6.6 7.6Zm0 0c3-1 6-3.5 6.6-7.6-3.5.5-5.7 3-6.6 7.6Z" />
+        <path d="M8 16h12" strokeLinecap="round" />
+      </svg>
+      <span className="h-px flex-1" style={{ backgroundColor: GOLD }} />
+    </div>
+  );
+}
 
 /** A fine double rule carrying the arch's frame down to the foot. */
 function FrameRules({ side }: { side: "left" | "right" }) {

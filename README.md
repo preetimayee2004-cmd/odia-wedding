@@ -48,7 +48,7 @@ Everything a guest reads lives in [`src/config/wedding.ts`](src/config/wedding.t
 | Contacts (with country code) | `contact.people` |
 | RSVP deadline, party-size limit | `rsvp` |
 | Opening sound button: a recording to play instead of the synthesised sankha (optional) | `assets.openingSound`, e.g. `"/audio/opening.mp3"` in `/public` |
-| Rajagya notices (parking, RSVP deadline, live stream), thank-you message | `rajagya`, `thankYou` |
+| Thank-you message | `thankYou` |
 | Show every section with dashed placeholders for unconfirmed details (turn **off** before sharing the final invitation, so empty sections hide) | `site.showPlaceholders` |
 | Public URL (for WhatsApp previews) | `meta.siteUrl`, then `npm run og` |
 
@@ -89,7 +89,7 @@ Each section has its own entrance. All of them respect *reduced motion*.
 | Couple | The couple card (`public/art/couple-card.jpg`: carved arch in a red-and-gold border, cream matched to the invitation) fills one screen. Spread evenly inside it: a gold Ganesha, || Om Ganeshaya Namah ||, the guest greeted by name, the names stacked in Great Vibes rising in one after another, the hashtag between gold rules, and a quote under a small lotus; the illustrated couple seated at the sacred fire (`public/art/couple-havan.png`) is centred at the bottom |
 | Countdown | The Cosmic Wheel, after the couple's reference design: on the couple card's cream (the artwork's paper recoloured to match), banana leaves and temple bells at the top corners; ଶୁଭ ବିବାହ, "The countdown to our Forever Begins"; the carved Konark wheel (`public/art/konark-wheel.webp`, cut from the reference with its clock faces left blank) turns a quarter-turn into place, its four faces counting days, hours, mins and secs; the date as DD · MM · YYYY; the Sun Temple chariot among banana leaves at the foot (`konark-temple.webp`, `banana-bell.webp`) |
 | Our Story | On Tusser-silk cream like an unrolled scroll, a shimmering silver Tarakasi filigree vine grows with the scroll; chapters alternate either side, each marked by a Pattachitra icon (interlocking peacocks, Koka lotus, pana-gua on a brass plate) |
-| Events | Wedding Events as an editorial timeline on the couple card cream (art in `public/art/events/`): the painted arch with Lord Jagannath, palms and lanterns above; a fine double rule carries the frame down to the elephants at the foot. Every ceremony takes the same row: its painting in a white 64px medallion (1×/2×/3× images in `public/art/events/icons/`) threaded on the timeline, the name with its Odia name in terracotta, then time, venue and dress code on one axis; rows rise in as they scroll into view |
+| Events | Wedding Events after the couple's design, on the couple card cream: the painted arch with Lord Jagannath, palms and lanterns (`public/art/events/header.webp`), then each ceremony as one row — its painting (transparent PNGs in `public/images/events/`) straight on the cream, alternating left and right, beside the name, Odia name, time, venue and dress code — with a gold-line-and-lotus divider between ceremonies and the elephants at the foot (`footer.webp`) |
 | Family | Gurujana Pranam & Blessings on deep crimson: Aja & Aai (flanked by two flickering dipas), Pitra-Matra Pranam and Suhuda-Varga in gold-bordered blocks, the two lineages meeting below; a dipa beside departed elders |
 | Gallery | The Raghurajpur Canvas: photographs in an asymmetric masonry, each in a Mukteswar-torana arch with a finial; on hover a red-and-black Pattachitra scroll border fades in; tap to enlarge |
 | RSVP | The Jhoti Welcome: one clean card on crimson inside a white rice-paste jhoti frame; mustard-gold buttons; accepting blooms a gold ornament |
@@ -97,5 +97,4 @@ Each section has its own entrance. All of them respect *reduced motion*.
 | Venue, Travel & Stay | The Path to Purushottam Kshetra: off-white cards with gold Kalash markers in place of map pins; a golden "Atithi Culture & Style Guide" button opens colours, handlooms and places to visit |
 | Contact | Circular wipe reveal |
 | Thank you | The Mahaprasad Grace: one minimal screen of deep charcoal evening sky; golden Pranam hands holding a Tulsi leaf trace themselves in, then the words of gratitude |
-| Rajagya | Parchment decree banner pinned to the bottom, sealed with a red wax Royal Seal pressed with the Konark wheel; opens the full decree, dismisses to the seal, steps aside on the invitation card and the closing screen |
 | Footer | Continues the charcoal evening sky; gold thread draws outward |
