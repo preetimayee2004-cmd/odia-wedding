@@ -13,10 +13,8 @@ export const STATUS_BAR_H = 54;
 // Space kept free above and below the phone.
 const PAD = 28;
 
-// Plain kraft colour of the backdrop paper (behind the tiles while they load).
-const BACKDROP_BASE = "#B99254";
-// One repeat of the dot print: a staggered pair of white three-dot clusters.
-const BACKDROP_TILE = { w: 171, h: 159 };
+// Cream of the floral wallpaper, shown while the image loads.
+const BACKDROP_BASE = "#EADBC2";
 
 function useFitScale(): number {
   const compute = () => Math.max(0.5, Math.min(1, (window.innerHeight - PAD * 2) / FRAME_H));
@@ -59,12 +57,11 @@ export function PhoneMockup({ src }: { src: string }) {
       style={
         backdrop
           ? {
-              // One repeat of the kraft-paper dot print, tiled seamlessly and
-              // centred on the phone.
+              // The cream floral wallpaper, covering the screen around the phone.
               backgroundColor: BACKDROP_BASE,
               backgroundImage: `url(${backdrop})`,
-              backgroundRepeat: "repeat",
-              backgroundSize: `${BACKDROP_TILE.w}px ${BACKDROP_TILE.h}px`,
+              backgroundRepeat: "no-repeat",
+              backgroundSize: "cover",
               backgroundPosition: "center",
             }
           : {
