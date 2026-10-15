@@ -1,6 +1,7 @@
 import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { wedding, type TravelPlace } from "@/config/wedding";
 import { useInView } from "@/hooks/useInView";
+import { showPlaceholders } from "@/lib/placeholders";
 import { EASE } from "@/lib/motion";
 import { directionsUrl } from "@/lib/maps";
 import { KalashPin } from "@/components/art/Kalash";
@@ -36,7 +37,7 @@ export function VenueTravel() {
   const inView = useInView(ref, { threshold: 0.08 });
   const [guideOpen, setGuideOpen] = useState(false);
 
-  const blocks = BLOCKS.filter((b) => import.meta.env.DEV || places[b.kind].name);
+  const blocks = BLOCKS.filter((b) => showPlaceholders || places[b.kind].name);
   const fade = (delay: number) => ({
     opacity: inView ? 1 : 0,
     transform: inView ? "none" : "translateY(14px)",
@@ -86,7 +87,7 @@ export function VenueTravel() {
 function VenueCard({ style }: { style: CSSProperties }) {
   const { name, city, address, mapsUrl, description, image } = wedding.venue;
   const directions = directionsUrl({ mapsUrl, name, address });
-  if (!import.meta.env.DEV && !name && !address) return null;
+  if (!showPlaceholders && !name && !address) return null;
 
   return (
     <article className={`${CARD} overflow-hidden`} style={style} aria-label="The venue">

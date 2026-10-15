@@ -1,14 +1,15 @@
 import type { ReactNode } from "react";
+import { showPlaceholders } from "@/lib/placeholders";
 
 /**
- * Dev-only stand-in for content that hasn't been confirmed yet. Shows the
- * shape of the design (dashed, faded) so layouts can be reviewed; renders
- * nothing in production, so unconfirmed details are never published.
+ * Stand-in for content that hasn't been confirmed yet. Shows the shape of
+ * the design (dashed, faded, not tappable) while `showPlaceholders` is on;
+ * otherwise renders nothing, so unconfirmed details are never published.
  */
 export function Pending({ children, label = "Awaiting confirmed details" }: { children: ReactNode; label?: string }) {
-  if (!import.meta.env.DEV) return null;
+  if (!showPlaceholders) return null;
   return (
-    <div title={label} className="rounded-md border border-dashed border-ink-soft/40 px-1.5 py-1 opacity-55">
+    <div title={label} aria-label={label} className="pointer-events-none select-none rounded-md border border-dashed border-ink-soft/40 px-1.5 py-1 opacity-55">
       {children}
     </div>
   );

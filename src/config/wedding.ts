@@ -282,6 +282,14 @@ export interface WeddingConfig {
      */
     openingSound: string | null;
   };
+  site: {
+    /**
+     * Show every section's layout, with dashed placeholders where details
+     * are not confirmed yet. Turn off before sharing the final invitation:
+     * sections without confirmed details then hide themselves.
+     */
+    showPlaceholders: boolean;
+  };
   opening: {
     /**
      * true: play the opening once per browser session and keep the invitation
@@ -502,6 +510,9 @@ export const wedding: WeddingConfig = {
   assets: {
     desktopBackdrop: "/art/desktop-backdrop.png",
     openingSound: null, // synthesised sankha until a recording is supplied
+  },
+  site: {
+    showPlaceholders: true, // the full structure, while details are being gathered
   },
   opening: {
     playOncePerSession: false, // every load starts from the opening

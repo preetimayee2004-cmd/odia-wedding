@@ -2,6 +2,7 @@ import { useEffect, useRef, type ComponentType, type RefObject } from "react";
 import { wedding, type WeddingConfig } from "@/config/wedding";
 import { useInView } from "@/hooks/useInView";
 import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
+import { showPlaceholders } from "@/lib/placeholders";
 import { EASE } from "@/lib/motion";
 import { KokaIcon, PanaGuaIcon, PeacocksIcon } from "@/components/art/StoryIcons";
 import { Pending } from "@/components/ui/Pending";
@@ -31,8 +32,8 @@ export function Story() {
   useThreadProgress(trackRef, threadRef);
 
   const written = milestones.filter((m) => m.text);
-  if (written.length === 0 && !import.meta.env.DEV) return null;
-  const items = import.meta.env.DEV ? milestones : written;
+  if (written.length === 0 && !showPlaceholders) return null;
+  const items = showPlaceholders ? milestones : written;
 
   return (
     <section id="story" aria-labelledby="story-heading" className="silk-scroll relative py-[var(--section-y)]">

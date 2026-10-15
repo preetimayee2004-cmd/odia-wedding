@@ -4,6 +4,7 @@ import { useGuest } from "@/context/GuestContext";
 import { useInView } from "@/hooks/useInView";
 import { addWish, BackendError, backendReady, listWishes, newId, type Wish } from "@/lib/backend";
 import { EASE } from "@/lib/motion";
+import { showPlaceholders } from "@/lib/placeholders";
 import { useSpamGuard } from "@/lib/spam";
 import { Button } from "@/components/ui/Button";
 import { controlClass, Field, Honeypot } from "@/components/ui/Field";
@@ -24,10 +25,11 @@ const shortDate = (iso: string) =>
  * On Kalinga-stone charcoal, the blessings sit in a horizontal carousel of
  * talapatra (palm-leaf) manuscripts, ink-etched and tied with thread. When a
  * guest sends a blessing, a tiny marigold drops onto their leaf.
- * Hidden entirely when no storage backend is configured.
+ * Without a storage backend it is hidden, or (while placeholders are on)
+ * shown with the form closed.
  */
 export function WishingWall() {
-  if (!backendReady) return null;
+  if (!backendReady && !showPlaceholders) return null;
   return <WishingWallSection />;
 }
 
@@ -42,7 +44,7 @@ function WishingWallSection() {
   const carouselRef = useRef<HTMLUListElement>(null);
 
   // Wall
-  const [preview, setPreview] = useState<Wish[] | null>(null);
+  const [preview, setPreview] = useState<Wish[] | null>(backendReady ? null : []);
   const [total, setTotal] = useState(0);
   const [loadFailed, setLoadFailed] = useState(false);
   const [marigoldOn, setMarigoldOn] = useState<string | null>(null);
@@ -230,10 +232,12 @@ function WishingWallSection() {
         onFocus={guard.touch}
         onInput={guard.touch}
         noValidate
-        className="relative mx-[var(--gutter)] mt-10 space-y-4 rounded-2xl border bg-[#F6EEDC] p-5 text-ink"
+        className="relative mx-[var(--gutter)] mt-10 rounded-2xl border bg-[#F6EEDC] p-5 text-ink"
         style={{ ...fade(300), borderColor: `${GOLD}66` }}
       >
+        <fieldset disabled={!backendReady} className="space-y-4 disabled:opacity-60">
         <h3 className="text-center text-[1.5rem]">Send your blessing</h3>
+        {!backendReady && <p className="text-center text-[0.8125rem] text-ink-soft">Blessings open soon.</p>}
         <Field label="Your name" error={errors.name} optional={allowAnonymous}>
           <input
             className={controlClass}
@@ -266,6 +270,7 @@ function WishingWallSection() {
         >
           {status === "saved" || status === "error" ? statusText : ""}
         </p>
+        </fieldset>
       </form>
 
       <Sheet open={wallOpen} onClose={() => setWallOpen(false)} label="All blessings">

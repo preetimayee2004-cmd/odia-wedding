@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { wedding } from "@/config/wedding";
 import { useInView } from "@/hooks/useInView";
+import { showPlaceholders } from "@/lib/placeholders";
 import { EASE } from "@/lib/motion";
 import { GoldDivider } from "@/components/ui/GoldDivider";
 import { Pending } from "@/components/ui/Pending";
@@ -24,7 +25,7 @@ export function Contact() {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { threshold: 0.2 });
 
-  if (!hasContacts && !import.meta.env.DEV) return null;
+  if (!hasContacts && !showPlaceholders) return null;
   const list = hasContacts ? people : PLACEHOLDERS;
 
   return (

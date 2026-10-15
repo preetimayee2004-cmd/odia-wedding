@@ -1,6 +1,7 @@
 import { useRef, type CSSProperties } from "react";
 import { wedding, type Elder, type FamilySide } from "@/config/wedding";
 import { useInView } from "@/hooks/useInView";
+import { showPlaceholders } from "@/lib/placeholders";
 import { EASE } from "@/lib/motion";
 import { Dipa } from "@/components/art/Dipa";
 import { Pending } from "@/components/ui/Pending";
@@ -34,7 +35,7 @@ export function Family() {
 
   const sides = [bride, groom];
   const named = (t: TierKey) => sides.some((s) => s[t].length > 0);
-  const tiers = (["grandparents", "parents", "siblings"] as const).filter((t) => import.meta.env.DEV || named(t));
+  const tiers = (["grandparents", "parents", "siblings"] as const).filter((t) => showPlaceholders || named(t));
   if (tiers.length === 0) return null;
 
   return (
@@ -157,7 +158,7 @@ function Tier({ tier, sides, last }: { tier: TierKey; sides: FamilySide[]; last:
 }
 
 function ElderBox({ elders, family, style }: { elders: Elder[]; family: string; style: CSSProperties }) {
-  if (elders.length === 0 && !import.meta.env.DEV) return <div />;
+  if (elders.length === 0 && !showPlaceholders) return <div />;
   return (
     <div
       className="relative flex h-full flex-col justify-center border px-2.5 py-4"

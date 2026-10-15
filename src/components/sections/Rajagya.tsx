@@ -1,5 +1,6 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { wedding } from "@/config/wedding";
+import { showPlaceholders } from "@/lib/placeholders";
 import { EASE } from "@/lib/motion";
 import { readSessionFlag, writeSessionFlag } from "@/lib/session";
 import { WaxSeal } from "@/components/art/WaxSeal";
@@ -23,7 +24,7 @@ const RULES = "shadow-[inset_0_0_0_3px_#F1E2C0,inset_0_0_0_4px_rgb(162_122_60/0.
  * on the invitation card and the closing screens. Hidden in production until a notice is configured.
  */
 export function Rajagya() {
-  if (wedding.rajagya.notices.length === 0 && !import.meta.env.DEV) return null;
+  if (wedding.rajagya.notices.length === 0 && !showPlaceholders) return null;
   return <Decree />;
 }
 

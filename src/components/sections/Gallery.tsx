@@ -1,13 +1,14 @@
 import { useRef, useState } from "react";
 import { wedding } from "@/config/wedding";
 import { useInView } from "@/hooks/useInView";
+import { showPlaceholders } from "@/lib/placeholders";
 import { EASE } from "@/lib/motion";
 import { Sheet } from "@/components/ui/Sheet";
 
 type Photo = (typeof wedding.gallery.photos)[number];
 
 const STONE = "#B8893A";
-// Dev only: the shape of the masonry while the couple's photographs are awaited.
+// While placeholders are on: the shape of the masonry while the couple's photographs are awaited.
 const PLACEHOLDERS: Photo[] = [true, false, false, true, true, false].map((tall, i) => ({
   src: "",
   alt: `Photograph ${i + 1}`,
@@ -28,7 +29,7 @@ export function Gallery() {
   const headerIn = useInView(headerRef);
   const [open, setOpen] = useState<Photo | null>(null);
 
-  if (photos.length === 0 && !import.meta.env.DEV) return null;
+  if (photos.length === 0 && !showPlaceholders) return null;
   const items = photos.length > 0 ? photos : PLACEHOLDERS;
   // Alternate photos between the columns; the right column hangs a little lower.
   const columns = [items.filter((_, i) => i % 2 === 0), items.filter((_, i) => i % 2 === 1)];

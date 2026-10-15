@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 import { wedding } from "@/config/wedding";
 import { useInView } from "@/hooks/useInView";
 import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
+import { showPlaceholders } from "@/lib/placeholders";
 import { EASE } from "@/lib/motion";
 import {
   dateKey,
@@ -100,7 +101,7 @@ function useAlignOnScroll(sectionRef: RefObject<HTMLElement>, wheelRef: RefObjec
  */
 export function Countdown() {
   const parts = parseVenueDateTime(wedding.wedding.dateTime);
-  if (!parts && !import.meta.env.DEV) return null;
+  if (!parts && !showPlaceholders) return null;
   return <CountdownSection parts={parts} />;
 }
 

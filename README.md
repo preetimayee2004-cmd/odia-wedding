@@ -49,6 +49,7 @@ Everything a guest reads lives in [`src/config/wedding.ts`](src/config/wedding.t
 | RSVP deadline, party-size limit | `rsvp` |
 | Opening sound button: a recording to play instead of the synthesised sankha (optional) | `assets.openingSound`, e.g. `"/audio/opening.mp3"` in `/public` |
 | Rajagya notices (parking, RSVP deadline, live stream), thank-you message | `rajagya`, `thankYou` |
+| Show every section with dashed placeholders for unconfirmed details (turn **off** before sharing the final invitation, so empty sections hide) | `site.showPlaceholders` |
 | Public URL (for WhatsApp previews) | `meta.siteUrl`, then `npm run og` |
 
 ## Blessings Wall & RSVP storage (Supabase)

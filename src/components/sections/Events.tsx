@@ -1,6 +1,7 @@
 import { useRef, useState, type ReactNode } from "react";
 import { wedding, type WeddingEvent } from "@/config/wedding";
 import { useInView } from "@/hooks/useInView";
+import { showPlaceholders } from "@/lib/placeholders";
 import { EASE } from "@/lib/motion";
 import { directionsUrl } from "@/lib/maps";
 import { formatTimeRange, formatVenueDate, parseVenueDateTime } from "@/lib/venueTime";
@@ -156,7 +157,7 @@ function EventDetails({ event }: { event: WeddingEvent }) {
         ))}
       </dl>
 
-      {import.meta.env.DEV && unknown.length > 0 && (
+      {showPlaceholders && unknown.length > 0 && (
         <div className="mt-4 space-y-2 text-left text-[0.6875rem] font-medium uppercase tracking-[0.14em]">
           {unknown.map(([label]) => (
             <Pending key={label} label={`${label} awaiting confirmation`}>
@@ -166,7 +167,7 @@ function EventDetails({ event }: { event: WeddingEvent }) {
         </div>
       )}
 
-      {known.length === 0 && !import.meta.env.DEV && (
+      {known.length === 0 && !showPlaceholders && (
         <p className="mt-2 text-sm text-ink-soft">Details will be shared soon.</p>
       )}
 
