@@ -512,7 +512,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
       {/* Sound, opposite Skip */}
       <SoundButton
         ref={soundRef}
-        className="absolute left-4 top-[calc(max(1rem,env(safe-area-inset-top))_+_var(--status-bar,0px))] bg-black/25"
+        className="absolute left-4 top-[calc(max(1rem,env(safe-area-inset-top))_+_var(--status-bar,0px))]"
         style={{ opacity: 0, pointerEvents: phase === "ending" ? "none" : "auto" }}
         tabIndex={phase === "ending" ? -1 : 0}
       />

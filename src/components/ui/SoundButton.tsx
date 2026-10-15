@@ -1,7 +1,10 @@
 import { forwardRef, type CSSProperties } from "react";
 import { toggleSound, useSoundOn } from "@/lib/sound";
 
-/** Round sound button (sankha on / off), shared by the opening and the site. */
+/**
+ * Round sound button, shared by the opening and the site: solid maroon with
+ * a gold rim and a cream speaker, clearly visible over any artwork.
+ */
 export const SoundButton = forwardRef<HTMLButtonElement, { className?: string; style?: CSSProperties; tabIndex?: number }>(
   function SoundButton({ className = "", style, tabIndex }, ref) {
     const on = useSoundOn();
@@ -10,9 +13,9 @@ export const SoundButton = forwardRef<HTMLButtonElement, { className?: string; s
         ref={ref}
         type="button"
         onClick={toggleSound}
-        aria-label={on ? "Stop the sankha" : "Play the sankha"}
+        aria-label={on ? "Mute music" : "Play music"}
         aria-pressed={on}
-        className={`inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#D9B877]/60 text-[#F3E3C0] ${className}`}
+        className={`inline-flex h-11 w-11 items-center justify-center rounded-full border-2 border-[#E3A21A] bg-[#7B1E1E] text-[#FBF3E2] shadow-[0_4px_12px_-2px_rgb(40_10_5/0.45)] ${className}`}
         style={style}
         tabIndex={tabIndex}
       >
@@ -22,11 +25,11 @@ export const SoundButton = forwardRef<HTMLButtonElement, { className?: string; s
   },
 );
 
-/** A speaker; with sound waves while playing, crossed out when silent. */
+/** A speaker; with sound waves while playing, crossed out when muted. */
 function SoundIcon({ on }: { on: boolean }) {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M2.5 7h2.5l3.5-3v10l-3.5-3H2.5Z" fill="currentColor" fillOpacity="0.25" />
+    <svg width="22" height="22" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M2.5 7h2.5l3.5-3v10l-3.5-3H2.5Z" fill="currentColor" fillOpacity="0.35" />
       {on ? (
         <>
           <path d="M11.3 6.4a3.2 3.2 0 0 1 0 5.2" />
@@ -41,13 +44,10 @@ function SoundIcon({ on }: { on: boolean }) {
 
 /**
  * After the opening, the sound button stays in the top-left corner all the
- * way to the end of the site, on a dark glass disc so it reads on light and
- * dark sections alike.
+ * way to the end of the site, above everything else.
  */
 export function FloatingSoundButton() {
   return (
-    <SoundButton
-      className="sound-float fixed left-4 top-[calc(max(1rem,env(safe-area-inset-top))_+_var(--status-bar,0px))] z-40 bg-[#1C1A17]/55 shadow-[0_4px_14px_-6px_rgb(0_0_0/0.6)] backdrop-blur-[3px]"
-    />
+    <SoundButton className="sound-float fixed left-3 top-[calc(12px_+_env(safe-area-inset-top)_+_var(--status-bar,0px))] z-[70]" />
   );
 }
