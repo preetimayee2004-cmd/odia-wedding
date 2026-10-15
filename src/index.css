@@ -54,6 +54,7 @@
   html.is-framed,
   html.is-framed body {
     scrollbar-width: none;
+    overscroll-behavior: none;
   }
   html.is-framed::-webkit-scrollbar,
   html.is-framed body::-webkit-scrollbar {
@@ -337,4 +338,9 @@
   .marigold-drop {
     animation: none !important;
   }
+}
+
+/* The floating sound button arrives gently after the opening. */
+.sound-float {
+  animation: fade-in 700ms ease-out 300ms both;
 }

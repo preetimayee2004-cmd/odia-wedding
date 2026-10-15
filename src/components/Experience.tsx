@@ -7,6 +7,7 @@ import { jumpToSection } from "@/lib/scroll";
 import { watchStatusTone } from "@/lib/viewMode";
 import { OpeningSequence } from "@/components/opening/OpeningSequence";
 import { Invitation } from "@/components/sections/Invitation";
+import { FloatingSoundButton } from "@/components/ui/SoundButton";
 
 // Everything after the invitation is a separate chunk, fetched in the
 // background while the guest reads the invitation.
@@ -43,6 +44,14 @@ export function Experience() {
   const [opened, setOpened] = useState(
     () => devOpen || (wedding.opening.playOncePerSession && remembers(INVITATION_OPENED)),
   );
+  // Once the guest has gone through to the couple, the invitation card is
+  // left behind: the couple becomes the top of the page, so scrolling up
+  // stops there instead of returning to the card.
+  const [invitationLeft, setInvitationLeft] = useState(opened);
+
+  useLayoutEffect(() => {
+    if (invitationLeft) window.scrollTo(0, 0);
+  }, [invitationLeft]);
 
   useScrollLock(intro !== "done");
 
@@ -83,6 +92,7 @@ export function Experience() {
       setOpened(true);
     }
     await jumpToSection("couple");
+    setInvitationLeft(true); // hidden behind the golden wash, which then fades onto the couple
   };
 
   return (
@@ -97,10 +107,15 @@ export function Experience() {
         />
       )}
 
-      <Invitation
-        reveal={intro === "playing" ? "hidden" : intro === "revealing" ? "revealing" : "shown"}
-        onOpen={handleOpen}
-      />
+      {/* Hidden, not unmounted: the rangoli's golden wash is still fading out */}
+      <div hidden={invitationLeft}>
+        <Invitation
+          reveal={intro === "playing" ? "hidden" : intro === "revealing" ? "revealing" : "shown"}
+          onOpen={handleOpen}
+        />
+      </div>
+
+      {intro === "done" && <FloatingSoundButton />}
 
       {opened && (
         <Suspense fallback={<div className="min-h-[100dvh]" aria-busy="true" />}>

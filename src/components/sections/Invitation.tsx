@@ -5,7 +5,7 @@ import { useFitToArea } from "@/hooks/useFitToArea";
 import { EASE } from "@/lib/motion";
 import { CardBackdrop, cardCq, cardMinHeight, type CardArt } from "@/components/art/CardBackdrop";
 import { RangoliStart } from "@/components/sections/RangoliStart";
-import { Divider, PinIcon } from "@/components/ui/CardOrnaments";
+import { Divider, PinIcon, ScriptName } from "@/components/ui/CardOrnaments";
 
 export type RevealState = "hidden" | "revealing" | "shown";
 
@@ -95,11 +95,11 @@ export function Invitation({ reveal, onOpen }: InvitationProps) {
     </p>,
     // The names, one above the other with the ampersand between
     <h1 key="n" className="flex flex-col items-center font-normal leading-[1.05]" style={{ color: MAROON }}>
-      <span className="font-vibes text-[40px]">{first}</span>
+      <span className="font-vibes text-[40px]"><ScriptName name={first} /></span>
       <span className="font-vibes text-[24px] leading-none" style={{ color: GOLD }}>
         &amp;
       </span>
-      <span className="font-vibes text-[40px]">{second}</span>
+      <span className="font-vibes text-[40px]"><ScriptName name={second} /></span>
     </h1>,
     <p key="a" className="mb-1.5 text-[16px] font-semibold italic">
       {invitation.announcement}

@@ -16,7 +16,7 @@ const TEXT_SOFT = "#BFB3A0";
  */
 export function Footer() {
   const { blessing, credit } = wedding.footer;
-  const { bride, groom } = wedding.couple;
+  const [first, second] = wedding.invitation.names;
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { threshold: 0.3 });
 
@@ -50,8 +50,8 @@ export function Footer() {
           {blessing}
         </p>
         <p className="mt-2 font-script text-[2.6rem] leading-tight" style={{ color: GOLD }}>
-          {bride.displayName} <span className="font-display text-2xl italic text-[#F3E4C4]/70">&amp;</span>{" "}
-          {groom.displayName}
+          {first} <span className="font-display text-2xl italic text-[#F3E4C4]/70">&amp;</span>{" "}
+          {second}
         </p>
         {date && (
           <p className="mt-1 text-[0.75rem] font-medium uppercase tracking-[0.18em]" style={{ color: TEXT_SOFT }}>

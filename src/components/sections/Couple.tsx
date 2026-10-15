@@ -6,7 +6,7 @@ import { useInView } from "@/hooks/useInView";
 import { EASE } from "@/lib/motion";
 import { CardBackdrop, cardCq, cardMinHeight, type CardArt } from "@/components/art/CardBackdrop";
 import { GaneshaIcon, LotusIcon } from "@/components/art/Ganesha";
-import { Divider } from "@/components/ui/CardOrnaments";
+import { Divider, ScriptName } from "@/components/ui/CardOrnaments";
 
 /**
  * The couple card artwork (768×1376): a carved arch in a red-and-gold border
@@ -89,7 +89,7 @@ export function Couple() {
               >
                 <GaneshaIcon className="h-14 w-auto" />
               </div>
-              <p className="mt-3 whitespace-nowrap text-[17px] font-bold tracking-[0.15em]" style={{ ...rise(250), color: MAROON }}>
+              <p className="mt-10 whitespace-nowrap text-[17px] font-bold tracking-[0.15em]" style={{ ...rise(250), color: MAROON }}>
                 {couple.invocation}
               </p>
             </div>
@@ -110,13 +110,13 @@ export function Couple() {
             {/* The couple's names, one after another */}
             <h2 id="couple-heading" className="flex flex-col items-center font-normal leading-[1.1]" style={{ color: MAROON }}>
               <span className="font-vibes text-[56px]" style={rise(900)}>
-                {first}
+                <ScriptName name={first} />
               </span>
               <span className="my-1.5 font-vibes text-[28px] leading-none" style={{ ...rise(1200), color: GOLD }}>
                 &amp;
               </span>
               <span className="font-vibes text-[56px]" style={rise(1500)}>
-                {second}
+                <ScriptName name={second} />
               </span>
             </h2>
 

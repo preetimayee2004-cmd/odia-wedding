@@ -1,6 +1,5 @@
+import { SoundButton } from "@/components/ui/SoundButton";
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent } from "react";
-import { wedding } from "@/config/wedding";
-import { playSankha, type SoundHandle } from "@/lib/sankha";
 import { setStatusTone } from "@/lib/viewMode";
 import { FINGERTIP, Fingertip, Petals } from "@/components/opening/OpeningEffects";
 import { GoldDust, sampleMask, type GoldDustHandle } from "@/components/opening/GoldDust";
@@ -112,8 +111,6 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
   const running = useRef<Animation[]>([]);
   const timers = useRef<number[]>([]);
   const prepared = useRef(false);
-  const sound = useRef<SoundHandle | null>(null);
-  const [soundOn, setSoundOn] = useState(false);
   const [phase, setPhase] = useState<Phase>("loading");
   const phaseRef = useRef<Phase>("loading");
   const [hint, setHint] = useState(false);
@@ -147,7 +144,6 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
       running.current.forEach((a) => a.cancel());
       running.current = [];
       clearTimers();
-      sound.current?.stop();
       prepared.current = false; // a remount (StrictMode) prepares again
       setStatusTone("dark");
     };
@@ -296,24 +292,6 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
   useEffect(() => {
     prepare();
   }, [prepare]);
-
-  /** Sound button: plays the sankha (must run inside the tap); a second tap stops it. */
-  const toggleSound = () => {
-    if (sound.current) {
-      sound.current.stop();
-      sound.current = null;
-      setSoundOn(false);
-      return;
-    }
-    const handle = playSankha(wedding.assets.openingSound);
-    sound.current = handle;
-    setSoundOn(true);
-    void handle.ended.then(() => {
-      if (sound.current !== handle) return;
-      sound.current = null;
-      setSoundOn(false);
-    });
-  };
 
   const skip = useCallback(() => {
     if (phaseRef.current === "ending") return;
@@ -532,18 +510,12 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
       <GoldDust ref={dustRef} />
 
       {/* Sound, opposite Skip */}
-      <button
+      <SoundButton
         ref={soundRef}
-        type="button"
-        onClick={toggleSound}
-        aria-label={soundOn ? "Stop the sankha" : "Play the sankha"}
-        aria-pressed={soundOn}
-        className="absolute left-4 top-[calc(max(1rem,env(safe-area-inset-top))_+_var(--status-bar,0px))] inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#D9B877]/50 bg-black/25 text-[#F3E3C0]"
+        className="absolute left-4 top-[calc(max(1rem,env(safe-area-inset-top))_+_var(--status-bar,0px))] bg-black/25"
         style={{ opacity: 0, pointerEvents: phase === "ending" ? "none" : "auto" }}
         tabIndex={phase === "ending" ? -1 : 0}
-      >
-        <SoundIcon on={soundOn} />
-      </button>
+      />
 
       <button
         ref={skipRef}
@@ -559,22 +531,5 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
         </svg>
       </button>
     </div>
-  );
-}
-
-/** A speaker; with sound waves while playing, crossed out when silent. */
-function SoundIcon({ on }: { on: boolean }) {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M2.5 7h2.5l3.5-3v10l-3.5-3H2.5Z" fill="currentColor" fillOpacity="0.25" />
-      {on ? (
-        <>
-          <path d="M11.3 6.4a3.2 3.2 0 0 1 0 5.2" />
-          <path d="M13.3 4.4a6 6 0 0 1 0 9.2" />
-        </>
-      ) : (
-        <path d="M11.5 7l4 4M15.5 7l-4 4" />
-      )}
-    </svg>
   );
 }

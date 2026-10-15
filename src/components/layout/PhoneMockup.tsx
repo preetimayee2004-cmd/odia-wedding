@@ -49,12 +49,13 @@ function useStatusTone(): StatusTone {
 /** Desktop-only frame that hosts the live site in an iframe. */
 export function PhoneMockup({ src }: { src: string }) {
   const scale = useFitScale();
+  useFixedPage();
   const tone = useStatusTone();
   const backdrop = wedding.assets.desktopBackdrop;
 
   return (
     <div
-      className={`flex min-h-[100dvh] flex-col items-center justify-center ${backdrop ? "" : "bg-cream-deep"}`}
+      className={`flex h-[100dvh] flex-col items-center justify-center overflow-hidden ${backdrop ? "" : "bg-cream-deep"}`}
       style={
         backdrop
           ? {
@@ -111,6 +112,22 @@ export function PhoneMockup({ src }: { src: string }) {
       </div>
     </div>
   );
+}
+
+/** The desktop page itself stays still: no scrolling, no bounce. */
+function useFixedPage() {
+  useEffect(() => {
+    const els = [document.documentElement, document.body];
+    const previous = els.map((el) => [el.style.overflow, el.style.overscrollBehavior]);
+    els.forEach((el) => {
+      el.style.overflow = "hidden";
+      el.style.overscrollBehavior = "none";
+    });
+    return () =>
+      els.forEach((el, i) => {
+        [el.style.overflow, el.style.overscrollBehavior] = previous[i];
+      });
+  }, []);
 }
 
 function StatusBar({ tone }: { tone: StatusTone }) {
