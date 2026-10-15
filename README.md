@@ -99,4 +99,4 @@ Each section has its own entrance. All of them respect *reduced motion*.
 | Thank you | The Mahaprasad Grace: one minimal screen; golden Pranam hands holding a Tulsi leaf trace themselves in, then the words of gratitude |
 | Footer | Gold thread draws outward |
 | Side bands | From the countdown to the footer, the looped red band of the couple card's border (`public/art/border-loops.png`, an exact repeat cut from `couple-card.jpg`) runs down both sides of the page (`art/SideBands.tsx`); sections no longer carry borders of their own |
-| Backgrounds | Every section after the couple card (except Our Story, over its photograph) shares one colour: the page ochre, a little lighter (`--page`, #F3E4C9, in `src/index.css`) |
+| Backgrounds | The couple card's paper and every later section (except Our Story, over its photograph) share one colour: the page ochre, a little lighter (`--page`, #F3E4C9, in `src/index.css`) |
