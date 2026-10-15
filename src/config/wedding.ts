@@ -46,8 +46,17 @@ export interface ElderTier {
   gloss: string;
 }
 
-/** Which illustrations sit beside an event in the Wedding Itinerary. */
-export type EventId = "haldi" | "mehendi-sangeet" | "barajatri-batabarana" | "hastaganthi-sindoor" | "bidaai" | "reception";
+/** Which illustration sits beside an event in Wedding Events. */
+export type EventId =
+  | "mehendi"
+  | "sangeet"
+  | "mangana"
+  | "barajatri"
+  | "batabarana"
+  | "hastaganthi"
+  | "sindoor"
+  | "bidaai"
+  | "reception";
 
 export interface WeddingEvent {
   id: EventId;
@@ -154,6 +163,7 @@ export interface WeddingConfig {
   };
   events: {
     heading: string;
+    /** Line under the heading, e.g. "|| ଶୁଭ ବିବାହ ଉତ୍ସବ ||". */
     odiaHeading: string | null;
     items: WeddingEvent[];
   };
@@ -376,45 +386,41 @@ export const wedding: WeddingConfig = {
     groom: { label: "The Groom's Family", familyName: null, grandparents: [], parents: [], siblings: [] },
   },
   events: {
-    heading: "Wedding Itinerary",
-    odiaHeading: null,
-    // SAMPLE — times, venues and dress codes from the couple's itinerary design;
-    // confirm each one (and every Odia spelling) with the family.
+    heading: "Wedding Events",
+    odiaHeading: "|| ଶୁଭ ବିବାହ ଉତ୍ସବ ||",
+    // SAMPLE — times, venues and dress codes from the couple's Wedding Events
+    // design; confirm each one (and every Odia spelling) with the family.
     items: [
-      { id: "haldi", name: "Haldi", odiaName: "ମଙ୍ଗନା", when: "8:00 AM", venueName: "Courtyard", dressCode: "Traditional yellow/orange" },
+      { id: "mehendi", name: "Mehendi", odiaName: "ମେହେନ୍ଦି", when: "10:00 AM – 1:00 PM", venueName: "Courtyard", dressCode: "Shades of green & yellow" },
       {
-        id: "mehendi-sangeet",
-        name: "Mehendi & Sangeet",
-        odiaName: "ମେହେନ୍ଦୀ ଓ ସଙ୍ଗୀତ",
-        when: "4:00 PM onwards",
-        venueName: "Banquet Hall",
-        dressCode: "Vibrant festive wear",
+        id: "sangeet",
+        name: "Sangeet",
+        odiaName: "ସଙ୍ଗୀତ",
+        when: "7:00 PM – 9:30 PM",
+        venueName: "Lotus Pavilion",
+        dressCode: "Ladies: Glitter, glam, Indian or Indo-Western\nGentlemen: Suits or tuxedos (black, white or blue)",
       },
       {
-        id: "barajatri-batabarana",
-        name: "Barajatri & Batabarana",
-        odiaName: "ବରଯାତ୍ରୀ ଓ ବାଟବରଣ",
-        when: "6:00 PM",
-        venueName: "Entrance Gates",
-        dressCode: "Traditional / Ethnic",
+        id: "mangana",
+        name: "Mangana",
+        odiaName: "ମଙ୍ଗନା",
+        when: "9:00 AM – 10:30 AM",
+        venueName: "Mandap",
+        dressCode: "Traditional Odia attire | Pastel & earthy tones",
       },
+      { id: "barajatri", name: "Barajatri", odiaName: "ବରଯାତ୍ରୀ", when: "4:00 PM – 5:30 PM", venueName: "Main Lawn", dressCode: "Traditional wear | Bright & festive" },
       {
-        id: "hastaganthi-sindoor",
-        name: "Hasta Ganthi & Sindoor Daan",
-        odiaName: "ହସ୍ତଗଣ୍ଠି ଓ ସିନ୍ଦୂରଦାନ",
-        when: "8:30 PM",
-        venueName: "Kalyana Mandap",
-        dressCode: "Rich traditional attire",
+        id: "batabarana",
+        name: "Bata Barana",
+        odiaName: "ବାଟ ବରଣ",
+        when: "5:30 PM – 6:30 PM",
+        venueName: "Entrance",
+        dressCode: "Traditional Odia attire | Red, yellow & gold",
       },
-      { id: "bidaai", name: "Bidaai", odiaName: "ବିଦାୟ", when: "Early Morning (Next Day)", venueName: "Mandap exit", dressCode: "Elegant ethnic" },
-      {
-        id: "reception",
-        name: "Reception",
-        odiaName: "ପ୍ରୀତିଭୋଜୀ",
-        when: "7:00 PM onwards (Next Evening)",
-        venueName: "Grand Lawn",
-        dressCode: "Regal formal/semi-formal",
-      },
+      { id: "hastaganthi", name: "Hasta Ganthi", odiaName: "ହସ୍ତଗଣ୍ଠି", when: "7:00 PM – 8:00 PM", venueName: "Mandap", dressCode: "Traditional wear | Red, maroon & gold" },
+      { id: "sindoor", name: "Sindoor Daan", odiaName: "ସିନ୍ଦୂର ଦାନ", when: "8:00 PM – 9:00 PM", venueName: "Mandap", dressCode: "Traditional wear | Soft & elegant" },
+      { id: "bidaai", name: "Bidaai", odiaName: "ବିଦାୟ", when: "9:00 PM – 10:00 PM", venueName: "Mandap", dressCode: "Traditional wear | Emotive & classy" },
+      { id: "reception", name: "Reception", odiaName: "ପ୍ରୀତିଭୋଜି", when: "8:00 PM onwards", venueName: "Lotus Pavilion", dressCode: "Formal/Western | Elegant & classy" },
     ],
   },
   gallery: {
