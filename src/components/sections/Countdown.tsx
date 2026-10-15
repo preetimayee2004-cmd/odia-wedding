@@ -16,10 +16,12 @@ import { KonarkWheel } from "@/components/art/KonarkWheel";
 import { Pending } from "@/components/ui/Pending";
 
 const DAY = 86_400_000;
-const MATTE = "#0D0A08";
-const GOLD = "#C9A35E";
-const TEXT = "#F3E4C4";
-const TEXT_SOFT = "#BFA982";
+const CRIMSON = "#800000";
+const GOLD = "#D4AF37"; // mustard gold
+const WHEEL_FILL = "#690000";
+const TEXT = "#FBEBD0";
+const TEXT_SOFT = "#E6C9A2";
+const HUB = 94; // hub radius in the wheel's 300-unit box: room for four clocks
 
 /** Whether the element is currently on screen (unlike useInView, not one-shot). */
 function useOnScreen(ref: RefObject<Element>): boolean {
@@ -92,9 +94,9 @@ function useAlignOnScroll(sectionRef: RefObject<HTMLElement>, wheelRef: RefObjec
 
 /**
  * Section 04 — The Cosmic Wheel.
- * On a deep matte-black strip, the countdown sits in the hub of the Konark
- * Sun Temple wheel, where the stone spokes meet — time aligning toward the
- * Lagna. Hidden in production until the wedding date is configured.
+ * On deep Pattachitra crimson, a golden Konark Sun Temple wheel turns into
+ * alignment; in its hub, four round clocks count the days, hours, minutes
+ * and seconds to the Lagna. Hidden in production until the date is configured.
  */
 export function Countdown() {
   const parts = parseVenueDateTime(wedding.wedding.dateTime);
@@ -111,7 +113,7 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
   const now = useNow(useOnScreen(ref));
   useAlignOnScroll(ref, wheelRef);
   const tz = wedding.wedding.timeZone;
-  const { heading, weddingDayMessage, completedMessage } = wedding.countdown;
+  const { heading, line, weddingDayMessage, completedMessage } = wedding.countdown;
 
   const target = parts ? venueInstant(parts, tz) : null;
   const phase: Phase =
@@ -127,7 +129,14 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
   const days = Math.floor(remaining / DAY);
   const hours = Math.floor((remaining % DAY) / 3_600_000);
   const minutes = Math.floor((remaining % 3_600_000) / 60_000);
-  const two = (n: number) => (phase === "pending" ? "--" : String(n).padStart(2, "0"));
+  const seconds = Math.floor((remaining % 60_000) / 1000);
+  const pending = phase === "pending";
+  const clocks = [
+    { label: "Days", value: days, of: Math.max(365, days) },
+    { label: "Hours", value: hours, of: 24 },
+    { label: "Mins", value: minutes, of: 60 },
+    { label: "Secs", value: seconds, of: 60 },
+  ];
 
   const date = parts && formatVenueDate(parts);
   const dateText = date && `${date.day} ${date.month} ${date.year}`;
@@ -146,47 +155,47 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
       aria-labelledby="countdown-heading"
       data-status-tone="light"
       className="relative overflow-hidden px-[var(--gutter)] py-[var(--section-y)] text-center"
-      style={{ backgroundColor: MATTE }}
+      style={{ backgroundColor: CRIMSON }}
     >
-      <p className="text-[0.6875rem] font-medium uppercase tracking-eyebrow" style={{ ...fadeIn(0), color: TEXT_SOFT }}>
-        {phase === "today" ? "The wedding day" : phase === "after" ? "Our wedding day" : "Until the Lagna"}
-      </p>
-      <h2 id="countdown-heading" className="mt-3 text-[2rem]" style={{ ...fadeIn(100), color: TEXT }}>
+      {/* A soft lamp-glow behind the wheel */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{ background: "radial-gradient(60% 42% at 50% 56%, rgb(212 175 55 / 0.16), transparent 70%)" }}
+      />
+      <h2 id="countdown-heading" className="relative text-[2rem]" style={{ ...fadeIn(0), color: TEXT }}>
         {heading}
       </h2>
+      <p className="relative mt-2 font-display text-[1.15rem] italic" style={{ ...fadeIn(150), color: GOLD }}>
+        {phase === "today" ? "The auspicious Lagna is here." : phase === "after" ? "Blessed under the Lagna." : line}
+      </p>
 
-      <div className="relative mx-auto mt-10 aspect-square w-[min(86vw,20rem)]" style={fadeIn(200)}>
+      <div className="relative mx-auto mt-9 aspect-square w-[min(90vw,21.5rem)]" style={fadeIn(250)}>
         {/* Lagna marker: the point time is turning toward */}
         <svg viewBox="0 0 16 12" aria-hidden className="absolute -top-4 left-1/2 h-3 w-4 -translate-x-1/2">
           <path d="M1 1h14L8 11Z" fill={GOLD} />
         </svg>
 
         <div ref={wheelRef} className="absolute inset-0 will-change-transform">
-          <KonarkWheel className="h-full w-full" line={GOLD} fill="#17110C" />
+          <KonarkWheel className="h-full w-full" line={GOLD} fill={WHEEL_FILL} hub={HUB} />
         </div>
 
-        {/* The hub, where the spokes meet */}
-        <div role="timer" aria-live="off" className="absolute inset-[30%] flex flex-col items-center justify-center" style={{ color: TEXT }}>
+        {/* The hub, where the spokes meet: four round clocks */}
+        <div
+          role="timer"
+          aria-live="off"
+          aria-label={pending ? "Countdown begins once the date is confirmed" : `${days} days, ${hours} hours, ${minutes} minutes to go`}
+          className="absolute flex items-center justify-center"
+          style={{ inset: `${(((150 - HUB + 7) / 300) * 100).toFixed(2)}%`, color: TEXT }}
+        >
           {message ? (
             <SunMark />
           ) : (
-            <>
-              <span className="font-display text-[2.6rem] font-medium leading-none [font-variant-numeric:lining-nums_tabular-nums]">
-                {phase === "pending" ? "--" : days}
-              </span>
-              <span className="mt-0.5 text-[0.5rem] font-medium uppercase tracking-[0.24em]" style={{ color: TEXT_SOFT }}>
-                Days
-              </span>
-              <span aria-hidden className="my-1.5 h-px w-10" style={{ backgroundColor: GOLD, opacity: 0.6 }} />
-              <span className="font-display text-[1.15rem] leading-none [font-variant-numeric:lining-nums_tabular-nums]">
-                {two(hours)}
-                <span className="mx-0.5 opacity-60">:</span>
-                {two(minutes)}
-              </span>
-              <span className="mt-0.5 text-[0.5rem] font-medium uppercase tracking-[0.2em]" style={{ color: TEXT_SOFT }}>
-                Hrs · Min
-              </span>
-            </>
+            <div aria-hidden className="grid h-[82%] w-[82%] grid-cols-2 gap-[5%]">
+              {clocks.map((c) => (
+                <Clock key={c.label} label={c.label} value={pending ? null : c.value} of={c.of} />
+              ))}
+            </div>
           )}
         </div>
       </div>
@@ -197,7 +206,7 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
         </p>
       )}
 
-      <div className="mt-8 text-xs tracking-wide" style={{ ...fadeIn(500), color: TEXT_SOFT }}>
+      <div className="relative mt-8 text-xs tracking-wide" style={{ ...fadeIn(500), color: TEXT_SOFT }}>
         {phase === "pending" ? (
           <Pending label="Wedding date awaiting confirmation">Countdown begins once the date is confirmed</Pending>
         ) : (
@@ -208,6 +217,43 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
         )}
       </div>
     </section>
+  );
+}
+
+/**
+ * One round clock: the number, its unit, and a mustard-gold arc showing how
+ * much of the unit remains.
+ */
+function Clock({ label, value, of }: { label: string; value: number | null; of: number }) {
+  const R = 44;
+  const LEN = 2 * Math.PI * R;
+  const frac = value === null ? 0 : Math.min(1, value / of);
+  return (
+    <div className="relative flex items-center justify-center">
+      <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full -rotate-90">
+        <circle cx="50" cy="50" r="49" fill={WHEEL_FILL} stroke={GOLD} strokeOpacity="0.55" strokeWidth="1" />
+        <circle cx="50" cy="50" r={R} fill="none" stroke={GOLD} strokeOpacity="0.18" strokeWidth="4" />
+        <circle
+          cx="50"
+          cy="50"
+          r={R}
+          fill="none"
+          stroke={GOLD}
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeDasharray={`${(LEN * frac).toFixed(1)} ${LEN.toFixed(1)}`}
+          style={{ transition: "stroke-dasharray 600ms ease-out" }}
+        />
+      </svg>
+      <div className="relative flex flex-col items-center leading-none">
+        <span className="font-display text-[1.45rem] font-semibold [font-variant-numeric:lining-nums_tabular-nums]" style={{ color: GOLD }}>
+          {value === null ? "--" : String(value).padStart(2, "0")}
+        </span>
+        <span className="mt-0.5 text-[0.45rem] font-medium uppercase tracking-[0.18em]" style={{ color: TEXT_SOFT }}>
+          {label}
+        </span>
+      </div>
+    </div>
   );
 }
 

@@ -4,8 +4,8 @@ import { useInView } from "@/hooks/useInView";
 import { EASE } from "@/lib/motion";
 import { formatVenueDate, parseVenueDateTime } from "@/lib/venueTime";
 
-// Continues the calm evening sea at the foot of the thank-you screen.
-const SEA = "#141539";
+// Continues the charcoal evening sky of the thank-you screen.
+const CHARCOAL = "#1C1A17";
 const GOLD = "#D9B877";
 const TEXT_SOFT = "#BFB3A0";
 
@@ -37,7 +37,7 @@ export function Footer() {
       aria-label="Closing note"
       data-status-tone="light"
       className="px-[var(--gutter)] pb-[max(3.5rem,env(safe-area-inset-bottom))] pt-8 text-center"
-      style={{ backgroundColor: SEA }}
+      style={{ backgroundColor: CHARCOAL }}
     >
       <div aria-hidden className="flex items-center justify-center gap-3">
         <span className="h-px w-20 bg-gradient-to-l from-[#D9B877]/80 to-transparent" style={thread("right")} />

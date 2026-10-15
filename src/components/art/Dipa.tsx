@@ -4,8 +4,9 @@ import { useId } from "react";
  * A tiny brass oil lamp (dipa) with a living flame, lit beside the names of
  * departed elders. The flicker is pure CSS (.dipa-flame / .dipa-glow in
  * index.css); `delay` keeps several lamps from flickering in step.
+ * `decorative` lamps (e.g. flanking a heading) are hidden from screen readers.
  */
-export function Dipa({ className = "", delay = 0 }: { className?: string; delay?: number }) {
+export function Dipa({ className = "", delay = 0, decorative = false }: { className?: string; delay?: number; decorative?: boolean }) {
   const id = useId();
   const brass = `${id}-brass`;
   const flame = `${id}-flame`;
@@ -13,8 +14,12 @@ export function Dipa({ className = "", delay = 0 }: { className?: string; delay?
   const offset = { animationDelay: `${-delay}ms` };
 
   return (
-    <svg viewBox="0 0 16 22" role="img" aria-label="In loving memory" className={className}>
-      <title>In loving memory</title>
+    <svg
+      viewBox="0 0 16 22"
+      className={className}
+      {...(decorative ? { "aria-hidden": true } : { role: "img", "aria-label": "In loving memory" })}
+    >
+      {!decorative && <title>In loving memory</title>}
       <defs>
         <linearGradient id={brass} x1="0" x2="0" y1="0" y2="1">
           <stop offset="0" stopColor="#F0CF7E" />

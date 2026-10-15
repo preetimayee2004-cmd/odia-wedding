@@ -16,9 +16,11 @@ const ICONS: Record<Milestone["icon"], ComponentType<{ className?: string }>> = 
 
 /**
  * Section 05 — The Heritage Timeline.
- * A single centre line styled as a Sambalpuri Ikat warp thread (bandha)
- * grows with the scroll; the couple's chapters alternate either side, each
- * marked by a Pattachitra icon. Chapters appear only once their words are in.
+ * On Tusser-silk cream, like an unrolled manuscript scroll, a shimmering
+ * silver Tarakasi filigree vine grows down the centre with the scroll; the
+ * couple's chapters alternate either side, each marked by a Pattachitra icon
+ * (the first meeting framed by interlocking peacocks, the engagement by
+ * pana-gua on a brass plate). Chapters appear only once their words are in.
  */
 export function Story() {
   const { heading, odiaHeading, milestones } = wedding.story;
@@ -33,7 +35,7 @@ export function Story() {
   const items = import.meta.env.DEV ? milestones : written;
 
   return (
-    <section id="story" aria-labelledby="story-heading" className="relative py-[var(--section-y)]">
+    <section id="story" aria-labelledby="story-heading" className="silk-scroll relative py-[var(--section-y)]">
       <div
         ref={headerRef}
         className="px-[var(--gutter)] text-center"
@@ -50,14 +52,17 @@ export function Story() {
       </div>
 
       <ol ref={trackRef} className="relative mx-[var(--gutter)] mt-12 flex flex-col gap-12">
-        {/* The ikat thread: a faint full-length track, and the dyed thread growing over it */}
-        <span aria-hidden className="ikat-thread absolute bottom-0 left-[calc(50%-3px)] top-0 w-[6px] rounded-full opacity-20" />
+        {/* The Tarakasi vine: a faint full-length track, and the silver vine growing over it */}
+        <span aria-hidden className="tarakasi-vine absolute bottom-0 left-[calc(50%-14px)] top-0 w-[28px] opacity-20" />
         <span
           ref={threadRef}
           aria-hidden
-          className="ikat-thread absolute bottom-0 left-[calc(50%-3px)] top-0 w-[6px] origin-top rounded-full"
-          style={{ transform: "scaleY(0)" }}
-        />
+          className="absolute bottom-0 left-[calc(50%-14px)] top-0 w-[28px] origin-top"
+          style={{ clipPath: "inset(0 0 100% 0)" }}
+        >
+          <span className="tarakasi-vine absolute inset-0" />
+          <span className="tarakasi-shimmer absolute inset-0" />
+        </span>
         {items.map((m, i) => (
           <Chapter key={m.icon} milestone={m} side={i % 2 === 0 ? "left" : "right"} />
         ))}
@@ -84,7 +89,7 @@ function Chapter({ milestone: m, side }: { milestone: Milestone; side: "left" | 
         </Pending>
       )}
       {m.image && (
-        <div className="mt-3 border border-gold/50 p-1">
+        <div className="mt-3 border border-[#AEB7C0] p-1">
           <img src={m.image.src} alt={m.image.alt} loading="lazy" decoding="async" className="aspect-[4/3] w-full object-cover" />
         </div>
       )}
@@ -110,7 +115,7 @@ function Chapter({ milestone: m, side }: { milestone: Milestone; side: "left" | 
 
       {/* Icon medallion, threaded on the ikat line */}
       <div
-        className="relative mx-auto flex h-[4.25rem] w-[4.25rem] items-center justify-center rounded-full bg-cream-light shadow-[0_0_0_1px_#1C1410,0_0_0_4px_rgb(var(--cream)),0_0_0_5px_rgb(var(--gold))]"
+        className="relative mx-auto flex h-[4.25rem] w-[4.25rem] items-center justify-center rounded-full bg-[#FFFDF8] shadow-[0_0_0_1px_#1C1410,0_0_0_4px_#FDFBF7,0_0_0_5.5px_#AEB7C0,0_2px_10px_2px_rgb(120_130_140/0.25)]"
         style={{
           opacity: inView ? 1 : 0,
           transform: inView ? "none" : "scale(0.6)",
@@ -138,7 +143,7 @@ function Chapter({ milestone: m, side }: { milestone: Milestone; side: "left" | 
   );
 }
 
-/** Scales the thread to how far the guest has scrolled through the timeline. */
+/** Reveals the vine as far as the guest has scrolled through the timeline. */
 function useThreadProgress(trackRef: RefObject<HTMLElement>, threadRef: RefObject<HTMLElement>) {
   const reducedMotion = usePrefersReducedMotion();
 
@@ -147,7 +152,7 @@ function useThreadProgress(trackRef: RefObject<HTMLElement>, threadRef: RefObjec
     const thread = threadRef.current;
     if (!track || !thread) return;
     if (reducedMotion) {
-      thread.style.transform = "none";
+      thread.style.clipPath = "none";
       return;
     }
 
@@ -156,7 +161,7 @@ function useThreadProgress(trackRef: RefObject<HTMLElement>, threadRef: RefObjec
       frame = 0;
       const r = track.getBoundingClientRect();
       const progress = Math.min(1, Math.max(0, (window.innerHeight * 0.65 - r.top) / r.height));
-      thread.style.transform = `scaleY(${progress})`;
+      thread.style.clipPath = `inset(0 0 ${((1 - progress) * 100).toFixed(2)}% 0)`;
     };
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update);

@@ -6,7 +6,7 @@ import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { BackendError, backendReady, newId, submitRsvp } from "@/lib/backend";
 import { EASE } from "@/lib/motion";
 import { formatVenueDate, parseVenueDateTime, venueDateKey } from "@/lib/venueTime";
-import { BlessingBloom, ToranaCrown } from "@/components/art/RsvpArt";
+import { BlessingBloom } from "@/components/art/RsvpArt";
 import { Button } from "@/components/ui/Button";
 import { controlClass, Field, Honeypot } from "@/components/ui/Field";
 
@@ -34,27 +34,34 @@ function rsvpClosed(): boolean {
 }
 
 /**
- * Section 11 — RSVP (PRD §4.11).
- * Identity: a torana arch rises like a doorway; accepting blooms a gold
- * blessing ornament and reveals the quotation before the form appears.
- * A success state is shown only after the response is saved.
+ * Section 08 — RSVP (The Jhoti Welcome).
+ * One clean card on rich crimson, framed by crisp white-ink jhoti / chita
+ * lines (the rice-paste patterns drawn at Odia doorsteps to welcome guests).
+ * Accepting blooms a gold blessing ornament and reveals the quotation before
+ * the form appears; the buttons are solid mustard gold. A success state is
+ * shown only after the response is saved.
  */
 export function Rsvp() {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { threshold: 0.2 });
 
   return (
-    <section ref={ref} id="rsvp" aria-labelledby="rsvp-heading" className="section py-24">
+    <section
+      ref={ref}
+      id="rsvp"
+      aria-labelledby="rsvp-heading"
+      data-status-tone="light"
+      className="px-4 py-24"
+      style={{ backgroundColor: "#800000" }}
+    >
       <div
-        className="relative mx-auto max-w-[20rem]"
+        className="jhoti-frame relative mx-auto max-w-[23rem]"
         style={{
-          clipPath: inView ? "inset(-10% -5% 0 -5%)" : "inset(100% -5% 0 -5%)",
+          clipPath: inView ? "inset(0 0 0 0)" : "inset(50% 0 50% 0)",
           transition: `clip-path 1300ms ${EASE.temple}`,
         }}
       >
-        <ToranaCrown className="-mb-px block w-full" />
-        <div className="relative border-x border-b border-gold bg-cream-light px-6 pb-9 pt-2 text-center">
-          <span aria-hidden className="pointer-events-none absolute inset-x-[2.2%] bottom-[7px] top-0 border-x border-b border-gold/45" />
+        <div className="relative rounded-2xl bg-[#FFFDF8] px-6 pb-9 pt-8 text-center shadow-[0_18px_40px_-20px_rgb(0_0_0/0.7)]">
           <div className="relative" style={{ opacity: inView ? 1 : 0, transition: `opacity 800ms ${EASE.silk} 900ms` }}>
             <RsvpBody />
           </div>
@@ -224,7 +231,7 @@ function RsvpBody() {
             {deadlineDate && <span className="mt-1 block text-ink-soft">Kindly reply by {deadlineDate}.</span>}
           </p>
           <div className="mt-7 flex flex-col items-center gap-2">
-            <Button onClick={accept} className="w-full max-w-[15rem] text-[0.9375rem]">
+            <Button variant="gold" onClick={accept} className="w-full max-w-[15rem] text-[0.9375rem]">
               Accept Invitation
             </Button>
             <button type="button" onClick={decline} className="min-h-11 text-[0.8125rem] font-medium text-ink-soft underline decoration-gold/70 underline-offset-4">
@@ -298,7 +305,7 @@ function RsvpBody() {
           </Field>
           <Honeypot value={trap} onChange={setTrap} />
 
-          <Button type="submit" disabled={saving} className="w-full">
+          <Button variant="gold" type="submit" disabled={saving} className="w-full">
             {saving ? "Sending…" : "Send Response"}
           </Button>
           <p role="alert" className="min-h-5 text-center text-[0.8125rem] font-medium text-sindoor">

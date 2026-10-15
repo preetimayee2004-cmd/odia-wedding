@@ -6,8 +6,8 @@ import { PranamHands } from "@/components/art/PranamHands";
 
 const DRAW_MS = 2600;
 const GOLD = "#D9B877";
-// The calm evening sky over the Bay of Bengal: deep navy settling into royal purple.
-const SKY = "linear-gradient(180deg, #0A1128 0%, #101A3C 48%, #1C1A48 82%, #261C4E 100%)";
+// Deep charcoal evening sky, a touch warmer towards the horizon.
+const SKY = "radial-gradient(90% 55% at 50% 100%, #2A2620 0%, transparent 70%), #1C1A17";
 // A few early stars: [left %, top %, size px, opacity]
 const STARS: Array<[number, number, number, number]> = [
   [14, 12, 2, 0.55],
@@ -21,7 +21,7 @@ const STARS: Array<[number, number, number, number]> = [
 
 /**
  * Section 11 — Thank You (The Mahaprasad Grace).
- * One quiet screen of evening sky: golden line-art hands joined in Pranam,
+ * One quiet, minimal screen of charcoal evening sky: golden line-art hands joined in Pranam,
  * holding a Tulsi leaf, trace themselves in; then the words of gratitude.
  */
 export function ThankYou() {
@@ -52,10 +52,6 @@ export function ThankYou() {
             style={{ left: `${x}%`, top: `${y}%`, width: size, height: size, opacity }}
           />
         ))}
-        {/* The sea's horizon, faintly lit */}
-        <div className="absolute inset-x-0 bottom-0 h-[16%] bg-[#0C1230]/70" />
-        <div className="absolute inset-x-0 bottom-[16%] h-px bg-gradient-to-r from-transparent via-[#D9B877]/30 to-transparent" />
-        <div className="absolute inset-x-0 bottom-[16%] h-24 translate-y-1/2 bg-[radial-gradient(50%_50%_at_50%_50%,rgba(217,184,119,0.10),transparent)]" />
       </div>
 
       <div className="relative flex flex-col items-center">
@@ -70,7 +66,7 @@ export function ThankYou() {
         >
           {message}
         </p>
-        <p className="mt-8 font-display text-[1.05rem] tracking-[0.18em]" style={{ ...fade(DRAW_MS + 400), color: GOLD }}>
+        <p className="mt-8 font-display text-[1.25rem] font-semibold tracking-[0.12em]" style={{ ...fade(DRAW_MS + 400), color: GOLD }}>
           {closing}
         </p>
       </div>

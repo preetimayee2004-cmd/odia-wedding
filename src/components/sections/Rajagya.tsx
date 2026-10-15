@@ -2,7 +2,7 @@ import { useEffect, useState, type CSSProperties } from "react";
 import { wedding } from "@/config/wedding";
 import { EASE } from "@/lib/motion";
 import { readSessionFlag, writeSessionFlag } from "@/lib/session";
-import { BrassSeal } from "@/components/art/BrassSeal";
+import { WaxSeal } from "@/components/art/WaxSeal";
 import { Pending } from "@/components/ui/Pending";
 import { Sheet } from "@/components/ui/Sheet";
 
@@ -18,7 +18,7 @@ const RULES = "shadow-[inset_0_0_0_3px_#F1E2C0,inset_0_0_0_4px_rgb(162_122_60/0.
  * Section 12 — The Rajagya (Royal Decree).
  * Practical updates (parking, RSVP deadline, live stream) delivered with the
  * dignity of a royal decree: a parchment banner pinned to the bottom of the
- * screen, sealed at its corner with a brass Konark-wheel stamp. Tapping it
+ * screen, sealed at its corner with a red wax Royal Seal pressed with the Konark wheel. Tapping it
  * opens the full decree; dismissing it leaves only the seal. It steps aside
  * on the invitation card and the closing screens. Hidden in production until a notice is configured.
  */
@@ -85,7 +85,7 @@ function Decree() {
               )}
             </button>
           </div>
-          <BrassSeal className="absolute -left-2.5 -top-4 h-[3.6rem] w-[3.6rem] -rotate-[8deg]" />
+          <WaxSeal className="absolute -left-2.5 -top-4 h-[3.6rem] w-[3.6rem] -rotate-[8deg]" />
           <button
             type="button"
             onClick={dismiss}
@@ -113,7 +113,7 @@ function Decree() {
           transform: sealShown ? "none" : "scale(0.5) rotate(-40deg)",
         }}
       >
-        <BrassSeal className="relative h-12 w-12" />
+        <WaxSeal className="relative h-12 w-12" />
       </button>
 
       <Sheet open={open} onClose={() => setOpen(false)} label={title}>
@@ -163,7 +163,7 @@ function Decree() {
               </div>
             )}
           </div>
-          <BrassSeal className="absolute -bottom-5 -right-3 h-[4.5rem] w-[4.5rem] rotate-[10deg]" />
+          <WaxSeal className="absolute -bottom-5 -right-3 h-[4.5rem] w-[4.5rem] rotate-[10deg]" />
         </div>
       </Sheet>
     </>

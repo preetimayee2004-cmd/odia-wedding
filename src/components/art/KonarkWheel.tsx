@@ -2,7 +2,7 @@
  * The Konark Sun Temple wheel, as clean geometric line art: a beaded rim
  * band, eight broad spokes with carved medallions, eight slender spokes
  * between them, and an open hub (where the countdown numbers sit).
- * Also used, small and solid, as the motif of the Rajagya brass seal.
+ * Also used, small and solid, as the motif of the Rajagya wax seal.
  */
 const C = 150;
 

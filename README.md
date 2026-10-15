@@ -39,17 +39,19 @@ Everything a guest reads lives in [`src/config/wedding.ts`](src/config/wedding.t
 | Wedding date & time | `wedding.dateTime` |
 | Invitation card wording, names, date and place (date and place are SAMPLES — replace) | `invitation` |
 | Our Story milestones (the couple's own words) | `story.milestones` |
-| Gurujana Pranam: grandparents and parents (`late: true` lights a dipa beside the name) | `family` |
+| Gurujana Pranam: grandparents, parents, siblings & family (`late: true` lights a dipa beside the name) | `family` |
 | Event dates, times, venues, dress codes, descriptions | `events.items` |
+| Gallery photographs (`tall: true` for a taller arch) | `gallery.photos` |
 | Venue name, address, photo, map link | `venue` |
 | Verified travel & stay details | `travel` |
+| Atithi Culture & Style Guide pop-up (colours, handlooms, places to visit) | `atithi` |
 | Contacts (with country code) | `contact.people` |
 | RSVP deadline, party-size limit | `rsvp` |
 | Opening sound button: a recording to play instead of the synthesised sankha (optional) | `assets.openingSound`, e.g. `"/audio/opening.mp3"` in `/public` |
 | Rajagya notices (parking, RSVP deadline, live stream), thank-you message | `rajagya`, `thankYou` |
 | Public URL (for WhatsApp previews) | `meta.siteUrl`, then `npm run og` |
 
-## Wishing Wall & RSVP storage (Supabase)
+## Blessings Wall & RSVP storage (Supabase)
 
 1. Create a Supabase project.
 2. In **SQL Editor**, run [`supabase/migrations/20261013000000_tila.sql`](supabase/migrations/20261013000000_tila.sql).
@@ -61,7 +63,7 @@ What the security rules allow (with the public anon key):
 - **Moderation:** set a wish's `status` to `hidden` to remove it. For approval before publishing, follow the comments in the SQL file and set `wishes.requireApproval = true`.
 - **Spam:** forms use a honeypot field, a minimum fill time and a per-device cooldown. The database enforces length limits and rejects duplicate wishes.
 
-Without these variables, development uses a browser-only stand-in store. Production hides the Wishing Wall, and RSVP shows a "contact the family" message instead of a form that can't save.
+Without these variables, development uses a browser-only stand-in store. Production hides the Blessings Wall, and RSVP shows a "contact the family" message instead of a form that can't save.
 
 ## Layout modes
 
@@ -84,15 +86,15 @@ Each section has its own entrance. All of them respect *reduced motion*.
 | Opening | The carved temple gate (`public/art/temple-door.webp`, Lakshmi above) in warm light, a golden fingertip tapping its brass lock above TAP TO OPEN. A tap, or 5 s of nothing, opens it (once): the doors part onto a dark doorway with light deep inside, hundreds of golden motes (one canvas, `opening/GoldDust.tsx`) and delicate rays pour out; the gate fades and is removed; on deep black Mahaprabhu Jagannath (`jagannath-darshan.webp`, sunburst masked away) emerges slowly through the motes in a soft halo; petals fall during the darshan; he dissolves into motes in his own shape, which swirl into a ring that settles onto the invitation's rangoli. Skip / Esc; a sound button plays the sankha |
 | Invitation | The illustrated invitation card (`public/art/invitation-card.jpg`) fits one screen; its plain middle band repeats so it fills any height undistorted. Bold EB Garamond text — the opening line in exactly two lines sized to the width, the names stacked (first / & / second) in Great Vibes, the date and place — is centred between the deities and a colourful filled jhoti rangoli between the banana trees, shrinking just enough to fit (down to 72%, then the card scrolls). The rangoli builds ring by ring and breathes above a bold "Tap the rangoli" on a cream pill; a tap spins its petals into a golden wash that fades into the couple (once only) |
 | Couple | The couple card (`public/art/couple-card.jpg`: carved arch in a red-and-gold border, cream matched to the invitation) fills one screen. Spread evenly inside it: a gold Ganesha, || Om Ganeshaya Namah ||, the guest greeted by name, the names stacked in Great Vibes rising in one after another, the hashtag between gold rules, and a quote under a small lotus; the illustrated couple seated at the sacred fire (`public/art/couple-havan.png`) is centred at the bottom |
-| Countdown | On a matte-black strip, the Konark Sun Temple wheel turns into alignment with the scroll; days, hours and minutes sit in its hub |
-| Our Story | Sambalpuri Ikat thread grows with the scroll; chapters alternate either side, each marked by a Pattachitra icon (peacocks, Koka lotus, pana-gua) |
-| Family | Gurujana Pranam grid: Aja & Aai above Pitra-Matra in crisp gold boxes; a flickering brass dipa beside departed elders |
-| Events | Cards dealt in with a 3D tilt; details in a bottom sheet |
-| Venue | Image parts from the centre like a curtain |
-| Travel & Stay | Blocks come into focus from a blur |
-| Wishing Wall | Wishes drop in like pinned notes |
-| RSVP | Torana arch rises; accepting blooms a gold ornament |
+| Countdown | The Cosmic Wheel: on Pattachitra crimson, a golden Konark wheel turns into alignment with the scroll; four round mustard-gold clocks (days, hours, mins, secs) sit in its hub, each with an arc of the time remaining |
+| Our Story | On Tusser-silk cream like an unrolled scroll, a shimmering silver Tarakasi filigree vine grows with the scroll; chapters alternate either side, each marked by a Pattachitra icon (interlocking peacocks, Koka lotus, pana-gua on a brass plate) |
+| Events | Cards dealt in with a 3D tilt; details in a bottom sheet (placed just before the family) |
+| Family | Gurujana Pranam & Blessings on deep crimson: Aja & Aai (flanked by two flickering dipas), Pitra-Matra Pranam and Suhuda-Varga in gold-bordered blocks, the two lineages meeting below; a dipa beside departed elders |
+| Gallery | The Raghurajpur Canvas: photographs in an asymmetric masonry, each in a Mukteswar-torana arch with a finial; on hover a red-and-black Pattachitra scroll border fades in; tap to enlarge |
+| RSVP | The Jhoti Welcome: one clean card on crimson inside a white rice-paste jhoti frame; mustard-gold buttons; accepting blooms a gold ornament |
+| Blessings Wall | The Ananda Bazar: on Kalinga-stone charcoal, blessings on talapatra palm leaves in a swipeable carousel; a marigold drops onto a guest's leaf when they send one |
+| Venue, Travel & Stay | The Path to Purushottam Kshetra: off-white cards with gold Kalash markers in place of map pins; a golden "Atithi Culture & Style Guide" button opens colours, handlooms and places to visit |
 | Contact | Circular wipe reveal |
-| Thank you | The Mahaprasad Grace: one screen of evening sky over the Bay of Bengal; golden Pranam hands holding a Tulsi leaf trace themselves in, then the words of gratitude |
-| Rajagya | Parchment decree banner pinned to the bottom, sealed with a brass Konark-wheel stamp; opens the full decree, dismisses to the seal, steps aside on the invitation card and the closing screen |
-| Footer | Continues the evening sea; gold thread draws outward |
+| Thank you | The Mahaprasad Grace: one minimal screen of deep charcoal evening sky; golden Pranam hands holding a Tulsi leaf trace themselves in, then the words of gratitude |
+| Rajagya | Parchment decree banner pinned to the bottom, sealed with a red wax Royal Seal pressed with the Konark wheel; opens the full decree, dismisses to the seal, steps aside on the invitation card and the closing screen |
+| Footer | Continues the charcoal evening sky; gold thread draws outward |
