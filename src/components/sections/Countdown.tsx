@@ -17,11 +17,13 @@ import { KonarkWheel } from "@/components/art/KonarkWheel";
 import { Pending } from "@/components/ui/Pending";
 
 const DAY = 86_400_000;
-const CRIMSON = "#800000";
-const GOLD = "#D4AF37"; // mustard gold
-const WHEEL_FILL = "#690000";
-const TEXT = "#FBEBD0";
-const TEXT_SOFT = "#E6C9A2";
+const CREAM = "#F8F2E5"; // the invitation card paper
+const GOLD = "#C9A227"; // mustard gold, a touch deeper to hold on cream
+const LINE = "#A67C1F"; // the wheel carving
+const WHEEL_FILL = "#F1E3C2";
+const MAROON = "#7A1424";
+const TEXT = "#2E1A10";
+const TEXT_SOFT = "#6B5236";
 const HUB = 94; // hub radius in the wheel's 300-unit box: room for four clocks
 
 /** Whether the element is currently on screen (unlike useInView, not one-shot). */
@@ -95,7 +97,7 @@ function useAlignOnScroll(sectionRef: RefObject<HTMLElement>, wheelRef: RefObjec
 
 /**
  * Section 04 — The Cosmic Wheel.
- * On deep Pattachitra crimson, a golden Konark Sun Temple wheel turns into
+ * On cream paper, a golden Konark Sun Temple wheel turns into
  * alignment; in its hub, four round clocks count the days, hours, minutes
  * and seconds to the Lagna. Hidden in production until the date is configured.
  */
@@ -154,20 +156,19 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
       ref={ref}
       id="countdown"
       aria-labelledby="countdown-heading"
-      data-status-tone="light"
       className="relative overflow-hidden px-[var(--gutter)] py-[var(--section-y)] text-center"
-      style={{ backgroundColor: CRIMSON }}
+      style={{ backgroundColor: CREAM }}
     >
       {/* A soft lamp-glow behind the wheel */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
-        style={{ background: "radial-gradient(60% 42% at 50% 56%, rgb(212 175 55 / 0.16), transparent 70%)" }}
+        style={{ background: "radial-gradient(60% 42% at 50% 56%, rgb(212 175 55 / 0.22), transparent 70%)" }}
       />
-      <h2 id="countdown-heading" className="relative text-[2rem]" style={{ ...fadeIn(0), color: TEXT }}>
+      <h2 id="countdown-heading" className="relative text-[2rem]" style={{ ...fadeIn(0), color: MAROON }}>
         {heading}
       </h2>
-      <p className="relative mt-2 font-display text-[1.15rem] italic" style={{ ...fadeIn(150), color: GOLD }}>
+      <p className="relative mt-2 font-display text-[1.15rem] font-semibold italic" style={{ ...fadeIn(150), color: "#8F6420" }}>
         {phase === "today" ? "The auspicious Lagna is here." : phase === "after" ? "Blessed under the Lagna." : line}
       </p>
 
@@ -178,7 +179,7 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
         </svg>
 
         <div ref={wheelRef} className="absolute inset-0 will-change-transform">
-          <KonarkWheel className="h-full w-full" line={GOLD} fill={WHEEL_FILL} hub={HUB} />
+          <KonarkWheel className="h-full w-full" line={LINE} fill={WHEEL_FILL} hub={HUB} />
         </div>
 
         {/* The hub, where the spokes meet: four round clocks */}
@@ -232,8 +233,8 @@ function Clock({ label, value, of }: { label: string; value: number | null; of: 
   return (
     <div className="relative flex items-center justify-center">
       <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full -rotate-90">
-        <circle cx="50" cy="50" r="49" fill={WHEEL_FILL} stroke={GOLD} strokeOpacity="0.55" strokeWidth="1" />
-        <circle cx="50" cy="50" r={R} fill="none" stroke={GOLD} strokeOpacity="0.18" strokeWidth="4" />
+        <circle cx="50" cy="50" r="49" fill="#FFFBF2" stroke={LINE} strokeOpacity="0.7" strokeWidth="1" />
+        <circle cx="50" cy="50" r={R} fill="none" stroke={GOLD} strokeOpacity="0.22" strokeWidth="4" />
         <circle
           cx="50"
           cy="50"
@@ -247,7 +248,7 @@ function Clock({ label, value, of }: { label: string; value: number | null; of: 
         />
       </svg>
       <div className="relative flex flex-col items-center leading-none">
-        <span className="font-display text-[1.45rem] font-semibold [font-variant-numeric:lining-nums_tabular-nums]" style={{ color: GOLD }}>
+        <span className="font-display text-[1.45rem] font-semibold [font-variant-numeric:lining-nums_tabular-nums]" style={{ color: MAROON }}>
           {value === null ? "--" : String(value).padStart(2, "0")}
         </span>
         <span className="mt-0.5 text-[0.45rem] font-medium uppercase tracking-[0.18em]" style={{ color: TEXT_SOFT }}>
