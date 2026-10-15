@@ -35,7 +35,7 @@ function rsvpClosed(): boolean {
 
 /**
  * Section 08 — RSVP (The Jhoti Welcome).
- * One clean card on rich crimson, framed by crisp white-ink jhoti / chita
+ * One clean card on the page's ochre cream, framed by crisp red jhoti / chita
  * lines (the rice-paste patterns drawn at Odia doorsteps to welcome guests).
  * Accepting blooms a gold blessing ornament and reveals the quotation before
  * the form appears; the buttons are solid mustard gold. A success state is
@@ -50,9 +50,8 @@ export function Rsvp() {
       ref={ref}
       id="rsvp"
       aria-labelledby="rsvp-heading"
-      data-status-tone="light"
       className="px-4 py-24"
-      style={{ backgroundColor: "#800000" }}
+      style={{ backgroundColor: "rgb(var(--page))" }}
     >
       <div
         className="jhoti-frame relative mx-auto max-w-[23rem]"
@@ -61,7 +60,7 @@ export function Rsvp() {
           transition: `clip-path 1300ms ${EASE.temple}`,
         }}
       >
-        <div className="relative rounded-2xl bg-[#FFFDF8] px-6 pb-9 pt-8 text-center shadow-[0_18px_40px_-20px_rgb(0_0_0/0.7)]">
+        <div className="relative rounded-2xl bg-[#FFFDF8] px-6 pb-9 pt-8 text-center shadow-[0_18px_40px_-22px_rgb(60_30_10/0.45)]">
           <div className="relative" style={{ opacity: inView ? 1 : 0, transition: `opacity 800ms ${EASE.silk} 900ms` }}>
             <RsvpBody />
           </div>

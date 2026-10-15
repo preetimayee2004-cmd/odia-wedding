@@ -35,7 +35,7 @@ export function Gallery() {
   const columns = [items.filter((_, i) => i % 2 === 0), items.filter((_, i) => i % 2 === 1)];
 
   return (
-    <section id="gallery" aria-labelledby="gallery-heading" className="px-[var(--gutter)] py-[var(--section-y)]" style={{ backgroundColor: "#FDFBF7" }}>
+    <section id="gallery" aria-labelledby="gallery-heading" className="px-[var(--gutter)] py-[var(--section-y)]" style={{ backgroundColor: "rgb(var(--page))" }}>
       <div ref={headerRef} className="text-center" style={{ opacity: headerIn ? 1 : 0, transition: `opacity 900ms ${EASE.silk}` }}>
         <p className="eyebrow">{eyebrow}</p>
         <h2 id="gallery-heading" className="mt-2 text-[2.25rem]">

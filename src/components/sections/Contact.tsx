@@ -29,7 +29,7 @@ export function Contact() {
   const list = hasContacts ? people : PLACEHOLDERS;
 
   return (
-    <section ref={ref} id="contact" aria-labelledby="contact-heading" className="section text-center">
+    <section ref={ref} id="contact" aria-labelledby="contact-heading" className="section text-center" style={{ backgroundColor: "rgb(var(--page))" }}>
       <div style={{ opacity: inView ? 1 : 0, transition: `opacity 900ms ${EASE.silk}` }}>
         <h2 id="contact-heading" className="text-[2.25rem]">
           {heading}

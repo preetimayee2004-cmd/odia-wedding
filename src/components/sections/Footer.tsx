@@ -4,10 +4,10 @@ import { useInView } from "@/hooks/useInView";
 import { EASE } from "@/lib/motion";
 import { formatVenueDate, parseVenueDateTime } from "@/lib/venueTime";
 
-// Continues the charcoal evening sky of the thank-you screen.
-const CHARCOAL = "#1C1A17";
-const GOLD = "#D9B877";
-const TEXT_SOFT = "#BFB3A0";
+// Continues the thank-you screen's ochre cream.
+const PAGE = "rgb(var(--page))";
+const GOLD = "#A6782C";
+const TEXT_SOFT = "#6B4A3A";
 
 /**
  * Closing sign-off, beneath the thank-you screen.
@@ -35,14 +35,13 @@ export function Footer() {
       ref={ref}
       id="closing"
       aria-label="Closing note"
-      data-status-tone="light"
       className="px-[var(--gutter)] pb-[max(3.5rem,env(safe-area-inset-bottom))] pt-8 text-center"
-      style={{ backgroundColor: CHARCOAL }}
+      style={{ backgroundColor: PAGE }}
     >
       <div aria-hidden className="flex items-center justify-center gap-3">
-        <span className="h-px w-20 bg-gradient-to-l from-[#D9B877]/80 to-transparent" style={thread("right")} />
+        <span className="h-px w-20 bg-gradient-to-l from-[#A6782C]/80 to-transparent" style={thread("right")} />
         <span className="h-2 w-2 rotate-45" style={{ ...fade(0), backgroundColor: GOLD }} />
-        <span className="h-px w-20 bg-gradient-to-r from-[#D9B877]/80 to-transparent" style={thread("left")} />
+        <span className="h-px w-20 bg-gradient-to-r from-[#A6782C]/80 to-transparent" style={thread("left")} />
       </div>
 
       <div style={fade(600)}>
@@ -50,7 +49,7 @@ export function Footer() {
           {blessing}
         </p>
         <p className="mt-2 font-script text-[2.6rem] leading-tight" style={{ color: GOLD }}>
-          {first} <span className="font-display text-2xl italic text-[#F3E4C4]/70">&amp;</span>{" "}
+          {first} <span className="font-display text-2xl italic text-[#6B4A3A]">&amp;</span>{" "}
           {second}
         </p>
         {date && (

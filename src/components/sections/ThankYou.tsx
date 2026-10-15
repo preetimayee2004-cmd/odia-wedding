@@ -5,9 +5,10 @@ import { EASE } from "@/lib/motion";
 import { PranamHands } from "@/components/art/PranamHands";
 
 const DRAW_MS = 2600;
-const GOLD = "#D9B877";
-// Deep charcoal evening sky, a touch warmer towards the horizon.
-const SKY = "radial-gradient(90% 55% at 50% 100%, #2A2620 0%, transparent 70%), #1C1A17";
+const GOLD = "#A6782C";
+const MAROON = "#7A1424";
+// The page's ochre cream, with a soft warm glow behind the hands.
+const SKY = "radial-gradient(60% 40% at 50% 38%, rgb(255 248 230 / 0.7), transparent 70%), rgb(var(--page))";
 // A few early stars: [left %, top %, size px, opacity]
 const STARS: Array<[number, number, number, number]> = [
   [14, 12, 2, 0.55],
@@ -40,7 +41,6 @@ export function ThankYou() {
       ref={ref}
       id="thank-you"
       aria-labelledby="thanks-heading"
-      data-status-tone="light"
       className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden px-[var(--gutter)] pb-[max(4rem,env(safe-area-inset-bottom))] pt-[calc(4rem_+_var(--status-bar,0px))] text-center"
       style={{ background: SKY }}
     >
@@ -48,7 +48,7 @@ export function ThankYou() {
         {STARS.map(([x, y, size, opacity]) => (
           <span
             key={`${x}-${y}`}
-            className="absolute rounded-full bg-[#F3E4C4]"
+            className="absolute rounded-full bg-[#C9A25A]"
             style={{ left: `${x}%`, top: `${y}%`, width: size, height: size, opacity }}
           />
         ))}
@@ -57,11 +57,11 @@ export function ThankYou() {
       <div className="relative flex flex-col items-center">
         <PranamHands className="h-[min(30dvh,13.5rem)] w-auto" color={GOLD} drawn={inView} duration={DRAW_MS} />
 
-        <h2 id="thanks-heading" className="mt-8 font-display text-[2rem] leading-tight text-[#F3E4C4]" style={fade(DRAW_MS * 0.6)}>
+        <h2 id="thanks-heading" className="mt-8 font-display text-[2rem] leading-tight" style={{ ...fade(DRAW_MS * 0.6), color: MAROON }}>
           {heading}
         </h2>
         <p
-          className="mx-auto mt-4 max-w-[19rem] font-display text-[1.125rem] italic leading-relaxed text-[#CFC4B0]"
+          className="mx-auto mt-4 max-w-[19rem] font-display text-[1.125rem] italic leading-relaxed text-[#4A3426]"
           style={fade(DRAW_MS * 0.6 + 400)}
         >
           {message}

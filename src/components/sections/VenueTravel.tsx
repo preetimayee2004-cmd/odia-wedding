@@ -13,7 +13,6 @@ import { Sheet } from "@/components/ui/Sheet";
 
 type Kind = "airport" | "railway" | "bus" | "stay";
 
-const OFF_WHITE = "#FAF7F0";
 const CARD = "rounded-2xl border border-gold/40 bg-white shadow-[0_10px_24px_-18px_rgb(var(--ink)/0.45)]";
 const BLOCKS: Array<{ kind: Kind; title: string }> = [
   { kind: "airport", title: "Nearest Airport" },
@@ -45,7 +44,7 @@ export function VenueTravel() {
   });
 
   return (
-    <section ref={ref} id="venue" aria-labelledby="venue-heading" className="px-[var(--gutter)] py-[var(--section-y)]" style={{ backgroundColor: OFF_WHITE }}>
+    <section ref={ref} id="venue" aria-labelledby="venue-heading" className="px-[var(--gutter)] py-[var(--section-y)]" style={{ backgroundColor: "rgb(var(--page))" }}>
       <div className="text-center" style={fade(0)}>
         <p className="eyebrow">{eyebrow}</p>
         <h2 id="venue-heading" className="mt-2 text-[2.1rem] leading-tight">

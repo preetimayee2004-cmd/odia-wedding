@@ -11,10 +11,11 @@ import { controlClass, Field, Honeypot } from "@/components/ui/Field";
 import { Sheet } from "@/components/ui/Sheet";
 
 const PAGE = 20;
-const CHARCOAL = "#1C1A17";
-const GOLD = "#D4AF37";
-const TEXT = "#F3E4C4";
-const TEXT_SOFT = "#BDB2A0";
+const PAGE_BG = "rgb(var(--page))";
+const GOLD = "#A6782C";
+const TEXT = "#2B1A14";
+const MAROON = "#7A1424";
+const TEXT_SOFT = "#6B4A3A";
 const TILTS = [-1.2, 0.8, -0.5, 1.1];
 
 const shortDate = (iso: string) =>
@@ -22,7 +23,7 @@ const shortDate = (iso: string) =>
 
 /**
  * Section 09 — Blessings Wall (The Ananda Bazar).
- * On Kalinga-stone charcoal, the blessings sit in a horizontal carousel of
+ * On the page's ochre cream, the blessings sit in a horizontal carousel of
  * talapatra (palm-leaf) manuscripts, ink-etched and tied with thread. When a
  * guest sends a blessing, a tiny marigold drops onto their leaf.
  * Without a storage backend it is hidden, or (while placeholders are on)
@@ -145,9 +146,8 @@ function WishingWallSection() {
       ref={ref}
       id="wishes"
       aria-labelledby="wishes-heading"
-      data-status-tone="light"
       className="overflow-hidden py-[var(--section-y)]"
-      style={{ backgroundColor: CHARCOAL, color: TEXT }}
+      style={{ backgroundColor: PAGE_BG, color: TEXT }}
     >
       <div className="px-[var(--gutter)] text-center" style={fade()}>
         <p className="text-[0.6875rem] font-medium uppercase tracking-eyebrow" style={{ color: GOLD }}>
@@ -158,7 +158,7 @@ function WishingWallSection() {
             {odiaHeading}
           </p>
         )}
-        <h2 id="wishes-heading" className="mt-1 text-[2.25rem]" style={{ color: TEXT }}>
+        <h2 id="wishes-heading" className="mt-1 text-[2.25rem]" style={{ color: MAROON }}>
           {heading}
         </h2>
         <p className="mx-auto mt-2 max-w-[17rem] text-[0.8125rem]" style={{ color: TEXT_SOFT }}>

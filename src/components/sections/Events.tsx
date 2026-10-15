@@ -5,7 +5,6 @@ import { EASE } from "@/lib/motion";
 import { Pending } from "@/components/ui/Pending";
 
 // The couple card cream; the artwork's paper is recoloured to match.
-const CREAM = "#F8F2E5";
 const MAROON = "#7B1E1E"; // event titles
 const ODIA_RED = "#A3161A"; // Odia names
 const LABEL = "#6B4A3A"; // Time / Venue / Dress code
@@ -45,7 +44,7 @@ export function Events() {
   const fade = (delay: number): CSSProperties => ({ opacity: headerIn ? 1 : 0, transition: `opacity 900ms ${EASE.silk} ${delay}ms` });
 
   return (
-    <section id="events" aria-labelledby="events-heading" className="relative [container-type:inline-size]" style={{ backgroundColor: CREAM }}>
+    <section id="events" aria-labelledby="events-heading" className="relative [container-type:inline-size]" style={{ backgroundColor: "rgb(var(--page))" }}>
       {/* The title */}
       <div ref={headerRef} className="flex flex-col items-center px-12 pt-12 text-center">
         <h2 id="events-heading" className="whitespace-nowrap font-serif text-[2.1rem] font-semibold leading-none" style={{ color: MAROON, ...fade(0) }}>

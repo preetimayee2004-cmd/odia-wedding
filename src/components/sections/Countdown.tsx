@@ -141,7 +141,7 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
   });
 
   return (
-    <section ref={ref} id="countdown" aria-labelledby="countdown-heading" className="relative text-center" style={{ backgroundColor: CARD }}>
+    <section ref={ref} id="countdown" aria-labelledby="countdown-heading" className="relative text-center" style={{ backgroundColor: "rgb(var(--page))" }}>
       <div className="relative px-12 pb-0 pt-[3.25rem]">
         <p className="flex items-center justify-center gap-2 text-[0.6875rem] font-medium uppercase tracking-[0.3em]" style={{ ...fadeIn(0), color: SOFT }}>
           <span aria-hidden>+</span> {eyebrow} <span aria-hidden>+</span>

@@ -8,10 +8,12 @@ import { Pending } from "@/components/ui/Pending";
 
 type TierKey = "grandparents" | "parents" | "siblings";
 
-const CRIMSON = "#800000";
-const GOLD = "#D4AF37";
-const TEXT = "#FBEBD0";
-const TEXT_SOFT = "#E6C9A2";
+const PAGE = "rgb(var(--page))";
+const BOX = "#FBF4E6"; // the elder boxes, a shade lighter than the page
+const GOLD = "#A6782C";
+const TEXT = "#2B1A14";
+const TEXT_SOFT = "#6B4A3A";
+const MAROON = "#7A1424";
 
 // Centres of the two columns (grid gap-3), where each family's lineage line runs.
 const LINE_LEFT = "left-[calc((100%_-_0.75rem)/4)]";
@@ -42,9 +44,8 @@ export function Family() {
     <section
       id="family"
       aria-labelledby="family-heading"
-      data-status-tone="light"
       className="relative px-[var(--gutter)] py-[var(--section-y)] text-center"
-      style={{ backgroundColor: CRIMSON, color: TEXT }}
+      style={{ backgroundColor: PAGE, color: TEXT }}
     >
 
       <div ref={headerRef} className="relative" style={{ opacity: headerIn ? 1 : 0, transition: `opacity 900ms ${EASE.silk}` }}>
@@ -53,7 +54,7 @@ export function Family() {
             {odiaHeading}
           </p>
         )}
-        <h2 id="family-heading" className="mt-1 text-[2.1rem] leading-tight" style={{ color: TEXT }}>
+        <h2 id="family-heading" className="mt-1 text-[2.1rem] leading-tight" style={{ color: MAROON }}>
           {heading}
         </h2>
         <p className="mt-1 font-display text-base italic" style={{ color: TEXT_SOFT }}>
@@ -95,7 +96,7 @@ function FamilyHead({ side }: { side: FamilySide }) {
         {side.label}
       </p>
       {side.familyName ? (
-        <p className="mt-1 font-display text-lg italic leading-snug" style={{ color: GOLD }}>
+        <p className="mt-1 font-display text-lg italic leading-snug" style={{ color: MAROON }}>
           {side.familyName}
         </p>
       ) : (
@@ -126,7 +127,7 @@ function Tier({ tier, sides, last }: { tier: TierKey; sides: FamilySide[]; last:
         <span aria-hidden className={`absolute bottom-0 top-0 w-px origin-top ${LINE_RIGHT}`} style={grow} />
         <div className="mx-auto flex max-w-[13rem] items-center justify-center gap-2" style={fade(inView, 200)}>
           {lamps && <Dipa className="h-9 w-[1.65rem] shrink-0" delay={0} decorative />}
-          <div className="max-w-[9.5rem] px-1" style={{ backgroundColor: CRIMSON }}>
+          <div className="max-w-[9.5rem] px-1" style={{ backgroundColor: PAGE }}>
             {odia && (
               <p lang="or" className="odia text-[0.95rem] leading-tight" style={{ color: TEXT_SOFT }}>
                 {odia}
@@ -162,8 +163,8 @@ function ElderBox({ elders, family, style }: { elders: Elder[]; family: string; 
       style={{
         ...style,
         borderColor: GOLD,
-        backgroundColor: "#6A0000",
-        boxShadow: `inset 0 0 0 3px #6A0000, inset 0 0 0 4px ${GOLD}80, 0 6px 16px -10px rgb(0 0 0 / 0.6)`,
+        backgroundColor: BOX,
+        boxShadow: `inset 0 0 0 3px ${BOX}, inset 0 0 0 4px ${GOLD}80, 0 6px 16px -12px rgb(60 30 10 / 0.35)`,
       }}
     >
       {CORNERS.map((c) => (
