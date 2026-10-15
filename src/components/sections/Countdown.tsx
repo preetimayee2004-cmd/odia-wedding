@@ -8,8 +8,8 @@ import { dateKey, formatVenueDate, parseVenueDateTime, venueDateKey, venueInstan
 import { Pending } from "@/components/ui/Pending";
 
 const DAY = 86_400_000;
-// The aged paper of the artwork, so the cut-outs melt into the page.
-const PAPER = "#EBD5B4";
+// The couple card cream; the artwork paper is recoloured to match.
+const PAPER = "#F8F2E5";
 const RED = "#9B2226";
 const BROWN = "#6E4A2A";
 const RULE = "#A0764A";
@@ -166,8 +166,6 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
       className="relative overflow-hidden text-center"
       style={{ backgroundColor: PAPER, color: BROWN }}
     >
-      {/* Soft age at the edges of the paper */}
-      <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(120% 90% at 50% 45%, transparent 60%, rgb(140 95 45 / 0.16))" }} />
 
       {/* Banana leaves and temple bells at the top corners */}
       {[false, true].map((mirror) => (
