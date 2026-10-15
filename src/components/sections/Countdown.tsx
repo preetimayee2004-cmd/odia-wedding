@@ -12,7 +12,8 @@ const INK = "#5E4A3A";
 /**
  * The painted page, from the couple's reference design (478×1024, shown 2×):
  * a Pattachitra floral border with temple bells, the carved Konark wheel with
- * four blank clock faces, a gilded date frame and the Sun Temple chariot.
+ * four blank clock faces, and the Sun Temple chariot — its parchment turned
+ * to the couple card's cream.
  * Everything live (words, numbers, date) is set over it in HTML; positions
  * below are in the artwork's own pixels.
  */
@@ -25,6 +26,7 @@ const FACES = [
 ];
 const FACE_R = 37;
 const CENTRE_X = 245;
+const WHEEL_BOTTOM = 676; // tip of the wheel's lowest point
 const pctX = (x: number) => `${((x / ART.w) * 100).toFixed(3)}%`;
 const pctY = (y: number) => `${((y / ART.h) * 100).toFixed(3)}%`;
 const cq = (px: number) => `${((px / ART.w) * 100).toFixed(3)}cqw`;
@@ -66,7 +68,7 @@ function useNow(active: boolean): number {
  * One painted page: under a Pattachitra floral border hung with temple bells,
  * "Shubha Bibaha · The countdown to our Forever Begins"; the carved Konark
  * wheel, its four clock faces counting the days, hours, minutes and seconds
- * to the Lagna; the date in a gilded frame; and the Sun Temple chariot at the
+ * to the Lagna; the date just beneath it; and the Sun Temple chariot at the
  * foot, beside a short note. Hidden in production until the date is
  * configured (unless placeholders are on).
  */
@@ -121,7 +123,7 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
       ref={ref}
       id="countdown"
       aria-labelledby="countdown-heading"
-      className="relative w-full overflow-hidden bg-[#EFE3CC] bg-cover bg-top text-center [container-type:inline-size]"
+      className="relative w-full overflow-hidden bg-[#F8F2E5] bg-cover bg-top text-center [container-type:inline-size]"
       style={{ aspectRatio: `${ART.w} / ${ART.h}`, backgroundImage: `url(${ART.src})` }}
     >
       <At x={CENTRE_X} y={112} style={fade(0)}>
@@ -171,15 +173,15 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
         ))}
       </div>
 
-      {/* The date, in its gilded frame */}
-      <At x={CENTRE_X} y={784} style={fade(600)}>
-        <p className="whitespace-nowrap font-display font-medium tracking-[0.12em] [font-variant-numeric:lining-nums]" style={{ fontSize: cq(32), color: INK }}>
+      {/* The date, centred 16px below the wheel */}
+      <div className="absolute -translate-x-1/2" style={{ left: pctX(CENTRE_X), top: `calc(${pctY(WHEEL_BOTTOM)} + 16px)`, ...fade(600) }}>
+        <p className="whitespace-nowrap font-display font-medium leading-none tracking-[0.12em] [font-variant-numeric:lining-nums]" style={{ fontSize: cq(32), color: INK }}>
           {parts ? `${two(parts.day)} · ${two(parts.month)} · ${parts.year}` : "DD · MM · YYYY"}
         </p>
-      </At>
+      </div>
 
       {message && (
-        <At x={CENTRE_X} y={866} style={fade(700)}>
+        <At x={CENTRE_X} y={790} style={fade(700)}>
           <p className="font-display font-semibold italic leading-snug" style={{ fontSize: cq(17), color: RED, width: cq(300) }}>
             {message}
           </p>
