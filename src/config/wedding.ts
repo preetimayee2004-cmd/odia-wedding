@@ -342,7 +342,8 @@ export const wedding: WeddingConfig = {
     quote: "Two souls, one journey, blessed by Lord Jagannath.",
   },
   wedding: {
-    dateTime: null, // awaiting confirmed date & time
+    // SAMPLE — the invitation card's date (12 Feb 2027); add the Lagna time, e.g. "2027-02-12T19:30"
+    dateTime: "2027-02-12",
     timeZone: "Asia/Kolkata",
   },
   invitation: {
