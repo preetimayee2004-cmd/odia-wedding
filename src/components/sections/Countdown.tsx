@@ -22,6 +22,7 @@ const RULE = "#A0764A";
  * Temple chariot among banana leaves, and banana leaves with a temple bell.
  */
 const WHEEL = "/art/konark-wheel.webp";
+const FRAME = "/art/countdown-frame.svg"; // nine-slice: slice 40 of a 120 box
 const TEMPLE = { src: "/art/konark-temple.webp", aspect: 494 / 651 };
 const BANANA = { src: "/art/banana-bell.webp", aspect: 282 / 330 };
 // Centres of the wheel's four blank clock faces (fractions of the wheel), and their radius.
@@ -166,9 +167,15 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
       id="countdown"
       aria-labelledby="countdown-heading"
       className="relative overflow-hidden text-center"
-      style={{ backgroundColor: PAPER, color: BROWN }}
+      style={{
+        backgroundColor: PAPER,
+        color: BROWN,
+        // The couple's bordered paper: double brown rule, hanging curls, a wave of dots
+        borderStyle: "solid",
+        borderWidth: 0,
+        borderImage: `url(${FRAME}) 40 / 34px round`,
+      }}
     >
-
       {/* Banana leaves and temple bells at the top corners */}
       {[false, true].map((mirror) => (
         <img
@@ -208,13 +215,11 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
         </h2>
         <LotusRule className="mt-4" style={fadeIn(320)} />
 
-        {/* The wheel, flanked by lotuses on faint arcs */}
+        {/* The wheel, between faint arcs */}
         <div className="relative mx-auto mt-6 w-[min(80vw,21rem)]" style={fadeIn(380)}>
           <svg aria-hidden viewBox="0 0 100 100" preserveAspectRatio="none" className="pointer-events-none absolute -left-[11%] top-0 h-full w-[122%]" fill="none">
             <path d="M14 22a42 42 0 0 0 0 56M86 22a42 42 0 0 1 0 56" stroke={RULE} strokeWidth="0.25" opacity="0.8" vectorEffect="non-scaling-stroke" />
           </svg>
-          <Lotus className="absolute -left-[13%] top-1/2 h-6 w-7 -translate-y-1/2" />
-          <Lotus className="absolute -right-[13%] top-1/2 h-6 w-7 -translate-y-1/2" />
 
           <div
             ref={wheelRef}
