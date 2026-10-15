@@ -6,21 +6,22 @@ import { Pending } from "@/components/ui/Pending";
 
 // The couple card cream; the artwork's paper is recoloured to match.
 const CREAM = "#F8F2E5";
-const MAROON = "#8A1C1C";
-const INK = "#2E1A10";
-const RED = "#B3261E";
+const MAROON = "#7A1C1C";
+const TERRACOTTA = "#A4553A";
+const BROWN = "#3B2615";
+const MUTED = "#8A6248";
 const ART = "/art/events";
 
 /**
  * Artwork cut from the couple's Wedding Events design (848 px wide): the
- * arched header with Lord Jagannath, palms and lanterns; the floral side
- * border (a repeating vine, mirrored on the right); the foot with an
- * elephant at each corner; and a painting beside each ceremony.
+ * arched header with Lord Jagannath, palms and lanterns, the foot with an
+ * elephant at each corner, and a painting for each ceremony.
  */
 const DESIGN_W = 848;
 const HEADER_H = 212;
 const FOOTER_H = 129;
-const BORDER_W = 64;
+/** Where the design's frame lines run (design px): its outer rule, and the arch as it comes down. */
+const FRAME = { outer: { x: 19, w: 4 }, inner: { x: 57, w: 5 } };
 const cq = (px: number) => `${((px / DESIGN_W) * 100).toFixed(3)}cqw`;
 const ILLUSTRATIONS: Record<EventId, { w: number; h: number; alt: string }> = {
   mehendi: { w: 178, h: 128, alt: "A bowl of mehendi and hands painted with it" },
@@ -33,13 +34,15 @@ const ILLUSTRATIONS: Record<EventId, { w: number; h: number; alt: string }> = {
   bidaai: { w: 172, h: 116, alt: "The bride in a palanquin" },
   reception: { w: 172, h: 142, alt: "A decorated mandap" },
 };
+const MEDALLION = 58; // px: every painting sits in the same round medallion
 
 /**
  * Section — Wedding Events.
- * A painted page after the couple's design, on the couple card's cream:
- * under an arch crowned by Lord Jagannath, between palms and lanterns, the
- * title; then each ceremony with its Odia name, time, venue and dress code,
- * its painting on alternating sides; elephants guard the foot.
+ * An editorial timeline on the couple card's cream. Under the painted arch
+ * (Lord Jagannath between palms and lanterns), a fine double rule carries
+ * the frame down to the elephants at the foot. Each ceremony takes the same
+ * row: its painting in a small medallion threaded on the timeline, then its
+ * name and Odia name, and the time, venue and dress code on one axis.
  */
 export function Events() {
   const { heading, odiaHeading, items } = wedding.events;
@@ -55,26 +58,28 @@ export function Events() {
         className="relative w-full bg-cover"
         style={{ aspectRatio: `${DESIGN_W} / ${HEADER_H}`, backgroundImage: `url(${ART}/header.webp)` }}
       >
-        <div className="absolute inset-x-0 flex flex-col items-center" style={{ top: cq(98) }}>
-          <h2 id="events-heading" className="whitespace-nowrap font-serif font-bold leading-none" style={{ fontSize: cq(54), color: MAROON, ...fade(0) }}>
+        <div className="absolute inset-x-0 flex flex-col items-center" style={{ top: cq(100) }}>
+          <h2 id="events-heading" className="whitespace-nowrap font-serif font-semibold leading-none" style={{ fontSize: cq(54), color: MAROON, ...fade(0) }}>
             {heading}
           </h2>
           {odiaHeading && (
-            <p lang="or" className="odia whitespace-nowrap font-medium leading-none" style={{ fontSize: cq(21), color: INK, marginTop: cq(12), ...fade(150) }}>
+            <p lang="or" className="odia whitespace-nowrap leading-none" style={{ fontSize: cq(21), color: TERRACOTTA, marginTop: cq(14), ...fade(150) }}>
               {odiaHeading}
             </p>
           )}
-          <LotusRule style={{ width: cq(290), marginTop: cq(12), ...fade(250) }} />
         </div>
       </div>
 
-      {/* The ceremonies, between the side borders */}
+      {/* The timeline, inside the frame */}
       <div className="relative">
-        <SideBorder side="left" />
-        <SideBorder side="right" />
-        <ol className="relative py-2" style={{ paddingInline: `calc(${cq(BORDER_W)} + 4px)` }}>
+        <FrameRules side="left" />
+        <FrameRules side="right" />
+        <ol
+          className="relative mx-auto max-w-[30rem] pb-8 pt-5"
+          style={{ paddingInline: `calc(${cq(FRAME.inner.x + FRAME.inner.w)} + 0.6rem)` }}
+        >
           {items.map((event, i) => (
-            <EventItem key={event.id} event={event} index={i} last={i === items.length - 1} />
+            <EventRow key={event.id} event={event} last={i === items.length - 1} />
           ))}
         </ol>
       </div>
@@ -93,112 +98,123 @@ export function Events() {
   );
 }
 
-function EventItem({ event, index, last }: { event: WeddingEvent; index: number; last: boolean }) {
+function EventRow({ event, last }: { event: WeddingEvent; last: boolean }) {
   const ref = useRef<HTMLLIElement>(null);
-  const inView = useInView(ref, { threshold: 0.3 });
+  const inView = useInView(ref, { threshold: 0.35 });
   const art = ILLUSTRATIONS[event.id];
-  const artLeft = index % 2 === 0;
 
-  const rise = (delay: number, dx = 0): CSSProperties => ({
+  const rise = (delay: number): CSSProperties => ({
     opacity: inView ? 1 : 0,
-    transform: inView ? "none" : `translate(${dx}px, 12px)`,
-    transition: `opacity 800ms ${EASE.silk} ${delay}ms, transform 900ms ${EASE.silk} ${delay}ms`,
+    transform: inView ? "none" : "translateY(10px)",
+    transition: `opacity 700ms ${EASE.silk} ${delay}ms, transform 800ms ${EASE.silk} ${delay}ms`,
   });
 
   return (
-    <li ref={ref}>
-      <div className={`flex items-center gap-2 py-2 ${artLeft ? "" : "flex-row-reverse"}`}>
+    <li ref={ref} className={`relative grid items-start gap-x-3 ${last ? "" : "pb-6"}`} style={{ gridTemplateColumns: `${MEDALLION}px minmax(0, 1fr)` }}>
+      {/* The timeline thread, down to the next medallion */}
+      {!last && (
+        <span
+          aria-hidden
+          className="absolute bottom-0 w-px"
+          style={{ left: MEDALLION / 2, top: MEDALLION + 4, background: `linear-gradient(${TERRACOTTA}55, ${TERRACOTTA}22)` }}
+        />
+      )}
+
+      <div
+        className="flex items-center justify-center rounded-full"
+        style={{
+          width: MEDALLION,
+          height: MEDALLION,
+          backgroundColor: CREAM,
+          boxShadow: `inset 0 0 0 1px ${TERRACOTTA}40, inset 0 0 0 3px ${CREAM}, inset 0 0 0 3.5px #C9A25A55`,
+          ...rise(0),
+        }}
+      >
         <img
           src={`${ART}/${event.id}.webp`}
           alt={art.alt}
           decoding="async"
           loading="lazy"
-          className="h-auto w-[38%] shrink-0"
-          style={{ aspectRatio: `${art.w} / ${art.h}`, ...rise(0, artLeft ? -14 : 14) }}
+          className="h-auto max-h-[82%] w-[90%] object-contain"
+          style={{ aspectRatio: `${art.w} / ${art.h}` }}
         />
-        <div className="min-w-0 flex-1 font-serif" style={{ ...rise(120), color: INK }}>
-          <h3 className="font-serif text-[1.08rem] font-bold leading-tight" style={{ color: MAROON }}>
-            {event.name}
-            {event.odiaName && (
-              <>
-                <span className="mx-1 font-normal" style={{ color: INK }}>
-                  |
-                </span>
-                <span lang="or" className="odia text-[0.95rem] font-medium">
-                  {event.odiaName}
-                </span>
-              </>
-            )}
-          </h3>
-          <dl className="mt-1 space-y-px text-[0.8rem] leading-snug">
-            <Detail label="Time" value={event.when} />
-            <Detail label="Venue" value={event.venueName} />
-            <Detail label="Dress Code" value={event.dressCode} />
-          </dl>
-        </div>
       </div>
-      {!last && <FlowerRule />}
+
+      <div className="min-w-0 pt-1" style={rise(100)}>
+        <h3 className="font-serif text-[1.2rem] font-semibold leading-tight" style={{ color: MAROON }}>
+          {event.name}
+          {event.odiaName && (
+            <span lang="or" className="odia ml-2 inline-block text-[0.9rem] font-normal" style={{ color: TERRACOTTA }}>
+              {event.odiaName}
+            </span>
+          )}
+        </h3>
+        <dl className="mt-1.5 grid gap-x-2 gap-y-1 font-serif text-[0.9rem] leading-[1.45]" style={{ gridTemplateColumns: "4.1rem minmax(0, 1fr)", color: BROWN }}>
+          <Detail label="Time" value={event.when} />
+          <Detail label="Venue" value={event.venueName} />
+          <Detail label="Dress code" value={event.dressCode} />
+        </dl>
+      </div>
     </li>
   );
 }
 
 function Detail({ label, value }: { label: string; value: string | null }) {
+  const term = (
+    <dt className="pt-px text-[0.8rem] font-medium" style={{ color: MUTED }}>
+      {label}
+    </dt>
+  );
   if (!value) {
     return (
-      <Pending label={`${label} awaiting confirmation`}>
-        <p>{label}: to be confirmed</p>
-      </Pending>
+      <>
+        {term}
+        <dd>
+          <Pending label={`${label} awaiting confirmation`}>To be confirmed</Pending>
+        </dd>
+      </>
     );
   }
+  // "Traditional wear | Bright & festive" → two phrases with a quiet dot between,
+  // each kept whole when short; lines may break between them
+  const lines = value.split("\n").map((line) => line.split(" | "));
   return (
-    <div className="flex gap-1">
-      <dt className="shrink-0 whitespace-nowrap">{label}:</dt>
-      <dd className="whitespace-pre-line">{value}</dd>
-    </div>
+    <>
+      {term}
+      <dd>
+        {lines.map((parts, i) => (
+          <span key={i} className="block">
+            {parts.map((part, j) => (
+              <span key={j}>
+                <span className={part.length <= 24 ? "whitespace-nowrap" : undefined}>
+                  {part}
+                  {j < parts.length - 1 && (
+                    <span aria-hidden className="ml-1.5" style={{ color: TERRACOTTA }}>
+                      ·
+                    </span>
+                  )}
+                </span>{" "}
+              </span>
+            ))}
+          </span>
+        ))}
+      </dd>
+    </>
   );
 }
 
-/** A thin rule with a small red flower, between ceremonies. */
-function FlowerRule() {
+/** A fine double rule carrying the arch's frame down to the foot. */
+function FrameRules({ side }: { side: "left" | "right" }) {
+  const rule = (x: number, w: number, opacity: number): CSSProperties => ({
+    [side]: cq(x),
+    width: `max(1px, ${cq(w * 0.5)})`,
+    backgroundColor: MAROON,
+    opacity,
+  });
   return (
-    <div aria-hidden className="mx-auto flex w-[64%] items-center gap-1.5 py-0.5">
-      <span className="h-px flex-1" style={{ background: `linear-gradient(to left, ${RED}99, transparent)` }} />
-      <svg viewBox="0 0 12 12" className="h-3 w-3" fill={RED}>
-        <path d="M6 0c1.2 1.6 1.2 3.2 0 4.4C4.8 3.2 4.8 1.6 6 0Zm0 12c-1.2-1.6-1.2-3.2 0-4.4 1.2 1.2 1.2 2.8 0 4.4ZM0 6c1.6-1.2 3.2-1.2 4.4 0C3.2 7.2 1.6 7.2 0 6Zm12 0c-1.6 1.2-3.2 1.2-4.4 0 1.2-1.2 2.8-1.2 4.4 0Z" />
-        <circle cx="6" cy="6" r="1.3" />
-      </svg>
-      <span className="h-px flex-1" style={{ background: `linear-gradient(to right, ${RED}99, transparent)` }} />
+    <div aria-hidden className="pointer-events-none">
+      <span className="absolute inset-y-0" style={rule(FRAME.outer.x, FRAME.outer.w, 0.75)} />
+      <span className="absolute inset-y-0" style={rule(FRAME.inner.x + 1, FRAME.inner.w, 0.45)} />
     </div>
-  );
-}
-
-/** Rule — lotus — rule, beneath the title. */
-function LotusRule({ style }: { style: CSSProperties }) {
-  return (
-    <div aria-hidden className="flex items-center gap-[3%]" style={style}>
-      <span className="h-px flex-1" style={{ backgroundColor: `${MAROON}B3` }} />
-      <svg viewBox="0 0 28 18" style={{ height: cq(20), width: "auto" }} fill="none" stroke={RED} strokeWidth="1.3" strokeLinejoin="round">
-        <path d="M14 2c2.6 3 2.6 7.5 0 11-2.6-3.5-2.6-8 0-11Z" fill={`${RED}33`} />
-        <path d="M14 13c-3-1-6-3.5-6.6-7.6 3.5.5 5.7 3 6.6 7.6Zm0 0c3-1 6-3.5 6.6-7.6-3.5.5-5.7 3-6.6 7.6Z" />
-        <path d="M8 16h12" strokeLinecap="round" />
-      </svg>
-      <span className="h-px flex-1" style={{ backgroundColor: `${MAROON}B3` }} />
-    </div>
-  );
-}
-
-/** The floral side border: one vine, repeating; mirrored on the right. */
-function SideBorder({ side }: { side: "left" | "right" }) {
-  return (
-    <div
-      aria-hidden
-      className={`pointer-events-none absolute inset-y-0 ${side === "left" ? "left-0" : "right-0 -scale-x-100"}`}
-      style={{
-        width: cq(BORDER_W),
-        backgroundImage: `url(${ART}/border-tile.webp)`,
-        backgroundSize: "100% auto",
-        backgroundRepeat: "repeat-y",
-      }}
-    />
   );
 }
