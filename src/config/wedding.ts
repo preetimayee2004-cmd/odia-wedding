@@ -46,34 +46,18 @@ export interface ElderTier {
   gloss: string;
 }
 
-export type EventMotif =
-  | "mehendi"
-  | "sangeet"
-  | "barajatra"
-  | "batabarana"
-  | "hastaganthi"
-  | "sindoor"
-  | "bidaai"
-  | "reception";
+/** Which illustrations sit beside an event in the Wedding Itinerary. */
+export type EventId = "haldi" | "mehendi-sangeet" | "barajatri-batabarana" | "hastaganthi-sindoor" | "bidaai" | "reception";
 
 export interface WeddingEvent {
-  id: string;
+  id: EventId;
   name: string;
   /** Confirm spelling with the family. */
   odiaName: string | null;
-  motif: EventMotif;
-  /** Venue-local date, "YYYY-MM-DD". */
-  date: string | null;
-  /** Venue-local 24h times, "HH:MM". */
-  start: string | null;
-  end: string | null;
+  /** When, as it should read, e.g. "4:00 PM onwards" or "Early Morning (Next Day)". */
+  when: string | null;
   venueName: string | null;
-  address: string | null;
   dressCode: string | null;
-  /** Ceremony meaning or instructions — confirmed by the family, never invented. */
-  description: string | null;
-  /** Exact map link; otherwise one is built from the address. */
-  mapsUrl: string | null;
 }
 
 /** Travel information — every value must be verified, never estimated. */
@@ -392,34 +376,46 @@ export const wedding: WeddingConfig = {
     groom: { label: "The Groom's Family", familyName: null, grandparents: [], parents: [], siblings: [] },
   },
   events: {
-    heading: "Wedding Celebrations",
-    odiaHeading: "ବିବାହ ଉତ୍ସବ",
-    // Odia names are best-effort — confirm every spelling with the family.
-    items: (
-      [
-        ["mehendi", "Mehendi", "ମେହେନ୍ଦି"],
-        ["sangeet", "Sangeet", "ସଙ୍ଗୀତ"],
-        ["barajatra", "Bara Jatra", "ବର ଯାତ୍ରା"],
-        ["batabarana", "Bata Barana", "ବାଟ ବରଣ"],
-        ["hastaganthi", "Hasta Ganthi", "ହସ୍ତଗଣ୍ଠି"],
-        ["sindoor", "Sindoor Daan", "ସିନ୍ଦୂର ଦାନ"],
-        ["bidaai", "Bidaai", "ବିଦାୟ"],
-        ["reception", "Reception", null],
-      ] as const
-    ).map(([motif, name, odiaName]) => ({
-      id: motif,
-      name,
-      odiaName,
-      motif,
-      date: null,
-      start: null,
-      end: null,
-      venueName: null,
-      address: null,
-      dressCode: null,
-      description: null,
-      mapsUrl: null,
-    })),
+    heading: "Wedding Itinerary",
+    odiaHeading: null,
+    // SAMPLE — times, venues and dress codes from the couple's itinerary design;
+    // confirm each one (and every Odia spelling) with the family.
+    items: [
+      { id: "haldi", name: "Haldi", odiaName: "ମଙ୍ଗନା", when: "8:00 AM", venueName: "Courtyard", dressCode: "Traditional yellow/orange" },
+      {
+        id: "mehendi-sangeet",
+        name: "Mehendi & Sangeet",
+        odiaName: "ମେହେନ୍ଦୀ ଓ ସଙ୍ଗୀତ",
+        when: "4:00 PM onwards",
+        venueName: "Banquet Hall",
+        dressCode: "Vibrant festive wear",
+      },
+      {
+        id: "barajatri-batabarana",
+        name: "Barajatri & Batabarana",
+        odiaName: "ବରଯାତ୍ରୀ ଓ ବାଟବରଣ",
+        when: "6:00 PM",
+        venueName: "Entrance Gates",
+        dressCode: "Traditional / Ethnic",
+      },
+      {
+        id: "hastaganthi-sindoor",
+        name: "Hasta Ganthi & Sindoor Daan",
+        odiaName: "ହସ୍ତଗଣ୍ଠି ଓ ସିନ୍ଦୂରଦାନ",
+        when: "8:30 PM",
+        venueName: "Kalyana Mandap",
+        dressCode: "Rich traditional attire",
+      },
+      { id: "bidaai", name: "Bidaai", odiaName: "ବିଦାୟ", when: "Early Morning (Next Day)", venueName: "Mandap exit", dressCode: "Elegant ethnic" },
+      {
+        id: "reception",
+        name: "Reception",
+        odiaName: "ପ୍ରୀତିଭୋଜୀ",
+        when: "7:00 PM onwards (Next Evening)",
+        venueName: "Grand Lawn",
+        dressCode: "Regal formal/semi-formal",
+      },
+    ],
   },
   gallery: {
     eyebrow: "The Raghurajpur Canvas",

@@ -40,7 +40,7 @@ Everything a guest reads lives in [`src/config/wedding.ts`](src/config/wedding.t
 | Invitation card wording, names, date and place (date and place are SAMPLES — replace) | `invitation` |
 | Our Story milestones (the couple's own words) | `story.milestones` |
 | Gurujana Pranam: grandparents, parents, siblings & family (`late: true` lights a dipa beside the name) | `family` |
-| Event dates, times, venues, dress codes, descriptions | `events.items` |
+| Itinerary: ceremonies, Odia names, times, venues, dress codes (SAMPLE values from the couple's design — confirm) | `events.items` |
 | Gallery photographs (`tall: true` for a taller arch) | `gallery.photos` |
 | Venue name, address, photo, map link | `venue` |
 | Verified travel & stay details | `travel` |
@@ -89,7 +89,7 @@ Each section has its own entrance. All of them respect *reduced motion*.
 | Couple | The couple card (`public/art/couple-card.jpg`: carved arch in a red-and-gold border, cream matched to the invitation) fills one screen. Spread evenly inside it: a gold Ganesha, || Om Ganeshaya Namah ||, the guest greeted by name, the names stacked in Great Vibes rising in one after another, the hashtag between gold rules, and a quote under a small lotus; the illustrated couple seated at the sacred fire (`public/art/couple-havan.png`) is centred at the bottom |
 | Countdown | The Cosmic Wheel, after the couple's reference design: on the couple card's cream (the artwork's paper recoloured to match), banana leaves and temple bells at the top corners; ଶୁଭ ବିବାହ, "The countdown to our Forever Begins"; the carved Konark wheel (`public/art/konark-wheel.webp`, cut from the reference with its clock faces left blank) turns a quarter-turn into place, its four faces counting days, hours, mins and secs; the date as DD · MM · YYYY; the Sun Temple chariot among banana leaves at the foot (`konark-temple.webp`, `banana-bell.webp`) |
 | Our Story | On Tusser-silk cream like an unrolled scroll, a shimmering silver Tarakasi filigree vine grows with the scroll; chapters alternate either side, each marked by a Pattachitra icon (interlocking peacocks, Koka lotus, pana-gua on a brass plate) |
-| Events | Cards dealt in with a 3D tilt; details in a bottom sheet (placed just before the family) |
+| Events | Wedding Itinerary after the couple's design (art in `public/art/itinerary/`): a maroon floral border with temple towers down both sides (top, repeating vine, bottom), mandalas top and foot, the title between two kalash, and each ceremony with its Odia name, time, venue and dress code between hand-painted illustrations, rising in as it scrolls into view |
 | Family | Gurujana Pranam & Blessings on deep crimson: Aja & Aai (flanked by two flickering dipas), Pitra-Matra Pranam and Suhuda-Varga in gold-bordered blocks, the two lineages meeting below; a dipa beside departed elders |
 | Gallery | The Raghurajpur Canvas: photographs in an asymmetric masonry, each in a Mukteswar-torana arch with a finial; on hover a red-and-black Pattachitra scroll border fades in; tap to enlarge |
 | RSVP | The Jhoti Welcome: one clean card on crimson inside a white rice-paste jhoti frame; mustard-gold buttons; accepting blooms a gold ornament |

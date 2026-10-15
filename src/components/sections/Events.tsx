@@ -1,186 +1,204 @@
-import { useRef, useState, type ReactNode } from "react";
-import { wedding, type WeddingEvent } from "@/config/wedding";
+import { useRef, type CSSProperties, type ReactNode } from "react";
+import { wedding, type EventId, type WeddingEvent } from "@/config/wedding";
 import { useInView } from "@/hooks/useInView";
-import { showPlaceholders } from "@/lib/placeholders";
 import { EASE } from "@/lib/motion";
-import { directionsUrl } from "@/lib/maps";
-import { formatTimeRange, formatVenueDate, parseVenueDateTime } from "@/lib/venueTime";
-import { EventMotifIcon } from "@/components/art/EventMotifs";
-import { GoldDivider } from "@/components/ui/GoldDivider";
 import { Pending } from "@/components/ui/Pending";
-import { Sheet } from "@/components/ui/Sheet";
 
-const dateOf = (e: WeddingEvent) => {
-  const p = parseVenueDateTime(e.date);
-  return p && formatVenueDate(p);
-};
+// The paper of the itinerary artwork, so its cut-outs sit flush on the page.
+const PAPER = "#FCF9E9";
+const MAROON = "#5A1A1A";
+const INK = "#2E1A10";
+const ART = "/art/itinerary";
 
 /**
- * Section 07 — Wedding events (PRD §4.07).
- * Identity: cards are "dealt" onto the table with a slight 3D tilt; every
- * card opens the same bottom-sheet pattern with that event's details.
+ * Hand-painted illustrations cut from the couple's itinerary design, beside
+ * each ceremony (left / right), with their natural aspect ratios.
+ */
+const ILLUSTRATIONS: Record<EventId, { left?: Art; right?: Art }> = {
+  haldi: { left: { src: "haldi", w: 100, h: 116, alt: "A marigold garland, turmeric and a brass pot" } },
+  "mehendi-sangeet": {
+    left: { src: "mehendi", w: 96, h: 98, alt: "Hands painted with mehendi" },
+    right: { src: "sangeet", w: 102, h: 94, alt: "A dhol drum and music" },
+  },
+  "barajatri-batabarana": {
+    left: { src: "barajatri", w: 104, h: 96, alt: "The groom's golden chariot and horse" },
+    right: { src: "batabarana", w: 104, h: 106, alt: "A conch and a welcome thali" },
+  },
+  "hastaganthi-sindoor": {
+    left: { src: "hastaganthi", w: 99, h: 82, alt: "The sacred knot tied in red and yellow cloth" },
+    right: { src: "sindoor", w: 100, h: 98, alt: "The sacred fire and a sindoor box" },
+  },
+  bidaai: {
+    left: { src: "bidaai", w: 136, h: 94, alt: "A bridal palanquin" },
+    right: { src: "drops", w: 60, h: 76, alt: "" },
+  },
+  reception: { right: { src: "reception", w: 104, h: 130, alt: "A decorated stage and a festive thali" } },
+};
+interface Art {
+  src: string;
+  w: number;
+  h: number;
+  alt: string;
+}
+
+// Side border, cut from the design's left edge: top (temple), a repeating vine, bottom (temple).
+const BORDER = { w: 72, top: 520, tile: 480, bottom: 520 };
+const BORDER_W = 34; // px on screen
+const k = BORDER_W / BORDER.w;
+
+/**
+ * Section — Wedding Itinerary.
+ * A painted page after the couple's design: a maroon floral border with
+ * temple towers down both sides, a mandala at the top and bottom, the title
+ * between two kalash, and each ceremony with its Odia name, time, venue and
+ * dress code, flanked by hand-painted illustrations.
  */
 export function Events() {
-  const { heading, odiaHeading, items } = wedding.events;
-  const gridRef = useRef<HTMLUListElement>(null);
+  const { heading, items } = wedding.events;
   const headerRef = useRef<HTMLDivElement>(null);
-  const inView = useInView(gridRef, { threshold: 0.15 });
   const headerIn = useInView(headerRef);
-  const [active, setActive] = useState<WeddingEvent | null>(null);
 
   return (
-    <section id="events" aria-labelledby="events-heading" className="section">
-      <div
-        ref={headerRef}
-        className="text-center"
-        style={{ opacity: headerIn ? 1 : 0, transition: `opacity 900ms ${EASE.silk}` }}
-      >
-        {odiaHeading && (
-          <p lang="or" className="odia text-base text-sindoor/85">
-            {odiaHeading}
-          </p>
-        )}
-        <h2 id="events-heading" className="mt-1 text-[2.25rem]">
-          {heading}
-        </h2>
-        <GoldDivider className="mt-4" />
+    <section id="events" aria-labelledby="events-heading" className="relative overflow-hidden" style={{ backgroundColor: PAPER }}>
+      <SideBorder side="left" />
+      <SideBorder side="right" />
+
+      {/* Mandala at the top */}
+      <img src={`${ART}/mandala-top.webp`} alt="" aria-hidden decoding="async" loading="lazy" className="mx-auto block w-[38%] max-w-[11rem]" />
+
+      <div className="relative" style={{ paddingInline: BORDER_W + 6 }}>
+        <div ref={headerRef} className="mt-4 text-center" style={{ opacity: headerIn ? 1 : 0, transition: `opacity 900ms ${EASE.silk}` }}>
+          <div className="flex items-center justify-center gap-2">
+            <img src={`${ART}/kalash.webp`} alt="" aria-hidden className="h-7 w-auto shrink-0" />
+            <h2 id="events-heading" className="whitespace-nowrap font-serif text-[1.22rem] font-bold uppercase leading-none tracking-[0.03em]" style={{ color: MAROON }}>
+              {heading}
+            </h2>
+            <img src={`${ART}/kalash.webp`} alt="" aria-hidden className="h-7 w-auto shrink-0" />
+          </div>
+          <img src={`${ART}/divider.webp`} alt="" aria-hidden className="mx-auto mt-2 block w-[86%]" />
+        </div>
+
+        <ol className="mt-3">
+          {items.map((event, i) => (
+            <EventItem key={event.id} event={event} index={i} />
+          ))}
+        </ol>
       </div>
 
-      <ul ref={gridRef} className="mt-10 grid grid-cols-2 gap-3 [perspective:900px] md:grid-cols-3">
-        {items.map((event, i) => (
-          <li
-            key={event.id}
-            style={{
-              opacity: inView ? 1 : 0,
-              transform: inView ? "none" : "rotateX(-38deg) translateY(26px)",
-              transformOrigin: "50% 0%",
-              transition: `opacity 700ms ${EASE.silk} ${i * 70}ms, transform 900ms ${EASE.silk} ${i * 70}ms`,
-            }}
-          >
-            <EventCard event={event} onOpen={() => setActive(event)} />
-          </li>
-        ))}
-      </ul>
-
-      <Sheet open={active !== null} onClose={() => setActive(null)} label={active ? `${active.name} details` : "Event details"}>
-        {active && <EventDetails event={active} />}
-      </Sheet>
+      {/* Mandala at the foot */}
+      <img src={`${ART}/mandala-bottom.webp`} alt="" aria-hidden decoding="async" loading="lazy" className="mx-auto mt-2 block w-[34%] max-w-[10rem]" />
     </section>
   );
 }
 
-function EventCard({ event, onOpen }: { event: WeddingEvent; onOpen: () => void }) {
-  const date = dateOf(event);
-  const time = formatTimeRange(event.start, event.end);
+function EventItem({ event, index }: { event: WeddingEvent; index: number }) {
+  const ref = useRef<HTMLLIElement>(null);
+  const inView = useInView(ref, { threshold: 0.3 });
+  const art = ILLUSTRATIONS[event.id];
+  const combined = event.name.includes("&");
+
+  const rise = (delay: number): CSSProperties => ({
+    opacity: inView ? 1 : 0,
+    transform: inView ? "none" : "translateY(12px)",
+    transition: `opacity 800ms ${EASE.silk} ${delay}ms, transform 900ms ${EASE.silk} ${delay}ms`,
+  });
 
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      aria-haspopup="dialog"
-      className="relative flex h-full w-full flex-col items-start rounded-[0.9rem] border border-gold/45 bg-cream-light p-4 text-left transition duration-200 ease-silk active:scale-[0.98]"
-    >
-      <span aria-hidden className="pointer-events-none absolute inset-1 rounded-[0.65rem] border border-gold/15" />
-      <EventMotifIcon motif={event.motif} className="h-9 w-9" />
+    <li ref={ref} className="relative flex min-h-[7.5rem] items-center py-4">
+      {art.left && <Illustration art={art.left} side="left" style={rise(index % 2 ? 150 : 0)} />}
+      {art.right && <Illustration art={art.right} side="right" style={rise(index % 2 ? 0 : 150)} />}
 
-      {event.odiaName && (
-        <span lang="or" className="odia mt-3 text-[0.75rem] leading-snug text-sindoor/80">
-          {event.odiaName}
-        </span>
-      )}
-      <span className={`font-display text-[1.3rem] font-semibold leading-tight text-sindoor ${event.odiaName ? "" : "mt-3"}`}>
-        {event.name}
-      </span>
-
-      <span className="mt-2 text-[0.6875rem] leading-relaxed text-ink-soft">
-        {date ? (
-          <>
-            {date.weekday.slice(0, 3)}, {date.day} {date.month.slice(0, 3)}
-            {time && <span className="block">{time.split(" – ")[0]}</span>}
-          </>
-        ) : (
-          <Pending label="Date awaiting confirmation">Date · Time</Pending>
+      <div className="relative mx-auto w-full px-[17.5%] text-center font-serif" style={{ ...rise(80), color: INK }}>
+        <h3 className="font-serif text-[1.3rem] font-semibold leading-tight" style={{ color: MAROON }}>
+          {event.name}
+          {event.odiaName && !combined && (
+            <>
+              <span className="mx-1.5 font-normal opacity-70">|</span>
+              <span lang="or" className="odia font-semibold">
+                {event.odiaName}
+              </span>
+            </>
+          )}
+        </h3>
+        {event.odiaName && combined && (
+          <p lang="or" className="odia mt-0.5 text-[1.05rem] font-semibold leading-snug" style={{ color: MAROON }}>
+            {event.odiaName}
+          </p>
         )}
-      </span>
-
-      <span className="mt-auto inline-flex items-center gap-1 pt-3 text-[0.6875rem] font-medium uppercase tracking-[0.14em] text-sindoor">
-        View details
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
-          <path d="M3.5 2 6.5 5l-3 3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </span>
-    </button>
+        <div className="mt-1.5 space-y-0.5 text-[0.88rem] font-normal leading-snug">
+          <Detail label="Time" value={event.when} />
+          <Detail label="Venue" value={event.venueName} />
+          <Detail label="Dress Code" value={event.dressCode} />
+        </div>
+      </div>
+    </li>
   );
 }
 
-function EventDetails({ event }: { event: WeddingEvent }) {
-  const date = dateOf(event);
-  const time = formatTimeRange(event.start, event.end);
-  const directions = directionsUrl({ mapsUrl: event.mapsUrl, name: event.venueName, address: event.address });
-  const venue = [event.venueName, event.address].filter(Boolean);
-
-  const rows: Array<[label: string, value: ReactNode | null]> = [
-    ["Date", date && `${date.weekday}, ${date.day} ${date.month} ${date.year}`],
-    ["Time", time],
-    [
-      "Venue",
-      venue.length > 0 && (
-        <>
-          {event.venueName && <span className="block font-medium">{event.venueName}</span>}
-          {event.address && <span className="block text-ink-soft">{event.address}</span>}
-        </>
-      ),
-    ],
-    ["Dress code", event.dressCode],
-    ["About", event.description],
-  ];
-  const known = rows.filter(([, v]) => v);
-  const unknown = rows.filter(([, v]) => !v);
-
+function Detail({ label, value }: { label: string; value: string | null }): ReactNode {
+  if (value) {
+    return (
+      <p>
+        <span className="whitespace-nowrap font-semibold">{label}:</span> {keepBracketsTogether(value)}
+      </p>
+    );
+  }
   return (
-    <div className="text-center">
-      <EventMotifIcon motif={event.motif} className="mx-auto h-12 w-12" />
-      {event.odiaName && (
-        <p lang="or" className="odia mt-2 text-sm text-sindoor/80">
-          {event.odiaName}
-        </p>
-      )}
-      <h3 className="text-[2rem]">{event.name}</h3>
-      <GoldDivider className="mt-3" />
+    <div className="flex justify-center">
+      <Pending label={`${label} awaiting confirmation`}>
+        <p>{label}: to be confirmed</p>
+      </Pending>
+    </div>
+  );
+}
 
-      <dl className="mt-6 space-y-4 text-left text-[0.875rem]">
-        {known.map(([label, value]) => (
-          <div key={label} className="grid grid-cols-[5.5rem_1fr] gap-3">
-            <dt className="pt-0.5 text-[0.6875rem] font-medium uppercase tracking-[0.14em] text-ink-soft">{label}</dt>
-            <dd className="leading-relaxed">{value}</dd>
-          </div>
-        ))}
-      </dl>
+/** "7:00 PM onwards (Next Evening)" never breaks inside the brackets. */
+const keepBracketsTogether = (text: string) => text.replace(/\([^)]*\)/g, (m) => m.replace(/ /g, "\u00a0"));
 
-      {showPlaceholders && unknown.length > 0 && (
-        <div className="mt-4 space-y-2 text-left text-[0.6875rem] font-medium uppercase tracking-[0.14em]">
-          {unknown.map(([label]) => (
-            <Pending key={label} label={`${label} awaiting confirmation`}>
-              {label}: awaiting confirmation
-            </Pending>
-          ))}
-        </div>
-      )}
+function Illustration({ art, side, style }: { art: Art; side: "left" | "right"; style: CSSProperties }) {
+  return (
+    <img
+      src={`${ART}/${art.src}.webp`}
+      alt={art.alt}
+      aria-hidden={art.alt ? undefined : true}
+      decoding="async"
+      loading="lazy"
+      className={`absolute top-1/2 h-auto ${side === "left" ? "left-0" : "right-0"}`}
+      style={{ width: `${Math.min(20, (art.w / 104) * 18.5)}%`, aspectRatio: `${art.w} / ${art.h}`, ...style, translate: "0 -50%" }}
+    />
+  );
+}
 
-      {known.length === 0 && !showPlaceholders && (
-        <p className="mt-2 text-sm text-ink-soft">Details will be shared soon.</p>
-      )}
-
-      {directions && (
-        <a
-          href={directions}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-sindoor px-7 text-sm font-medium tracking-wide text-cream-light active:bg-sindoor-dark"
-        >
-          Get Directions
-        </a>
-      )}
+/** One side's border: temple tower at the top, the vine repeating, temple tower at the foot. */
+function SideBorder({ side }: { side: "left" | "right" }) {
+  const piece = (name: string, h: number): CSSProperties => ({
+    backgroundImage: `url(${ART}/border-${name}.webp)`,
+    backgroundSize: `${BORDER_W}px ${h * k}px`,
+    height: h * k,
+  });
+  // Pieces fade into the repeating vine where they meet it.
+  const fade = (to: "top" | "bottom") => {
+    const g = `linear-gradient(to ${to}, #000 82%, transparent)`;
+    return { WebkitMaskImage: g, maskImage: g };
+  };
+  return (
+    <div
+      aria-hidden
+      className={`pointer-events-none absolute inset-y-0 ${side === "left" ? "left-0" : "right-0 -scale-x-100"}`}
+      style={{ width: BORDER_W }}
+    >
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `url(${ART}/border-tile.webp)`,
+          backgroundSize: `${BORDER_W}px ${BORDER.tile * k}px`,
+          backgroundRepeat: "repeat-y",
+          // start mid-tile, where the vine continues from the top piece
+          backgroundPosition: `0 ${(-BORDER.tile / 2) * k}px`,
+        }}
+      />
+      <div className="absolute inset-x-0 top-0" style={{ ...piece("top", BORDER.top), ...fade("bottom") }} />
+      <div className="absolute inset-x-0 bottom-0" style={{ ...piece("bottom", BORDER.bottom), ...fade("top") }} />
     </div>
   );
 }
