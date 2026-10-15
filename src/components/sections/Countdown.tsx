@@ -15,6 +15,7 @@ const MAROON = "#7A1424";
 const GOLD = "#A6782C";
 const SOFT = "#A88A5E";
 const BORDER_RED = "#8D0B0B"; // the couple card border's red
+const VERMILION_LINE = "#B4483E"; // muted vermilion, as in Our Story's line
 const INK = "#2B1A14";
 
 /** Whether the element is currently on screen (unlike useInView, not one-shot). */
@@ -141,7 +142,7 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
 
   return (
     <section ref={ref} id="countdown" aria-labelledby="countdown-heading" className="relative text-center" style={{ backgroundColor: CARD }}>
-      <div className="relative px-12 pb-14 pt-[3.25rem]">
+      <div className="relative px-12 pb-0 pt-[3.25rem]">
         <p className="flex items-center justify-center gap-2 text-[0.6875rem] font-medium uppercase tracking-[0.3em]" style={{ ...fadeIn(0), color: SOFT }}>
           <span aria-hidden>+</span> {eyebrow} <span aria-hidden>+</span>
         </p>
@@ -233,6 +234,7 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
           )}
         </div>
         <Ornament className="mt-5" style={fadeIn(480)} />
+        <WheelDivider className="mt-1" style={fadeIn(560)} />
       </div>
     </section>
   );
@@ -248,6 +250,53 @@ function Ornament({ className = "", style }: { className?: string; style?: CSSPr
       <span className="h-1 w-1 rounded-full" style={{ backgroundColor: GOLD }} />
       <span className="h-px flex-1" style={{ background: `linear-gradient(to right, ${BORDER_RED}, transparent)` }} />
     </div>
+  );
+}
+
+/**
+ * The hand-drawn divider beneath the date: fine antique-gold lines reaching
+ * out from a small Konark wheel to curled scrolls, with vermilion leaves and
+ * dots; a stem drops from the wheel to the section's edge, where the thread
+ * continues into Our Story.
+ */
+function WheelDivider({ className = "", style }: { className?: string; style?: CSSProperties }) {
+  const half = (
+    <>
+      {/* the line, slightly uneven, ending in a scroll */}
+      <path d="M138.6 16.6C121 15.7 103 17.3 84 16.2S48 15.4 31.5 16.7c-6.2.5-9.4 4.3-7 7.6 2 2.7 6.1 1.5 5.5-1.5-.4-1.9-2.8-2.3-3.6-.8" />
+      {/* a small curl rising near the wheel */}
+      <path d="M135.8 13.6c-2.6-4.8-8.6-6-12.6-3.2" strokeWidth="0.9" />
+      {/* leaves, one above and one below the line */}
+      <path d="M101.5 16.4c3-5.4 8.4-7.2 13.2-5.4-2.6 5-7.6 6.8-13.2 5.4Z" stroke={VERMILION_LINE} fill={`${VERMILION_LINE}26`} strokeWidth="0.9" />
+      <path d="M66 16.3c3.4 4.6 8.6 5.6 12.8 3.2-3-4.2-8-5.2-12.8-3.2Z" stroke={VERMILION_LINE} fill={`${VERMILION_LINE}26`} strokeWidth="0.9" />
+      <circle cx="121" cy="19.6" r="1.05" fill={VERMILION_LINE} stroke="none" />
+      <circle cx="48" cy="13.4" r="0.95" fill={GOLD} stroke="none" />
+    </>
+  );
+  return (
+    <svg viewBox="0 0 300 50" className={`mx-auto block h-auto w-[min(19rem,100%)] overflow-visible ${className}`} style={style} aria-hidden>
+      <g fill="none" stroke={GOLD} strokeWidth="1.15" strokeLinecap="round" strokeLinejoin="round">
+        {half}
+        <g transform="matrix(-1 0 0 1 300 0)">{half}</g>
+        {/* the Konark wheel: rim, beads, eight spokes, a vermilion hub */}
+        <circle cx="150" cy="16" r="9.6" fill={CARD} />
+        <circle cx="150" cy="16" r="6.7" strokeWidth="0.7" />
+        {Array.from({ length: 8 }, (_, i) => {
+          const a = (i * Math.PI) / 4;
+          return (
+            <g key={i}>
+              <path d={`M${(150 + Math.cos(a) * 2.4).toFixed(2)} ${(16 + Math.sin(a) * 2.4).toFixed(2)}L${(150 + Math.cos(a) * 6.7).toFixed(2)} ${(16 + Math.sin(a) * 6.7).toFixed(2)}`} strokeWidth="0.8" />
+              <circle cx={(150 + Math.cos(a + Math.PI / 8) * 8.2).toFixed(2)} cy={(16 + Math.sin(a + Math.PI / 8) * 8.2).toFixed(2)} r="0.6" fill={GOLD} stroke="none" />
+            </g>
+          );
+        })}
+        <circle cx="150" cy="16" r="2.3" fill={VERMILION_LINE} stroke="none" />
+        {/* the stem, flowing down to the next section */}
+        <path d="M150 25.6c.9 6.4-.8 12.6.1 18.4.3 2.2.1 4.1-.1 6" />
+      </g>
+      {/* a faint pencil shadow beside the main strokes */}
+      <path d="M140 18.2C122 17.4 104 19 84.6 17.8M160 18.2c18-.8 36 .8 55.4-.4" fill="none" stroke="#7A5A3C" strokeOpacity="0.22" strokeWidth="0.7" strokeLinecap="round" />
+    </svg>
   );
 }
 

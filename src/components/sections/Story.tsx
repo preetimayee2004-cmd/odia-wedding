@@ -53,8 +53,10 @@ export function Story() {
       <img src={`${ART}/top.webp`} alt="" aria-hidden decoding="async" loading="lazy" className="pointer-events-none absolute inset-x-0 top-0 w-full" style={{ aspectRatio: `${PAPER_W} / ${PIECE_H}` }} />
       <img src={`${ART}/bottom.webp`} alt="" aria-hidden decoding="async" loading="lazy" className="pointer-events-none absolute inset-x-0 bottom-0 w-full" style={{ aspectRatio: `${PAPER_W} / ${PIECE_H}` }} />
 
+      <ArrivingThread />
+
       {/* Below the temple's ground line, clear of the corner flourish */}
-      <div ref={headerRef} className="relative text-center" style={{ paddingTop: cq(345) }}>
+      <div ref={headerRef} className="relative text-center" style={{ paddingTop: cq(318) }}>
         <p className="font-hand text-[22px] font-medium leading-none md:text-[26px]" style={{ ...fade(0), color: LABEL }}>
           {eyebrow}
         </p>
@@ -272,6 +274,33 @@ function handDrawn(pts: Array<[number, number]>): string {
     }
   }
   return d;
+}
+
+/**
+ * The thread from the countdown's wheel divider, continuing down the middle
+ * of the page (clear of the temple sketch) to a small vermilion lotus bud just
+ * above "Two Hearts, One Journey".
+ */
+function ArrivingThread() {
+  return (
+    <div aria-hidden className="pointer-events-none absolute left-1/2 top-0 flex -translate-x-1/2 flex-col items-center" style={{ height: `calc(${cq(318)} - 14px)` }}>
+      <svg viewBox="0 0 12 100" preserveAspectRatio="none" className="w-3 flex-1">
+        <path d="M6 0c.8 18-.9 34 .2 52 .7 14-.5 30-.2 48" fill="none" stroke="#A6782C" strokeWidth="1.15" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+      </svg>
+      <svg viewBox="0 0 30 34" className="-mt-px h-[34px] w-[30px]">
+        <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+          {/* two small leaves on the stem */}
+          <path d="M15 4c-3.6-3.4-8.4-3.4-11.2-.6 3.4 2.8 8 2.8 11.2.6Z" stroke={LINE} fill={`${LINE}26`} strokeWidth="0.9" />
+          <path d="M15 8.4c3.6-3.4 8.4-3.4 11.2-.6-3.4 2.8-8 2.8-11.2.6Z" stroke={LINE} fill={`${LINE}26`} strokeWidth="0.9" />
+          <path d="M15 0v12" stroke="#A6782C" strokeWidth="1.15" />
+          {/* the lotus bud */}
+          <path d="M15 12.6c3.6 3 4.4 9.6 0 15.6-4.4-6-3.6-12.6 0-15.6Z" stroke={LINE} fill={`${LINE}33`} strokeWidth="1.1" />
+          <path d="M15 28c-3-.6-6.4-3.6-7-8.4 3.4.4 6 3.2 7 8.4Zm0 0c3-.6 6.4-3.6 7-8.4-3.4.4-6 3.2-7 8.4Z" stroke={LINE} strokeWidth="1" />
+          <circle cx="15" cy="31.6" r="1" fill="#A6782C" stroke="none" />
+        </g>
+      </svg>
+    </div>
+  );
 }
 
 /** A small hand-drawn heart, beside the heading. */
