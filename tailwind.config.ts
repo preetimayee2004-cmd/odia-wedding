@@ -53,6 +53,9 @@ export default {
         sans: ["Poppins", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
         // Invitation card: sturdy, readable serif.
         serif: ['"EB Garamond"', '"Cormorant Garamond"', "Georgia", "serif"],
+        // Our Story: handwritten chapter labels, and its paragraphs.
+        hand: ['"Caveat"', "cursive"],
+        lora: ['"Lora"', "Georgia", "serif"],
         // Odia phrases and Odia event names.
         odia: ['"Noto Serif Oriya"', '"Noto Sans Oriya"', "serif"],
       },

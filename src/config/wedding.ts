@@ -134,22 +134,14 @@ export interface WeddingConfig {
     completedMessage: string;
   };
   story: {
+    /** Handwritten line above the heading. */
+    eyebrow: string;
     heading: string;
-    /** Odia subtitle — confirm spelling with the family. */
-    odiaHeading: string | null;
     /**
-     * The three chapters of the Heritage Timeline, each with its Pattachitra
-     * icon. The words must be the couple's own — never invented. A chapter
-     * appears once its `text` is filled in; with none, the section is hidden.
+     * The four chapters, joined by a hand-drawn line down to the couple.
+     * Edit the words freely — they should be the couple's own.
      */
-    milestones: Array<{
-      icon: "peacocks" | "koka" | "panagua";
-      title: string;
-      /** Free text, e.g. "Spring 2019". */
-      date: string | null;
-      text: string | null;
-      image: { src: string; alt: string } | null;
-    }>;
+    chapters: Array<{ label: string; title: string; text: string }>;
   };
   family: {
     heading: string;
@@ -342,12 +334,14 @@ export const wedding: WeddingConfig = {
     completedMessage: "We were married on {date}. Thank you for your love and blessings.",
   },
   story: {
+    eyebrow: "Two Hearts, One Journey",
     heading: "Our Story",
-    odiaHeading: "ଆମ କାହାଣୀ",
-    milestones: [
-      { icon: "peacocks", title: "First Chapter", date: null, text: null, image: null },
-      { icon: "koka", title: "The Promise", date: null, text: null, image: null },
-      { icon: "panagua", title: "Nirbandha (Engagement)", date: null, text: null, image: null },
+    // SAMPLE wording — replace with the couple's own words.
+    chapters: [
+      { label: "Chapter 01", title: "The Beginning", text: "Two paths crossed, and a simple hello quietly became the start of everything." },
+      { label: "Chapter 02", title: "Growing Together", text: "Through long talks, shared laughter and little adventures, friendship grew into love." },
+      { label: "Chapter 03", title: "Two Families, One Bond", text: "With the blessings of our elders, two families came together as one." },
+      { label: "Chapter 04", title: "Our Forever", text: "Under the grace of Mahaprabhu, we begin our forever — and we would love you beside us." },
     ],
   },
   family: {

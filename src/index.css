@@ -108,40 +108,6 @@
   }
 }
 
-/* Tarakasi (Cuttack silver filigree) vine for the Heritage Timeline: a
-   twisted silver wire with curls on alternate sides, and a slow shimmer of
-   light travelling down it. */
-.tarakasi-vine {
-  background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2728%27%20height%3D%2756%27%20viewBox%3D%270%200%2028%2056%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27s%27%20x1%3D%270%27%20x2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%2356616C%27%2F%3E%3Cstop%20offset%3D%27.5%27%20stop-color%3D%27%23E9EEF2%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23606B76%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%234A545E%27%20stroke-linecap%3D%27round%27%20stroke-width%3D%273.4%27%20opacity%3D%27.55%27%3E%3Cpath%20d%3D%27M14%200c4%207%204%2021%200%2028s-4%2021%200%2028%27%2F%3E%3Cpath%20d%3D%27M14%200c-4%207-4%2021%200%2028s4%2021%200%2028%27%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27url(%23s)%27%20stroke-linecap%3D%27round%27%3E%3Cpath%20d%3D%27M14%200c4%207%204%2021%200%2028s-4%2021%200%2028%27%20stroke-width%3D%272.2%27%2F%3E%3Cpath%20d%3D%27M14%200c-4%207-4%2021%200%2028s4%2021%200%2028%27%20stroke-width%3D%272.2%27%2F%3E%3Cpath%20d%3D%27M16.4%2014c4-3.4%209.6-1.8%209.6%202.8%200%203-3%204.4-5%202.8-1.5-1.2-.8-3.3.9-3%27%20stroke-width%3D%271.6%27%2F%3E%3Cpath%20d%3D%27M11.6%2042c-4-3.4-9.6-1.8-9.6%202.8%200%203%203%204.4%205%202.8%201.5-1.2.8-3.3-.9-3%27%20stroke-width%3D%271.6%27%2F%3E%3Cpath%20d%3D%27M17%209.5c2.6-2%205.2-2.2%207.2-1.2%27%20stroke-width%3D%271.1%27%2F%3E%3Cpath%20d%3D%27M11%2037.5c-2.6-2-5.2-2.2-7.2-1.2%27%20stroke-width%3D%271.1%27%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%27%23E2E7EC%27%20stroke%3D%27%234A545E%27%20stroke-width%3D%27.7%27%3E%3Ccircle%20cx%3D%2714%27%20cy%3D%2728%27%20r%3D%272.3%27%2F%3E%3Ccircle%20cx%3D%2714%27%20cy%3D%270%27%20r%3D%272.3%27%2F%3E%3Ccircle%20cx%3D%2714%27%20cy%3D%2756%27%20r%3D%272.3%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") center top / 28px 56px repeat-y;
-  filter: drop-shadow(0 1px 1px rgb(60 70 80 / 0.25));
-}
-.tarakasi-shimmer {
-  background: linear-gradient(180deg, transparent 0 40%, rgb(255 255 255 / 0.85) 50%, transparent 60% 100%) 0 0 / 100% 340px repeat-y;
-  mix-blend-mode: soft-light;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2728%27%20height%3D%2756%27%20viewBox%3D%270%200%2028%2056%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27s%27%20x1%3D%270%27%20x2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%2356616C%27%2F%3E%3Cstop%20offset%3D%27.5%27%20stop-color%3D%27%23E9EEF2%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23606B76%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%234A545E%27%20stroke-linecap%3D%27round%27%20stroke-width%3D%273.4%27%20opacity%3D%27.55%27%3E%3Cpath%20d%3D%27M14%200c4%207%204%2021%200%2028s-4%2021%200%2028%27%2F%3E%3Cpath%20d%3D%27M14%200c-4%207-4%2021%200%2028s4%2021%200%2028%27%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27url(%23s)%27%20stroke-linecap%3D%27round%27%3E%3Cpath%20d%3D%27M14%200c4%207%204%2021%200%2028s-4%2021%200%2028%27%20stroke-width%3D%272.2%27%2F%3E%3Cpath%20d%3D%27M14%200c-4%207-4%2021%200%2028s4%2021%200%2028%27%20stroke-width%3D%272.2%27%2F%3E%3Cpath%20d%3D%27M16.4%2014c4-3.4%209.6-1.8%209.6%202.8%200%203-3%204.4-5%202.8-1.5-1.2-.8-3.3.9-3%27%20stroke-width%3D%271.6%27%2F%3E%3Cpath%20d%3D%27M11.6%2042c-4-3.4-9.6-1.8-9.6%202.8%200%203%203%204.4%205%202.8%201.5-1.2.8-3.3-.9-3%27%20stroke-width%3D%271.6%27%2F%3E%3Cpath%20d%3D%27M17%209.5c2.6-2%205.2-2.2%207.2-1.2%27%20stroke-width%3D%271.1%27%2F%3E%3Cpath%20d%3D%27M11%2037.5c-2.6-2-5.2-2.2-7.2-1.2%27%20stroke-width%3D%271.1%27%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%27%23E2E7EC%27%20stroke%3D%27%234A545E%27%20stroke-width%3D%27.7%27%3E%3Ccircle%20cx%3D%2714%27%20cy%3D%2728%27%20r%3D%272.3%27%2F%3E%3Ccircle%20cx%3D%2714%27%20cy%3D%270%27%20r%3D%272.3%27%2F%3E%3Ccircle%20cx%3D%2714%27%20cy%3D%2756%27%20r%3D%272.3%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") center top / 28px 56px repeat-y;
-  mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2728%27%20height%3D%2756%27%20viewBox%3D%270%200%2028%2056%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27s%27%20x1%3D%270%27%20x2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%2356616C%27%2F%3E%3Cstop%20offset%3D%27.5%27%20stop-color%3D%27%23E9EEF2%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%23606B76%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%234A545E%27%20stroke-linecap%3D%27round%27%20stroke-width%3D%273.4%27%20opacity%3D%27.55%27%3E%3Cpath%20d%3D%27M14%200c4%207%204%2021%200%2028s-4%2021%200%2028%27%2F%3E%3Cpath%20d%3D%27M14%200c-4%207-4%2021%200%2028s4%2021%200%2028%27%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27url(%23s)%27%20stroke-linecap%3D%27round%27%3E%3Cpath%20d%3D%27M14%200c4%207%204%2021%200%2028s-4%2021%200%2028%27%20stroke-width%3D%272.2%27%2F%3E%3Cpath%20d%3D%27M14%200c-4%207-4%2021%200%2028s4%2021%200%2028%27%20stroke-width%3D%272.2%27%2F%3E%3Cpath%20d%3D%27M16.4%2014c4-3.4%209.6-1.8%209.6%202.8%200%203-3%204.4-5%202.8-1.5-1.2-.8-3.3.9-3%27%20stroke-width%3D%271.6%27%2F%3E%3Cpath%20d%3D%27M11.6%2042c-4-3.4-9.6-1.8-9.6%202.8%200%203%203%204.4%205%202.8%201.5-1.2.8-3.3-.9-3%27%20stroke-width%3D%271.6%27%2F%3E%3Cpath%20d%3D%27M17%209.5c2.6-2%205.2-2.2%207.2-1.2%27%20stroke-width%3D%271.1%27%2F%3E%3Cpath%20d%3D%27M11%2037.5c-2.6-2-5.2-2.2-7.2-1.2%27%20stroke-width%3D%271.1%27%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%27%23E2E7EC%27%20stroke%3D%27%234A545E%27%20stroke-width%3D%27.7%27%3E%3Ccircle%20cx%3D%2714%27%20cy%3D%2728%27%20r%3D%272.3%27%2F%3E%3Ccircle%20cx%3D%2714%27%20cy%3D%270%27%20r%3D%272.3%27%2F%3E%3Ccircle%20cx%3D%2714%27%20cy%3D%2756%27%20r%3D%272.3%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") center top / 28px 56px repeat-y;
-  animation: tarakasi-shimmer 3.6s linear infinite;
-}
-@keyframes tarakasi-shimmer {
-  to {
-    background-position: 0 340px;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .tarakasi-shimmer {
-    animation: none !important;
-  }
-}
-
-/* Tusser-silk cream, like an unrolled manuscript scroll: fine silk slubs,
-   and the rolled edges shaded at top and bottom. */
-.silk-scroll {
-  background-color: #fdfbf7;
-  background-image:
-    linear-gradient(180deg, rgb(150 120 70 / 0.16), transparent 14px, transparent calc(100% - 14px), rgb(150 120 70 / 0.16)),
-    repeating-linear-gradient(0deg, rgb(160 130 80 / 0.025) 0 1px, transparent 1px 3px, rgb(160 130 80 / 0.02) 3px 4px, transparent 4px 9px);
-}
-
 /* Brass dipa beside a departed elder's name: an uneven, living flicker. */
 .dipa-flame {
   transform-box: fill-box;
