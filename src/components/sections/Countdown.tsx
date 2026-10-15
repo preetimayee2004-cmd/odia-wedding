@@ -1,30 +1,35 @@
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
 import { wedding } from "@/config/wedding";
 import { useInView } from "@/hooks/useInView";
 import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { showPlaceholders } from "@/lib/placeholders";
 import { EASE } from "@/lib/motion";
-import {
-  dateKey,
-  formatVenueDate,
-  parseVenueDateTime,
-  venueDateKey,
-  venueInstant,
-  zoneLabel,
-  type VenueDateTime,
-} from "@/lib/venueTime";
-import { KonarkWheel } from "@/components/art/KonarkWheel";
+import { dateKey, formatVenueDate, parseVenueDateTime, venueDateKey, venueInstant, zoneLabel, type VenueDateTime } from "@/lib/venueTime";
 import { Pending } from "@/components/ui/Pending";
 
 const DAY = 86_400_000;
-const CREAM = "#F8F2E5"; // the invitation card paper
-const GOLD = "#C9A227"; // mustard gold, a touch deeper to hold on cream
-const LINE = "#A67C1F"; // the wheel carving
-const WHEEL_FILL = "#F1E3C2";
-const MAROON = "#7A1424";
-const TEXT = "#2E1A10";
-const TEXT_SOFT = "#6B5236";
-const HUB = 94; // hub radius in the wheel's 300-unit box: room for four clocks
+// The aged paper of the artwork, so the cut-outs melt into the page.
+const PAPER = "#EBD5B4";
+const RED = "#9B2226";
+const BROWN = "#6E4A2A";
+const RULE = "#A0764A";
+
+/**
+ * Artwork cut from the couple's reference design: the carved Konark wheel
+ * (with its four clock faces left blank for the live numbers), the Sun
+ * Temple chariot among banana leaves, and banana leaves with a temple bell.
+ */
+const WHEEL = "/art/konark-wheel.webp";
+const TEMPLE = { src: "/art/konark-temple.webp", aspect: 494 / 651 };
+const BANANA = { src: "/art/banana-bell.webp", aspect: 282 / 330 };
+// Centres of the wheel's four blank clock faces (fractions of the wheel), and their radius.
+const FACES = [
+  { x: 0.3125, y: 0.3362 },
+  { x: 0.6875, y: 0.3362 },
+  { x: 0.3125, y: 0.664 },
+  { x: 0.6875, y: 0.664 },
+];
+const FACE_R = 0.109;
 
 /** Whether the element is currently on screen (unlike useInView, not one-shot). */
 function useOnScreen(ref: RefObject<Element>): boolean {
@@ -59,8 +64,9 @@ function useNow(active: boolean): number {
 }
 
 /**
- * The wheel turns into alignment as the section scrolls into view
- * (scroll-linked, never spinning on its own).
+ * The wheel turns a quarter-turn into alignment as the section scrolls into
+ * view (scroll-linked, never spinning on its own). Its four clock faces map
+ * onto each other, so the numbers ride with it and end upright.
  */
 function useAlignOnScroll(sectionRef: RefObject<HTMLElement>, wheelRef: RefObject<HTMLElement>) {
   const reducedMotion = usePrefersReducedMotion();
@@ -75,11 +81,11 @@ function useAlignOnScroll(sectionRef: RefObject<HTMLElement>, wheelRef: RefObjec
     let frame = 0;
     const update = () => {
       frame = 0;
-      const r = section.getBoundingClientRect();
+      const r = (wheel.parentElement ?? wheel).getBoundingClientRect(); // unrotated box
       const vh = window.innerHeight;
-      // 0 when the section's top meets the bottom of the screen, 1 when its centre is mid-screen
+      // 0 when the wheel's top meets the bottom of the screen, 1 when its centre is mid-screen
       const p = Math.min(1, Math.max(0, (vh - r.top) / (vh / 2 + r.height / 2)));
-      wheel.style.transform = `rotate(${(-67.5 * (1 - p)).toFixed(2)}deg)`;
+      wheel.style.transform = `rotate(${(-90 * (1 - p)).toFixed(2)}deg)`;
     };
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update);
@@ -97,9 +103,12 @@ function useAlignOnScroll(sectionRef: RefObject<HTMLElement>, wheelRef: RefObjec
 
 /**
  * Section 04 — The Cosmic Wheel.
- * On cream paper, a golden Konark Sun Temple wheel turns into
- * alignment; in its hub, four round clocks count the days, hours, minutes
- * and seconds to the Lagna. Hidden in production until the date is configured.
+ * On aged paper, banana leaves and temple bells hang at the top corners;
+ * "Shubha Bibaha · The countdown to our Forever Begins"; then the carved
+ * Konark wheel turns into alignment, its four clock faces counting the days,
+ * hours, minutes and seconds to the Lagna; the date beneath; and the Sun
+ * Temple chariot among banana leaves at the foot.
+ * Hidden in production until the date is configured (unless placeholders are on).
  */
 export function Countdown() {
   const parts = parseVenueDateTime(wedding.wedding.dateTime);
@@ -112,11 +121,11 @@ type Phase = "pending" | "counting" | "today" | "after";
 function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
   const ref = useRef<HTMLElement>(null);
   const wheelRef = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { threshold: 0.3 });
+  const inView = useInView(ref, { threshold: 0.2 });
   const now = useNow(useOnScreen(ref));
   useAlignOnScroll(ref, wheelRef);
   const tz = wedding.wedding.timeZone;
-  const { heading, line, weddingDayMessage, completedMessage } = wedding.countdown;
+  const { eyebrow, odia, lead, heading, caption, weddingDayMessage, completedMessage } = wedding.countdown;
 
   const target = parts ? venueInstant(parts, tz) : null;
   const phase: Phase =
@@ -129,26 +138,24 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
           : "after";
 
   const remaining = phase === "counting" ? target! - now : 0;
-  const days = Math.floor(remaining / DAY);
-  const hours = Math.floor((remaining % DAY) / 3_600_000);
-  const minutes = Math.floor((remaining % 3_600_000) / 60_000);
-  const seconds = Math.floor((remaining % 60_000) / 1000);
   const pending = phase === "pending";
   const clocks = [
-    { label: "Days", value: days, of: Math.max(365, days) },
-    { label: "Hours", value: hours, of: 24 },
-    { label: "Mins", value: minutes, of: 60 },
-    { label: "Secs", value: seconds, of: 60 },
+    { label: "Days", value: Math.floor(remaining / DAY) },
+    { label: "Hours", value: Math.floor((remaining % DAY) / 3_600_000) },
+    { label: "Mins", value: Math.floor((remaining % 3_600_000) / 60_000) },
+    { label: "Secs", value: Math.floor((remaining % 60_000) / 1000) },
   ];
 
   const date = parts && formatVenueDate(parts);
   const dateText = date && `${date.day} ${date.month} ${date.year}`;
   const message =
     phase === "today" ? weddingDayMessage : phase === "after" ? completedMessage.replace("{date}", dateText ?? "") : null;
+  const two = (n: number) => String(n).padStart(2, "0");
 
-  const fadeIn = (delay: number) => ({
+  const fadeIn = (delay: number): CSSProperties => ({
     opacity: inView ? 1 : 0,
-    transition: `opacity 900ms ${EASE.silk} ${delay}ms`,
+    transform: inView ? "none" : "translateY(10px)",
+    transition: `opacity 900ms ${EASE.silk} ${delay}ms, transform 1000ms ${EASE.silk} ${delay}ms`,
   });
 
   return (
@@ -156,117 +163,184 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
       ref={ref}
       id="countdown"
       aria-labelledby="countdown-heading"
-      className="relative overflow-hidden px-[var(--gutter)] py-[var(--section-y)] text-center"
-      style={{ backgroundColor: CREAM }}
+      className="relative overflow-hidden text-center"
+      style={{ backgroundColor: PAPER, color: BROWN }}
     >
-      {/* A soft lamp-glow behind the wheel */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{ background: "radial-gradient(60% 42% at 50% 56%, rgb(212 175 55 / 0.22), transparent 70%)" }}
-      />
-      <h2 id="countdown-heading" className="relative text-[2rem]" style={{ ...fadeIn(0), color: MAROON }}>
-        {heading}
-      </h2>
-      <p className="relative mt-2 font-display text-[1.15rem] font-semibold italic" style={{ ...fadeIn(150), color: "#8F6420" }}>
-        {phase === "today" ? "The auspicious Lagna is here." : phase === "after" ? "Blessed under the Lagna." : line}
-      </p>
+      {/* Soft age at the edges of the paper */}
+      <div aria-hidden className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(120% 90% at 50% 45%, transparent 60%, rgb(140 95 45 / 0.16))" }} />
 
-      <div className="relative mx-auto mt-9 aspect-square w-[min(90vw,21.5rem)]" style={fadeIn(250)}>
-        {/* Lagna marker: the point time is turning toward */}
-        <svg viewBox="0 0 16 12" aria-hidden className="absolute -top-4 left-1/2 h-3 w-4 -translate-x-1/2">
-          <path d="M1 1h14L8 11Z" fill={GOLD} />
-        </svg>
+      {/* Banana leaves and temple bells at the top corners */}
+      {[false, true].map((mirror) => (
+        <img
+          key={String(mirror)}
+          src={BANANA.src}
+          alt=""
+          aria-hidden
+          decoding="async"
+          loading="lazy"
+          className="pointer-events-none absolute top-0 w-[31%] max-w-[9rem]"
+          style={{
+            [mirror ? "left" : "right"]: 0,
+            aspectRatio: `${BANANA.aspect}`,
+            transform: mirror ? "scaleX(-1)" : undefined,
+            WebkitMaskImage: "linear-gradient(to left, #000 62%, transparent), linear-gradient(to top, transparent, #000 22%)",
+            WebkitMaskComposite: "source-in",
+            maskImage: "linear-gradient(to left, #000 62%, transparent), linear-gradient(to top, transparent, #000 22%)",
+            maskComposite: "intersect",
+          }}
+        />
+      ))}
 
-        <div ref={wheelRef} className="absolute inset-0 will-change-transform">
-          <KonarkWheel className="h-full w-full" line={LINE} fill={WHEEL_FILL} hub={HUB} />
+      <div className="relative px-[var(--gutter)] pt-[calc(3.25rem_+_var(--status-bar,0px))]">
+        <p className="flex items-center justify-center gap-2 text-[0.6875rem] font-medium uppercase tracking-[0.3em]" style={{ ...fadeIn(0), color: BROWN }}>
+          <Sparkle /> {eyebrow} <Sparkle />
+        </p>
+        {odia && (
+          <p lang="or" className="odia mt-2 text-[1.9rem] font-medium leading-tight" style={{ ...fadeIn(100), color: RED }}>
+            {odia}
+          </p>
+        )}
+        <p className="mt-3 font-display text-[0.8rem] font-semibold uppercase tracking-[0.28em]" style={{ ...fadeIn(200), color: BROWN }}>
+          {lead}
+        </p>
+        <h2 id="countdown-heading" className="mt-1 font-display text-[2.7rem] font-semibold italic leading-none" style={{ ...fadeIn(260), color: RED }}>
+          {heading}
+        </h2>
+        <LotusRule className="mt-4" style={fadeIn(320)} />
+
+        {/* The wheel, flanked by lotuses on faint arcs */}
+        <div className="relative mx-auto mt-6 w-[min(80vw,21rem)]" style={fadeIn(380)}>
+          <svg aria-hidden viewBox="0 0 100 100" preserveAspectRatio="none" className="pointer-events-none absolute -left-[11%] top-0 h-full w-[122%]" fill="none">
+            <path d="M14 22a42 42 0 0 0 0 56M86 22a42 42 0 0 1 0 56" stroke={RULE} strokeWidth="0.25" opacity="0.8" vectorEffect="non-scaling-stroke" />
+          </svg>
+          <Lotus className="absolute -left-[13%] top-1/2 h-6 w-7 -translate-y-1/2" />
+          <Lotus className="absolute -right-[13%] top-1/2 h-6 w-7 -translate-y-1/2" />
+
+          <div
+            ref={wheelRef}
+            role="timer"
+            aria-live="off"
+            aria-label={
+              pending
+                ? "Countdown begins once the date is confirmed"
+                : message ?? `${clocks[0].value} days, ${clocks[1].value} hours, ${clocks[2].value} minutes to go`
+            }
+            className="relative aspect-square w-full will-change-transform [container-type:inline-size]"
+          >
+            <img src={WHEEL} alt="" aria-hidden decoding="async" loading="lazy" className="absolute inset-0 h-full w-full drop-shadow-[0_10px_18px_rgb(90_55_20/0.28)]" />
+            {!message &&
+              clocks.map((c, i) => (
+                <div
+                  key={c.label}
+                  aria-hidden
+                  className="absolute flex flex-col items-center justify-center leading-none"
+                  style={{
+                    left: `${(FACES[i].x - FACE_R) * 100}%`,
+                    top: `${(FACES[i].y - FACE_R) * 100}%`,
+                    width: `${FACE_R * 200}%`,
+                    height: `${FACE_R * 200}%`,
+                  }}
+                >
+                  <span className="font-display font-medium [font-variant-numeric:lining-nums_tabular-nums]" style={{ color: RED, fontSize: "8.4cqw" }}>
+                    {pending ? "--" : i === 0 ? c.value : two(c.value)}
+                  </span>
+                  <span className="mt-[0.6cqw] font-display font-semibold uppercase tracking-[0.16em]" style={{ color: RED, fontSize: "2.7cqw" }}>
+                    {c.label}
+                  </span>
+                </div>
+              ))}
+          </div>
         </div>
 
-        {/* The hub, where the spokes meet: four round clocks */}
-        <div
-          role="timer"
-          aria-live="off"
-          aria-label={pending ? "Countdown begins once the date is confirmed" : `${days} days, ${hours} hours, ${minutes} minutes to go`}
-          className="absolute flex items-center justify-center"
-          style={{ inset: `${(((150 - HUB + 7) / 300) * 100).toFixed(2)}%`, color: TEXT }}
-        >
-          {message ? (
-            <SunMark />
+        {message && (
+          <p className="mx-auto mt-6 max-w-[18rem] font-display text-[1.2rem] italic leading-snug" style={{ ...fadeIn(400), color: RED }}>
+            {message}
+          </p>
+        )}
+
+        <LotusRule className="mt-7" style={fadeIn(450)} />
+        <div className="mt-3" style={fadeIn(500)}>
+          {date ? (
+            <p className="font-display text-[1.6rem] font-medium tracking-[0.22em]" style={{ color: BROWN }}>
+              {two(parts!.day)} · {two(parts!.month)} · {parts!.year}
+              {date.time && (
+                <span className="mt-1 block font-sans text-[0.6875rem] font-medium tracking-[0.18em]">
+                  {date.time} {zoneLabel(target!, tz)}
+                </span>
+              )}
+            </p>
           ) : (
-            <div aria-hidden className="grid h-[82%] w-[82%] grid-cols-2 gap-[5%]">
-              {clocks.map((c) => (
-                <Clock key={c.label} label={c.label} value={pending ? null : c.value} of={c.of} />
-              ))}
+            <div className="flex justify-center">
+              <Pending label="Wedding date awaiting confirmation">
+                <p className="font-display text-[1.6rem] tracking-[0.22em]">DD · MM · YYYY</p>
+              </Pending>
             </div>
           )}
         </div>
       </div>
 
-      {message && (
-        <p className="mx-auto mt-8 max-w-[18rem] font-display text-[1.2rem] italic leading-snug" style={{ ...fadeIn(400), color: TEXT }}>
-          {message}
-        </p>
-      )}
-
-      <div className="relative mt-8 text-xs tracking-wide" style={{ ...fadeIn(500), color: TEXT_SOFT }}>
-        {phase === "pending" ? (
-          <Pending label="Wedding date awaiting confirmation">Countdown begins once the date is confirmed</Pending>
-        ) : (
-          <p>
-            {dateText}
-            {date?.time && ` · ${date.time} ${zoneLabel(target!, tz)}`}
+      {/* The Sun Temple chariot among banana leaves, and a note beside it */}
+      <div className="relative mt-2 h-[min(78vw,21rem)]">
+        <img
+          src={TEMPLE.src}
+          alt="The Konark Sun Temple, the stone chariot of the Sun God, among banana leaves"
+          decoding="async"
+          loading="lazy"
+          className="absolute bottom-0 left-0 h-full w-auto max-w-none"
+          style={{
+            aspectRatio: `${TEMPLE.aspect}`,
+            WebkitMaskImage: "linear-gradient(to right, #000 72%, transparent), linear-gradient(to bottom, transparent, #000 24%)",
+            WebkitMaskComposite: "source-in",
+            maskImage: "linear-gradient(to right, #000 72%, transparent), linear-gradient(to bottom, transparent, #000 24%)",
+            maskComposite: "intersect",
+            ...fadeIn(300),
+          }}
+        />
+        <div className="absolute right-[var(--gutter)] top-[22%] w-[42%] text-center" style={fadeIn(600)}>
+          <p className="font-display text-[0.95rem] italic leading-snug" style={{ color: BROWN }}>
+            {caption}
           </p>
-        )}
+          <span aria-hidden className="mx-auto mt-2 flex w-16 items-center gap-1">
+            <span className="h-px flex-1" style={{ backgroundColor: RULE }} />
+            <span className="h-1 w-1 rotate-45" style={{ backgroundColor: RULE }} />
+            <span className="h-px flex-1" style={{ backgroundColor: RULE }} />
+          </span>
+        </div>
       </div>
     </section>
   );
 }
 
-/**
- * One round clock: the number, its unit, and a mustard-gold arc showing how
- * much of the unit remains.
- */
-function Clock({ label, value, of }: { label: string; value: number | null; of: number }) {
-  const R = 44;
-  const LEN = 2 * Math.PI * R;
-  const frac = value === null ? 0 : Math.min(1, value / of);
+/** A four-point star between the words of the eyebrow. */
+function Sparkle() {
   return (
-    <div className="relative flex items-center justify-center">
-      <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full -rotate-90">
-        <circle cx="50" cy="50" r="49" fill="#FFFBF2" stroke={LINE} strokeOpacity="0.7" strokeWidth="1" />
-        <circle cx="50" cy="50" r={R} fill="none" stroke={GOLD} strokeOpacity="0.22" strokeWidth="4" />
-        <circle
-          cx="50"
-          cy="50"
-          r={R}
-          fill="none"
-          stroke={GOLD}
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeDasharray={`${(LEN * frac).toFixed(1)} ${LEN.toFixed(1)}`}
-          style={{ transition: "stroke-dasharray 600ms ease-out" }}
-        />
-      </svg>
-      <div className="relative flex flex-col items-center leading-none">
-        <span className="font-display text-[1.45rem] font-semibold [font-variant-numeric:lining-nums_tabular-nums]" style={{ color: MAROON }}>
-          {value === null ? "--" : String(value).padStart(2, "0")}
-        </span>
-        <span className="mt-0.5 text-[0.45rem] font-medium uppercase tracking-[0.18em]" style={{ color: TEXT_SOFT }}>
-          {label}
-        </span>
-      </div>
-    </div>
+    <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden fill={RULE}>
+      <path d="M5 0 6 4 10 5 6 6 5 10 4 6 0 5 4 4Z" />
+    </svg>
   );
 }
 
-/** A small radiant sun for the hub once the Lagna has arrived. */
-function SunMark() {
+/** A small red lotus, outlined. */
+function Lotus({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 40 40" className="h-12 w-12" aria-hidden>
-      <circle cx="20" cy="20" r="7" fill={GOLD} />
-      {Array.from({ length: 12 }, (_, i) => (
-        <path key={i} d="M20 4v6" stroke={GOLD} strokeWidth="1.6" strokeLinecap="round" transform={`rotate(${i * 30} 20 20)`} />
-      ))}
+    <svg viewBox="0 0 28 22" className={className} aria-hidden fill="none" stroke="#B4553A" strokeWidth="1.1" strokeLinejoin="round">
+      <path d="M14 3c3 3.5 3 9 0 13-3-4-3-9.5 0-13Z" fill="#E9B79A" fillOpacity="0.5" />
+      <path d="M14 16c-3.5-1-7-4-7.5-9 4 .5 6.5 3.5 7.5 9Zm0 0c3.5-1 7-4 7.5-9-4 .5-6.5 3.5-7.5 9Z" />
+      <path d="M14 16c-5 .5-10-1.5-12-5 4.5-.8 9 1 12 5Zm0 0c5 .5 10-1.5 12-5-4.5-.8-9 1-12 5Z" />
+      <path d="M8 19.5h12" strokeLinecap="round" />
     </svg>
+  );
+}
+
+/** Rule — dots — red lotus — dots — rule. */
+function LotusRule({ className = "", style }: { className?: string; style?: CSSProperties }) {
+  return (
+    <div aria-hidden className={`mx-auto flex w-60 items-center gap-1.5 ${className}`} style={style}>
+      <span className="h-px flex-1" style={{ background: `linear-gradient(to left, ${RULE}, transparent)` }} />
+      <span className="h-1 w-1 rounded-full" style={{ backgroundColor: RULE }} />
+      <Lotus className="h-5 w-6" />
+      <span className="h-1 w-1 rounded-full" style={{ backgroundColor: RULE }} />
+      <span className="h-px flex-1" style={{ background: `linear-gradient(to right, ${RULE}, transparent)` }} />
+    </div>
   );
 }

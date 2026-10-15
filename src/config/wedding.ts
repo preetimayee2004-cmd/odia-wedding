@@ -128,9 +128,15 @@ export interface WeddingConfig {
     place: string | null;
   };
   countdown: {
+    /** Small line at the top, between ornaments. */
+    eyebrow: string;
+    /** Odia title — confirm spelling with the family. */
+    odia: string | null;
+    /** Spaced capitals above the heading. */
+    lead: string;
     heading: string;
-    /** Line beneath the heading. */
-    line: string;
+    /** Short italic note beside the temple at the foot of the section. */
+    caption: string;
     /** Shown from the start time until the end of the wedding day (venue time). */
     weddingDayMessage: string;
     /** Shown after the wedding day. {date} → the wedding date. */
@@ -354,8 +360,11 @@ export const wedding: WeddingConfig = {
     place: "Jagannath Kalyan Mandap, Bhubaneswar, Odisha",
   },
   countdown: {
-    heading: "Counting the Moments",
-    line: "Counting down to the auspicious Lagna...",
+    eyebrow: "Our Wedding",
+    odia: "ଶୁଭ ବିବାହ",
+    lead: "The countdown to our",
+    heading: "Forever Begins",
+    caption: "Inspired by the timeless wheel of Konark, where art, architecture and the passage of time meet.",
     weddingDayMessage: "Today is the day — thank you for celebrating with us.",
     completedMessage: "We were married on {date}. Thank you for your love and blessings.",
   },
