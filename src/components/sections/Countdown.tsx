@@ -14,6 +14,7 @@ const RED = "#8E1B1F";
 const MAROON = "#7A1424";
 const GOLD = "#A6782C";
 const SOFT = "#A88A5E";
+const BORDER_RED = "#8D0B0B"; // the couple card border's red
 const INK = "#2B1A14";
 const FRAME = "/art/countdown-frame.svg"; // nine-slice: slice 40 of a 120 box
 
@@ -119,10 +120,10 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
 
   const remaining = phase === "counting" ? target! - now : 0;
   const clocks = [
-    { label: "Days", value: Math.floor(remaining / DAY) },
-    { label: "Hours", value: Math.floor((remaining % DAY) / 3_600_000) },
-    { label: "Mins", value: Math.floor((remaining % 3_600_000) / 60_000) },
-    { label: "Secs", value: Math.floor((remaining % 60_000) / 1000) },
+    { label: "Days", odia: "ଦିନ", value: Math.floor(remaining / DAY) },
+    { label: "Hours", odia: "ଘଣ୍ଟା", value: Math.floor((remaining % DAY) / 3_600_000) },
+    { label: "Mins", odia: "ମିନିଟ୍", value: Math.floor((remaining % 3_600_000) / 60_000) },
+    { label: "Secs", odia: "ସେକେଣ୍ଡ", value: Math.floor((remaining % 60_000) / 1000) },
   ];
   const two = (v: number) => String(v).padStart(2, "0");
   const date = parts && formatVenueDate(parts);
@@ -178,24 +179,44 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
                 ? "Countdown begins once the date is confirmed"
                 : message ?? `${clocks[0].value} days, ${clocks[1].value} hours, ${clocks[2].value} minutes to go`
             }
-            className="absolute grid grid-cols-2 place-content-center gap-x-[14%] gap-y-[6%] [container-type:inline-size]"
+            className="absolute [container-type:inline-size]"
             style={{ inset: `${((0.5 - IKAT_DISC) * 100).toFixed(2)}%` }}
           >
             {message ? (
-              <p className="col-span-2 px-[8%] font-serif text-[9cqw] font-semibold italic leading-snug" style={{ color: MAROON }}>
+              <p className="absolute inset-0 flex items-center justify-center px-[12%] font-serif text-[9cqw] font-semibold italic leading-snug" style={{ color: MAROON }}>
                 {message}
               </p>
             ) : (
-              clocks.map((c, i) => (
-                <div key={c.label} aria-hidden className="flex flex-col items-center leading-none">
-                  <span className="font-serif text-[17cqw] font-bold [font-variant-numeric:lining-nums_tabular-nums]" style={{ color: MAROON }}>
-                    {phase === "pending" ? "--" : i === 0 ? c.value : two(c.value)}
-                  </span>
-                  <span className="mt-[2cqw] font-serif text-[5.6cqw] font-semibold uppercase tracking-[0.16em]" style={{ color: GOLD }}>
-                    {c.label}
-                  </span>
+              <>
+                {/* A fine cross dividing the disc into four, with a small medallion at its centre */}
+                <span aria-hidden className="absolute left-1/2 top-[7%] bottom-[7%] w-px -translate-x-1/2" style={{ backgroundColor: `${MAROON}40` }} />
+                <span aria-hidden className="absolute left-[7%] right-[7%] top-1/2 h-px -translate-y-1/2" style={{ backgroundColor: `${MAROON}40` }} />
+                <span
+                  aria-hidden
+                  className="absolute left-1/2 top-1/2 flex h-[15%] w-[15%] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full"
+                  style={{ backgroundColor: CARD, boxShadow: `0 0 0 1.5px ${GOLD}, 0 0 0 3.5px ${CARD}, 0 0 0 4.5px ${MAROON}55` }}
+                >
+                  <TempleTop className="h-[55%] w-auto" color={BORDER_RED} />
+                </span>
+                <div aria-hidden className="grid h-full w-full grid-cols-2 grid-rows-2">
+                  {clocks.map((c, i) => (
+                    <div
+                      key={c.label}
+                      className={`flex flex-col items-center leading-none ${i < 2 ? "justify-end pb-[9%]" : "justify-start pt-[9%]"}`}
+                    >
+                      <span className="font-serif text-[15cqw] font-bold [font-variant-numeric:lining-nums_tabular-nums]" style={{ color: MAROON }}>
+                        {phase === "pending" ? "--" : i === 0 ? c.value : two(c.value)}
+                      </span>
+                      <span className="mt-[2cqw] max-w-[96%] text-center font-serif text-[5.4cqw] font-bold uppercase leading-tight tracking-[0.1em]" style={{ color: GOLD }}>
+                        {c.label}
+                        <span lang="or" className="odia block whitespace-nowrap text-[6.4cqw] font-semibold normal-case tracking-normal" style={{ lineHeight: 1.3 }}>
+                          {c.odia}
+                        </span>
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              ))
+              </>
             )}
           </div>
         </div>
@@ -225,18 +246,25 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
   );
 }
 
-/** Rule — dot — small temple-top motif — dot — rule, in antique gold. */
+/** Rule — dot — small temple-top motif — dot — rule, in the couple border's red with gold dots. */
 function Ornament({ className = "", style }: { className?: string; style?: CSSProperties }) {
   return (
     <div aria-hidden className={`mx-auto flex w-[14rem] max-w-full items-center gap-2 ${className}`} style={style}>
-      <span className="h-px flex-1" style={{ background: `linear-gradient(to left, ${GOLD}, transparent)` }} />
+      <span className="h-px flex-1" style={{ background: `linear-gradient(to left, ${BORDER_RED}, transparent)` }} />
       <span className="h-1 w-1 rounded-full" style={{ backgroundColor: GOLD }} />
-      <svg viewBox="0 0 20 14" className="h-3.5 w-5" fill="none" stroke={GOLD} strokeWidth="1.3" strokeLinejoin="round">
-        <path d="M10 1.5 15 7H5Z" fill={`${GOLD}33`} />
-        <path d="M3 11.5h14M6 7v4.5M14 7v4.5M10 7v4.5" strokeLinecap="round" />
-      </svg>
+      <TempleTop className="h-3.5 w-5" color={BORDER_RED} />
       <span className="h-1 w-1 rounded-full" style={{ backgroundColor: GOLD }} />
-      <span className="h-px flex-1" style={{ background: `linear-gradient(to right, ${GOLD}, transparent)` }} />
+      <span className="h-px flex-1" style={{ background: `linear-gradient(to right, ${BORDER_RED}, transparent)` }} />
     </div>
+  );
+}
+
+/** A small temple-top motif: a pointed roof over three pillars. */
+function TempleTop({ className = "", color }: { className?: string; color: string }) {
+  return (
+    <svg viewBox="0 0 20 14" className={className} fill="none" stroke={color} strokeWidth="1.3" strokeLinejoin="round">
+      <path d="M10 1.5 15 7H5Z" fill={`${color}33`} />
+      <path d="M3 11.5h14M6 7v4.5M14 7v4.5M10 7v4.5" strokeLinecap="round" />
+    </svg>
   );
 }

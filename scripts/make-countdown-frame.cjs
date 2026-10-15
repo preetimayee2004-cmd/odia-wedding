@@ -5,16 +5,18 @@ const fs = require("fs");
 const BOX = 120;
 const SLICE = 40;
 const PERIOD = 20;
-const BROWN = "#5E2B10";
-const TERRA = "#C46A45";
-const DOT = "#D08A68";
+// The couple card border's colours: deep red, a rust stripe, pink highlights
+const BROWN = "#8D0B0B";
+const RUST = "#A8440F";
+const TERRA = "#B5561E";
+const DOT = "#E39A92";
 
 const f = (n) => +n.toFixed(2);
 const out = [];
 
 // Frame lines: thick outer rule, cream gap, inner rule
 out.push(`<rect x="3" y="3" width="${BOX - 6}" height="${BOX - 6}" fill="none" stroke="${BROWN}" stroke-width="3.6"/>`);
-out.push(`<rect x="9.5" y="9.5" width="${BOX - 19}" height="${BOX - 19}" fill="none" stroke="${BROWN}" stroke-width="3"/>`);
+out.push(`<rect x="9.5" y="9.5" width="${BOX - 19}" height="${BOX - 19}" fill="none" stroke="${RUST}" stroke-width="3"/>`);
 
 // Top and bottom: hanging curls (like the design's scallops) with a dot between
 const curl = (cx, top, flip) => {
