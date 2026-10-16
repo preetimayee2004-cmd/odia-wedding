@@ -193,18 +193,29 @@ export interface WeddingConfig {
     maxLength: number;
   };
   rsvp: {
-    /** Odia welcome at the top, e.g. "|| ନମସ୍କାର ||". */
-    odiaGreeting: string | null;
+    /** The invitation, top to bottom. "{names}" becomes the couple's names. */
+    invocationOdia: string | null; // small, e.g. "|| ଶ୍ରୀ ଗଣେଶାୟ ନମଃ ||"
+    titleOdia: string | null; // large, framed, e.g. "|| ଶୁଭ ବିବାହ ||"
     eyebrow: string;
-    heading: string;
     explanation: string;
-    /** Above the Accept button. */
-    confirmHeading: string;
-    confirmHint: string;
-    /** Odia line on the Accept button, under "Accept Invitation". */
+    /** Under the offering of gua. */
+    offerHeading: string;
+    offerText: string;
+    acceptLabel: string;
     acceptOdia: string | null;
-    /** Revealed after "Accept Invitation". */
-    quote: string;
+    /** The closing line, in English and Odia. */
+    closing: string;
+    closingOdia: string | null;
+    /** Shown once a response is saved, with the blooming lotus. */
+    confirmed: {
+      label: string;
+      odia: string | null;
+      heading: string;
+      line: string;
+      quote: string;
+      quoteOdia: string | null;
+      signoff: string;
+    };
     /** Largest party one response may include (the guest included). */
     maxAttendees: number;
     /** Venue-local date "YYYY-MM-DD" after which responses close; null = open. */
@@ -512,14 +523,25 @@ export const wedding: WeddingConfig = {
     maxLength: 280,
   },
   rsvp: {
-    odiaGreeting: "|| ନମସ୍କାର ||",
-    eyebrow: "RSVP & Celebrations",
-    heading: "Will You Grace Our Special Day?",
-    explanation: "Under the divine blessings of Lord Jagannath, two hearts unite. Will you join us to witness and bless our sacred union?",
-    confirmHeading: "Confirm Your Presence",
-    confirmHint: "Tap the Accept Invitation button below",
+    invocationOdia: "|| ଶ୍ରୀ ଗଣେଶାୟ ନମଃ ||",
+    titleOdia: "|| ଶୁଭ ବିବାହ ||",
+    eyebrow: "An Auspicious Invitation",
+    explanation: "Under the divine grace of Lord Jagannath, we seek your sacred presence and blessings as {names} unite in matrimony.",
+    offerHeading: "Accept the Sacred Gua & Bless Us",
+    offerText: "In the cherished Odia tradition, accept our humble offering and confirm your gracious presence.",
+    acceptLabel: "Accept Invitation",
     acceptOdia: "ନିମନ୍ତ୍ରଣ ସ୍ୱୀକାର",
-    quote: "Your presence will make our celebration even more special.",
+    closing: "Jai Jagannath",
+    closingOdia: "ଜୟ ଜଗନ୍ନାଥ",
+    confirmed: {
+      label: "RSVP Confirmed",
+      odia: "ଧନ୍ୟବାଦ",
+      heading: "Thank you!",
+      line: "We can't wait to celebrate with you,",
+      quote: "Your presence is the greatest blessing we could ask for on our special day.",
+      quoteOdia: "ଆପଣଙ୍କ ଉପସ୍ଥିତି ଆମ ପାଇଁ ସବୁଠାରୁ ବଡ଼ ଆଶୀର୍ବାଦ",
+      signoff: "With love, {names}",
+    },
     maxAttendees: 4,
     deadline: null,
   },

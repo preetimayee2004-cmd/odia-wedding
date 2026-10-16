@@ -94,6 +94,14 @@
     line-height: 1.15;
   }
 
+  /* form controls take the page's lining figures too */
+  button,
+  input,
+  select,
+  textarea {
+    font-variant-numeric: inherit;
+  }
+
   ::selection {
     @apply bg-sindoor/15 text-ink;
   }
@@ -715,3 +723,60 @@
     animation: none !important;
   }
 }
+
+/* RSVP confirmed (art/RsvpArt.tsx LotusConfirm): the lotus blooms layer by
+   layer, a gold ring draws round it, a red seal pops in its heart and a white
+   tick is drawn, while marigold and rose petals scatter outward. */
+.lc .lc-layer {
+  transform-box: view-box;
+  transform-origin: 100px 100px;
+  transform: scale(0.25) rotate(-30deg);
+  opacity: 0;
+}
+.lc .lc-ring,
+.lc .lc-tick {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+.lc .lc-dot {
+  transform-box: view-box;
+  transform-origin: 100px 100px;
+  transform: scale(0);
+}
+.lc-petal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(13px * var(--s));
+  height: calc(13px * var(--s));
+  margin: calc(-6.5px * var(--s)) 0 0 calc(-6.5px * var(--s));
+  opacity: 0;
+  pointer-events: none;
+}
+.lc.lc-play .lc-layer { animation: lc-bloom 0.9s cubic-bezier(0.2, 0.9, 0.25, 1.15) var(--d) both; }
+.lc.lc-play .lc-ring { animation: lc-draw 0.9s ease-out 0.75s both; }
+.lc.lc-play .lc-dot { animation: lc-pop 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) 1.35s both; }
+.lc.lc-play .lc-tick { animation: lc-draw 0.45s ease-out 1.7s both; }
+.lc.lc-play .lc-petal { animation: lc-burst 1.7s cubic-bezier(0.2, 0.7, 0.3, 1) var(--d) both; }
+@keyframes lc-bloom {
+  from { transform: scale(0.25) rotate(-30deg); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes lc-draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes lc-pop {
+  from { transform: scale(0); }
+  to { transform: none; }
+}
+@keyframes lc-burst {
+  0% { opacity: 0; transform: rotate(var(--a)) translateY(0) scale(0.4); }
+  15% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--a)) translateY(calc(var(--dist) * -1)) rotate(var(--spin)) scale(1); }
+}
+/* reduced motion: the finished seal, no scatter */
+.lc.lc-static .lc-layer,
+.lc.lc-static .lc-dot { animation: none; transform: none; opacity: 1; }
+.lc.lc-static .lc-ring,
+.lc.lc-static .lc-tick { animation: none; stroke-dashoffset: 0; }
+.lc.lc-static .lc-petal { display: none; }
