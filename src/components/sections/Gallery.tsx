@@ -4,11 +4,10 @@ import { useInView } from "@/hooks/useInView";
 import { showPlaceholders } from "@/lib/placeholders";
 import { EASE } from "@/lib/motion";
 import { Sheet } from "@/components/ui/Sheet";
-import { ARCH_W, PattachitraArch, photoBox } from "@/components/art/PattachitraArch";
+import { GoldArchFrame } from "@/components/art/GoldArch";
 
 type Photo = (typeof wedding.gallery.photos)[number];
 
-const STONE = "#B8893A";
 // While placeholders are on: the shape of the masonry while the couple's photographs are awaited.
 const PLACEHOLDERS: Photo[] = [true, false, false, true, true, false].map((tall, i) => ({
   src: "",
@@ -20,9 +19,9 @@ const PLACEHOLDERS: Photo[] = [true, false, false, true, true, false].map((tall,
  * Section 07 — The Raghurajpur Canvas.
  * The couple's photographs hung like an exhibition on the page cream, among
  * faint white flowers: an asymmetric two-column masonry, each photograph in
- * a painted Pattachitra arch (a band of flowers and leaves, after the
- * couple's design) crowned with the Mukteswar torana's finial. A tap opens the photograph larger. Hidden in production
- * until photos are added.
+ * a gilded palace arch (gold moulding, a maroon line, a pointed top with a
+ * gold finial — after the couple's design). A tap opens the photograph
+ * larger. Hidden in production until photos are added.
  */
 export function Gallery() {
   const { eyebrow, heading, photos } = wedding.gallery;
@@ -84,44 +83,30 @@ function ArchFrame({ photo, index, onOpen }: { photo: Photo; index: number; onOp
   const height = photo.tall ? 440 : 360;
 
   const frame = (
-    <>
-      {/* The painted Pattachitra arch, with the photograph set under its window */}
-      <div className="relative drop-shadow-[0_10px_14px_rgb(90_50_10/0.18)]" style={{ aspectRatio: `${ARCH_W} / ${height}` }}>
-        <div className="absolute overflow-hidden rounded-t-full bg-[#2B1A14]" style={photoBox(height)}>
-          {photo.src ? (
-            <img
-              src={photo.src}
-              alt={photo.alt}
-              loading="lazy"
-              decoding="async"
-              className="h-full w-full object-cover transition-transform duration-700 ease-silk group-hover:scale-[1.03]"
-              style={{ objectPosition: photo.focus, transformOrigin: photo.focus }}
-            />
-          ) : (
-            <div
-              title="Photograph awaiting the couple"
-              className="flex h-full w-full flex-col items-center justify-center gap-2 border border-dashed border-ink-soft/40 bg-[#F3ECDF] text-ink-soft/70"
-            >
-              <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden>
-                <rect x="3" y="6" width="22" height="16" rx="2" />
-                <circle cx="14" cy="14" r="4.5" />
-                <path d="M9 6l1.6-2.5h6.8L19 6" />
-              </svg>
-              <span className="text-[0.625rem] font-medium uppercase tracking-[0.18em]">Photo</span>
-            </div>
-          )}
+    <GoldArchFrame height={height}>
+      {photo.src ? (
+        <img
+          src={photo.src}
+          alt={photo.alt}
+          loading="lazy"
+          decoding="async"
+          className="h-full w-full object-cover transition-transform duration-700 ease-silk group-hover:scale-[1.03]"
+          style={{ objectPosition: photo.focus, transformOrigin: photo.focus }}
+        />
+      ) : (
+        <div
+          title="Photograph awaiting the couple"
+          className="flex h-full w-full flex-col items-center justify-center gap-2 border border-dashed border-ink-soft/40 bg-[#F3ECDF] text-ink-soft/70"
+        >
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" stroke="currentColor" strokeWidth="1.2" aria-hidden>
+            <rect x="3" y="6" width="22" height="16" rx="2" />
+            <circle cx="14" cy="14" r="4.5" />
+            <path d="M9 6l1.6-2.5h6.8L19 6" />
+          </svg>
+          <span className="text-[0.625rem] font-medium uppercase tracking-[0.18em]">Photo</span>
         </div>
-        <PattachitraArch height={height} className="pointer-events-none absolute inset-0 h-full w-full" />
-      </div>
-      {/* Springing line of the arch: small carved brackets where the curve meets the pillars */}
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 aspect-[2/1]">
-        <span className="absolute -left-[3px] bottom-0 h-[7px] w-[7px] rotate-45 border-[1.5px] bg-[#FDFBF7]" style={{ borderColor: STONE }} />
-        <span className="absolute -right-[3px] bottom-0 h-[7px] w-[7px] rotate-45 border-[1.5px] bg-[#FDFBF7]" style={{ borderColor: STONE }} />
-      </div>
-      <Finial />
-      {/* Plinth */}
-      <span aria-hidden className="absolute -bottom-[5px] -left-[4px] -right-[4px] h-[4px] rounded-[1px]" style={{ backgroundColor: STONE }} />
-    </>
+      )}
+    </GoldArchFrame>
   );
 
   return (
@@ -141,17 +126,5 @@ function ArchFrame({ photo, index, onOpen }: { photo: Photo; index: number; onOp
         <div className="group relative rounded-t-full p-[5px]">{frame}</div>
       )}
     </div>
-  );
-}
-
-/** The amalaka-and-kalasha finial crowning the arch, as on the Mukteswar torana. */
-function Finial() {
-  return (
-    <svg aria-hidden viewBox="0 0 24 22" className="absolute -top-[17px] left-1/2 h-[22px] w-6 -translate-x-1/2" fill="#FDFBF7" stroke={STONE} strokeWidth="1.2">
-      <path d="M12 1.5c1.2 1.6 1.2 3 0 4.2-1.2-1.2-1.2-2.6 0-4.2Z" fill={STONE} />
-      <ellipse cx="12" cy="9" rx="5.5" ry="2.8" />
-      <path d="M8.2 9.8 9 13h6l.8-3.2" />
-      <path d="M5 21c0-4 3-7.5 7-7.5s7 3.5 7 7.5" />
-    </svg>
   );
 }

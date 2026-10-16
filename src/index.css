@@ -362,7 +362,7 @@
 .ev-left .ev-col { margin-left: max(calc(var(--ev-band) + 8px), calc(24% - 107px)); }
 .ev-right .ev-col { margin-left: auto; margin-right: max(calc(var(--ev-band) + 8px), calc(24% - 107px)); }
 
-.ev-flower { position: relative; width: clamp(100px, 30vw, 124px); aspect-ratio: 1; }
+.ev-flower { position: relative; width: clamp(76px, 22vw, 92px); aspect-ratio: 1; }
 .ev-dust { position: absolute; left: -50%; top: -50%; width: 200%; height: 200%; overflow: visible; pointer-events: none; transition: opacity 1.2s 0.2s; }
 .ev-pop { position: relative; width: 100%; height: 100%; transition: transform 1s cubic-bezier(0.2, 0.9, 0.25, 1.15), opacity 0.7s; }
 .ev-bloom {
