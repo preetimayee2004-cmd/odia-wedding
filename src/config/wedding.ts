@@ -193,6 +193,8 @@ export interface WeddingConfig {
     maxLength: number;
   };
   rsvp: {
+    /** The section's heading, as on every section. */
+    heading: string;
     /** The invitation, top to bottom. "{names}" becomes the couple's names. */
     invocationOdia: string | null; // small, e.g. "|| ଶ୍ରୀ ଗଣେଶାୟ ନମଃ ||"
     titleOdia: string | null; // large, framed, e.g. "|| ଶୁଭ ବିବାହ ||"
@@ -216,8 +218,6 @@ export interface WeddingConfig {
       quoteOdia: string | null;
       signoff: string;
     };
-    /** Largest party one response may include (the guest included). */
-    maxAttendees: number;
     /** Venue-local date "YYYY-MM-DD" after which responses close; null = open. */
     deadline: string | null;
   };
@@ -523,6 +523,7 @@ export const wedding: WeddingConfig = {
     maxLength: 280,
   },
   rsvp: {
+    heading: "Kindly RSVP",
     invocationOdia: "|| ଶ୍ରୀ ଗଣେଶାୟ ନମଃ ||",
     titleOdia: "|| ଶୁଭ ବିବାହ ||",
     eyebrow: "An Auspicious Invitation",
@@ -542,7 +543,6 @@ export const wedding: WeddingConfig = {
       quoteOdia: "ଆପଣଙ୍କ ଉପସ୍ଥିତି ଆମ ପାଇଁ ସବୁଠାରୁ ବଡ଼ ଆଶୀର୍ବାଦ",
       signoff: "With love, {names}",
     },
-    maxAttendees: 4,
     deadline: null,
   },
   contact: {
