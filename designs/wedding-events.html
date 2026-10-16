@@ -1,0 +1,838 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Wedding Events</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Jost:wght@400;500;600&family=Noto+Sans+Oriya:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --cream: #fdf6ea;
+    --card: #fffbf3;
+    --backdrop: #efe6d6;
+    --gold: #c9a24b;
+    --gold-soft: #e2cc9a;
+    --gold-ink: #8a6420; /* small gold labels: dark enough to read on cream */
+    --brown: #3b2416;
+    --brown-soft: #6b4a33;
+    --red: #a51c1c;
+    --tan: #cfb089;
+    --serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    --odia: "Noto Sans Oriya", "Noto Sans", sans-serif;
+    --sans: "Jost", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --ease: cubic-bezier(0.22, 0.7, 0.2, 1);
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--backdrop);
+    color: var(--brown);
+    font-family: var(--serif);
+    overflow-x: hidden;
+  }
+  .defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+  /* ---------- page ---------- */
+  .page {
+    position: relative;
+    max-width: 460px;
+    min-height: 100vh;
+    margin: 0 auto;
+    overflow: hidden;
+    background:
+      radial-gradient(120% 40% at 50% 0%, rgb(255 252 244 / 0.9), transparent 70%),
+      var(--cream);
+    box-shadow: 0 0 60px rgb(90 60 20 / 0.12);
+  }
+
+  /* ---------- heading ---------- */
+  .events__head { padding: 56px 24px 8px; text-align: center; }
+  .events__title {
+    margin: 0;
+    font-size: 42px;
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: 0.005em;
+    color: var(--brown);
+  }
+  .divider { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 14px; }
+  .divider span { width: 72px; height: 1px; }
+  .divider span:first-child { background: linear-gradient(to left, var(--gold), transparent); }
+  .divider span:last-child { background: linear-gradient(to right, var(--gold), transparent); }
+  .divider i {
+    width: 7px; height: 7px;
+    transform: rotate(45deg);
+    border: 1px solid var(--gold);
+    background: #f3e2b8;
+  }
+
+  /* ---------- timeline ---------- */
+  .timeline { position: relative; padding: 40px 0 110px; }
+  .vine { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 0; }
+  .vine .stem { fill: none; stroke: #2c5719; stroke-width: 5.5; stroke-linecap: round; }
+  .vine .stem-mid { fill: none; stroke: #467d2b; stroke-width: 3.4; stroke-linecap: round; }
+  .vine .stem-hl { fill: none; stroke: #b2da77; stroke-width: 1.1; stroke-linecap: round; opacity: 0.85; }
+  .vine .tendril { fill: none; stroke: #3f7426; stroke-width: 1.5; stroke-linecap: round; }
+  .vine .lf { transform-box: view-box; transform-origin: 0 0; transition: transform 0.7s var(--ease), opacity 0.5s; }
+  .motion .vine .lf:not(.on) { transform: scale(0); opacity: 0; }
+
+  .events__list { position: relative; z-index: 1; margin: 0; padding: 0; list-style: none; }
+  .event { position: relative; padding-top: 30px; }
+  .event:first-child { padding-top: 0; }
+
+  /* the flower, its name and button share one column, centred on the flower */
+  .event__col {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 214px;
+    text-align: center;
+  }
+  .event--left .event__col { margin-left: max(8px, calc(24% - 107px)); }
+  .event--right .event__col { margin-left: auto; margin-right: max(8px, calc(24% - 107px)); }
+
+  /* ---------- flowers ---------- */
+  .flower { position: relative; width: clamp(100px, 30vw, 124px); aspect-ratio: 1; }
+  .dust { position: absolute; left: -50%; top: -50%; width: 200%; height: 200%; overflow: visible; pointer-events: none; transition: opacity 1.2s 0.2s; }
+  .flower__pop { position: relative; width: 100%; height: 100%; transition: transform 1s cubic-bezier(0.2, 0.9, 0.25, 1.15), opacity 0.7s; }
+  .bloom {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    filter: drop-shadow(0 9px 10px rgb(90 50 10 / 0.24)) drop-shadow(0 2px 2px rgb(90 50 10 / 0.18));
+  }
+  .motion .bloom { animation: sway var(--sway-d, 5s) ease-in-out var(--sway-delay, 0s) infinite alternate; }
+  @keyframes sway {
+    from { transform: rotate(-4deg) translateX(-1px); }
+    to { transform: rotate(4deg) translateX(1px); }
+  }
+  .twinkle { transform-box: fill-box; transform-origin: center; }
+  .motion .twinkle { animation: twinkle 3.4s ease-in-out infinite; }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.15; transform: scale(0.45); }
+    50% { opacity: 1; transform: scale(1.1); }
+  }
+
+  /* ---------- labels ---------- */
+  .name {
+    position: relative;
+    margin: 12px 0 0;
+    padding: 0 16px;
+    font-size: 31px;
+    font-weight: 600;
+    line-height: 1.05;
+    white-space: nowrap;
+    color: var(--brown);
+    /* a soft cream halo keeps the name clear of the vine behind it */
+    text-shadow: 0 0 6px var(--cream), 0 0 12px var(--cream), 0 0 18px var(--cream);
+  }
+  .name::before, .name::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 6px; height: 6px;
+    margin-top: -2px;
+    border-radius: 50%;
+    background: var(--tan);
+    box-shadow: 0 0 0 3px var(--cream);
+  }
+  .name::before { left: 0; }
+  .name::after { right: 0; }
+  .odia {
+    margin: 4px 0 0;
+    font-family: var(--odia);
+    font-weight: 700;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--red);
+    text-shadow: 0 0 6px var(--cream), 0 0 12px var(--cream);
+  }
+
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    margin-top: 14px;
+    padding: 0 18px 0 21px;
+    border: 1px solid var(--gold-soft);
+    border-radius: 999px;
+    background: #fffaf1;
+    color: var(--brown);
+    font: 500 11.5px/1 var(--sans);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    cursor: pointer;
+    box-shadow: 0 8px 18px -10px rgb(110 70 20 / 0.45), inset 0 1px 0 #fff;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .toggle:hover { background: #fff5e3; box-shadow: 0 10px 22px -10px rgb(110 70 20 / 0.5), inset 0 1px 0 #fff; }
+  .toggle:active { transform: scale(0.97); }
+  .toggle:focus-visible { outline: 2px solid var(--gold-ink); outline-offset: 3px; }
+  .toggle svg { width: 14px; height: 14px; color: var(--gold-ink); transition: transform 0.45s var(--ease); }
+  .toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+
+  /* entrance, once the flower scrolls into view */
+  .motion .event:not(.in) .flower__pop { transform: scale(0.55) rotate(-25deg); opacity: 0; }
+  .motion .event:not(.in) .dust { opacity: 0; }
+  .motion .event .name, .motion .event .odia, .motion .event .toggle { transition: opacity 0.7s, transform 0.7s var(--ease), background 0.2s, box-shadow 0.2s; }
+  .motion .event:not(.in) .name, .motion .event:not(.in) .odia, .motion .event:not(.in) .toggle { opacity: 0; transform: translateY(12px); }
+  .motion .event.in .name { transition-delay: 0.25s; }
+  .motion .event.in .odia { transition-delay: 0.35s; }
+  .motion .event.in .toggle { transition-delay: 0.45s, 0.45s, 0s, 0s; }
+
+  /* ---------- details card ---------- */
+  .details {
+    display: grid;
+    grid-template-rows: 0fr;
+    margin: 0 16px;
+    opacity: 0;
+    visibility: hidden;
+    transition: grid-template-rows 0.5s var(--ease), opacity 0.35s, visibility 0s 0.5s;
+  }
+  .details.open {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    visibility: visible;
+    transition: grid-template-rows 0.5s var(--ease), opacity 0.45s 0.05s, visibility 0s;
+  }
+  .details__inner { min-height: 0; overflow: hidden; margin: 0 -12px; }
+  .details__pad { padding: 0 12px 26px; } /* room for the card's shadow inside the clipped box */
+  .card {
+    position: relative;
+    margin: 18px 0 0;
+    padding: 8px 22px;
+    border: 1px solid #ecdcb6;
+    border-radius: 20px;
+    background: var(--card);
+    box-shadow: 0 16px 32px -20px rgb(110 70 20 / 0.5), inset 0 0 0 4px var(--card), inset 0 0 0 5px rgb(201 162 75 / 0.18);
+  }
+  .row { padding: 13px 0 12px; text-align: left; }
+  .row + .row { border-top: 1px dashed #e6d3a8; }
+  .row dt {
+    margin-bottom: 6px;
+    font: 600 10.5px/1 var(--sans);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold-ink);
+  }
+  .row dd {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 500;
+    line-height: 1.35;
+    white-space: pre-line;
+    color: var(--brown);
+  }
+  .row--about dd { font-size: 18px; color: var(--brown-soft); }
+  .maplink {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 8px;
+    padding: 4px 0;
+    font: 500 11px/1 var(--sans);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold-ink);
+    text-decoration: none;
+    border-bottom: 1px solid var(--gold-soft);
+  }
+  .maplink:hover { border-bottom-color: var(--gold-ink); }
+  .maplink:focus-visible { outline: 2px solid var(--gold-ink); outline-offset: 3px; border-radius: 2px; }
+
+  /* ---------- falling petals ---------- */
+  .petals { position: fixed; inset: 0; z-index: 5; overflow: hidden; pointer-events: none; }
+  .petal {
+    position: absolute;
+    top: 0;
+    left: var(--x);
+    width: calc(13px * var(--s));
+    height: calc(13px * var(--s));
+    opacity: 0.8;
+    animation: fall var(--d) linear var(--delay) infinite;
+  }
+  .petal svg { display: block; width: 100%; height: 100%; animation: flutter calc(var(--d) / 4) ease-in-out var(--delay) infinite alternate; }
+  @keyframes fall {
+    from { transform: translate3d(0, -40px, 0); }
+    to { transform: translate3d(0, calc(100vh + 40px), 0); }
+  }
+  @keyframes flutter {
+    from { transform: translateX(calc(var(--drift) * -1)) rotate(var(--r0)) rotateX(0deg); }
+    to { transform: translateX(var(--drift)) rotate(calc(var(--r0) + 120deg)) rotateX(65deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; transition-delay: 0s !important; }
+    .petals { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Shared artwork: gradients, filters, leaves and petals. The three flowers are added by the script. -->
+<svg class="defs" aria-hidden="true" focusable="false">
+  <defs id="art">
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="1.2" stdDeviation="1.3" flood-color="#6b3d10" flood-opacity="0.28" />
+    </filter>
+    <filter id="vineShadow" x="-10%" y="-5%" width="120%" height="110%">
+      <feDropShadow dx="0" dy="2.5" stdDeviation="2" flood-color="#2d3a12" flood-opacity="0.26" />
+    </filter>
+    <radialGradient id="mgShade">
+      <stop offset="0.7" stop-color="#7a2e00" stop-opacity="0.4" />
+      <stop offset="1" stop-color="#7a2e00" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="mgCentre" cx="0.45" cy="0.4">
+      <stop offset="0" stop-color="#ffe98a" />
+      <stop offset="1" stop-color="#ee9c1c" />
+    </radialGradient>
+    <radialGradient id="champaFill" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="58">
+      <stop offset="0" stop-color="#eaa223" />
+      <stop offset="0.17" stop-color="#f5c54c" />
+      <stop offset="0.36" stop-color="#fce6b4" />
+      <stop offset="0.6" stop-color="#fff8ea" />
+      <stop offset="1" stop-color="#fffdf8" />
+    </radialGradient>
+    <radialGradient id="lotusCentre" cx="0.45" cy="0.4">
+      <stop offset="0" stop-color="#fff0a0" />
+      <stop offset="0.7" stop-color="#f5c43a" />
+      <stop offset="1" stop-color="#dc9a17" />
+    </radialGradient>
+    <linearGradient id="leafFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8ac54c" />
+      <stop offset="0.5" stop-color="#4f9130" />
+      <stop offset="1" stop-color="#28601a" />
+    </linearGradient>
+    <radialGradient id="roseFill" cx="0.4" cy="0.35" r="0.8">
+      <stop offset="0" stop-color="#fcd7dc" />
+      <stop offset="0.6" stop-color="#ef9caa" />
+      <stop offset="1" stop-color="#d9687c" />
+    </radialGradient>
+    <linearGradient id="mariFill" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#e2700e" />
+      <stop offset="1" stop-color="#ffb62e" />
+    </linearGradient>
+
+    <g id="leaf">
+      <path d="M0 0C9-12 27-15 46 0 29 12 10 11 0 0Z" fill="url(#leafFill)" />
+      <path d="M0 0C10 11 29 12 46 0" fill="none" stroke="#1f4a12" stroke-width="0.8" opacity="0.45" />
+      <path d="M1 0Q23-1.6 44 0" fill="none" stroke="#d8f0ab" stroke-width="1" stroke-linecap="round" opacity="0.75" />
+      <path d="M11-.5l6-6.5M21-.9l7-7M31-.8l6-5.5M11 .5l6 6M21 .9l6.5 6M31 .8l5.5 4.5" fill="none" stroke="#d2eba3" stroke-width="0.6" opacity="0.45" />
+      <ellipse cx="20" cy="-5.4" rx="10" ry="2.1" fill="#fff" opacity="0.3" transform="rotate(-7 20 -5.4)" />
+    </g>
+    <g id="petal-rose"><path d="M0-7C5-7 8-2 7 3 6 7 2 8 0 6-2 8-6 7-7 3-8-2-5-7 0-7Z" fill="url(#roseFill)" /></g>
+    <g id="petal-mari"><path d="M0 7C-5 4-6-2-4-6Q-2-8 0-6.5 2-8 4-6C6-2 5 4 0 7Z" fill="url(#mariFill)" /></g>
+    <path id="sparkle" d="M0-4L1-1 4 0 1 1 0 4-1 1-4 0-1-1Z" fill="#e3b345" />
+  </defs>
+</svg>
+
+<div class="petals" aria-hidden="true"></div>
+
+<main class="page">
+  <section class="events" aria-labelledby="events-title">
+    <header class="events__head">
+      <h2 id="events-title" class="events__title">Wedding Events</h2>
+      <div class="divider" aria-hidden="true"><span></span><i></i><span></span></div>
+    </header>
+    <div class="timeline" id="timeline">
+      <svg class="vine" id="vine" aria-hidden="true" focusable="false"></svg>
+      <ol class="events__list" id="list"></ol>
+    </div>
+  </section>
+</main>
+
+<script>
+/* =====================================================================
+   EDIT YOUR EVENTS HERE
+   ---------------------------------------------------------------------
+   SAMPLE DETAILS: every date below is a placeholder around the site's
+   sample wedding date (Friday 12 February 2027). Times, places and dress
+   codes are the sample values from the site's config. Confirm all of
+   them with the family before sharing.
+   - mapUrl: paste a Google Maps link to show "View map"; leave "" to hide it.
+   - Use "\n" in dressCode for a line break.
+   ===================================================================== */
+const EVENTS = [
+  {
+    name: "Mehendi",
+    odiaName: "ମେହେନ୍ଦି",
+    date: "Wednesday, 10 February 2027",
+    time: "10:00 AM – 1:00 PM",
+    about: "Intricate henna is drawn on the bride's hands and feet amid songs and laughter. The darker the colour, the deeper the love, they say.",
+    dressCode: "Shades of green & yellow",
+    place: "Courtyard",
+    mapUrl: "",
+  },
+  {
+    name: "Sangeet",
+    odiaName: "ସଙ୍ଗୀତ",
+    date: "Wednesday, 10 February 2027",
+    time: "7:00 PM – 9:30 PM",
+    about: "An evening of music and dance as both families come together to sing, perform and celebrate.",
+    dressCode: "Ladies: Glitter, glam, Indian or Indo-Western\nGentlemen: Suits or tuxedos (black, white or blue)",
+    place: "Lotus Pavilion",
+    mapUrl: "",
+  },
+  {
+    name: "Mangana",
+    odiaName: "ମଙ୍ଗନ",
+    date: "Friday, 12 February 2027",
+    time: "9:00 AM – 10:30 AM",
+    about: "Married women of the family anoint the bride with turmeric paste and bathe her, blessing her for the day ahead.",
+    dressCode: "Traditional Odia attire | Pastel & earthy tones",
+    place: "Mandap",
+    mapUrl: "",
+  },
+  {
+    name: "Barajatri",
+    odiaName: "ବରଯାତ୍ରୀ",
+    date: "Friday, 12 February 2027",
+    time: "4:00 PM – 5:30 PM",
+    about: "The groom's wedding procession arrives with music and dancing as family and friends escort him to the venue.",
+    dressCode: "Traditional wear | Bright & festive",
+    place: "Main Lawn",
+    mapUrl: "",
+  },
+  {
+    name: "Batabaran",
+    odiaName: "ବରବରଣ",
+    date: "Friday, 12 February 2027",
+    time: "5:30 PM – 6:30 PM",
+    about: "The bride's family welcomes the groom at the entrance with aarti, tilak, sweets and the sound of conch shells.",
+    dressCode: "Traditional Odia attire | Red, yellow & gold",
+    place: "Entrance",
+    mapUrl: "",
+  },
+  {
+    name: "Hastaganthi",
+    odiaName: "ହସ୍ତଗଣ୍ଠି",
+    date: "Friday, 12 February 2027",
+    time: "7:00 PM – 8:00 PM",
+    about: "The bride's father places her hand in the groom's, and their hands are tied together with a sacred thread.",
+    dressCode: "Traditional wear | Red, maroon & gold",
+    place: "Mandap",
+    mapUrl: "",
+  },
+  {
+    name: "Sindoordaan",
+    odiaName: "ସିନ୍ଦୂରଦାନ",
+    date: "Friday, 12 February 2027",
+    time: "8:00 PM – 9:00 PM",
+    about: "The groom fills the parting of the bride's hair with sindoor, the vermilion mark of a married woman.",
+    dressCode: "Traditional wear | Soft & elegant",
+    place: "Mandap",
+    mapUrl: "",
+  },
+  {
+    name: "Bidaai",
+    odiaName: "ବିଦାୟ",
+    date: "Friday, 12 February 2027",
+    time: "9:00 PM – 10:00 PM",
+    about: "A tender farewell as the bride leaves her parents' home for her new life, blessed by everyone she grew up with.",
+    dressCode: "Traditional wear | Emotive & classy",
+    place: "Mandap",
+    mapUrl: "",
+  },
+  {
+    name: "Reception",
+    odiaName: "ରିସେପ୍ସନ୍",
+    date: "Sunday, 14 February 2027",
+    time: "8:00 PM onwards",
+    about: "An evening of dinner and celebration to welcome the newly-weds. Come and bless the couple.",
+    dressCode: "Formal/Western | Elegant & classy",
+    place: "Lotus Pavilion",
+    mapUrl: "",
+  },
+];
+
+/* ===================================================================== */
+
+(() => {
+  "use strict";
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduceMotion) document.documentElement.classList.add("motion");
+
+  const art = document.getElementById("art");
+  const timeline = document.getElementById("timeline");
+  const vine = document.getElementById("vine");
+  const list = document.getElementById("list");
+  const f1 = (n) => n.toFixed(1);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+  /** Small seeded random, so the artwork looks the same on every visit. */
+  function rng(seed) {
+    return () => {
+      seed |= 0; seed = (seed + 0x6d2b79f5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  /** Gradient running from a petal's base (bottom of its box) to its tip. */
+  const petalGrad = (id, base, tip) =>
+    `<linearGradient id="${id}" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="${base}"/><stop offset="1" stop-color="${tip}"/></linearGradient>`;
+
+  /* ---------- the three flowers (drawn in a -60…60 box) ---------- */
+
+  function marigold() {
+    const R = rng(11);
+    // A ruffled petal pointing up, its base at the origin.
+    const ruffle = (len, w) => {
+      const b = w * 0.28;
+      return `M${f1(-b)} 0C${f1(-w / 2)} ${f1(-len * 0.2)} ${f1(-w / 2)} ${f1(-len * 0.62)} ${f1(-w * 0.42)} ${f1(-len * 0.86)}` +
+        `Q${f1(-w * 0.34)} ${f1(-len * 1.02)} ${f1(-w * 0.2)} ${f1(-len * 0.93)}Q${f1(-w * 0.1)} ${f1(-len * 1.06)} 0 ${f1(-len * 0.95)}` +
+        `Q${f1(w * 0.1)} ${f1(-len * 1.06)} ${f1(w * 0.2)} ${f1(-len * 0.93)}Q${f1(w * 0.34)} ${f1(-len * 1.02)} ${f1(w * 0.42)} ${f1(-len * 0.86)}` +
+        `C${f1(w / 2)} ${f1(-len * 0.62)} ${f1(w / 2)} ${f1(-len * 0.2)} ${f1(b)} 0Z`;
+    };
+    const rings = [
+      { r: 55, n: 22, len: 20, w: 13.5, base: "#cf5b0b", tip: "#f39418", edge: "#a3460a" },
+      { r: 46, n: 20, len: 19, w: 13, base: "#dc6f0e", tip: "#f8a51f", edge: "#b0520a" },
+      { r: 36, n: 17, len: 17, w: 12, base: "#e6841a", tip: "#fbb72a", edge: "#ba620f" },
+      { r: 26, n: 13, len: 15, w: 11, base: "#ee981e", tip: "#fdc93b", edge: "#c67312" },
+      { r: 16, n: 9, len: 12, w: 9.5, base: "#f2a925", tip: "#ffd64d", edge: "#cd8416" },
+    ];
+    let defs = "", s = "";
+    rings.forEach((g, ri) => {
+      defs += petalGrad(`mg${ri}`, g.base, g.tip);
+      if (ri) s += `<circle r="${g.r + 5}" fill="url(#mgShade)"/>`;
+      for (let k = 0; k < g.n; k++) {
+        const a = (360 / g.n) * k + (ri % 2 ? 180 / g.n : 0) + (R() - 0.5) * 7;
+        const len = g.len * (0.9 + R() * 0.2), w = g.w * (0.9 + R() * 0.2);
+        s += `<g transform="rotate(${f1(a)}) translate(0 ${f1(-(g.r - len))})">` +
+          `<path d="${ruffle(len, w)}" fill="url(#mg${ri})" stroke="${g.edge}" stroke-width="0.6" stroke-opacity="0.55"/>` +
+          `<path d="M0 ${f1(-len * 0.18)}V${f1(-len * 0.72)}" stroke="${g.edge}" stroke-width="0.6" opacity="0.3"/></g>`;
+      }
+    });
+    s += `<circle r="7" fill="url(#mgCentre)"/>`;
+    for (let k = 0; k < 9; k++) {
+      const a = R() * Math.PI * 2, d = R() * 5;
+      s += `<circle cx="${f1(Math.cos(a) * d)}" cy="${f1(Math.sin(a) * d)}" r="0.8" fill="#c9780e" opacity="0.7"/>`;
+    }
+    return { defs, body: s };
+  }
+
+  function champa() {
+    // Five cream-white petals in a pinwheel, each overlapping the next, golden at the heart.
+    const petal = "M0 0C-11-6-23-22-20-38-17-52 1-59 13-51 23-44 21-29 13-17 9-10 4-4 0 0Z";
+    let s = "";
+    for (let k = 0; k < 5; k++) {
+      s += `<g transform="rotate(${k * 72 + 10})" filter="url(#softShadow)">` +
+        `<path d="${petal}" fill="url(#champaFill)" stroke="#dcc497" stroke-width="0.7"/>` +
+        `<path d="M0-4C-4-16-6-30-1-45" fill="none" stroke="#e7cf9c" stroke-width="0.8" opacity="0.8"/></g>`;
+    }
+    s += `<circle r="4" fill="#e39a1b"/><circle r="1.6" fill="#c97d10"/>`;
+    return { defs: "", body: s };
+  }
+
+  function lotus() {
+    const R = rng(29);
+    const pointed = (len, w) =>
+      `M0 0C${f1(-w / 2)} ${f1(-len * 0.3)} ${f1(-w / 2)} ${f1(-len * 0.72)} 0 ${f1(-len)}C${f1(w / 2)} ${f1(-len * 0.72)} ${f1(w / 2)} ${f1(-len * 0.3)} 0 0Z`;
+    const rings = [
+      { n: 10, len: 54, w: 25, rot: 0, base: "#fde6ec", tip: "#ea7c9f" },
+      { n: 8, len: 42, w: 23, rot: 22.5, base: "#fff0f4", tip: "#e2608c" },
+      { n: 6, len: 29, w: 18, rot: 0, base: "#fff4f7", tip: "#d6497a" },
+    ];
+    let defs = "", s = "";
+    rings.forEach((g, ri) => {
+      defs += petalGrad(`lt${ri}`, g.base, g.tip);
+      s += `<g filter="url(#softShadow)">`;
+      for (let k = 0; k < g.n; k++) {
+        const a = (360 / g.n) * k + g.rot + (R() - 0.5) * 5;
+        const len = g.len * (0.95 + R() * 0.1);
+        s += `<g transform="rotate(${f1(a)})"><path d="${pointed(len, g.w)}" fill="url(#lt${ri})" stroke="#c4466f" stroke-width="0.6" stroke-opacity="0.45"/>` +
+          `<path d="M0-3V${f1(-len * 0.86)}M-3-5C${f1(-g.w * 0.3)} ${f1(-len * 0.4)} ${f1(-g.w * 0.22)} ${f1(-len * 0.66)} -1 ${f1(-len * 0.84)}M3-5C${f1(g.w * 0.3)} ${f1(-len * 0.4)} ${f1(g.w * 0.22)} ${f1(-len * 0.66)} 1 ${f1(-len * 0.84)}" fill="none" stroke="#d2668b" stroke-width="0.5" opacity="0.35"/></g>`;
+      }
+      s += `</g>`;
+    });
+    // stamens around a golden seed pod
+    for (let k = 0; k < 20; k++) {
+      const a = (k / 20) * Math.PI * 2, c = Math.cos(a), si = Math.sin(a);
+      s += `<path d="M${f1(c * 8)} ${f1(si * 8)}L${f1(c * 13)} ${f1(si * 13)}" stroke="#f0bd3c" stroke-width="0.9" stroke-linecap="round"/>` +
+        `<circle cx="${f1(c * 13.4)}" cy="${f1(si * 13.4)}" r="0.9" fill="#d99a18"/>`;
+    }
+    s += `<circle r="9" fill="url(#lotusCentre)" stroke="#c98a12" stroke-width="0.6"/>`;
+    for (let k = 0; k < 7; k++) {
+      const a = (k / 7) * Math.PI * 2;
+      s += `<circle cx="${f1(Math.cos(a) * 4.8)}" cy="${f1(Math.sin(a) * 4.8)}" r="1" fill="#b97d10" opacity="0.75"/>`;
+    }
+    s += `<circle r="1" fill="#b97d10" opacity="0.75"/>`;
+    return { defs, body: s };
+  }
+
+  const FLOWERS = [["marigold", marigold()], ["champa", champa()], ["lotus", lotus()]];
+  art.insertAdjacentHTML("beforeend", FLOWERS.map(([id, f]) => `${f.defs}<g id="${id}">${f.body}</g>`).join(""));
+
+  /* ---------- gold dust around a flower (a -120…120 box, twice the flower) ---------- */
+  function dust(i) {
+    const R = rng(100 + i * 17);
+    const colours = ["#c99a2e", "#e0b44a", "#b8862a"];
+    let s = "";
+    for (let k = 0; k < 64; k++) {
+      const a = R() * Math.PI * 2, d = 54 + Math.pow(R(), 1.7) * 62;
+      s += `<circle cx="${f1(Math.cos(a) * d * 1.08)}" cy="${f1(Math.sin(a) * d * 0.94)}" r="${(0.45 + R() * 1.35).toFixed(2)}" fill="${colours[k % 3]}" opacity="${(0.3 + R() * 0.6).toFixed(2)}"/>`;
+    }
+    for (let k = 0; k < 6; k++) {
+      const a = R() * Math.PI * 2, d = 58 + R() * 40;
+      s += `<use href="#sparkle" class="twinkle" x="${f1(Math.cos(a) * d)}" y="${f1(Math.sin(a) * d)}" style="animation-delay:${(-R() * 3.4).toFixed(2)}s"/>`;
+    }
+    return `<svg class="dust" viewBox="-120 -120 240 240" aria-hidden="true">${s}</svg>`;
+  }
+
+  /* ---------- the events ---------- */
+  const chevron = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const tba = (v) => (v && String(v).trim() ? esc(v) : "To be announced");
+  list.innerHTML = EVENTS.map((ev, i) => {
+    const R = rng(500 + i);
+    const map = ev.mapUrl
+      ? `<br><a class="maplink" href="${esc(ev.mapUrl)}" target="_blank" rel="noopener noreferrer">View map <span aria-hidden="true">↗</span></a>`
+      : "";
+    const rows = [
+      ["Date", tba(ev.date)],
+      ["Time", tba(ev.time)],
+      ["About", tba(ev.about), "row--about"],
+      ["Dress code", tba(ev.dressCode)],
+      ["Place", tba(ev.place) + map],
+    ];
+    return `<li class="event ${i % 2 ? "event--right" : "event--left"}" style="--sway-d:${(4.4 + R() * 1.8).toFixed(2)}s;--sway-delay:${(-R() * 4).toFixed(2)}s">
+      <div class="event__col">
+        <div class="flower">
+          ${dust(i)}
+          <div class="flower__pop"><svg class="bloom" viewBox="-60 -60 120 120" aria-hidden="true"><use href="#${FLOWERS[i % 3][0]}"/></svg></div>
+        </div>
+        <h3 class="name">${esc(ev.name)}</h3>
+        <p class="odia" lang="or">${esc(ev.odiaName)}</p>
+        <button class="toggle" type="button" aria-expanded="false" aria-controls="details-${i}">
+          <span class="toggle__label">Tap to view details</span>${chevron}
+        </button>
+      </div>
+      <div class="details" id="details-${i}" role="region" aria-label="${esc(ev.name)} details">
+        <div class="details__inner"><div class="details__pad">
+          <dl class="card">${rows.map(([k, v, cls]) => `<div class="row ${cls || ""}"><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
+        </div></div>
+      </div>
+    </li>`;
+  }).join("");
+
+  const items = [...list.children];
+
+  /* ---------- one card open at a time ---------- */
+  let openIndex = -1;
+  const parts = (i) => {
+    const li = items[i];
+    return { li, btn: li.querySelector(".toggle"), label: li.querySelector(".toggle__label"), details: li.querySelector(".details") };
+  };
+  function setOpen(i, open, instant) {
+    const { btn, label, details } = parts(i);
+    if (instant) details.style.transition = "none";
+    details.classList.toggle("open", open);
+    btn.setAttribute("aria-expanded", String(open));
+    label.textContent = open ? "Hide details" : "Tap to view details";
+    if (instant) { void details.offsetHeight; details.style.transition = ""; }
+  }
+  /** Scroll so the opening card (and its button) are in view. */
+  function bringIntoView(i) {
+    const { btn, details } = parts(i);
+    const margin = 20;
+    const top = details.getBoundingClientRect().top;
+    const bottom = top + details.querySelector(".details__inner").scrollHeight; // its final height
+    const btnTop = btn.getBoundingClientRect().top;
+    let delta = 0;
+    if (bottom > innerHeight - margin) delta = bottom - (innerHeight - margin);
+    delta = Math.min(delta, btnTop - margin - 60); // keep the button on screen
+    if (btnTop < margin) delta = btnTop - margin - 60;
+    if (Math.abs(delta) > 2) window.scrollBy({ top: delta, behavior: reduceMotion ? "auto" : "smooth" });
+  }
+  list.addEventListener("click", (e) => {
+    const btn = e.target.closest(".toggle");
+    if (!btn) return;
+    const i = items.indexOf(btn.closest(".event"));
+    if (i === openIndex) { setOpen(i, false); openIndex = -1; scheduleLayout(); return; }
+    if (openIndex !== -1) {
+      if (openIndex < i) {
+        // The open card is above: close it at once and keep this button where the guest tapped it.
+        const before = btn.getBoundingClientRect().top;
+        setOpen(openIndex, false, true);
+        window.scrollBy({ top: btn.getBoundingClientRect().top - before, behavior: "instant" });
+      } else {
+        setOpen(openIndex, false);
+      }
+    }
+    setOpen(i, true);
+    openIndex = i;
+    scheduleLayout();
+    requestAnimationFrame(() => bringIntoView(i));
+  });
+
+  /* ---------- the vine ---------- */
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const bez = (s, t) => {
+    const u = 1 - t;
+    return [0, 1].map((k) => u * u * u * s[0][k] + 3 * u * u * t * s[1][k] + 3 * u * t * t * s[2][k] + t * t * t * s[3][k]);
+  };
+  const bezTan = (s, t) => {
+    const u = 1 - t;
+    return [0, 1].map((k) => 3 * u * u * (s[1][k] - s[0][k]) + 6 * u * t * (s[2][k] - s[1][k]) + 3 * t * t * (s[3][k] - s[2][k]));
+  };
+  const deg = (v) => (Math.atan2(v[1], v[0]) * 180) / Math.PI;
+  const N = 32;
+
+  let samples = [], total = 1, realTotal = 1, strokes = [], leaves = [];
+
+  function layout() {
+    const tl = timeline.getBoundingClientRect();
+    const W = tl.width, H = tl.height;
+    const pts = items.map((li) => {
+      const f = li.querySelector(".flower").getBoundingClientRect();
+      return { x: f.left - tl.left + f.width / 2, y: f.top - tl.top + f.height / 2, r: f.width / 2, bottom: li.getBoundingClientRect().bottom - tl.top };
+    });
+
+    // Bézier segments: a short lead-in, flower to flower in an S, and a tail below the last
+    const segs = [];
+    const a0 = pts[0];
+    segs.push([[a0.x + 44, 4], [a0.x + 40, a0.y - 74], [a0.x, a0.y - 66], [a0.x, a0.y]]);
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = pts[i], b = pts[i + 1], dy = b.y - a.y;
+      segs.push([[a.x, a.y], [a.x, a.y + dy * 0.5], [b.x, b.y - dy * 0.5], [b.x, b.y]]);
+    }
+    const z = pts[pts.length - 1], endX = W / 2, endY = Math.min(H - 30, z.bottom + 56);
+    segs.push([[z.x, z.y], [z.x, z.y + (endY - z.y) * 0.6], [lerp(z.x, endX, 0.8), endY - 40], [endX, endY]]);
+
+    // arc lengths, and points down the vine for the scroll drawing
+    samples = []; total = 0;
+    const segStart = [], segCum = [];
+    segs.forEach((s) => {
+      segStart.push(total);
+      const cum = [0];
+      let prev = bez(s, 0), acc = 0;
+      samples.push({ len: total, y: prev[1] });
+      for (let k = 1; k <= N; k++) {
+        const p = bez(s, k / N);
+        acc += Math.hypot(p[0] - prev[0], p[1] - prev[1]);
+        cum.push(acc);
+        samples.push({ len: total + acc, y: p[1] });
+        prev = p;
+      }
+      segCum.push(cum);
+      total += acc;
+    });
+    const lenAt = (si, t) => {
+      const c = segCum[si], k = Math.min(N - 1, Math.floor(t * N));
+      return segStart[si] + lerp(c[k], c[k + 1], t * N - k);
+    };
+
+    // leaves, tendrils and the end curl
+    const bits = [];
+    const leaf = (si, t, angleOffset, scale) => {
+      const p = bez(segs[si], t), th = deg(bezTan(segs[si], t));
+      bits.push({ len: lenAt(si, t), svg: `<g transform="translate(${f1(p[0])} ${f1(p[1])}) rotate(${f1(th + 180 + angleOffset)}) scale(${scale})"><use href="#leaf" class="lf"/></g>` });
+    };
+    const pair = (si, t, scale, spread = 52) => { leaf(si, t, -spread, scale); leaf(si, t + 0.01, spread, scale * 0.92); };
+    const tendril = (si, t, side) => {
+      const p = bez(segs[si], t), th = deg(bezTan(segs[si], t));
+      bits.push({ len: lenAt(si, t), svg: `<g transform="translate(${f1(p[0])} ${f1(p[1])}) rotate(${f1(th + 180 + side * 70)})"><path class="tendril lf" d="M0 0c7-1 15-5 16-12 1-6-6-9-9-4-2 3 1 6 4 4"/></g>` });
+    };
+    pair(0, 0.5, 1.05);
+    for (let si = 1; si < segs.length - 1; si++) {
+      const side = si % 2 ? 1 : -1;
+      pair(si, 0.62, 0.78);
+      tendril(si, 0.72, side);
+      pair(si, 0.86, 1.1);
+    }
+    const last = segs.length - 1;
+    pair(last, 0.4, 0.82);
+    leaf(last, 0.78, -55, 0.75);
+    {
+      const s = segs[last], p = s[3], th = deg(bezTan(s, 1));
+      bits.push({ len: total - 1, svg: `<g transform="translate(${f1(p[0])} ${f1(p[1])}) rotate(${f1(th)})"><path class="tendril lf" style="stroke-width:2.2" d="M0 0c8 1 14 5 13 11-1 5-8 6-10 2-1-3 2-5 4-3"/></g>` });
+    }
+    leaves = bits;
+
+    const p = (q) => `${f1(q[0])} ${f1(q[1])}`;
+    const d = `M${p(segs[0][0])}` + segs.map((s) => `C${p(s[1])} ${p(s[2])} ${p(s[3])}`).join("");
+    vine.setAttribute("viewBox", `0 0 ${f1(W)} ${f1(H)}`);
+    vine.innerHTML =
+      `<g filter="url(#vineShadow)">` +
+      `<path class="stem" d="${d}"/><path class="stem-mid" d="${d}"/><path class="stem-hl" d="${d}" transform="translate(-1 -0.9)"/>` +
+      leaves.map((b) => b.svg).join("") +
+      `</g>`;
+    strokes = [...vine.querySelectorAll(".stem, .stem-mid, .stem-hl")];
+    realTotal = strokes[0].getTotalLength();
+    leaves.forEach((b, k) => (b.el = vine.querySelectorAll(".lf")[k]));
+    draw();
+  }
+
+  /** Grow the vine down to just above the bottom of the screen. */
+  function draw() {
+    let len = total;
+    if (!reduceMotion) {
+      // at the foot of the page the vine finishes, since it can scroll no further
+      const atEnd = scrollY + innerHeight >= document.documentElement.scrollHeight - 80;
+      const target = atEnd ? Infinity : innerHeight * 0.86 - timeline.getBoundingClientRect().top;
+      len = 0;
+      for (let k = 0; k < samples.length; k++) {
+        if (samples[k].y > target) {
+          const prev = samples[k - 1];
+          len = prev ? lerp(prev.len, samples[k].len, Math.max(0, Math.min(1, (target - prev.y) / (samples[k].y - prev.y || 1)))) : 0;
+          break;
+        }
+        len = samples[k].len;
+      }
+    }
+    const shown = (len / total) * realTotal;
+    for (const s of strokes) {
+      s.style.strokeDasharray = `${realTotal + 2} ${realTotal + 2}`;
+      s.style.strokeDashoffset = String(realTotal - shown);
+    }
+    for (const b of leaves) b.el.classList.toggle("on", b.len <= len);
+  }
+
+  let layoutQueued = false, drawQueued = false;
+  function scheduleLayout() {
+    if (layoutQueued) return;
+    layoutQueued = true;
+    requestAnimationFrame(() => { layoutQueued = false; layout(); });
+  }
+  new ResizeObserver(scheduleLayout).observe(timeline);
+  window.addEventListener("resize", scheduleLayout);
+  window.addEventListener("scroll", () => {
+    if (drawQueued) return;
+    drawQueued = true;
+    requestAnimationFrame(() => { drawQueued = false; draw(); });
+  }, { passive: true });
+  if (document.fonts) document.fonts.ready.then(scheduleLayout);
+  layout();
+
+  /* ---------- flowers bloom as they scroll into view ---------- */
+  if (!reduceMotion && "IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) if (e.isIntersecting) { e.target.closest(".event").classList.add("in"); io.unobserve(e.target); }
+    }, { rootMargin: "0px 0px -10% 0px", threshold: 0.3 });
+    items.forEach((li) => io.observe(li.querySelector(".flower")));
+  } else {
+    items.forEach((li) => li.classList.add("in"));
+  }
+
+  /* ---------- falling rose and marigold petals ---------- */
+  if (!reduceMotion) {
+    const R = rng(77);
+    let s = "";
+    for (let k = 0; k < 16; k++) {
+      const d = 13 + R() * 11;
+      s += `<span class="petal" style="--x:${(R() * 100).toFixed(1)}%;--d:${d.toFixed(1)}s;--delay:${(-R() * d).toFixed(1)}s;--s:${(0.75 + R() * 0.7).toFixed(2)};--drift:${(16 + R() * 30).toFixed(0)}px;--r0:${(R() * 360).toFixed(0)}deg">` +
+        `<svg viewBox="-8 -8 16 16"><use href="#${k % 2 ? "petal-mari" : "petal-rose"}"/></svg></span>`;
+    }
+    document.querySelector(".petals").innerHTML = s;
+  }
+})();
+</script>
+</body>
+</html>
