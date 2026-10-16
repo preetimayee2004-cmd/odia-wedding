@@ -41,7 +41,7 @@ Everything a guest reads lives in [`src/config/wedding.ts`](src/config/wedding.t
 | Our Story chapters (SAMPLE wording — replace with the couple's own) | `story.chapters` |
 | Gurujana Pranam: grandparents, parents, siblings & family (`late: true` lights a dipa beside the name) | `family` |
 | Itinerary: ceremonies, Odia names, dates, times, about text, dress codes, venues and map links (SAMPLE values — confirm) | `events.items` |
-| Gallery photographs (`tall: true` for a taller arch) | `gallery.photos` |
+| Gallery photographs (`tall: true` for a taller arch, `focus` for where the crop centres) | `gallery.photos` |
 | Venue name, address, photo, map link | `venue` |
 | Verified travel & stay details | `travel` |
 | Atithi Culture & Style Guide pop-up (colours, handlooms, places to visit) | `atithi` |
@@ -91,7 +91,7 @@ Each section has its own entrance. All of them respect *reduced motion*.
 | Our Story | A handmade illustrated journal over a softly cream-washed couple photograph (`public/art/story/couple-photo.webp`), fading in from the countdown and back to cream at the foot: "Two Hearts, One Journey" over the heading with a hand-drawn heart and underline; four chapters on alternating sides of a hand-drawn vermilion line with small pencil loops and doodles (flower, leaves, bells, hearts); the line draws itself with the scroll and leads to the bride and groom (`couple.png`), who fade in |
 | Events | Wedding Events as a vine timeline: a green vine zigzags from flower to flower (hand-drawn SVG marigold, champa and lotus, in turn), alternating left and right and growing as you scroll; under each flower the name, Odia name and a "Tap to view details" button that opens a card with the date, time, about, dress code and place (with "View map" when `mapUrl` is set). One card open at a time; rose and marigold petals drift over the section |
 | Family | Gurujana Pranam & Blessings: Aja & Aai (flanked by two flickering dipas), Pitra-Matra Pranam and Suhuda-Varga in gold-bordered blocks, the two lineages meeting below; a dipa beside departed elders |
-| Gallery | The Raghurajpur Canvas: photographs in an asymmetric masonry, each in a Mukteswar-torana arch with a finial; on hover a red-and-black Pattachitra scroll border fades in; tap to enlarge |
+| Gallery | The Raghurajpur Canvas: photographs in an asymmetric masonry on the page cream among faint white flowers (`public/art/gallery-flowers.svg`), each in a painted Pattachitra arch (`art/PattachitraArch.tsx`: a band of flowers and leaves, two peacocks and a lotus beneath) with a finial; tap to enlarge |
 | RSVP | The Jhoti Welcome: one clean card inside a red rice-paste jhoti frame; mustard-gold buttons; accepting blooms a gold ornament |
 | Blessings Wall | The Ananda Bazar: blessings on talapatra palm leaves in a swipeable carousel; a marigold drops onto a guest's leaf when they send one |
 | Venue, Travel & Stay | The Path to Purushottam Kshetra: off-white cards with gold Kalash markers in place of map pins; a golden "Atithi Culture & Style Guide" button opens colours, handlooms and places to visit |

@@ -4,6 +4,7 @@ import { useInView } from "@/hooks/useInView";
 import { showPlaceholders } from "@/lib/placeholders";
 import { EASE } from "@/lib/motion";
 import { Sheet } from "@/components/ui/Sheet";
+import { ARCH_W, PattachitraArch, photoBox } from "@/components/art/PattachitraArch";
 
 type Photo = (typeof wedding.gallery.photos)[number];
 
@@ -17,11 +18,12 @@ const PLACEHOLDERS: Photo[] = [true, false, false, true, true, false].map((tall,
 
 /**
  * Section 07 — The Raghurajpur Canvas.
- * A clean cream canvas hung like an art exhibition: the couple's photographs
- * in an asymmetric two-column masonry, each set in an arch drawn from the
- * stone torana of the Mukteswar Temple. On hover (or keyboard focus) a
- * red-and-black Pattachitra scroll border fades in around the arch; a tap
- * opens the photograph larger. Hidden in production until photos are added.
+ * The couple's photographs hung like an exhibition on the page cream, among
+ * faint white flowers: an asymmetric two-column masonry, each photograph in
+ * a painted Pattachitra arch (a band of flowers and leaves, two peacocks
+ * and a lotus beneath — after the couple's design) crowned with the Mukteswar
+ * torana's finial. A tap opens the photograph larger. Hidden in production
+ * until photos are added.
  */
 export function Gallery() {
   const { eyebrow, heading, photos } = wedding.gallery;
@@ -35,7 +37,9 @@ export function Gallery() {
   const columns = [items.filter((_, i) => i % 2 === 0), items.filter((_, i) => i % 2 === 1)];
 
   return (
-    <section id="gallery" aria-labelledby="gallery-heading" className="px-[var(--gutter)] py-[var(--section-y)]" style={{ backgroundColor: "rgb(var(--page))" }}>
+    <section id="gallery" aria-labelledby="gallery-heading" className="px-[var(--gutter)] py-[var(--section-y)]"
+      style={{ backgroundColor: "rgb(var(--page))", backgroundImage: "url(/art/gallery-flowers.svg)", backgroundSize: "280px auto" }}
+    >
       <div ref={headerRef} className="text-center" style={{ opacity: headerIn ? 1 : 0, transition: `opacity 900ms ${EASE.silk}` }}>
         <p className="eyebrow">{eyebrow}</p>
         <h2 id="gallery-heading" className="mt-2 text-[2.25rem]">
@@ -78,18 +82,13 @@ export function Gallery() {
 function ArchFrame({ photo, index, onOpen }: { photo: Photo; index: number; onOpen?: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { threshold: 0.25 });
-  const aspect = photo.tall ? "aspect-[3/4.4]" : "aspect-[3/3.6]";
+  const height = photo.tall ? 440 : 360;
 
   const frame = (
     <>
-      {/* Pattachitra scroll border: fades in on hover or focus */}
-      <span
-        aria-hidden
-        className="pattachitra-band absolute inset-0 rounded-t-full opacity-0 transition-opacity duration-500 ease-silk group-hover:opacity-100 group-focus-visible:opacity-100"
-      />
-      {/* The stone arch: a carved outer line, a cream reveal, then the photograph */}
-      <div className="relative rounded-t-full border-[1.5px] bg-[#FDFBF7] p-[4px]" style={{ borderColor: STONE }}>
-        <div className={`relative overflow-hidden rounded-t-full ${aspect}`}>
+      {/* The painted Pattachitra arch, with the photograph set under its window */}
+      <div className="relative drop-shadow-[0_10px_14px_rgb(90_50_10/0.18)]" style={{ aspectRatio: `${ARCH_W} / ${height}` }}>
+        <div className="absolute overflow-hidden rounded-t-full bg-[#2B1A14]" style={photoBox(height)}>
           {photo.src ? (
             <img
               src={photo.src}
@@ -113,6 +112,7 @@ function ArchFrame({ photo, index, onOpen }: { photo: Photo; index: number; onOp
             </div>
           )}
         </div>
+        <PattachitraArch height={height} className="pointer-events-none absolute inset-0 h-full w-full" />
       </div>
       {/* Springing line of the arch: small carved brackets where the curve meets the pillars */}
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 aspect-[2/1]">
