@@ -6,6 +6,7 @@ import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { BackendError, backendReady, newId, submitRsvp } from "@/lib/backend";
 import { canAddToCalendar, downloadWeddingCalendar } from "@/lib/calendar";
 import { EASE } from "@/lib/motion";
+import { showPlaceholders } from "@/lib/placeholders";
 import { formatVenueDate, parseVenueDateTime, venueDateKey } from "@/lib/venueTime";
 import { AcceptPlaque, GuaThali, LotusConfirm } from "@/components/art/RsvpArt";
 import { Button } from "@/components/ui/Button";
@@ -37,6 +38,15 @@ function rsvpClosed(): boolean {
 
 const coupleNames = () => wedding.invitation.names.join(" & ");
 const withNames = (text: string) => text.replace("{names}", coupleNames());
+
+/**
+ * Without a database on the live site (no Supabase keys yet), while the site
+ * shows its full structure the RSVP still runs end to end as a preview —
+ * nothing is saved, and the form and the seal both say so. Otherwise it shows
+ * the design with a note to contact the family.
+ */
+const PREVIEW = !backendReady && showPlaceholders;
+const PREVIEW_NOTE = "Preview — online responses aren't being saved yet.";
 
 /** The cream card the form sits on. */
 const CARD = "mt-8 rounded-2xl border border-[#E9D6AC] bg-[#FFFDF8] px-5 pb-7 pt-6 text-left shadow-[0_18px_40px_-22px_rgb(60_30_10/0.45)]";
@@ -113,8 +123,8 @@ function RsvpBody() {
     setNameError(null);
 
     const response: SavedResponse = { name: n, attending, attendees: attending ? attendees : 0 };
-    if (trap) {
-      setSaved(response); // bot: look successful, store nothing
+    if (trap || PREVIEW) {
+      setSaved(response); // a bot, or the preview: show the seal, store nothing
       setPhase("done");
       return;
     }
@@ -155,7 +165,7 @@ function RsvpBody() {
   };
 
   // ── Done: the blooming seal ──
-  if (phase === "done" && saved) return <Confirmation saved={saved} onAnother={startAnother} />;
+  if (phase === "done" && saved) return <Confirmation saved={saved} onAnother={startAnother} preview={PREVIEW} />;
 
   const intro = (
     <>
@@ -181,24 +191,8 @@ function RsvpBody() {
     </>
   );
 
-  // ── Closed / unavailable ──
-  if (rsvpClosed() || !backendReady) {
-    return (
-      <div>
-        {intro}
-        <p className="t-body mt-4 text-ink-soft">
-          {rsvpClosed()
-            ? `Responses closed on ${deadlineDate}. Please contact the family directly.`
-            : "Online responses will open soon. Meanwhile, please reach out to the family directly."}
-        </p>
-        {wedding.contact.people.length > 0 && (
-          <a href="#contact" className="t-button mt-5 inline-block text-sindoor underline underline-offset-4">
-            Contact the family
-          </a>
-        )}
-      </div>
-    );
-  }
+  // Closed, or no database and not a preview: the design, with a note instead of the button
+  const unavailable = rsvpClosed() || (!backendReady && !PREVIEW);
 
   return (
     <div>
@@ -213,7 +207,22 @@ function RsvpBody() {
       <p className="t-quote mx-auto mt-1.5 max-w-[20rem] text-[17px]">{r.offerText}</p>
       {deadlineDate && <p className="t-note mt-1">Kindly reply by {deadlineDate}.</p>}
 
-      {phase === "invite" && (
+      {unavailable && (
+        <div className="mt-6">
+          <p className="t-body text-ink-soft">
+            {rsvpClosed()
+              ? `Responses closed on ${deadlineDate}. Please contact the family directly.`
+              : "Online responses will open soon. Meanwhile, please reach out to the family directly."}
+          </p>
+          {wedding.contact.people.length > 0 && (
+            <a href="#contact" className="t-button mt-4 inline-block text-sindoor underline underline-offset-4">
+              Contact the family
+            </a>
+          )}
+        </div>
+      )}
+
+      {!unavailable && phase === "invite" && (
         <div className="mt-6 flex flex-col items-center gap-1">
           {/* The ornate Accept plaque */}
           <button
@@ -234,7 +243,7 @@ function RsvpBody() {
         </div>
       )}
 
-      {phase === "form" && (
+      {!unavailable && phase === "form" && (
         <form
           ref={formRef}
           onSubmit={onSubmit}
@@ -284,6 +293,7 @@ function RsvpBody() {
           <Button variant="gold" type="submit" disabled={saving} className="w-full">
             {saving ? "Sending…" : attending ? "Confirm my presence" : "Send response"}
           </Button>
+          {PREVIEW && <p className="t-note text-center">{PREVIEW_NOTE}</p>}
           <p role="alert" className="t-note min-h-5 text-center font-medium text-sindoor">
             {error}
           </p>
@@ -307,7 +317,7 @@ function RsvpBody() {
 }
 
 /** Once the response is saved: the lotus seal, thanks, a blessing card, and Add to Calendar. */
-function Confirmation({ saved, onAnother }: { saved: SavedResponse; onAnother: () => void }) {
+function Confirmation({ saved, onAnother, preview }: { saved: SavedResponse; onAnother: () => void; preview: boolean }) {
   const c = wedding.rsvp.confirmed;
   const reduced = usePrefersReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
@@ -364,6 +374,7 @@ function Confirmation({ saved, onAnother }: { saved: SavedResponse; onAnother: (
         </button>
       )}
 
+      {preview && <p className="t-note mt-5 font-medium">{PREVIEW_NOTE}</p>}
       <p className="t-note mt-5">
         Replying for someone else, or need to change your answer?{" "}
         <button type="button" onClick={onAnother} className="font-medium underline underline-offset-4" style={{ color: MAROON }}>
