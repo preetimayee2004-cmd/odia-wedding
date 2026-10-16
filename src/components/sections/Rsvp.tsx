@@ -8,7 +8,7 @@ import { canAddToCalendar, downloadWeddingCalendar } from "@/lib/calendar";
 import { EASE } from "@/lib/motion";
 import { showPlaceholders } from "@/lib/placeholders";
 import { formatVenueDate, parseVenueDateTime, venueDateKey } from "@/lib/venueTime";
-import { AcceptPlaque, GuaThali, LotusConfirm } from "@/components/art/RsvpArt";
+import { AcceptPlaque, LotusConfirm, RiceShower } from "@/components/art/RsvpArt";
 
 const SAVED_KEY = "tila:rsvp";
 const MAROON = "#7A1424";
@@ -45,9 +45,10 @@ const PREVIEW_NOTE = "Preview — online responses aren't being saved yet.";
  * Between the side bands on the flowered cream, under the section heading:
  * "|| ଶ୍ରୀ ଗଣେଶାୟ ନମଃ ||", a framed "|| ଶୁଭ ବିବାହ ||", An Auspicious
  * Invitation and its words; a brass thali of gua with marigolds, rose petals
- * and two lit diyas; "Accept the Sacred Gua & Bless Us" and an ornate maroon
- * Accept Invitation plaque; Jai Jagannath. One tap accepts: a lotus blooms
- * into a gold-ringed seal with a white tick as petals scatter, over "RSVP
+ * and two lit diyas (the couple's image); "Accept the Sacred Gua & Bless Us"
+ * and an ornate maroon Accept Invitation plaque; Jai Jagannath. One tap
+ * accepts: a lotus blooms over a golden glow into a gold-ringed seal with a
+ * white tick as petals scatter and turmeric rice showers down, over "RSVP
  * Confirmed · ଧନ୍ୟବାଦ · Thank you!", a blessing card and Add to Calendar. The
  * acceptance is saved under the guest's name from their invitation link.
  */
@@ -87,6 +88,7 @@ function RsvpBody() {
   const r = wedding.rsvp;
   const { guestName, isPersonalized } = useGuest();
   const [accepted, setAccepted] = useState(hasAccepted);
+  const [justAccepted, setJustAccepted] = useState(false); // the rice shower plays only on the tap
   const [error, setError] = useState<string | null>(null);
   const responseId = useRef(newId()); // same id on retry → no duplicate rows
 
@@ -120,10 +122,11 @@ function RsvpBody() {
 
   const accept = () => {
     setAccepted(true);
+    setJustAccepted(true);
     if (!PREVIEW) void save();
   };
 
-  if (accepted) return <Confirmation preview={PREVIEW} error={error} onRetry={save} />;
+  if (accepted) return <Confirmation preview={PREVIEW} error={error} onRetry={save} shower={justAccepted} />;
 
   // Closed, or no database and not a preview: the design, with a note instead of the button
   const unavailable = rsvpClosed() || (!backendReady && !PREVIEW);
@@ -149,8 +152,20 @@ function RsvpBody() {
       </p>
       <p className="t-body mx-auto mt-2 max-w-[21rem]">{withNames(r.explanation)}</p>
 
-      {/* The offering of gua */}
-      <GuaThali className="mx-auto mt-4 block h-auto w-full max-w-[21rem]" />
+      {/* The offering of gua: the couple's image, its paper edges fading into the page */}
+      <img
+        src="/art/rsvp-gua-thali.webp"
+        width={372}
+        height={381}
+        alt="A brass thali of gua and sweets with marigolds and rose petals, beside two lit diyas"
+        loading="lazy"
+        decoding="async"
+        className="mx-auto mt-4 block h-auto w-full max-w-[21rem]"
+        style={{
+          WebkitMaskImage: "radial-gradient(closest-side, #000 72%, transparent 100%)",
+          maskImage: "radial-gradient(closest-side, #000 72%, transparent 100%)",
+        }}
+      />
 
       <h3 className="mx-auto mt-3 max-w-[20rem] font-serif text-[26px] font-semibold leading-tight [text-wrap:balance]" style={{ color: "var(--c-text)" }}>
         {r.offerHeading}
@@ -204,7 +219,7 @@ function RsvpBody() {
 }
 
 /** After Accept: the lotus seal, thanks, a blessing card, and Add to Calendar. */
-function Confirmation({ preview, error, onRetry }: { preview: boolean; error: string | null; onRetry: () => void }) {
+function Confirmation({ preview, error, onRetry, shower }: { preview: boolean; error: string | null; onRetry: () => void; shower: boolean }) {
   const c = wedding.rsvp.confirmed;
   const reduced = usePrefersReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
@@ -213,6 +228,7 @@ function Confirmation({ preview, error, onRetry }: { preview: boolean; error: st
   return (
     <div ref={ref} aria-live="polite">
       <LotusConfirm play={seen} still={reduced} className="mx-auto h-[12.5rem] w-[12.5rem]" />
+      {shower && !reduced && <RiceShower />}
 
       <p className="t-label mt-5 text-[13px] tracking-[3px]" style={{ color: "var(--c-text)" }}>
         {c.label}

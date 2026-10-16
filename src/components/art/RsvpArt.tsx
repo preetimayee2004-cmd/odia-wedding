@@ -1,126 +1,8 @@
-import type { CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
 
 const GOLD = "#C9A24D";
 const f1 = (n: number) => n.toFixed(1);
-
-/**
- * The offering of gua, after the couple's design: a brass thali heaped with
- * betel nuts, marigolds and rose petals on its rim, two lit diyas beside it,
- * over a faint white mandala. The flames flicker (`.dipa-flame`, index.css).
- */
-export function GuaThali({ className = "" }: { className?: string }) {
-  // the mandala behind
-  let mandala = "";
-  for (let k = 0; k < 16; k++) {
-    const a = (k / 16) * 360;
-    mandala += `<path d="M150 22C158 36 158 52 150 62 142 52 142 36 150 22Z" transform="rotate(${a} 150 112)"/>`;
-    mandala += `<circle cx="150" cy="14" r="2" transform="rotate(${a + 11.25} 150 112)"/>`;
-  }
-
-  // rose petals round the rim
-  let petals = "";
-  const roses = ["#E8577A", "#F18FA8", "#C9284A"];
-  for (let k = 0; k < 15; k++) {
-    const t = (k / 15) * Math.PI * 2 + 0.2;
-    const x = 140 + Math.cos(t) * 95;
-    const y = 124 + Math.sin(t) * 54;
-    const deg = (Math.atan2(Math.cos(t) * 54, -Math.sin(t) * 95) * 180) / Math.PI;
-    petals += `<ellipse cx="${f1(x)}" cy="${f1(y)}" rx="6.5" ry="3.6" transform="rotate(${f1(deg)} ${f1(x)} ${f1(y)})" fill="${roses[k % 3]}" stroke="#9E1F3A" stroke-width="0.4"/>`;
-  }
-
-  // the heap of gua, back rows first
-  let nuts = "";
-  const rows: Array<[number, number, number]> = [
-    [96, 6, 0], // y, count, x offset
-    [104, 7, -7],
-    [113, 8, 0],
-    [122, 8, -7],
-    [131, 7, 0],
-  ];
-  rows.forEach(([y, n, dx]) => {
-    for (let i = 0; i < n; i++) {
-      const x = 140 - ((n - 1) * 15) / 2 + i * 15 + dx + ((i * 7) % 3) - 1;
-      nuts += `<g transform="translate(${f1(x)} ${y})"><ellipse rx="9" ry="7.4" fill="url(#gua-nut)" stroke="#4E2A10" stroke-width="0.6"/><path d="M-5-2c2-3 6-3 9-1M-6 2c3-1 7-1 11 1" fill="none" stroke="#5A3214" stroke-width="0.5" opacity="0.6"/><ellipse cx="-3" cy="-3" rx="3" ry="1.6" fill="#E3B27C" opacity="0.55"/></g>`;
-    }
-  });
-  nuts += `<g transform="translate(140 88)"><ellipse rx="9" ry="7.4" fill="url(#gua-nut)" stroke="#4E2A10" stroke-width="0.6"/><ellipse cx="-3" cy="-3" rx="3" ry="1.6" fill="#E3B27C" opacity="0.55"/></g>`;
-
-  // marigolds tucked into the heap
-  const marigold = (x: number, y: number, r: number) => {
-    let s = "";
-    for (let k = 0; k < 12; k++) {
-      const a = (k / 12) * Math.PI * 2;
-      s += `<circle cx="${f1(x + Math.cos(a) * r * 0.62)}" cy="${f1(y + Math.sin(a) * r * 0.62)}" r="${f1(r * 0.42)}" fill="${k % 2 ? "#F08A0E" : "#F7A21B"}" stroke="#B4520C" stroke-width="0.4"/>`;
-    }
-    return s + `<circle cx="${x}" cy="${y}" r="${f1(r * 0.42)}" fill="#E36B0A"/><circle cx="${f1(x - r * 0.15)}" cy="${f1(y - r * 0.15)}" r="${f1(r * 0.16)}" fill="#FFD36A"/>`;
-  };
-  const flowers = marigold(92, 104, 11) + marigold(108, 92, 10) + marigold(186, 106, 10) + marigold(178, 136, 9);
-
-  const diya = (x: number, y: number, s: number, delay: number) => (
-    <g transform={`translate(${x} ${y}) scale(${s})`}>
-      <circle cx="27" cy="-14" r="22" fill="url(#gua-glow)" className="dipa-glow" style={{ animationDelay: `${-delay}ms` }} />
-      <path d="M-24 0C-21 13 21 14 25 1L33-4C27-7 17-5 12-4 1-7-14-7-24 0Z" fill="url(#gua-brass)" stroke="#6E4A12" strokeWidth="0.8" />
-      <path d="M-22 0C-14-4 4-5 12-3" fill="none" stroke="#FBE7A1" strokeWidth="1" opacity="0.7" />
-      <path d="M27-5C22-11 23-18 27-26 31-18 32-11 27-5Z" fill="url(#gua-flame)" className="dipa-flame" style={{ animationDelay: `${-delay}ms` }} />
-      <path d="M27-7C25-10 25-14 27-18 29-14 29-10 27-7Z" fill="#FFF6C8" className="dipa-flame" style={{ animationDelay: `${-delay}ms` }} />
-    </g>
-  );
-
-  return (
-    <svg viewBox="0 0 300 210" className={className} aria-hidden>
-      <defs>
-        <linearGradient id="gua-rim" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#F6DC8E" />
-          <stop offset="0.45" stopColor="#C9962B" />
-          <stop offset="1" stopColor="#8F6420" />
-        </linearGradient>
-        <radialGradient id="gua-well" cx="0.45" cy="0.4" r="0.7">
-          <stop offset="0" stopColor="#F3D27A" />
-          <stop offset="1" stopColor="#B8862B" />
-        </radialGradient>
-        <radialGradient id="gua-nut" cx="0.38" cy="0.35" r="0.75">
-          <stop offset="0" stopColor="#B9783F" />
-          <stop offset="1" stopColor="#6B3E1C" />
-        </radialGradient>
-        <linearGradient id="gua-brass" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#E6BE5A" />
-          <stop offset="1" stopColor="#9A6B1E" />
-        </linearGradient>
-        <linearGradient id="gua-flame" x1="0" y1="1" x2="0" y2="0">
-          <stop offset="0" stopColor="#F07A12" />
-          <stop offset="1" stopColor="#FFD84A" />
-        </linearGradient>
-        <radialGradient id="gua-glow">
-          <stop offset="0" stopColor="#FFE9A8" stopOpacity="0.8" />
-          <stop offset="1" stopColor="#FFE9A8" stopOpacity="0" />
-        </radialGradient>
-        <filter id="gua-soft" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="5" />
-        </filter>
-      </defs>
-
-      {/* the mandala */}
-      <g fill="none" stroke="#fff" strokeWidth="1.1" opacity="0.75">
-        <circle cx="150" cy="112" r="98" />
-        <circle cx="150" cy="112" r="90" strokeDasharray="1 4" />
-        <g dangerouslySetInnerHTML={{ __html: mandala }} />
-      </g>
-
-      {/* the thali */}
-      <ellipse cx="142" cy="136" rx="106" ry="58" fill="#5A3210" opacity="0.28" filter="url(#gua-soft)" />
-      <ellipse cx="140" cy="124" rx="104" ry="60" fill="url(#gua-rim)" stroke="#7E5A18" strokeWidth="0.8" />
-      <ellipse cx="140" cy="124" rx="98" ry="56.5" fill="none" stroke="#FBE7A1" strokeWidth="0.8" opacity="0.6" />
-      <ellipse cx="140" cy="124" rx="94" ry="54" fill="none" stroke="#7E5A18" strokeWidth="1.2" strokeDasharray="0.1 4" strokeLinecap="round" />
-      <ellipse cx="140" cy="122" rx="84" ry="47" fill="url(#gua-well)" stroke="#7E5A18" strokeWidth="0.8" />
-      <ellipse cx="140" cy="122" rx="77" ry="42.5" fill="none" stroke="#8F6420" strokeWidth="0.8" strokeDasharray="2 3" opacity="0.7" />
-      <g dangerouslySetInnerHTML={{ __html: petals + nuts + flowers }} />
-
-      {/* two lit diyas */}
-      {diya(220, 182, 1.25, 0)}
-      {diya(262, 158, 1.02, 700)}
-    </svg>
-  );
-}
 
 /** The Accept button's plaque: a maroon cartouche edged in gold, with a small kalash finial. */
 export function AcceptPlaque({ className = "" }: { className?: string }) {
@@ -151,9 +33,10 @@ export function AcceptPlaque({ className = "" }: { className?: string }) {
 }
 
 /**
- * The confirmation seal: a pink lotus blooms, a gold ring draws itself round
- * it, a red circle pops up in its heart and a white tick is drawn — while
- * marigold and rose petals scatter outward. `play` starts it; `still` shows
+ * The confirmation seal: a pink lotus blooms ring by ring over a soft golden
+ * glow, a thin gold ring draws itself round it, a red circle pops up in its
+ * heart and a white tick is drawn — while marigold and rose petals scatter
+ * outward. `play` starts it; `still` shows
  * the finished seal at once (reduced motion). Styles: `.lc` in index.css.
  */
 export function LotusConfirm({ play, still = false, className = "" }: { play: boolean; still?: boolean; className?: string }) {
@@ -161,8 +44,8 @@ export function LotusConfirm({ play, still = false, className = "" }: { play: bo
     `M0 0C${f1(-w / 2)} ${f1(-len * 0.35)} ${f1(-w / 2)} ${f1(-len * 0.75)} 0 ${f1(-len)}C${f1(w / 2)} ${f1(-len * 0.75)} ${f1(w / 2)} ${f1(-len * 0.35)} 0 0Z`;
   const layers = [
     { n: 8, len: 80, w: 36, rot: 0, fill: "#F29BB5", stroke: "#DD7393", delay: 0 },
-    { n: 8, len: 64, w: 32, rot: 22.5, fill: "#F6B3C6", stroke: "#E3849F", delay: 160 },
-    { n: 8, len: 48, w: 26, rot: 0, fill: "#FBCFDB", stroke: "#E99AB0", delay: 320 },
+    { n: 8, len: 64, w: 32, rot: 22.5, fill: "#F6B3C6", stroke: "#E3849F", delay: 260 },
+    { n: 8, len: 48, w: 26, rot: 0, fill: "#FBCFDB", stroke: "#E99AB0", delay: 520 },
   ];
   const burst = Array.from({ length: 18 }, (_, k) => {
     const marigold = k % 2 === 0;
@@ -181,7 +64,15 @@ export function LotusConfirm({ play, still = false, className = "" }: { play: bo
   return (
     <div className={`lc relative ${play ? "lc-play" : ""} ${still ? "lc-static" : ""} ${className}`}>
       <svg viewBox="0 0 200 200" className="relative h-full w-full overflow-visible" aria-hidden>
-        <circle className="lc-ring" cx="100" cy="100" r="92" fill="none" stroke={GOLD} strokeWidth="5" pathLength={1} transform="rotate(-90 100 100)" />
+        <defs>
+          <radialGradient id="lc-glow-fill">
+            <stop offset="0" stopColor="#FFE08A" stopOpacity="0.75" />
+            <stop offset="0.55" stopColor="#F6CF6A" stopOpacity="0.35" />
+            <stop offset="1" stopColor="#F6CF6A" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        <circle className="lc-glow" cx="100" cy="100" r="104" fill="url(#lc-glow-fill)" />
+        <circle className="lc-ring" cx="100" cy="100" r="92" fill="none" stroke={GOLD} strokeWidth="3" pathLength={1} transform="rotate(-90 100 100)" />
         {layers.map((l, li) => (
           <g key={li} className="lc-layer" style={{ "--d": `${l.delay}ms` } as CSSProperties}>
             {Array.from({ length: l.n }, (_, k) => (
@@ -207,5 +98,51 @@ export function LotusConfirm({ play, still = false, className = "" }: { play: bo
         </span>
       ))}
     </div>
+  );
+}
+
+/**
+ * A blessing of turmeric rice: about 110 yellow grains shower down over the
+ * whole screen when the guest accepts — most from the centre-top, a few from
+ * wider — each with its own speed, delay, drift and spin, fading as it falls.
+ * Removed from the page after five seconds. Styles: `.rice-grain` in index.css.
+ */
+export function RiceShower() {
+  const [done, setDone] = useState(false);
+  useEffect(() => {
+    const t = window.setTimeout(() => setDone(true), 5000);
+    return () => clearTimeout(t);
+  }, []);
+
+  const grains = useMemo(() => {
+    let seed = 11;
+    const R = () => {
+      seed = (seed * 9301 + 49297) % 233280;
+      return seed / 233280;
+    };
+    return Array.from({ length: 110 }, (_, k) => {
+      const wide = k % 4 === 0;
+      // most near the centre-top: a narrow bell around 50%, a few anywhere
+      const x = wide ? 4 + R() * 92 : 50 + (R() + R() + R() - 1.5) * 26;
+      return {
+        "--x": `${x.toFixed(1)}vw`,
+        "--y0": `${(-4 - R() * 10).toFixed(1)}vh`,
+        "--dx": `${((R() - 0.5) * 22).toFixed(1)}vw`,
+        "--r0": `${(R() * 360).toFixed(0)}deg`,
+        "--spin": `${((R() - 0.5) * 720).toFixed(0)}deg`,
+        "--dur": `${(1.6 + R() * 1.4).toFixed(2)}s`,
+        "--delay": `${(R() * 1.6).toFixed(2)}s`,
+      } as CSSProperties;
+    });
+  }, []);
+
+  if (done) return null;
+  return createPortal(
+    <div aria-hidden className="pointer-events-none fixed inset-0 z-[65] overflow-hidden">
+      {grains.map((style, k) => (
+        <span key={k} className="rice-grain" style={style} />
+      ))}
+    </div>,
+    document.body,
   );
 }

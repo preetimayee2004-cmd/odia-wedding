@@ -743,6 +743,12 @@
   transform-origin: 100px 100px;
   transform: scale(0);
 }
+.lc .lc-glow {
+  transform-box: view-box;
+  transform-origin: 100px 100px;
+  transform: scale(0.4);
+  opacity: 0;
+}
 .lc-petal {
   position: absolute;
   left: 50%;
@@ -754,12 +760,17 @@
   pointer-events: none;
 }
 .lc.lc-play .lc-layer { animation: lc-bloom 0.9s cubic-bezier(0.2, 0.9, 0.25, 1.15) var(--d) both; }
-.lc.lc-play .lc-ring { animation: lc-draw 0.9s ease-out 0.75s both; }
-.lc.lc-play .lc-dot { animation: lc-pop 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) 1.35s both; }
-.lc.lc-play .lc-tick { animation: lc-draw 0.45s ease-out 1.7s both; }
+.lc.lc-play .lc-glow { animation: lc-glow 1.4s ease-out 0.15s both; }
+.lc.lc-play .lc-ring { animation: lc-draw 0.9s ease-out 0.9s both; }
+.lc.lc-play .lc-dot { animation: lc-pop 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) 1.5s both; }
+.lc.lc-play .lc-tick { animation: lc-draw 0.45s ease-out 1.85s both; }
 .lc.lc-play .lc-petal { animation: lc-burst 1.7s cubic-bezier(0.2, 0.7, 0.3, 1) var(--d) both; }
 @keyframes lc-bloom {
   from { transform: scale(0.25) rotate(-30deg); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes lc-glow {
+  from { transform: scale(0.4); opacity: 0; }
   to { transform: none; opacity: 1; }
 }
 @keyframes lc-draw {
@@ -776,7 +787,31 @@
 }
 /* reduced motion: the finished seal, no scatter */
 .lc.lc-static .lc-layer,
+.lc.lc-static .lc-glow,
 .lc.lc-static .lc-dot { animation: none; transform: none; opacity: 1; }
 .lc.lc-static .lc-ring,
 .lc.lc-static .lc-tick { animation: none; stroke-dashoffset: 0; }
 .lc.lc-static .lc-petal { display: none; }
+
+/* The turmeric rice shower when the guest accepts (art/RsvpArt.tsx RiceShower) */
+.rice-grain {
+  position: absolute;
+  top: 0;
+  left: var(--x);
+  width: 5px;
+  height: 11px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #fff4b8, #f2c94c 55%, #d9a21b);
+  box-shadow: 0 1px 1.5px rgb(120 80 0 / 0.35);
+  opacity: 0;
+  animation: rice-fall var(--dur) cubic-bezier(0.35, 0.1, 0.7, 1) var(--delay) both;
+}
+@keyframes rice-fall {
+  0% { opacity: 0; transform: translate3d(0, var(--y0), 0) rotate(var(--r0)); }
+  8% { opacity: 1; }
+  75% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(var(--dx), 105vh, 0) rotate(calc(var(--r0) + var(--spin))); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rice-grain { display: none; }
+}
