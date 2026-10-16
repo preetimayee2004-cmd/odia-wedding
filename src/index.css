@@ -300,3 +300,253 @@
 .sound-float {
   animation: fade-in 700ms ease-out 300ms both;
 }
+
+/* ---------- Wedding Events: a vine timeline ----------
+   A green vine zigzags between flowers (marigold, champa, lotus), each with
+   gold dust, a name, an Odia name and a details button. `.ev-motion` is on
+   the section unless reduced motion is preferred; `.ev-paused` while it is
+   off screen. */
+.ev {
+  --ev-ink: #3b2416;
+  --ev-ink-soft: #6b4a33;
+  --ev-red: #a51c1c;
+  --ev-gold: #c9a24b;
+  --ev-gold-soft: #e2cc9a;
+  --ev-gold-ink: #8a6420; /* small gold labels: dark enough to read on cream */
+  --ev-tan: #cfb089;
+  --ev-card: #fffbf3;
+  --ev-band: calc(100% * 35 / 768); /* the side bands' width */
+  --ev-ease: cubic-bezier(0.22, 0.7, 0.2, 1);
+}
+.ev-paused * {
+  animation-play-state: paused !important;
+}
+.ev-title {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 42px;
+  font-weight: 500;
+  line-height: 1.05;
+  color: var(--ev-ink);
+}
+.ev-divider span {
+  width: 72px;
+  height: 1px;
+}
+.ev-divider span:first-child { background: linear-gradient(to left, var(--ev-gold), transparent); }
+.ev-divider span:last-child { background: linear-gradient(to right, var(--ev-gold), transparent); }
+.ev-divider i {
+  width: 7px;
+  height: 7px;
+  transform: rotate(45deg);
+  border: 1px solid var(--ev-gold);
+  background: #f3e2b8;
+}
+
+/* the vine */
+.ev-vine .stem { fill: none; stroke: #2c5719; stroke-width: 5.5; stroke-linecap: round; }
+.ev-vine .stem-mid { fill: none; stroke: #467d2b; stroke-width: 3.4; stroke-linecap: round; }
+.ev-vine .stem-hl { fill: none; stroke: #b2da77; stroke-width: 1.1; stroke-linecap: round; opacity: 0.85; }
+.ev-vine .tendril { fill: none; stroke: #3f7426; stroke-width: 1.5; stroke-linecap: round; }
+.ev-vine .lf { transform-box: view-box; transform-origin: 0 0; transition: transform 0.7s var(--ev-ease), opacity 0.5s; }
+.ev-motion .ev-vine .lf:not(.on) { transform: scale(0); opacity: 0; }
+
+/* each ceremony: flower, name and button share one column, centred on the flower */
+.ev-col {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 214px;
+  text-align: center;
+}
+.ev-left .ev-col { margin-left: max(calc(var(--ev-band) + 8px), calc(24% - 107px)); }
+.ev-right .ev-col { margin-left: auto; margin-right: max(calc(var(--ev-band) + 8px), calc(24% - 107px)); }
+
+.ev-flower { position: relative; width: clamp(100px, 30vw, 124px); aspect-ratio: 1; }
+.ev-dust { position: absolute; left: -50%; top: -50%; width: 200%; height: 200%; overflow: visible; pointer-events: none; transition: opacity 1.2s 0.2s; }
+.ev-pop { position: relative; width: 100%; height: 100%; transition: transform 1s cubic-bezier(0.2, 0.9, 0.25, 1.15), opacity 0.7s; }
+.ev-bloom {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 9px 10px rgb(90 50 10 / 0.24)) drop-shadow(0 2px 2px rgb(90 50 10 / 0.18));
+}
+.ev-motion .ev-bloom { animation: ev-sway var(--sway-d, 5s) ease-in-out var(--sway-delay, 0s) infinite alternate; }
+@keyframes ev-sway {
+  from { transform: rotate(-4deg) translateX(-1px); }
+  to { transform: rotate(4deg) translateX(1px); }
+}
+.ev-twinkle { transform-box: fill-box; transform-origin: center; }
+.ev-motion .ev-twinkle { animation: ev-twinkle 3.4s ease-in-out infinite; }
+@keyframes ev-twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.45); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+.ev-name {
+  position: relative;
+  margin-top: 12px;
+  padding: 0 16px;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 31px;
+  font-weight: 600;
+  line-height: 1.05;
+  white-space: nowrap;
+  color: var(--ev-ink);
+  /* a soft halo keeps the name clear of the vine behind it */
+  text-shadow: 0 0 6px rgb(var(--page)), 0 0 12px rgb(var(--page)), 0 0 18px rgb(var(--page));
+}
+.ev-name::before,
+.ev-name::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -2px;
+  border-radius: 50%;
+  background: var(--ev-tan);
+  box-shadow: 0 0 0 3px rgb(var(--page));
+}
+.ev-name::before { left: 0; }
+.ev-name::after { right: 0; }
+.ev-odia {
+  margin-top: 4px;
+  font-family: "Noto Sans Oriya", "Noto Serif Oriya", sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--ev-red);
+  text-shadow: 0 0 6px rgb(var(--page)), 0 0 12px rgb(var(--page));
+}
+
+.ev-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-top: 14px;
+  padding: 0 18px 0 21px;
+  border: 1px solid var(--ev-gold-soft);
+  border-radius: 999px;
+  background: #fffaf1;
+  color: var(--ev-ink);
+  font: 500 11.5px/1 "Jost", system-ui, sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 8px 18px -10px rgb(110 70 20 / 0.45), inset 0 1px 0 #fff;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+.ev-toggle:hover { background: #fff5e3; }
+.ev-toggle:active { transform: scale(0.97); }
+.ev-toggle:focus-visible { outline: 2px solid var(--ev-gold-ink); outline-offset: 3px; }
+.ev-toggle svg { width: 14px; height: 14px; color: var(--ev-gold-ink); transition: transform 0.45s var(--ev-ease); }
+.ev-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+
+/* entrance, once the flower scrolls into view */
+.ev-motion .ev-item:not(.in) .ev-pop { transform: scale(0.55) rotate(-25deg); opacity: 0; }
+.ev-motion .ev-item:not(.in) .ev-dust { opacity: 0; }
+.ev-motion .ev-name,
+.ev-motion .ev-odia,
+.ev-motion .ev-toggle { transition: opacity 0.7s, transform 0.7s var(--ev-ease), background 0.2s, box-shadow 0.2s; }
+.ev-motion .ev-item:not(.in) .ev-name,
+.ev-motion .ev-item:not(.in) .ev-odia,
+.ev-motion .ev-item:not(.in) .ev-toggle { opacity: 0; transform: translateY(12px); }
+.ev-motion .ev-item.in .ev-name { transition-delay: 0.25s; }
+.ev-motion .ev-item.in .ev-odia { transition-delay: 0.35s; }
+.ev-motion .ev-item.in .ev-toggle { transition-delay: 0.45s, 0.45s, 0s, 0s; }
+
+/* the details card */
+.ev-details {
+  display: grid;
+  grid-template-rows: 0fr;
+  margin: 0 calc(var(--ev-band) + 10px);
+  opacity: 0;
+  visibility: hidden;
+  transition: grid-template-rows 0.5s var(--ev-ease), opacity 0.35s, visibility 0s 0.5s;
+}
+.ev-details.open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  transition: grid-template-rows 0.5s var(--ev-ease), opacity 0.45s 0.05s, visibility 0s;
+}
+.ev-details.instant { transition: none; }
+.ev-details-inner { min-height: 0; overflow: hidden; margin: 0 -12px; }
+.ev-details-pad { padding: 0 12px 26px; } /* room for the card's shadow inside the clipped box */
+.ev-card {
+  margin-top: 18px;
+  padding: 8px 22px;
+  border: 1px solid #ecdcb6;
+  border-radius: 20px;
+  background: var(--ev-card);
+  box-shadow: 0 16px 32px -20px rgb(110 70 20 / 0.5), inset 0 0 0 4px var(--ev-card), inset 0 0 0 5px rgb(201 162 75 / 0.18);
+}
+.ev-row { padding: 13px 0 12px; text-align: left; }
+.ev-row + .ev-row { border-top: 1px dashed #e6d3a8; }
+.ev-row dt {
+  margin-bottom: 6px;
+  font: 600 10.5px/1 "Jost", system-ui, sans-serif;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ev-gold-ink);
+}
+.ev-row dd {
+  margin: 0;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1.35;
+  white-space: pre-line;
+  color: var(--ev-ink);
+}
+.ev-row.about dd { font-size: 18px; color: var(--ev-ink-soft); }
+.ev-maplink {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--ev-gold-soft);
+  font: 500 11px/1 "Jost", system-ui, sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ev-gold-ink);
+}
+.ev-maplink:hover { border-bottom-color: var(--ev-gold-ink); }
+
+/* falling rose and marigold petals, over the section only */
+.ev-petal {
+  position: absolute;
+  top: 0;
+  left: var(--x);
+  width: calc(13px * var(--s));
+  height: calc(13px * var(--s));
+  opacity: 0.8;
+  animation: ev-fall var(--d) linear var(--delay) infinite;
+}
+.ev-petal svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  animation: ev-flutter calc(var(--d) / 4) ease-in-out var(--delay) infinite alternate;
+}
+@keyframes ev-fall {
+  from { transform: translate3d(0, -40px, 0); }
+  to { transform: translate3d(0, calc(100lvh + 40px), 0); }
+}
+@keyframes ev-flutter {
+  from { transform: translateX(calc(var(--drift) * -1)) rotate(var(--r0)) rotateX(0deg); }
+  to { transform: translateX(var(--drift)) rotate(calc(var(--r0) + 120deg)) rotateX(65deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ev-petal,
+  .ev-petal svg,
+  .ev-bloom,
+  .ev-twinkle {
+    animation: none !important;
+  }
+}

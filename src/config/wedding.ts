@@ -63,10 +63,17 @@ export interface WeddingEvent {
   name: string;
   /** Confirm spelling with the family. */
   odiaName: string | null;
-  /** When, as it should read, e.g. "4:00 PM onwards" or "Early Morning (Next Day)". */
+  /** The day, as it should read, e.g. "Friday, 12 February 2027". */
+  date: string | null;
+  /** The time, as it should read, e.g. "4:00 PM onwards" or "Early Morning (Next Day)". */
   when: string | null;
-  venueName: string | null;
+  /** A sentence or two on the ritual, shown in its details card. */
+  about: string | null;
+  /** Use "\n" for a new line, " | " between two phrases. */
   dressCode: string | null;
+  venueName: string | null;
+  /** A Google Maps link for the venue; shows "View map" in the details card. */
+  mapUrl: string | null;
 }
 
 /** Travel information — every value must be verified, never estimated. */
@@ -153,8 +160,6 @@ export interface WeddingConfig {
   };
   events: {
     heading: string;
-    /** Line under the heading, e.g. "|| ଶୁଭ ବିବାହ ଉତ୍ସବ ||". */
-    odiaHeading: string | null;
     items: WeddingEvent[];
   };
   gallery: {
@@ -359,40 +364,111 @@ export const wedding: WeddingConfig = {
   },
   events: {
     heading: "Wedding Events",
-    odiaHeading: "|| ଶୁଭ ବିବାହ ଉତ୍ସବ ||",
-    // SAMPLE — times, venues and dress codes from the couple's Wedding Events
-    // design; confirm each one (and every Odia spelling) with the family.
+    // SAMPLE — every date is a placeholder around the sample wedding date
+    // (Friday 12 February 2027); times, venues and dress codes are from the
+    // couple's Wedding Events design. Confirm each one (and every Odia
+    // spelling) with the family. Add a Google Maps link as `mapUrl` to show
+    // "View map" in that ceremony's details card.
     items: [
-      { id: "mehendi", name: "Mehendi", odiaName: "ମେହେନ୍ଦି", when: "10:00 AM – 1:00 PM", venueName: "Courtyard", dressCode: "Shades of green & yellow" },
+      {
+        id: "mehendi",
+        name: "Mehendi",
+        odiaName: "ମେହେନ୍ଦି",
+        date: "Wednesday, 10 February 2027",
+        when: "10:00 AM – 1:00 PM",
+        about: "Intricate henna is drawn on the bride's hands and feet amid songs and laughter. The darker the colour, the deeper the love, they say.",
+        dressCode: "Shades of green & yellow",
+        venueName: "Courtyard",
+        mapUrl: null,
+      },
       {
         id: "sangeet",
         name: "Sangeet",
         odiaName: "ସଙ୍ଗୀତ",
+        date: "Wednesday, 10 February 2027",
         when: "7:00 PM – 9:30 PM",
-        venueName: "Lotus Pavilion",
+        about: "An evening of music and dance as both families come together to sing, perform and celebrate.",
         dressCode: "Ladies: Glitter, glam, Indian or Indo-Western\nGentlemen: Suits or tuxedos (black, white or blue)",
+        venueName: "Lotus Pavilion",
+        mapUrl: null,
       },
       {
         id: "mangana",
         name: "Mangana",
-        odiaName: "ମଙ୍ଗନା",
+        odiaName: "ମଙ୍ଗନ",
+        date: "Friday, 12 February 2027",
         when: "9:00 AM – 10:30 AM",
-        venueName: "Mandap",
+        about: "Married women of the family anoint the bride with turmeric paste and bathe her, blessing her for the day ahead.",
         dressCode: "Traditional Odia attire | Pastel & earthy tones",
+        venueName: "Mandap",
+        mapUrl: null,
       },
-      { id: "barajatri", name: "Barajatri", odiaName: "ବରଯାତ୍ରୀ", when: "4:00 PM – 5:30 PM", venueName: "Main Lawn", dressCode: "Traditional wear | Bright & festive" },
+      {
+        id: "barajatri",
+        name: "Barajatri",
+        odiaName: "ବରଯାତ୍ରୀ",
+        date: "Friday, 12 February 2027",
+        when: "4:00 PM – 5:30 PM",
+        about: "The groom's wedding procession arrives with music and dancing as family and friends escort him to the venue.",
+        dressCode: "Traditional wear | Bright & festive",
+        venueName: "Main Lawn",
+        mapUrl: null,
+      },
       {
         id: "batabarana",
-        name: "Bata Barana",
-        odiaName: "ବାଟ ବରଣ",
+        name: "Batabaran",
+        odiaName: "ବରବରଣ",
+        date: "Friday, 12 February 2027",
         when: "5:30 PM – 6:30 PM",
-        venueName: "Entrance",
+        about: "The bride's family welcomes the groom at the entrance with aarti, tilak, sweets and the sound of conch shells.",
         dressCode: "Traditional Odia attire | Red, yellow & gold",
+        venueName: "Entrance",
+        mapUrl: null,
       },
-      { id: "hastaganthi", name: "Hasta Ganthi", odiaName: "ହସ୍ତଗଣ୍ଠି", when: "7:00 PM – 8:00 PM", venueName: "Mandap", dressCode: "Traditional wear | Red, maroon & gold" },
-      { id: "sindoor", name: "Sindoor Daan", odiaName: "ସିନ୍ଦୂର ଦାନ", when: "8:00 PM – 9:00 PM", venueName: "Mandap", dressCode: "Traditional wear | Soft & elegant" },
-      { id: "bidaai", name: "Bidaai", odiaName: "ବିଦାୟ", when: "9:00 PM – 10:00 PM", venueName: "Mandap", dressCode: "Traditional wear | Emotive & classy" },
-      { id: "reception", name: "Reception", odiaName: "ପ୍ରୀତିଭୋଜି", when: "8:00 PM onwards", venueName: "Lotus Pavilion", dressCode: "Formal/Western | Elegant & classy" },
+      {
+        id: "hastaganthi",
+        name: "Hastaganthi",
+        odiaName: "ହସ୍ତଗଣ୍ଠି",
+        date: "Friday, 12 February 2027",
+        when: "7:00 PM – 8:00 PM",
+        about: "The bride's father places her hand in the groom's, and their hands are tied together with a sacred thread.",
+        dressCode: "Traditional wear | Red, maroon & gold",
+        venueName: "Mandap",
+        mapUrl: null,
+      },
+      {
+        id: "sindoor",
+        name: "Sindoordaan",
+        odiaName: "ସିନ୍ଦୂରଦାନ",
+        date: "Friday, 12 February 2027",
+        when: "8:00 PM – 9:00 PM",
+        about: "The groom fills the parting of the bride's hair with sindoor, the vermilion mark of a married woman.",
+        dressCode: "Traditional wear | Soft & elegant",
+        venueName: "Mandap",
+        mapUrl: null,
+      },
+      {
+        id: "bidaai",
+        name: "Bidaai",
+        odiaName: "ବିଦାୟ",
+        date: "Friday, 12 February 2027",
+        when: "9:00 PM – 10:00 PM",
+        about: "A tender farewell as the bride leaves her parents' home for her new life, blessed by everyone she grew up with.",
+        dressCode: "Traditional wear | Emotive & classy",
+        venueName: "Mandap",
+        mapUrl: null,
+      },
+      {
+        id: "reception",
+        name: "Reception",
+        odiaName: "ରିସେପ୍ସନ୍",
+        date: "Sunday, 14 February 2027",
+        when: "8:00 PM onwards",
+        about: "An evening of dinner and celebration to welcome the newly-weds. Come and bless the couple.",
+        dressCode: "Formal/Western | Elegant & classy",
+        venueName: "Lotus Pavilion",
+        mapUrl: null,
+      },
     ],
   },
   gallery: {
