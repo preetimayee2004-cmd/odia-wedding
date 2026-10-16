@@ -422,28 +422,30 @@
 }
 
 .ev-toggle {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  margin-top: 14px;
-  padding: 0 18px 0 21px;
+  gap: 7px;
+  min-height: 36px;
+  margin-top: 13px;
+  padding: 0 14px 0 17px;
   border: 1px solid var(--ev-gold-soft);
   border-radius: 999px;
   background: #fffaf1;
   color: var(--ev-ink);
-  font: 500 11.5px/1 "Jost", system-ui, sans-serif;
-  letter-spacing: 0.16em;
+  font: 500 10.5px/1 "Jost", system-ui, sans-serif;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   white-space: nowrap;
   cursor: pointer;
   box-shadow: 0 8px 18px -10px rgb(110 70 20 / 0.45), inset 0 1px 0 #fff;
   transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
 }
+.ev-toggle::before { content: ""; position: absolute; inset: -4px 0; } /* keeps a 44px tap target */
 .ev-toggle:hover { background: #fff5e3; }
 .ev-toggle:active { transform: scale(0.97); }
 .ev-toggle:focus-visible { outline: 2px solid var(--ev-gold-ink); outline-offset: 3px; }
-.ev-toggle svg { width: 14px; height: 14px; color: var(--ev-gold-ink); transition: transform 0.45s var(--ev-ease); }
+.ev-toggle svg { width: 12px; height: 12px; color: var(--ev-gold-ink); transition: transform 0.45s var(--ev-ease); }
 .ev-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
 
 /* entrance, once the flower scrolls into view */

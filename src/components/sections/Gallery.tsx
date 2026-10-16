@@ -97,6 +97,7 @@ function ArchFrame({ photo, index, onOpen }: { photo: Photo; index: number; onOp
               loading="lazy"
               decoding="async"
               className="h-full w-full object-cover transition-transform duration-700 ease-silk group-hover:scale-[1.03]"
+              style={{ objectPosition: photo.focus, transformOrigin: photo.focus }}
             />
           ) : (
             <div

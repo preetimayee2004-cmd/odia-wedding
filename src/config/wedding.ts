@@ -167,9 +167,11 @@ export interface WeddingConfig {
     heading: string;
     /**
      * The couple's photographs, in order. `tall` photos take a taller arch in
-     * the masonry. With none, the section is hidden.
+     * the masonry; `focus` is where the arch's crop centres (CSS
+     * object-position — e.g. "right bottom" keeps a photographer's mark in
+     * view). With none, the section is hidden.
      */
-    photos: Array<{ src: string; alt: string; tall?: boolean }>;
+    photos: Array<{ src: string; alt: string; tall?: boolean; focus?: string }>;
   };
   travel: {
     eyebrow: string;
@@ -474,8 +476,16 @@ export const wedding: WeddingConfig = {
   gallery: {
     eyebrow: "The Raghurajpur Canvas",
     heading: "Gallery",
-    // e.g. { src: "/photos/haldi.jpg", alt: "…", tall: true }
-    photos: [],
+    // Shared by the couple, who confirmed they may be used (16 Oct 2026).
+    photos: [
+      { src: "/photos/gallery/bride-mukuta.webp", alt: "The bride in a golden mukuta and a yellow-and-red saree, smiling across the ceremony", tall: true, focus: "50% 30%" },
+      { src: "/photos/gallery/hands-marigolds.webp", alt: "Hands joined at the ceremony: mehendi, bangles and a ring among marigold garlands", focus: "68% 50%" },
+      { src: "/photos/gallery/rings.webp", alt: "Two hands showing their rings, then held together" },
+      { src: "/photos/gallery/under-the-veil.webp", alt: "The couple face to face beneath a red veil", tall: true, focus: "45% 40%" },
+      { src: "/photos/gallery/anklet.webp", alt: "The groom fastening an anklet on the bride's hennaed foot", tall: true },
+      // the photographer's SNAPSHOT mark sits bottom right: keep it in the crop
+      { src: "/photos/gallery/mehendi-palms.webp", alt: "Hennaed palms cupped together", focus: "right bottom" },
+    ],
   },
   travel: {
     eyebrow: "The Path to Purushottam Kshetra",
