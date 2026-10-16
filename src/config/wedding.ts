@@ -193,9 +193,16 @@ export interface WeddingConfig {
     maxLength: number;
   };
   rsvp: {
-    invitationLine: string;
+    /** Odia welcome at the top, e.g. "|| ନମସ୍କାର ||". */
+    odiaGreeting: string | null;
+    eyebrow: string;
     heading: string;
     explanation: string;
+    /** Above the Accept button. */
+    confirmHeading: string;
+    confirmHint: string;
+    /** Odia line on the Accept button, under "Accept Invitation". */
+    acceptOdia: string | null;
     /** Revealed after "Accept Invitation". */
     quote: string;
     /** Largest party one response may include (the guest included). */
@@ -505,9 +512,13 @@ export const wedding: WeddingConfig = {
     maxLength: 280,
   },
   rsvp: {
-    invitationLine: "It would mean the world to us to have you there.",
-    heading: "Kindly Confirm Your Presence",
-    explanation: "Please let us know whether you'll be able to join us, so we can welcome you properly.",
+    odiaGreeting: "|| ନମସ୍କାର ||",
+    eyebrow: "RSVP & Celebrations",
+    heading: "Will You Grace Our Special Day?",
+    explanation: "Under the divine blessings of Lord Jagannath, two hearts unite. Will you join us to witness and bless our sacred union?",
+    confirmHeading: "Confirm Your Presence",
+    confirmHint: "Tap the Accept Invitation button below",
+    acceptOdia: "ନିମନ୍ତ୍ରଣ ସ୍ୱୀକାର",
     quote: "Your presence will make our celebration even more special.",
     maxAttendees: 4,
     deadline: null,

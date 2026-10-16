@@ -6,7 +6,7 @@ import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { BackendError, backendReady, newId, submitRsvp } from "@/lib/backend";
 import { EASE } from "@/lib/motion";
 import { formatVenueDate, parseVenueDateTime, venueDateKey } from "@/lib/venueTime";
-import { BlessingBloom } from "@/components/art/RsvpArt";
+import { AcceptPlaque, BlessingBloom, KalashArch } from "@/components/art/RsvpArt";
 import { Button } from "@/components/ui/Button";
 import { controlClass, Field, Honeypot } from "@/components/ui/Field";
 
@@ -34,43 +34,39 @@ function rsvpClosed(): boolean {
 }
 
 /**
- * Section 08 — RSVP (The Jhoti Welcome).
- * One clean card on the page's ochre cream, framed by crisp red jhoti / chita
- * lines (the rice-paste patterns drawn at Odia doorsteps to welcome guests).
- * Accepting blooms a gold blessing ornament and reveals the quotation before
- * the form appears; the buttons are solid mustard gold. A success state is
- * shown only after the response is saved.
+ * Section 08 — RSVP & Celebrations.
+ * After the couple's design, on the page cream with its flowers between the
+ * side bands: "|| ନମସ୍କାର ||", the question, and a few words of blessing; a
+ * carved maroon arch holding a gold kalash; "Confirm Your Presence" and an
+ * ornate maroon Accept button carrying its Odia too. Accepting blooms a gold
+ * blessing and reveals the quotation, then the form, on a cream card. A
+ * success state is shown only after the response is saved.
  */
 export function Rsvp() {
   const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { threshold: 0.2 });
+  const inView = useInView(ref, { threshold: 0.15 });
 
   return (
-    <section
-      ref={ref}
-      id="rsvp"
-      aria-labelledby="rsvp-heading"
-      className="px-4 py-24"
-    >
+    <section ref={ref} id="rsvp" aria-labelledby="rsvp-heading" className="py-20 text-center" style={{ paddingInline: "calc(100% * 35 / 768 + 18px)" }}>
       <div
-        className="jhoti-frame relative mx-auto max-w-[23rem]"
+        className="mx-auto max-w-[24rem]"
         style={{
-          clipPath: inView ? "inset(0 0 0 0)" : "inset(50% 0 50% 0)",
-          transition: `clip-path 1300ms ${EASE.temple}`,
+          opacity: inView ? 1 : 0,
+          transform: inView ? "none" : "translateY(14px)",
+          transition: `opacity 900ms ${EASE.silk}, transform 1000ms ${EASE.silk}`,
         }}
       >
-        <div className="relative rounded-2xl bg-[#FFFDF8] px-6 pb-9 pt-8 text-center shadow-[0_18px_40px_-22px_rgb(60_30_10/0.45)]">
-          <div className="relative" style={{ opacity: inView ? 1 : 0, transition: `opacity 800ms ${EASE.silk} 900ms` }}>
-            <RsvpBody />
-          </div>
-        </div>
+        <RsvpBody />
       </div>
     </section>
   );
 }
 
+/** The cream card the form and the thank-you sit on. */
+const CARD = "mt-8 rounded-2xl border border-[#E9D6AC] bg-[#FFFDF8] px-5 pb-7 pt-6 shadow-[0_18px_40px_-22px_rgb(60_30_10/0.45)]";
+
 function RsvpBody() {
-  const { invitationLine, heading, explanation, quote, maxAttendees, deadline } = wedding.rsvp;
+  const { odiaGreeting, eyebrow, heading, explanation, confirmHeading, confirmHint, acceptOdia, quote, maxAttendees, deadline } = wedding.rsvp;
   const { guestName, isPersonalized } = useGuest();
   const reducedMotion = usePrefersReducedMotion();
 
@@ -169,7 +165,7 @@ function RsvpBody() {
   if (phase === "done" && saved) {
     const first = saved.name.split(" ")[0];
     return (
-      <div aria-live="polite">
+      <div aria-live="polite" className={CARD}>
         <BlessingBloom open className="mx-auto h-20 w-20" />
         <h2 id="rsvp-heading" ref={headingRef} tabIndex={-1} className="t-heading mt-3 focus:outline-none">
           Thank you, {first}!
@@ -191,10 +187,16 @@ function RsvpBody() {
 
   const intro = (
     <>
-      <p className="t-quote">{invitationLine}</p>
-      <h2 id="rsvp-heading" className="t-heading mt-3">
+      {odiaGreeting && (
+        <p lang="or" className="t-odia">
+          {odiaGreeting}
+        </p>
+      )}
+      <p className="t-label mt-2 text-[13px]">{eyebrow}</p>
+      <h2 id="rsvp-heading" className="t-heading mt-3 text-[#7A1424]">
         {heading}
       </h2>
+      <p className="t-quote mx-auto mt-3 max-w-[21rem]">{explanation}</p>
     </>
   );
 
@@ -224,14 +226,27 @@ function RsvpBody() {
 
       {phase === "invite" && (
         <>
-          <p className="t-body mt-4">
-            {explanation}
-            {deadlineDate && <span className="mt-1 block text-ink-soft">Kindly reply by {deadlineDate}.</span>}
-          </p>
-          <div className="mt-7 flex flex-col items-center gap-2">
-            <Button variant="gold" onClick={accept} className="w-full max-w-[15rem]">
-              Accept Invitation
-            </Button>
+          {/* The carved arch with its kalash */}
+          <KalashArch className="mx-auto mt-8 block h-auto w-[88%] max-w-[19rem]" />
+
+          <h3 className="t-event mt-7 text-[#7A1424]">{confirmHeading}</h3>
+          <p className="t-quote mt-1">{confirmHint}</p>
+          {deadlineDate && <p className="t-note mt-1">Kindly reply by {deadlineDate}.</p>}
+
+          <div className="mt-6 flex flex-col items-center gap-2">
+            {/* The ornate Accept button: a maroon plaque edged in gold */}
+            <button
+              type="button"
+              onClick={accept}
+              aria-label="Accept invitation"
+              className="relative block w-full max-w-[20rem] transition-transform duration-200 ease-silk active:scale-[0.98]"
+            >
+              <AcceptPlaque className="block h-auto w-full drop-shadow-[0_10px_14px_rgb(70_20_10/0.3)]" />
+              <span aria-hidden className="absolute inset-x-0 bottom-[6%] top-[20%] flex flex-col items-center justify-center leading-tight">
+                <span className="t-button text-[14px] text-[#F3D98C]">Accept Invitation</span>
+                {acceptOdia && <span className="mt-0.5 font-odia text-[14px] font-medium text-[#F3D98C]/90">• {acceptOdia}</span>}
+              </span>
+            </button>
             <button type="button" onClick={decline} className="t-button min-h-11 text-ink-soft underline decoration-gold/70 underline-offset-4">
               Unable to Attend
             </button>
@@ -239,77 +254,81 @@ function RsvpBody() {
         </>
       )}
 
-      {accepted && phase !== "invite" && (
-        <div className="mt-5">
-          <BlessingBloom open={phase === "celebrate" || phase === "form"} className="mx-auto h-24 w-24" />
-          <p
-            className="t-quote mt-3 text-sindoor"
-            style={{ opacity: 1, animation: reducedMotion ? undefined : `fade-in 900ms ${EASE.silk} 450ms both` }}
-          >
-            “{quote}”
-          </p>
-        </div>
-      )}
-
-      {phase === "form" && (
-        <form
-          onSubmit={onSubmit}
-          noValidate
-          className="relative mt-7 space-y-4"
-          style={{ animation: reducedMotion ? undefined : `fade-in 700ms ${EASE.silk} both` }}
-        >
-          <Field label="Your name" error={nameError}>
-            <input className={controlClass} value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" maxLength={80} />
-          </Field>
-
-          <fieldset className="text-left">
-            <legend className="t-label mb-1.5">Will you attend?</legend>
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                { value: true, label: "Joyfully accepts" },
-                { value: false, label: "Regretfully declines" },
-              ].map((o) => (
-                <label
-                  key={String(o.value)}
-                  className={`flex min-h-12 cursor-pointer items-center justify-center rounded-xl border px-2 text-center font-sans text-[15px] transition-colors duration-200 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-sindoor/40 ${attending === o.value ? "border-sindoor bg-sindoor/5 font-medium text-sindoor" : "border-gold/55 text-ink"}`}
-                >
-                  <input
-                    type="radio"
-                    name="attending"
-                    className="sr-only"
-                    checked={attending === o.value}
-                    onChange={() => setAttending(o.value)}
-                  />
-                  {o.label}
-                </label>
-              ))}
+      {phase !== "invite" && (
+        <div className={CARD}>
+          {accepted && (
+            <div>
+              <BlessingBloom open={phase === "celebrate" || phase === "form"} className="mx-auto h-24 w-24" />
+              <p
+                className="t-quote mt-3 text-sindoor"
+                style={{ opacity: 1, animation: reducedMotion ? undefined : `fade-in 900ms ${EASE.silk} 450ms both` }}
+              >
+                “{quote}”
+              </p>
             </div>
-          </fieldset>
-
-          {attending && maxAttendees > 1 && (
-            <Field label="Number of guests" hint={`Including you · up to ${maxAttendees}`}>
-              <select className={controlClass} value={attendees} onChange={(e) => setAttendees(Number(e.target.value))}>
-                {Array.from({ length: maxAttendees }, (_, i) => i + 1).map((n) => (
-                  <option key={n} value={n}>
-                    {n}
-                  </option>
-                ))}
-              </select>
-            </Field>
           )}
 
-          <Field label="Message for the couple" optional>
-            <textarea className={`${controlClass} min-h-24 resize-y`} value={message} onChange={(e) => setMessage(e.target.value)} maxLength={500} rows={3} />
-          </Field>
-          <Honeypot value={trap} onChange={setTrap} />
+          {phase === "form" && (
+            <form
+              onSubmit={onSubmit}
+              noValidate
+              className={`relative space-y-4 ${accepted ? "mt-7" : ""}`}
+              style={{ animation: reducedMotion ? undefined : `fade-in 700ms ${EASE.silk} both` }}
+            >
+              <Field label="Your name" error={nameError}>
+                <input className={controlClass} value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" maxLength={80} />
+              </Field>
 
-          <Button variant="gold" type="submit" disabled={saving} className="w-full">
-            {saving ? "Sending…" : "Send Response"}
-          </Button>
-          <p role="alert" className="t-note min-h-5 text-center font-medium text-sindoor">
-            {error}
-          </p>
-        </form>
+              <fieldset className="text-left">
+                <legend className="t-label mb-1.5">Will you attend?</legend>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { value: true, label: "Joyfully accepts" },
+                    { value: false, label: "Regretfully declines" },
+                  ].map((o) => (
+                    <label
+                      key={String(o.value)}
+                      className={`flex min-h-12 cursor-pointer items-center justify-center rounded-xl border px-2 text-center font-sans text-[15px] transition-colors duration-200 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-sindoor/40 ${attending === o.value ? "border-sindoor bg-sindoor/5 font-medium text-sindoor" : "border-gold/55 text-ink"}`}
+                    >
+                      <input
+                        type="radio"
+                        name="attending"
+                        className="sr-only"
+                        checked={attending === o.value}
+                        onChange={() => setAttending(o.value)}
+                      />
+                      {o.label}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+
+              {attending && maxAttendees > 1 && (
+                <Field label="Number of guests" hint={`Including you · up to ${maxAttendees}`}>
+                  <select className={controlClass} value={attendees} onChange={(e) => setAttendees(Number(e.target.value))}>
+                    {Array.from({ length: maxAttendees }, (_, i) => i + 1).map((n) => (
+                      <option key={n} value={n}>
+                        {n}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+              )}
+
+              <Field label="Message for the couple" optional>
+                <textarea className={`${controlClass} min-h-24 resize-y`} value={message} onChange={(e) => setMessage(e.target.value)} maxLength={500} rows={3} />
+              </Field>
+              <Honeypot value={trap} onChange={setTrap} />
+
+              <Button variant="gold" type="submit" disabled={saving} className="w-full">
+                {saving ? "Sending…" : "Send Response"}
+              </Button>
+              <p role="alert" className="t-note min-h-5 text-center font-medium text-sindoor">
+                {error}
+              </p>
+            </form>
+          )}
+        </div>
       )}
     </div>
   );
