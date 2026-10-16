@@ -72,7 +72,7 @@ Without these variables, development uses a browser-only stand-in store. Product
 |---|---|
 | Phones (< 768px) | Full-bleed: the primary experience |
 | Tablets (768–1023px, or touch devices) | Full-bleed, centred content column |
-| Desktop (≥ 1024px with a mouse) | Live site inside an iPhone 17 Pro Max mockup (iframe at true phone width) |
+| Desktop (≥ 1024px with a mouse) | Live site inside an iPhone 17 Pro Max mockup (iframe at true phone width), over a rose-gold backdrop of palace arches and paisley (`assets.desktopBackdrop`, `public/art/desktop-palace.webp`) |
 
 ## Sharing
 

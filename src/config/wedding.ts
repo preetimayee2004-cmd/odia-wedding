@@ -571,7 +571,7 @@ export const wedding: WeddingConfig = {
     image: null,
   },
   assets: {
-    desktopBackdrop: "/art/desktop-vintage.webp",
+    desktopBackdrop: "/art/desktop-palace.webp",
     openingSound: null, // synthesised sankha until a recording is supplied
   },
   site: {
