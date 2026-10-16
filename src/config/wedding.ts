@@ -17,33 +17,14 @@ export interface Person {
 }
 
 /** An elder named in Gurujana Pranam. */
-export interface Elder {
-  /** Exactly as the family writes it, with honorific, e.g. "Shri … Mishra". */
-  name: string;
-  /** Departed: a lit brass dipa burns beside the name to keep their memory bright. */
-  late: boolean;
-}
-
+/** One side of the family, as the couple's design shows it. */
 export interface FamilySide {
-  /** Column heading, e.g. "The Bride's Family". */
+  /** e.g. "Parents of the Groom". */
   label: string;
-  /** e.g. "The Mishra Family". */
-  familyName: string | null;
-  /** Aja & Aai. Empty until the family confirms the names. */
-  grandparents: Elder[];
-  /** Pitra-Matra. Empty until the family confirms the names. */
-  parents: Elder[];
-  /** Suhuda-Varga: siblings and close family. Empty until confirmed. */
-  siblings: Elder[];
-}
-
-/** Label for one generation of the Gurujana Pranam grid. */
-export interface ElderTier {
-  label: string;
-  /** Confirm spelling with the family. */
-  odia: string | null;
-  /** Plain-English gloss for guests who don't read Odia. */
-  gloss: string;
+  /** Exactly as the family writes them, with honorifics; shown as "A &" over "B". Empty until confirmed. */
+  parents: string[];
+  /** e.g. "With the loving blessings of the Mohapatra Parivar". */
+  blessing: string | null;
 }
 
 /** Which illustration sits beside an event in Wedding Events. */
@@ -151,12 +132,16 @@ export interface WeddingConfig {
     chapters: Array<{ label: string; title: string; text: string }>;
   };
   family: {
-    heading: string;
-    odiaHeading: string | null;
-    gloss: string;
-    tiers: { grandparents: ElderTier; parents: ElderTier; siblings: ElderTier };
-    bride: FamilySide;
+    /** Under the couple's names, e.g. "Bound by Love, Blessed by Family". */
+    tagline: string;
+    /** The couple with both sets of parents; null hides it. */
+    art: { src: string; alt: string; w: number; h: number } | null;
     groom: FamilySide;
+    bride: FamilySide;
+    /** Odia line near the foot, e.g. "|| ବସୁଧୈବ କୁଟୁମ୍ବକମ୍ ||". */
+    odiaLine: string | null;
+    /** Under the pranam hands, e.g. "Jai Jagannath". */
+    closing: string;
   };
   events: {
     heading: string;
@@ -370,17 +355,22 @@ export const wedding: WeddingConfig = {
     ],
   },
   family: {
-    heading: "Gurujana Pranam & Blessings",
-    odiaHeading: "ଗୁରୁଜନ ପ୍ରଣାମ",
-    gloss: "Salutation to Elders",
-    tiers: {
-      grandparents: { label: "Aja & Aai", odia: "ଅଜା ଓ ଆଈ", gloss: "Grandparents" },
-      parents: { label: "Pitra-Matra Pranam", odia: "ପିତୃ-ମାତୃ ପ୍ରଣାମ", gloss: "Parents" },
-      siblings: { label: "Suhuda-Varga", odia: "ସୁହୃଦ ବର୍ଗ", gloss: "Siblings & Family" },
+    tagline: "Bound by Love, Blessed by Family",
+    art: { src: "/art/family/family.webp", alt: "Avi and Pragyan in their wedding finery, with both sets of parents beside them", w: 316, h: 200 },
+    // From the couple's family design (16 Oct 2026), exactly as written there —
+    // confirm every name and its spelling with the family before sharing.
+    groom: {
+      label: "Parents of the Groom",
+      parents: ["Smt. Subhashree", "Sri Debashis Mohapatra"],
+      blessing: "With the loving blessings of the Mohapatra Parivar",
     },
-    // Names exactly as the family writes them, e.g. { name: "Shri … Mishra", late: true }
-    bride: { label: "The Bride's Family", familyName: null, grandparents: [], parents: [], siblings: [] },
-    groom: { label: "The Groom's Family", familyName: null, grandparents: [], parents: [], siblings: [] },
+    bride: {
+      label: "Parents of the Bride",
+      parents: ["Smt. Minati", "Sri Bijay Kumar Das"],
+      blessing: "With the loving blessings of the Das Parivar",
+    },
+    odiaLine: "|| ବସୁଧୈବ କୁଟୁମ୍ବକମ୍ ||",
+    closing: "Jai Jagannath",
   },
   events: {
     heading: "Wedding Events",

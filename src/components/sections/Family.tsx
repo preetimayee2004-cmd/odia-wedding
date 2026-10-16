@@ -1,215 +1,134 @@
 import { useRef, type CSSProperties } from "react";
-import { wedding, type Elder, type FamilySide } from "@/config/wedding";
+import { wedding, type FamilySide } from "@/config/wedding";
 import { useInView } from "@/hooks/useInView";
-import { showPlaceholders } from "@/lib/placeholders";
 import { EASE } from "@/lib/motion";
-import { Dipa } from "@/components/art/Dipa";
+import { showPlaceholders } from "@/lib/placeholders";
+import { LotusIcon } from "@/components/art/Ganesha";
+import { PranamHands } from "@/components/art/PranamHands";
 import { Pending } from "@/components/ui/Pending";
 
-type TierKey = "grandparents" | "parents" | "siblings";
-
-const PAGE = "rgb(var(--page))";
-const BOX = "#FBF4E6"; // the elder boxes, a shade lighter than the page
-const GOLD = "#A6782C";
-const TEXT = "#2B1A14";
-const TEXT_SOFT = "#6B4A3A";
-const MAROON = "#7A1424";
-
-// Centres of the two columns (grid gap-3), where each family's lineage line runs.
-const LINE_LEFT = "left-[calc((100%_-_0.75rem)/4)]";
-const LINE_RIGHT = "right-[calc((100%_-_0.75rem)/4)]";
-const CORNERS = ["-left-[3px] -top-[3px]", "-right-[3px] -top-[3px]", "-bottom-[3px] -left-[3px]", "-bottom-[3px] -right-[3px]"];
+const GOLD = "#B8893A";
 
 /**
- * Section 06 — Gurujana Pranam (Salutation to Elders).
- * A formal hierarchical grid on deep crimson: Aja & Aai (flanked by two
- * flickering golden dipas), then Pitra-Matra, then Suhuda-Varga, each
- * family's lineage descending in its own column of gold-bordered blocks. A
- * dipa also burns beside the names of departed elders.
- * Hidden in production until the family confirms at least one name.
+ * Section 06 — Family, after the couple's design.
+ * Their names, "Bound by Love, Blessed by Family" and a gold lotus divider;
+ * the couple with both sets of parents; the parents of the groom and of the
+ * bride side by side, each with their family's blessing; "|| ବସୁଧୈବ
+ * କୁଟୁମ୍ବକମ୍ ||" (the world is one family); and pranam hands over Jai
+ * Jagannath.
  */
 export function Family() {
-  const { heading, odiaHeading, gloss, bride, groom } = wedding.family;
-  const headerRef = useRef<HTMLDivElement>(null);
-  const headsRef = useRef<HTMLDivElement>(null);
-  const headerIn = useInView(headerRef);
-  const headsIn = useInView(headsRef, { threshold: 0.5 });
+  const { tagline, art, groom, bride, odiaLine, closing } = wedding.family;
+  const [first, second] = wedding.invitation.names;
+  const ref = useRef<HTMLElement>(null);
+  const inView = useInView(ref, { threshold: 0.12 });
 
-  const sides = [bride, groom];
-  const named = (t: TierKey) => sides.some((s) => s[t].length > 0);
-  const tiers = (["grandparents", "parents", "siblings"] as const).filter((t) => showPlaceholders || named(t));
-  if (tiers.length === 0) return null;
+  const rise = (delay: number): CSSProperties => ({
+    opacity: inView ? 1 : 0,
+    transform: inView ? "none" : "translateY(12px)",
+    transition: `opacity 800ms ${EASE.silk} ${delay}ms, transform 900ms ${EASE.silk} ${delay}ms`,
+  });
 
   return (
-    <section
-      id="family"
-      aria-labelledby="family-heading"
-      className="relative px-[var(--gutter)] py-[var(--section-y)] text-center"
-      style={{ color: TEXT }}
-    >
-
-      <div ref={headerRef} className="relative" style={{ opacity: headerIn ? 1 : 0, transition: `opacity 900ms ${EASE.silk}` }}>
-        {odiaHeading && (
-          <p lang="or" className="odia text-base" style={{ color: TEXT_SOFT }}>
-            {odiaHeading}
-          </p>
-        )}
-        <h2 id="family-heading" className="t-heading mt-1" style={{ color: MAROON }}>
-          {heading}
+    <section ref={ref} id="family" aria-labelledby="family-heading" className="py-20 text-center" style={{ paddingInline: "calc(100% * 35 / 768 + 16px)" }}>
+      <div className="mx-auto max-w-[24rem]">
+        {/* The couple's names */}
+        <h2 id="family-heading" className="t-names" style={rise(0)}>
+          {first} <span className="t-amp">&amp;</span> {second}
         </h2>
-        <p className="t-quote mt-1">
-          {gloss}
+        <p className="t-body mt-1.5 text-[20px]" style={rise(120)}>
+          {tagline}
         </p>
-        <GoldRule />
-      </div>
-
-      <div className="relative mx-auto mt-10 max-w-[34rem]">
-        {/* Each family heads its own column */}
-        <div ref={headsRef} className="grid grid-cols-2 gap-3" style={fade(headsIn, 0)}>
-          {sides.map((side) => (
-            <FamilyHead key={side.label} side={side} />
-          ))}
+        <div aria-hidden className="mx-auto mt-3 flex w-44 items-center gap-2" style={rise(220)}>
+          <span className="h-px flex-1" style={{ backgroundImage: `linear-gradient(to left, ${GOLD}, transparent)` }} />
+          <LotusIcon className="h-4 w-auto" />
+          <span className="h-px flex-1" style={{ backgroundImage: `linear-gradient(to right, ${GOLD}, transparent)` }} />
         </div>
 
-        {tiers.map((t, i) => (
-          <Tier key={t} tier={t} sides={sides} last={i === tiers.length - 1} />
-        ))}
+        {/* The couple with both sets of parents, its edges fading into the page */}
+        {art && (
+          <img
+            src={art.src}
+            width={art.w}
+            height={art.h}
+            alt={art.alt}
+            loading="lazy"
+            decoding="async"
+            className="mx-auto mt-6 block h-auto w-full"
+            style={{
+              ...rise(320),
+              WebkitMaskImage: "radial-gradient(closest-side, #000 78%, transparent 100%)",
+              maskImage: "radial-gradient(closest-side, #000 78%, transparent 100%)",
+            }}
+          />
+        )}
+
+        {/* The parents of the groom and of the bride */}
+        <div className="mt-6 grid grid-cols-2 gap-x-3" style={rise(460)}>
+          <Parents side={groom} />
+          <Parents side={bride} />
+        </div>
+
+        {odiaLine && (
+          <p lang="or" className="t-odia mt-9 text-[22px]" style={rise(600)}>
+            {odiaLine}
+          </p>
+        )}
+
+        {/* Pranam hands between two flourishes, over Jai Jagannath */}
+        <div aria-hidden className="mx-auto mt-5 flex items-center justify-center gap-2" style={rise(700)}>
+          <Flourish />
+          <PranamHands className="h-12 w-auto" color="#A6782C" drawn={inView} duration={1800} />
+          <Flourish mirrored />
+        </div>
+        <p className="t-blessing mt-2" style={{ ...rise(800), color: "var(--c-text)" }}>
+          {closing}
+        </p>
       </div>
     </section>
   );
 }
 
-function GoldRule() {
-  return (
-    <span aria-hidden className="mx-auto mt-4 flex w-44 items-center gap-2">
-      <span className="h-px flex-1" style={{ background: `linear-gradient(to left, ${GOLD}, transparent)` }} />
-      <span className="h-1.5 w-1.5 rotate-45" style={{ backgroundColor: GOLD }} />
-      <span className="h-px flex-1" style={{ background: `linear-gradient(to right, ${GOLD}, transparent)` }} />
-    </span>
-  );
-}
-
-function FamilyHead({ side }: { side: FamilySide }) {
+/** One side: "Parents of the Groom", the two names, and their family's blessing. */
+function Parents({ side }: { side: FamilySide }) {
+  const [a, b] = side.parents;
   return (
     <div>
-      <p className="t-label">
+      <p className="t-label whitespace-nowrap text-[10.5px] tracking-[1px]" style={{ color: "var(--c-text)" }}>
         {side.label}
       </p>
-      {side.familyName ? (
-        <p className="t-quote mt-1 leading-snug" style={{ color: MAROON }}>
-          {side.familyName}
+      {side.parents.length > 0 ? (
+        <p className="mt-1.5 font-serif text-[18px] font-semibold leading-snug" style={{ color: "var(--c-text)" }}>
+          {b ? (
+            <>
+              {a} &amp;
+              <br />
+              {b}
+            </>
+          ) : (
+            a
+          )}
         </p>
       ) : (
-        <Pending label="Family name awaiting confirmation">
-          <p className="t-quote">Family name</p>
-        </Pending>
-      )}
-    </div>
-  );
-}
-
-/** One generation: its label threaded on the lineage lines, then a gold block per family. */
-function Tier({ tier, sides, last }: { tier: TierKey; sides: FamilySide[]; last: boolean }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { threshold: 0.3 });
-  const { label, odia, gloss } = wedding.family.tiers[tier];
-  const grow: CSSProperties = {
-    transform: inView ? "none" : "scaleY(0)",
-    transition: `transform 800ms ${EASE.silk}`,
-    backgroundColor: `${GOLD}B3`,
-  };
-  const lamps = tier === "grandparents";
-
-  return (
-    <div ref={ref} role="group" aria-label={`${label} (${gloss})`}>
-      <div className="relative py-5">
-        <span aria-hidden className={`absolute bottom-0 top-0 w-px origin-top ${LINE_LEFT}`} style={grow} />
-        <span aria-hidden className={`absolute bottom-0 top-0 w-px origin-top ${LINE_RIGHT}`} style={grow} />
-        <div className="mx-auto flex max-w-[13rem] items-center justify-center gap-2" style={fade(inView, 200)}>
-          {lamps && <Dipa className="h-9 w-[1.65rem] shrink-0" delay={0} decorative />}
-          <div className="max-w-[9.5rem] px-1" style={{ backgroundColor: PAGE }}>
-            {odia && (
-              <p lang="or" className="odia t-odia text-[17px] leading-tight">
-                {odia}
-              </p>
-            )}
-            <h3 className="t-label mt-0.5" style={{ color: GOLD }}>
-              {label}
-            </h3>
-            <p className="t-quote text-[17px]">
-              {gloss}
-            </p>
+        showPlaceholders && (
+          <div className="mt-1.5">
+            <Pending label="Names awaiting confirmation">
+              <p className="font-serif text-[19px] italic">Names to come</p>
+            </Pending>
           </div>
-          {lamps && <Dipa className="h-9 w-[1.65rem] shrink-0" delay={760} decorative />}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        {sides.map((side, i) => (
-          <ElderBox key={side.label} elders={side[tier]} family={side.label} style={fade(inView, 350 + i * 140, 14)} />
-        ))}
-      </div>
-
-      {last && <Confluence style={fade(inView, 700)} />}
-    </div>
-  );
-}
-
-function ElderBox({ elders, family, style }: { elders: Elder[]; family: string; style: CSSProperties }) {
-  if (elders.length === 0 && !showPlaceholders) return <div />;
-  return (
-    <div
-      className="relative flex h-full flex-col justify-center border px-2.5 py-4"
-      style={{
-        ...style,
-        borderColor: GOLD,
-        backgroundColor: BOX,
-        boxShadow: `inset 0 0 0 3px ${BOX}, inset 0 0 0 4px ${GOLD}80, 0 6px 16px -12px rgb(60 30 10 / 0.35)`,
-      }}
-    >
-      {CORNERS.map((c) => (
-        <span key={c} aria-hidden className={`absolute h-[6px] w-[6px] rotate-45 ${c}`} style={{ backgroundColor: GOLD }} />
-      ))}
-      {elders.length > 0 ? (
-        <ul aria-label={family} className="space-y-1.5">
-          {elders.map((e, i) => (
-            <li key={e.name} className="t-body leading-snug" style={{ color: TEXT }}>
-              {e.late && (
-                <Dipa className="mr-1 inline-block h-[1.2em] w-[0.88em] align-[-0.22em]" delay={i * 430 + family.length * 97} />
-              )}
-              {e.name}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <Pending label="Names awaiting confirmation from the family">
-          <p className="t-quote text-[17px]" style={{ color: TEXT }}>
-            Names to come
-          </p>
-        </Pending>
+        )
       )}
+      {side.blessing && <p className="t-body mt-2 text-[17px] leading-snug">{side.blessing}</p>}
     </div>
   );
 }
 
-/** The two lineages meet below the last tier, where the couple's paths unite. */
-function Confluence({ style }: { style: CSSProperties }) {
-  const line = { backgroundColor: `${GOLD}B3` };
+/** A small gold scroll beside the pranam hands. */
+function Flourish({ mirrored = false }: { mirrored?: boolean }) {
   return (
-    <div aria-hidden className="relative h-10" style={style}>
-      <span className={`absolute top-0 h-1/2 w-px ${LINE_LEFT}`} style={line} />
-      <span className={`absolute top-0 h-1/2 w-px ${LINE_RIGHT}`} style={line} />
-      <span className={`absolute top-1/2 h-px ${LINE_LEFT} ${LINE_RIGHT}`} style={line} />
-      <span className="absolute left-1/2 top-1/2 h-1/2 w-px" style={line} />
-      <span className="absolute bottom-0 left-1/2 h-2 w-2 -translate-x-1/2 translate-y-1/2 rotate-45" style={{ backgroundColor: GOLD }} />
-    </div>
+    <svg viewBox="0 0 60 16" className={`h-4 w-[3.75rem] ${mirrored ? "-scale-x-100" : ""}`} fill="none" stroke={GOLD} strokeWidth="1.1" strokeLinecap="round">
+      <path d="M58 8C46 8 38 8 30 8M30 8C24 8 20 3 15 4 11 5 11 11 15 11.5 18 12 19 9 17 8" />
+      <circle cx="6" cy="8" r="1.4" fill={GOLD} stroke="none" />
+    </svg>
   );
-}
-
-function fade(inView: boolean, delay: number, rise = 0): CSSProperties {
-  return {
-    opacity: inView ? 1 : 0,
-    transform: inView || !rise ? undefined : `translateY(${rise}px)`,
-    transition: `opacity 800ms ${EASE.silk} ${delay}ms, transform 900ms ${EASE.silk} ${delay}ms`,
-  };
 }
