@@ -20,9 +20,8 @@ const PLACEHOLDERS: Photo[] = [true, false, false, true, true, false].map((tall,
  * Section 07 — The Raghurajpur Canvas.
  * The couple's photographs hung like an exhibition on the page cream, among
  * faint white flowers: an asymmetric two-column masonry, each photograph in
- * a painted Pattachitra arch (a band of flowers and leaves, two peacocks
- * and a lotus beneath — after the couple's design) crowned with the Mukteswar
- * torana's finial. A tap opens the photograph larger. Hidden in production
+ * a painted Pattachitra arch (a band of flowers and leaves, after the
+ * couple's design) crowned with the Mukteswar torana's finial. A tap opens the photograph larger. Hidden in production
  * until photos are added.
  */
 export function Gallery() {
