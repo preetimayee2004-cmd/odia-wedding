@@ -520,33 +520,37 @@
 }
 .ev-maplink:hover { border-bottom-color: var(--ev-gold-ink); }
 
-/* falling rose and marigold petals, over the section only */
-.ev-petal {
+/* Falling rose and marigold petals, from the couple card to the footer (art/FallingPetals.tsx) */
+.site-petal {
   position: absolute;
   top: 0;
   left: var(--x);
   width: calc(13px * var(--s));
   height: calc(13px * var(--s));
   opacity: 0.8;
-  animation: ev-fall var(--d) linear var(--delay) infinite;
+  animation: site-petal-fall var(--d) linear var(--delay) infinite;
 }
-.ev-petal svg {
+.site-petal svg {
   display: block;
   width: 100%;
   height: 100%;
-  animation: ev-flutter calc(var(--d) / 4) ease-in-out var(--delay) infinite alternate;
+  animation: site-petal-flutter calc(var(--d) / 4) ease-in-out var(--delay) infinite alternate;
 }
-@keyframes ev-fall {
+.petals-paused .site-petal,
+.petals-paused .site-petal svg {
+  animation-play-state: paused;
+}
+@keyframes site-petal-fall {
   from { transform: translate3d(0, -40px, 0); }
   to { transform: translate3d(0, calc(100lvh + 40px), 0); }
 }
-@keyframes ev-flutter {
+@keyframes site-petal-flutter {
   from { transform: translateX(calc(var(--drift) * -1)) rotate(var(--r0)) rotateX(0deg); }
   to { transform: translateX(var(--drift)) rotate(calc(var(--r0) + 120deg)) rotateX(65deg); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .ev-petal,
-  .ev-petal svg,
+  .site-petal,
+  .site-petal svg,
   .ev-bloom,
   .ev-twinkle {
     animation: none !important;

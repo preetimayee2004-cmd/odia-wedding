@@ -1,4 +1,5 @@
 import { SideBands } from "@/components/art/SideBands";
+import { FallingPetals } from "@/components/art/FallingPetals";
 import { Couple } from "@/components/sections/Couple";
 import { Countdown } from "@/components/sections/Countdown";
 import { Story } from "@/components/sections/Story";
@@ -19,7 +20,9 @@ import { Footer } from "@/components/sections/Footer";
  */
 export default function RestOfSite() {
   return (
-    <>
+    <div className="relative">
+      {/* Rose and marigold petals drift down the screen from the couple card to the footer */}
+      <FallingPetals />
       <Couple />
       {/* From here to the end, the couple card's looped band runs down both sides */}
       <div className="relative">
@@ -36,6 +39,6 @@ export default function RestOfSite() {
         <ThankYou />
         <Footer />
       </div>
-    </>
+    </div>
   );
 }

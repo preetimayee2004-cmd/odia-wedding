@@ -13,8 +13,7 @@ import { EVENT_ART_DEFS, FLOWER_IDS, dustMarkup, rng } from "@/components/art/ev
  * lotus, in turn — alternating left and right, growing as the guest scrolls.
  * Under each flower: the ceremony's name, its Odia name and a "Tap to view
  * details" button that opens a card (date, time, about, dress code, place).
- * One card is open at a time. Rose and marigold petals drift down over the
- * section. Styles: the `.ev-*` block in index.css.
+ * One card is open at a time. Styles: the `.ev-*` block in index.css.
  */
 export function Events() {
   const { heading, items } = wedding.events;
@@ -49,7 +48,7 @@ export function Events() {
     return () => io.disconnect();
   }, [reduced]);
 
-  // petals, swaying and twinkling pause while the section is off screen
+  // swaying and twinkling pause while the section is off screen
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
@@ -80,24 +79,6 @@ export function Events() {
     requestAnimationFrame(() => li && bringIntoView(li));
   };
 
-  const petals = useMemo(() => {
-    const R = rng(77);
-    return Array.from({ length: 16 }, (_, k) => {
-      const d = 13 + R() * 11;
-      return {
-        kind: k % 2 ? "ev-petal-mari" : "ev-petal-rose",
-        style: {
-          "--x": `${(R() * 100).toFixed(1)}%`,
-          "--d": `${d.toFixed(1)}s`,
-          "--delay": `${(-R() * d).toFixed(1)}s`,
-          "--s": (0.75 + R() * 0.7).toFixed(2),
-          "--drift": `${(16 + R() * 30).toFixed(0)}px`,
-          "--r0": `${(R() * 360).toFixed(0)}deg`,
-        } as CSSProperties,
-      };
-    });
-  }, []);
-
   return (
     <section
       ref={sectionRef}
@@ -106,25 +87,10 @@ export function Events() {
       className={`ev relative overflow-x-clip ${reduced ? "" : "ev-motion"} ${onScreen ? "" : "ev-paused"}`}
       style={{ backgroundColor: "rgb(var(--page))" }}
     >
-      {/* the shared artwork: gradients, leaf, petals and the three flowers */}
+      {/* the shared artwork: gradients, leaf and the three flowers */}
       <svg aria-hidden focusable="false" className="absolute h-0 w-0 overflow-hidden">
         <defs dangerouslySetInnerHTML={{ __html: EVENT_ART_DEFS }} />
       </svg>
-
-      {/* Rose and marigold petals drift down the screen while the section is on it */}
-      {!reduced && (
-        <div aria-hidden className="pointer-events-none absolute inset-0 z-[5] overflow-clip">
-          <div className="sticky top-0 h-[100lvh] w-full">
-            {petals.map((p, k) => (
-              <span key={k} className="ev-petal" style={p.style}>
-                <svg viewBox="-8 -8 16 16">
-                  <use href={`#${p.kind}`} />
-                </svg>
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
 
       <div className="mx-auto max-w-[460px]">
         <header className="px-12 pb-2 pt-14 text-center">

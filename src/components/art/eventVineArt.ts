@@ -1,6 +1,6 @@
 /**
  * Artwork for the Wedding Events vine, as SVG markup: the shared gradients,
- * filters, leaf and petals, and three flowers drawn in a -60…60 box —
+ * filters and leaf, and three flowers drawn in a -60…60 box —
  * marigold, champa (frangipani) and lotus. Every id starts with "ev-".
  * Built once; a seeded random keeps the hand-made jitter the same on every
  * visit.
@@ -30,8 +30,6 @@ const SHARED = `
 <radialGradient id="ev-champa-fill" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="58"><stop offset="0" stop-color="#eaa223"/><stop offset="0.17" stop-color="#f5c54c"/><stop offset="0.36" stop-color="#fce6b4"/><stop offset="0.6" stop-color="#fff8ea"/><stop offset="1" stop-color="#fffdf8"/></radialGradient>
 <radialGradient id="ev-lotus-centre" cx="0.45" cy="0.4"><stop offset="0" stop-color="#fff0a0"/><stop offset="0.7" stop-color="#f5c43a"/><stop offset="1" stop-color="#dc9a17"/></radialGradient>
 <linearGradient id="ev-leaf-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ac54c"/><stop offset="0.5" stop-color="#4f9130"/><stop offset="1" stop-color="#28601a"/></linearGradient>
-<radialGradient id="ev-rose-fill" cx="0.4" cy="0.35" r="0.8"><stop offset="0" stop-color="#fcd7dc"/><stop offset="0.6" stop-color="#ef9caa"/><stop offset="1" stop-color="#d9687c"/></radialGradient>
-<linearGradient id="ev-mari-fill" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#e2700e"/><stop offset="1" stop-color="#ffb62e"/></linearGradient>
 <g id="ev-leaf">
   <path d="M0 0C9-12 27-15 46 0 29 12 10 11 0 0Z" fill="url(#ev-leaf-fill)"/>
   <path d="M0 0C10 11 29 12 46 0" fill="none" stroke="#1f4a12" stroke-width="0.8" opacity="0.45"/>
@@ -39,8 +37,6 @@ const SHARED = `
   <path d="M11-.5l6-6.5M21-.9l7-7M31-.8l6-5.5M11 .5l6 6M21 .9l6.5 6M31 .8l5.5 4.5" fill="none" stroke="#d2eba3" stroke-width="0.6" opacity="0.45"/>
   <ellipse cx="20" cy="-5.4" rx="10" ry="2.1" fill="#fff" opacity="0.3" transform="rotate(-7 20 -5.4)"/>
 </g>
-<g id="ev-petal-rose"><path d="M0-7C5-7 8-2 7 3 6 7 2 8 0 6-2 8-6 7-7 3-8-2-5-7 0-7Z" fill="url(#ev-rose-fill)"/></g>
-<g id="ev-petal-mari"><path d="M0 7C-5 4-6-2-4-6Q-2-8 0-6.5 2-8 4-6C6-2 5 4 0 7Z" fill="url(#ev-mari-fill)"/></g>
 <path id="ev-sparkle" d="M0-4L1-1 4 0 1 1 0 4-1 1-4 0-1-1Z" fill="#e3b345"/>`;
 
 /** Marigold: five rings of ruffled orange-to-yellow petals around a golden button. */
