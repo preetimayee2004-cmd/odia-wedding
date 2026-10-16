@@ -51,7 +51,6 @@ export function Rsvp() {
       id="rsvp"
       aria-labelledby="rsvp-heading"
       className="px-4 py-24"
-      style={{ backgroundColor: "rgb(var(--page))" }}
     >
       <div
         className="jhoti-frame relative mx-auto max-w-[23rem]"
@@ -172,17 +171,17 @@ function RsvpBody() {
     return (
       <div aria-live="polite">
         <BlessingBloom open className="mx-auto h-20 w-20" />
-        <h2 id="rsvp-heading" ref={headingRef} tabIndex={-1} className="mt-3 text-[1.9rem] focus:outline-none">
+        <h2 id="rsvp-heading" ref={headingRef} tabIndex={-1} className="t-heading mt-3 focus:outline-none">
           Thank you, {first}!
         </h2>
-        <p className="mt-3 text-[0.875rem] leading-relaxed">
+        <p className="t-body mt-3">
           {saved.attending
             ? `Your response has been saved. We can't wait to celebrate with you${saved.attendees > 1 ? ` — all ${saved.attendees} of you` : ""}.`
             : "Your response has been saved. You'll be dearly missed — thank you for your blessings."}
         </p>
         <p className="mt-5 text-xs text-ink-soft">
           Replying for someone else, or need to change your answer?{" "}
-          <button type="button" onClick={startAnother} className="font-medium text-sindoor underline underline-offset-4">
+          <button type="button" onClick={startAnother} className="t-button text-sindoor underline underline-offset-4">
             Send another response
           </button>
         </p>
@@ -192,8 +191,8 @@ function RsvpBody() {
 
   const intro = (
     <>
-      <p className="font-display text-[1.05rem] italic text-ink-soft">{invitationLine}</p>
-      <h2 id="rsvp-heading" className="mt-3 text-[2rem] leading-tight">
+      <p className="t-quote">{invitationLine}</p>
+      <h2 id="rsvp-heading" className="t-heading mt-3">
         {heading}
       </h2>
     </>
@@ -204,13 +203,13 @@ function RsvpBody() {
     return (
       <div>
         {intro}
-        <p className="mt-4 text-[0.875rem] leading-relaxed text-ink-soft">
+        <p className="t-body mt-4 text-ink-soft">
           {rsvpClosed()
             ? `Responses closed on ${deadlineDate}. Please contact the family directly.`
             : "Online responses will open soon. Meanwhile, please reach out to the family directly."}
         </p>
         {wedding.contact.people.length > 0 && (
-          <a href="#contact" className="mt-5 inline-block text-[0.75rem] font-medium uppercase tracking-[0.14em] text-sindoor underline underline-offset-4">
+          <a href="#contact" className="t-button mt-5 inline-block text-sindoor underline underline-offset-4">
             Contact the family
           </a>
         )}
@@ -225,15 +224,15 @@ function RsvpBody() {
 
       {phase === "invite" && (
         <>
-          <p className="mt-4 text-[0.875rem] leading-relaxed">
+          <p className="t-body mt-4">
             {explanation}
             {deadlineDate && <span className="mt-1 block text-ink-soft">Kindly reply by {deadlineDate}.</span>}
           </p>
           <div className="mt-7 flex flex-col items-center gap-2">
-            <Button variant="gold" onClick={accept} className="w-full max-w-[15rem] text-[0.9375rem]">
+            <Button variant="gold" onClick={accept} className="w-full max-w-[15rem]">
               Accept Invitation
             </Button>
-            <button type="button" onClick={decline} className="min-h-11 text-[0.8125rem] font-medium text-ink-soft underline decoration-gold/70 underline-offset-4">
+            <button type="button" onClick={decline} className="t-button min-h-11 text-ink-soft underline decoration-gold/70 underline-offset-4">
               Unable to Attend
             </button>
           </div>
@@ -244,7 +243,7 @@ function RsvpBody() {
         <div className="mt-5">
           <BlessingBloom open={phase === "celebrate" || phase === "form"} className="mx-auto h-24 w-24" />
           <p
-            className="mt-3 font-display text-[1.2rem] italic leading-snug text-sindoor"
+            className="t-quote mt-3 text-sindoor"
             style={{ opacity: 1, animation: reducedMotion ? undefined : `fade-in 900ms ${EASE.silk} 450ms both` }}
           >
             “{quote}”
@@ -264,7 +263,7 @@ function RsvpBody() {
           </Field>
 
           <fieldset className="text-left">
-            <legend className="mb-1.5 text-[0.75rem] font-medium uppercase tracking-[0.14em] text-ink-soft">Will you attend?</legend>
+            <legend className="t-label mb-1.5">Will you attend?</legend>
             <div className="grid grid-cols-2 gap-2">
               {[
                 { value: true, label: "Joyfully accepts" },
@@ -272,7 +271,7 @@ function RsvpBody() {
               ].map((o) => (
                 <label
                   key={String(o.value)}
-                  className={`flex min-h-12 cursor-pointer items-center justify-center rounded-xl border px-2 text-center text-[0.8125rem] transition-colors duration-200 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-sindoor/40 ${attending === o.value ? "border-sindoor bg-sindoor/5 font-medium text-sindoor" : "border-gold/55 text-ink"}`}
+                  className={`flex min-h-12 cursor-pointer items-center justify-center rounded-xl border px-2 text-center font-sans text-[15px] transition-colors duration-200 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-sindoor/40 ${attending === o.value ? "border-sindoor bg-sindoor/5 font-medium text-sindoor" : "border-gold/55 text-ink"}`}
                 >
                   <input
                     type="radio"
@@ -307,7 +306,7 @@ function RsvpBody() {
           <Button variant="gold" type="submit" disabled={saving} className="w-full">
             {saving ? "Sending…" : "Send Response"}
           </Button>
-          <p role="alert" className="min-h-5 text-center text-[0.8125rem] font-medium text-sindoor">
+          <p role="alert" className="t-note min-h-5 text-center font-medium text-sindoor">
             {error}
           </p>
         </form>

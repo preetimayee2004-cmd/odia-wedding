@@ -450,7 +450,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
               style={{ left: pct(LOCK.x, IMG.w), top: pct(LOCK.y + 150, IMG.h), visibility: hint ? "visible" : "hidden" }}
             >
               <p
-                className="tap-text whitespace-nowrap pl-[0.32em] font-serif text-[19px] font-bold tracking-[0.32em]"
+                className="tap-text whitespace-nowrap pl-[0.32em] font-serif text-[19px] font-semibold tracking-[0.32em]"
                 style={{ color: "#FFE3A0", textShadow: "0 0 10px rgb(255 196 90 / 0.85), 0 0 2px rgb(60 30 5 / 0.9), 0 2px 4px rgb(0 0 0 / 0.6)" }}
               >
                 TAP TO OPEN

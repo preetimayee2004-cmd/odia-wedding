@@ -45,7 +45,7 @@ export function Family() {
       id="family"
       aria-labelledby="family-heading"
       className="relative px-[var(--gutter)] py-[var(--section-y)] text-center"
-      style={{ backgroundColor: PAGE, color: TEXT }}
+      style={{ color: TEXT }}
     >
 
       <div ref={headerRef} className="relative" style={{ opacity: headerIn ? 1 : 0, transition: `opacity 900ms ${EASE.silk}` }}>
@@ -54,10 +54,10 @@ export function Family() {
             {odiaHeading}
           </p>
         )}
-        <h2 id="family-heading" className="mt-1 text-[2.1rem] leading-tight" style={{ color: MAROON }}>
+        <h2 id="family-heading" className="t-heading mt-1" style={{ color: MAROON }}>
           {heading}
         </h2>
-        <p className="mt-1 font-display text-base italic" style={{ color: TEXT_SOFT }}>
+        <p className="t-quote mt-1">
           {gloss}
         </p>
         <GoldRule />
@@ -92,16 +92,16 @@ function GoldRule() {
 function FamilyHead({ side }: { side: FamilySide }) {
   return (
     <div>
-      <p className="text-[0.625rem] font-medium uppercase tracking-[0.16em]" style={{ color: TEXT_SOFT }}>
+      <p className="t-label">
         {side.label}
       </p>
       {side.familyName ? (
-        <p className="mt-1 font-display text-lg italic leading-snug" style={{ color: MAROON }}>
+        <p className="t-quote mt-1 leading-snug" style={{ color: MAROON }}>
           {side.familyName}
         </p>
       ) : (
         <Pending label="Family name awaiting confirmation">
-          <p className="font-display text-lg italic">Family name</p>
+          <p className="t-quote">Family name</p>
         </Pending>
       )}
     </div>
@@ -129,14 +129,14 @@ function Tier({ tier, sides, last }: { tier: TierKey; sides: FamilySide[]; last:
           {lamps && <Dipa className="h-9 w-[1.65rem] shrink-0" delay={0} decorative />}
           <div className="max-w-[9.5rem] px-1" style={{ backgroundColor: PAGE }}>
             {odia && (
-              <p lang="or" className="odia text-[0.95rem] leading-tight" style={{ color: TEXT_SOFT }}>
+              <p lang="or" className="odia t-odia text-[17px] leading-tight">
                 {odia}
               </p>
             )}
-            <h3 className="mt-0.5 text-[0.6875rem] font-medium uppercase tracking-eyebrow" style={{ color: GOLD }}>
+            <h3 className="t-label mt-0.5" style={{ color: GOLD }}>
               {label}
             </h3>
-            <p className="font-display text-sm italic" style={{ color: TEXT_SOFT }}>
+            <p className="t-quote text-[17px]">
               {gloss}
             </p>
           </div>
@@ -173,7 +173,7 @@ function ElderBox({ elders, family, style }: { elders: Elder[]; family: string; 
       {elders.length > 0 ? (
         <ul aria-label={family} className="space-y-1.5">
           {elders.map((e, i) => (
-            <li key={e.name} className="font-display text-[1.02rem] leading-snug" style={{ color: TEXT }}>
+            <li key={e.name} className="t-body leading-snug" style={{ color: TEXT }}>
               {e.late && (
                 <Dipa className="mr-1 inline-block h-[1.2em] w-[0.88em] align-[-0.22em]" delay={i * 430 + family.length * 97} />
               )}
@@ -183,7 +183,7 @@ function ElderBox({ elders, family, style }: { elders: Elder[]; family: string; 
         </ul>
       ) : (
         <Pending label="Names awaiting confirmation from the family">
-          <p className="font-display text-sm italic" style={{ color: TEXT }}>
+          <p className="t-quote text-[17px]" style={{ color: TEXT }}>
             Names to come
           </p>
         </Pending>

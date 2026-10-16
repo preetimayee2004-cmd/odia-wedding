@@ -24,8 +24,9 @@ export default function RestOfSite() {
       {/* Rose and marigold petals drift down the screen from the couple card to the footer */}
       <FallingPetals />
       <Couple />
-      {/* From here to the end, the couple card's looped band runs down both sides */}
-      <div className="relative">
+      {/* From here to the end, the couple card's looped band runs down both sides,
+          over the page cream with faint white flowers (Wedding Events keeps plain cream) */}
+      <div className="page-flowers relative">
         <SideBands />
         <Countdown />
         <Story />

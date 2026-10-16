@@ -44,10 +44,10 @@ export function VenueTravel() {
   });
 
   return (
-    <section ref={ref} id="venue" aria-labelledby="venue-heading" className="px-[var(--gutter)] py-[var(--section-y)]" style={{ backgroundColor: "rgb(var(--page))" }}>
+    <section ref={ref} id="venue" aria-labelledby="venue-heading" className="px-[var(--gutter)] py-[var(--section-y)]">
       <div className="text-center" style={fade(0)}>
         <p className="eyebrow">{eyebrow}</p>
-        <h2 id="venue-heading" className="mt-2 text-[2.1rem] leading-tight">
+        <h2 id="venue-heading" className="t-heading mt-2">
           {heading}
         </h2>
         <GoldDivider className="mt-4" />
@@ -68,7 +68,7 @@ export function VenueTravel() {
       </div>
 
       <div className="mt-10 text-center" style={fade(500)}>
-        <Button variant="gold" onClick={() => setGuideOpen(true)} aria-haspopup="dialog" className="min-h-14 px-8 text-[0.95rem]">
+        <Button variant="gold" onClick={() => setGuideOpen(true)} aria-haspopup="dialog" className="min-h-14 px-8">
           <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden fill="currentColor">
             <path d="M9 1.5 10.6 7.4 16.5 9l-5.9 1.6L9 16.5 7.4 10.6 1.5 9l5.9-1.6Z" />
           </svg>
@@ -102,18 +102,18 @@ function VenueCard({ style }: { style: CSSProperties }) {
       </div>
 
       <div className="px-5 pb-6 pt-5 text-center">
-        <p className="text-[0.625rem] font-medium uppercase tracking-[0.18em] text-ink-soft">The Venue</p>
+        <p className="t-label">The Venue</p>
         {name ? (
-          <h3 className="mt-1 text-[1.75rem] leading-tight">{name}</h3>
+          <h3 className="t-event mt-1">{name}</h3>
         ) : (
           <div className="mt-2 flex justify-center">
             <Pending label="Venue name awaiting confirmation">
-              <p className="font-display text-[1.6rem] text-sindoor">Venue name</p>
+              <p className="t-event text-sindoor">Venue name</p>
             </Pending>
           </div>
         )}
 
-        <div className="mx-auto mt-2 max-w-[18rem] text-[0.875rem] leading-relaxed text-ink-soft">
+        <div className="t-body mx-auto mt-2 max-w-[19rem] text-ink-soft">
           {address ? (
             <address className="not-italic">{address}</address>
           ) : (
@@ -121,14 +121,14 @@ function VenueCard({ style }: { style: CSSProperties }) {
           )}
         </div>
 
-        {description && <p className="mx-auto mt-3 max-w-[19rem] text-[0.875rem] leading-relaxed">{description}</p>}
+        {description && <p className="t-body mx-auto mt-3 max-w-[19rem]">{description}</p>}
 
         {directions ? (
           <a
             href={directions}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-sindoor px-7 text-sm font-medium tracking-wide text-cream-light shadow-[0_8px_20px_-10px_rgb(var(--sindoor)/0.7)] transition duration-200 ease-silk active:scale-[0.98] active:bg-sindoor-dark"
+            className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-sindoor px-7 t-button text-cream-light shadow-[0_8px_20px_-10px_rgb(var(--sindoor)/0.7)] transition duration-200 ease-silk active:scale-[0.98] active:bg-sindoor-dark"
           >
             <KalashPin className="h-5 w-auto" />
             Get Directions
@@ -152,8 +152,8 @@ function TravelBlock({ kind, title, place }: { kind: Kind; title: string; place:
       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gold/60 bg-cream-light text-gold-deep">
         <TravelIcon kind={kind} />
       </span>
-      <div className="min-w-0 flex-1 text-[0.875rem] leading-relaxed">
-        <h3 className="text-[1.35rem]">{title}</h3>
+      <div className="t-body min-w-0 flex-1">
+        <h3 className="text-[1.5rem]">{title}</h3>
         <div className="mt-1">
           {place.name ? (
             <>
@@ -191,20 +191,20 @@ function AtithiGuide() {
     <div>
       <div className="text-center">
         <KalashPin className="mx-auto h-12 w-auto" />
-        <h3 className="mt-2 text-[1.8rem] leading-tight">{button}</h3>
-        <p className="mx-auto mt-2 max-w-[20rem] text-[0.875rem] leading-relaxed text-ink-soft">{intro}</p>
+        <h3 className="t-heading mt-2">{button}</h3>
+        <p className="t-body mx-auto mt-2 max-w-[20rem] text-ink-soft">{intro}</p>
         <GoldDivider className="mt-4" />
       </div>
 
       <div className="mt-6 space-y-7">
         {sections.map((s) => (
           <section key={s.title} aria-label={s.title}>
-            <h4 className="text-[1.35rem]">{s.title}</h4>
-            <p className="mt-1 text-[0.875rem] leading-relaxed">{s.text}</p>
+            <h4 className="text-[1.5rem]">{s.title}</h4>
+            <p className="t-body mt-1">{s.text}</p>
             {s.items.length > 0 && (
               <ul className="mt-3 space-y-2.5">
                 {s.items.map((item) => (
-                  <li key={item.name} className="rounded-xl border border-gold/35 bg-cream-light px-4 py-3 text-[0.8125rem] leading-relaxed">
+                  <li key={item.name} className="rounded-xl border border-gold/35 bg-cream-light px-4 py-3 t-body">
                     <span className="block font-display text-[1.1rem] font-semibold leading-snug text-sindoor">{item.name}</span>
                     {item.text}
                   </li>
@@ -224,7 +224,7 @@ function TextLink({ href, children }: { href: string; children: ReactNode }) {
     <a
       href={href}
       {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-      className="inline-flex min-h-11 items-center gap-1.5 text-[0.75rem] font-medium uppercase tracking-[0.14em] text-sindoor underline decoration-gold/60 underline-offset-4"
+      className="t-button inline-flex min-h-11 items-center gap-1.5 text-sindoor underline decoration-gold/60 underline-offset-4"
     >
       {children}
     </a>

@@ -245,7 +245,7 @@ export function RangoliStart({ active, onOpen, size = 170 }: { active: boolean; 
           </svg>
         </span>
         <span
-          className="mt-2 rounded-full px-3.5 py-1 font-serif text-[16px] font-bold leading-tight"
+          className="mt-2 rounded-full px-3.5 py-1 font-serif text-[17px] font-semibold leading-tight"
           style={{
             color: CAPTION,
             background: "rgb(250 243 228 / 0.95)",

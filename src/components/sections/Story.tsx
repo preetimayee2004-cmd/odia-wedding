@@ -18,7 +18,7 @@ const BAND = "calc(100% * 35 / 768)";
 
 /**
  * Section 05 — Our Story.
- * On the gallery's cream with its faint white flowers, a hanging scroll (after
+ * On the page cream with its faint white flowers, a hanging scroll (after
  * the couple's design): the thread from the countdown's wheel comes down to a
  * nail, and from it the scroll hangs by a string — maroon rods with wooden
  * knobs, parchment between. It unrolls as it comes into view, showing
@@ -43,7 +43,6 @@ export function Story() {
       id="story"
       aria-labelledby="story-heading"
       className="relative overflow-x-clip pb-16"
-      style={{ backgroundColor: "rgb(var(--page))", backgroundImage: "url(/art/gallery-flowers.svg)", backgroundSize: "280px auto" }}
     >
       <div className="relative mx-auto" style={{ width: `min(calc(100% - 2 * (${BAND} + 10px)), 27rem)` }}>
         {/* The thread from the countdown's wheel, down to the nail; the string to the rod */}
@@ -66,10 +65,10 @@ export function Story() {
             <EdgeOrnaments />
 
             <header className="relative text-center" style={reveal(500)}>
-              <p className="font-hand text-[21px] font-medium leading-none" style={{ color: LABEL }}>
+              <p className="t-quote leading-none" style={{ color: LABEL }}>
                 {eyebrow}
               </p>
-              <h2 id="story-heading" className="mt-1.5 font-display text-[40px] font-semibold leading-none" style={{ color: VERMILION }}>
+              <h2 id="story-heading" className="t-heading mt-1.5 leading-none" style={{ color: VERMILION }}>
                 {heading}
               </h2>
               <Underline className="mx-auto mt-1 block h-3 w-[9.5rem]" />
@@ -84,13 +83,13 @@ export function Story() {
                     className={`relative ${i ? "mt-7" : ""} ${left ? "mr-[5%] text-left" : "ml-[5%] text-right"}`}
                     style={reveal(700 + i * 300)}
                   >
-                    <p className="font-display text-[16px] font-medium italic leading-none" style={{ color: LABEL }}>
+                    <p className="t-label leading-none">
                       {c.label}
                     </p>
-                    <h3 className="mt-1 font-serif text-[23px] font-semibold leading-[1.15]" style={{ color: VERMILION }}>
+                    <h3 className="mt-1.5 font-serif text-[26px] font-semibold leading-[1.15]" style={{ color: VERMILION }}>
                       {c.title}
                     </h3>
-                    <p className="mt-1.5 font-lora text-[14.5px] leading-[1.55]" style={{ color: TEXT }}>
+                    <p className="t-body mt-1.5" style={{ color: TEXT }}>
                       {c.text}
                     </p>
                   </li>

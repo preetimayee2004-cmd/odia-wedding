@@ -42,22 +42,20 @@ export default {
           soft: withAlpha("--ink-soft"),
         },
       },
+      // The typography system: four families, set once as CSS variables in
+      // src/index.css (--font-*). Cinzel only for the blessing and hashtag.
       fontFamily: {
-        // Couple's names only.
-        script: ['"Pinyon Script"', "cursive"],
-        // The couple's names on the invitation card.
-        vibes: ['"Great Vibes"', '"Pinyon Script"', "cursive"],
-        // English headings, event names, quotations.
-        display: ['"Cormorant Garamond"', "Georgia", "serif"],
-        // Body, dates, times, venues, buttons, forms.
-        sans: ["Poppins", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
-        // Invitation card: sturdy, readable serif.
-        serif: ['"EB Garamond"', '"Cormorant Garamond"', "Georgia", "serif"],
-        // Our Story: handwritten chapter labels, and its paragraphs.
-        hand: ['"Caveat"', "cursive"],
-        lora: ['"Lora"', "Georgia", "serif"],
-        // Odia phrases and Odia event names.
-        odia: ['"Noto Serif Oriya"', '"Noto Sans Oriya"', "serif"],
+        // Headings, body text, quotes and detail values.
+        display: "var(--font-serif)",
+        serif: "var(--font-serif)",
+        // Buttons, labels and small notes.
+        sans: "var(--font-ui)",
+        // The blessing and the hashtag.
+        cinzel: "var(--font-cinzel)",
+        // The couple's names.
+        names: "var(--font-names)",
+        // All Odia script.
+        odia: "var(--font-odia)",
       },
       letterSpacing: {
         eyebrow: "0.28em",

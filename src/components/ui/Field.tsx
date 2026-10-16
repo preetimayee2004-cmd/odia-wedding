@@ -20,18 +20,18 @@ export function Field({ label, error, hint, children, optional }: FieldProps) {
 
   return (
     <div className="text-left">
-      <label htmlFor={id} className="mb-1.5 block text-[0.75rem] font-medium uppercase tracking-[0.14em] text-ink-soft">
+      <label htmlFor={id} className="t-label mb-1.5 block">
         {label}
         {optional && <span className="ml-1 normal-case tracking-normal text-ink-soft/80">(optional)</span>}
       </label>
       {cloneElement(children, { id, "aria-invalid": error ? true : undefined, "aria-describedby": describedBy })}
       {hint && !error && (
-        <p id={`${id}-hint`} className="mt-1 text-xs text-ink-soft">
+        <p id={`${id}-hint`} className="t-note mt-1">
           {hint}
         </p>
       )}
       {error && (
-        <p id={`${id}-error`} className="mt-1 text-xs font-medium text-sindoor">
+        <p id={`${id}-error`} className="t-note mt-1 font-medium text-sindoor">
           {error}
         </p>
       )}

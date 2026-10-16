@@ -8,7 +8,7 @@ const DRAW_MS = 2600;
 const GOLD = "#A6782C";
 const MAROON = "#7A1424";
 // The page's ochre cream, with a soft warm glow behind the hands.
-const SKY = "radial-gradient(60% 40% at 50% 38%, rgb(255 248 230 / 0.7), transparent 70%), rgb(var(--page))";
+const SKY = "radial-gradient(60% 40% at 50% 38%, rgb(255 248 230 / 0.7), transparent 70%)";
 // A few early stars: [left %, top %, size px, opacity]
 const STARS: Array<[number, number, number, number]> = [
   [14, 12, 2, 0.55],
@@ -57,16 +57,16 @@ export function ThankYou() {
       <div className="relative flex flex-col items-center">
         <PranamHands className="h-[min(30dvh,13.5rem)] w-auto" color={GOLD} drawn={inView} duration={DRAW_MS} />
 
-        <h2 id="thanks-heading" className="mt-8 font-display text-[2rem] leading-tight" style={{ ...fade(DRAW_MS * 0.6), color: MAROON }}>
+        <h2 id="thanks-heading" className="t-heading mt-8" style={{ ...fade(DRAW_MS * 0.6), color: MAROON }}>
           {heading}
         </h2>
         <p
-          className="mx-auto mt-4 max-w-[19rem] font-display text-[1.125rem] italic leading-relaxed text-[#4A3426]"
+          className="t-quote mx-auto mt-4 max-w-[19rem]"
           style={fade(DRAW_MS * 0.6 + 400)}
         >
           {message}
         </p>
-        <p className="mt-8 font-display text-[1.25rem] font-semibold tracking-[0.12em]" style={{ ...fade(DRAW_MS + 400), color: GOLD }}>
+        <p className="t-blessing mt-8" style={{ ...fade(DRAW_MS + 400), color: GOLD }}>
           {closing}
         </p>
       </div>

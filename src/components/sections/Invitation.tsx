@@ -5,7 +5,7 @@ import { useFitToArea } from "@/hooks/useFitToArea";
 import { EASE } from "@/lib/motion";
 import { CardBackdrop, cardCq, cardMinHeight, type CardArt } from "@/components/art/CardBackdrop";
 import { RangoliStart } from "@/components/sections/RangoliStart";
-import { Divider, PinIcon, ScriptName } from "@/components/ui/CardOrnaments";
+import { Divider, PinIcon } from "@/components/ui/CardOrnaments";
 
 export type RevealState = "hidden" | "revealing" | "shown";
 
@@ -29,14 +29,13 @@ const PANEL_EDGE = 62; // the dotted inner border, in from each side
 
 const INK = "#2E1A10";
 const MAROON = "#7A1424";
-const GOLD = "#B8863B";
-const DARK_GOLD = "#8F6420";
 const LINE_STAGGER = 150;
 const LINE_DURATION = 800;
 const RANGOLI_SIZE = 124;
-// Each half of the opening line, measured in EB Garamond 600, is up to
-// 27.2 × its font size wide (27.6 leaves a little slack); sized to fit one line.
-const QUOTE_WIDTH_PER_PX = 27.6;
+// The opening line's halves are sized so the longer (about 22 × its font size
+// wide in Cormorant Garamond 600) just fills the panel between the dotted
+// borders; tuned by measurement, with a little slack.
+const QUOTE_WIDTH_PER_PX = 27.2;
 
 /**
  * Section 02 — The invitation card.
@@ -71,10 +70,10 @@ export function Invitation({ reveal, onOpen }: InvitationProps) {
   };
 
   const lines: ReactNode[] = [
-    <p key="h" className="mb-1.5 text-[14px] font-bold tracking-[0.15em]" style={{ color: MAROON }}>
+    <p key="h" className="t-blessing mb-1.5">
       {invitation.heading}
     </p>,
-    <p key="g" className="mb-1.5 text-[17px] font-semibold italic leading-tight">
+    <p key="g" className="t-greeting mb-1.5">
       {invitation.greeting.replace("{guest}", guestName)}
     </p>,
     <Divider key="d1" className="mb-2" />,
@@ -90,30 +89,28 @@ export function Invitation({ reveal, onOpen }: InvitationProps) {
         </span>
       ))}
     </p>,
-    <p key="s" className="text-[12px] font-bold tracking-[0.3em] [font-variant-caps:small-caps]" style={{ color: DARK_GOLD }}>
+    <p key="s" className="t-label">
       {invitation.saveTheDate}
     </p>,
     // The names, one above the other with the ampersand between
-    <h1 key="n" className="flex flex-col items-center font-normal leading-[1.05]" style={{ color: MAROON }}>
-      <span className="font-vibes text-[40px]"><ScriptName name={first} /></span>
-      <span className="font-vibes text-[24px] leading-none" style={{ color: GOLD }}>
-        &amp;
-      </span>
-      <span className="font-vibes text-[40px]"><ScriptName name={second} /></span>
+    <h1 key="n" className="flex flex-col items-center">
+      <span className="t-names">{first}</span>
+      <span className="t-amp my-1">&amp;</span>
+      <span className="t-names">{second}</span>
     </h1>,
-    <p key="a" className="mb-1.5 text-[16px] font-semibold italic">
+    <p key="a" className="t-quote mb-1.5">
       {invitation.announcement}
     </p>,
     <Divider key="d2" className="mb-1.5" />,
     invitation.dateLine && (
-      <p key="dt" className="mb-1 text-[19px] font-bold leading-snug" style={{ color: MAROON }}>
+      <p key="dt" className="t-value mb-1 font-semibold" style={{ color: MAROON }}>
         {invitation.dateLine}
       </p>
     ),
     invitation.place && (
       <div key="pl" className="flex flex-col items-center">
         <PinIcon />
-        <p className="mt-0.5 max-w-[15rem] text-[14.5px] font-semibold leading-snug">{invitation.place}</p>
+        <p className="t-body mt-0.5 max-w-[15rem] font-semibold leading-snug">{invitation.place}</p>
       </div>
     ),
   ].filter(Boolean);

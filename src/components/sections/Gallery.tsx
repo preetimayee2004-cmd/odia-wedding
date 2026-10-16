@@ -36,11 +36,10 @@ export function Gallery() {
 
   return (
     <section id="gallery" aria-labelledby="gallery-heading" className="px-[var(--gutter)] py-[var(--section-y)]"
-      style={{ backgroundColor: "rgb(var(--page))", backgroundImage: "url(/art/gallery-flowers.svg)", backgroundSize: "280px auto" }}
     >
       <div ref={headerRef} className="text-center" style={{ opacity: headerIn ? 1 : 0, transition: `opacity 900ms ${EASE.silk}` }}>
         <p className="eyebrow">{eyebrow}</p>
-        <h2 id="gallery-heading" className="mt-2 text-[2.25rem]">
+        <h2 id="gallery-heading" className="t-heading mt-2">
           {heading}
         </h2>
         <span aria-hidden className="mx-auto mt-4 flex w-40 items-center gap-2">
@@ -103,7 +102,7 @@ function ArchFrame({ photo, index, onOpen }: { photo: Photo; index: number; onOp
             <circle cx="14" cy="14" r="4.5" />
             <path d="M9 6l1.6-2.5h6.8L19 6" />
           </svg>
-          <span className="text-[0.625rem] font-medium uppercase tracking-[0.18em]">Photo</span>
+          <span className="t-label">Photo</span>
         </div>
       )}
     </GoldArchFrame>

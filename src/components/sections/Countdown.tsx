@@ -13,7 +13,6 @@ const CARD = "#F8F2E5"; // the couple card cream
 const RED = "#8E1B1F";
 const MAROON = "#7A1424";
 const GOLD = "#A6782C";
-const SOFT = "#A88A5E";
 const BORDER_RED = "#8D0B0B"; // the couple card border's red
 const VERMILION_LINE = "#B4483E"; // muted vermilion, as in Our Story's line
 const INK = "#2B1A14";
@@ -141,20 +140,20 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
   });
 
   return (
-    <section ref={ref} id="countdown" aria-labelledby="countdown-heading" className="relative text-center" style={{ backgroundColor: "rgb(var(--page))" }}>
+    <section ref={ref} id="countdown" aria-labelledby="countdown-heading" className="relative text-center">
       <div className="relative px-12 pb-0 pt-[3.25rem]">
-        <p className="flex items-center justify-center gap-2 text-[0.6875rem] font-medium uppercase tracking-[0.3em]" style={{ ...fadeIn(0), color: SOFT }}>
+        <p className="t-label flex items-center justify-center gap-2" style={fadeIn(0)}>
           <span aria-hidden>+</span> {eyebrow} <span aria-hidden>+</span>
         </p>
         {odia && (
-          <p lang="or" className="odia mt-1 text-[1.75rem] font-semibold leading-tight" style={{ ...fadeIn(80), color: RED }}>
+          <p lang="or" className="odia t-odia mt-1 text-[24px] leading-tight" style={{ ...fadeIn(80), color: RED }}>
             {odia}
           </p>
         )}
-        <p className="mt-2 font-serif text-[0.78rem] font-semibold uppercase tracking-[0.2em]" style={{ ...fadeIn(160), color: GOLD }}>
+        <p className="t-label mt-2" style={{ ...fadeIn(160), color: GOLD }}>
           {lead}
         </p>
-        <h2 id="countdown-heading" className="mt-1.5 whitespace-nowrap font-serif text-[2.15rem] font-semibold italic leading-none" style={{ ...fadeIn(220), color: MAROON }}>
+        <h2 id="countdown-heading" className="t-heading mt-1.5 whitespace-nowrap leading-none" style={{ ...fadeIn(220), color: MAROON }}>
           {heading}
         </h2>
         <Ornament className="mt-4" style={fadeIn(280)} />
@@ -197,12 +196,12 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
                       key={c.label}
                       className={`flex flex-col items-center leading-none ${i < 2 ? "justify-end pb-[9%]" : "justify-start pt-[9%]"}`}
                     >
-                      <span className="font-serif text-[15cqw] font-bold [font-variant-numeric:lining-nums_tabular-nums]" style={{ color: MAROON }}>
+                      <span className="font-serif text-[15cqw] font-semibold [font-variant-numeric:lining-nums_tabular-nums]" style={{ color: MAROON }}>
                         {phase === "pending" ? "--" : i === 0 ? c.value : two(c.value)}
                       </span>
-                      <span className="mt-[2cqw] max-w-[96%] text-center font-serif text-[5.4cqw] font-bold uppercase leading-tight tracking-[0.1em]" style={{ color: GOLD }}>
+                      <span className="mt-[2cqw] max-w-[96%] text-center font-sans text-[5cqw] font-medium uppercase leading-tight tracking-[0.1em]" style={{ color: GOLD }}>
                         {c.label}
-                        <span lang="or" className="odia block whitespace-nowrap text-[6.4cqw] font-semibold normal-case tracking-normal" style={{ lineHeight: 1.3 }}>
+                        <span lang="or" className="odia block whitespace-nowrap text-[6.4cqw] font-bold normal-case tracking-normal" style={{ lineHeight: 1.3 }}>
                           {c.odia}
                         </span>
                       </span>
@@ -217,10 +216,10 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
         {/* The date */}
         <div className="mt-7" style={fadeIn(420)}>
           {date ? (
-            <p className="font-serif text-[1.65rem] font-bold leading-none tracking-[0.3em]" style={{ color: INK }}>
+            <p className="font-serif text-[1.65rem] font-semibold leading-none tracking-[0.3em]" style={{ color: INK }}>
               {two(parts!.day)} · {two(parts!.month)} · {parts!.year}
               {date.time && (
-                <span className="mt-2 block font-sans text-[0.6875rem] font-semibold tracking-[0.18em]">
+                <span className="t-label mt-2 block">
                   {date.time} {zoneLabel(target!, tz)}
                 </span>
               )}
@@ -228,7 +227,7 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
           ) : (
             <div className="flex justify-center">
               <Pending label="Wedding date awaiting confirmation">
-                <p className="font-serif text-[1.65rem] font-bold tracking-[0.3em]">DD · MM · YYYY</p>
+                <p className="font-serif text-[1.65rem] font-semibold tracking-[0.3em]">DD · MM · YYYY</p>
               </Pending>
             </div>
           )}

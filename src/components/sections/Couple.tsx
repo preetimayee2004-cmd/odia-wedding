@@ -6,7 +6,7 @@ import { useInView } from "@/hooks/useInView";
 import { EASE } from "@/lib/motion";
 import { CardBackdrop, cardCq, cardMinHeight, type CardArt } from "@/components/art/CardBackdrop";
 import { GaneshaIcon, LotusIcon } from "@/components/art/Ganesha";
-import { Divider, ScriptName } from "@/components/ui/CardOrnaments";
+import { Divider } from "@/components/ui/CardOrnaments";
 
 /**
  * The couple card artwork (768×1376): a carved arch in a red-and-gold border
@@ -22,11 +22,7 @@ const PANEL_EDGE = 62; // the inner red line of the side borders
 /** The couple seated at the sacred fire, centred at the bottom of the card. */
 const COUPLE_ART = { src: "/art/couple-havan.png", alt: "The bride and groom seated together before the sacred fire", aspect: 242 / 303 };
 
-const INK = "#2E1A10";
-const QUOTE_INK = "#4A2C1A";
-const MAROON = "#7A1424";
 const GOLD = "#B8863B";
-const DARK_GOLD = "#8F6420";
 
 /**
  * Section 03 — The couple.
@@ -68,7 +64,6 @@ export function Couple() {
           minHeight: cardMinHeight(CARD),
           paddingTop: cq(UNDER_ARCH),
           paddingBottom: `calc(${cq(CARD.h - BORDER_BOTTOM)} + 10px)`,
-          color: INK,
         }}
       >
         <div ref={areaRef} className="relative min-h-0 flex-1">
@@ -87,19 +82,19 @@ export function Couple() {
                   transition: `opacity 600ms ${EASE.silk}, transform 600ms ${EASE.silk}`,
                 }}
               >
-                <GaneshaIcon className="h-[84px] w-auto" />
+                <GaneshaIcon className="h-[60px] w-auto" />
               </div>
-              <p className="mt-10 whitespace-nowrap text-[17px] font-bold tracking-[0.15em]" style={{ ...rise(250), color: MAROON }}>
+              <p className="t-blessing mt-2.5 whitespace-nowrap" style={rise(250)}>
                 {couple.invocation}
               </p>
             </div>
 
             {/* The guest, by name */}
             <div className="flex flex-col items-center">
-              <p className="text-[20px] font-semibold italic leading-tight" style={rise(450)}>
+              <p className="t-greeting" style={rise(450)}>
                 {couple.greeting.replace("{guest}", guestName)}
               </p>
-              <p className="mt-1.5 text-[16px] font-medium leading-snug [text-wrap:balance]" style={rise(600)}>
+              <p className="t-body mt-1.5 [text-wrap:balance]" style={rise(600)}>
                 {couple.invite}
               </p>
               <div className="mt-3" style={rise(700)}>
@@ -108,22 +103,22 @@ export function Couple() {
             </div>
 
             {/* The couple's names, one after another */}
-            <h2 id="couple-heading" className="flex flex-col items-center font-normal leading-[1.1]" style={{ color: MAROON }}>
-              <span className="font-vibes text-[56px]" style={rise(900)}>
-                <ScriptName name={first} />
+            <h2 id="couple-heading" className="flex flex-col items-center">
+              <span className="t-names" style={rise(900)}>
+                {first}
               </span>
-              <span className="my-1.5 font-vibes text-[28px] leading-none" style={{ ...rise(1200), color: GOLD }}>
+              <span className="t-amp my-1.5" style={rise(1200)}>
                 &amp;
               </span>
-              <span className="font-vibes text-[56px]" style={rise(1500)}>
-                <ScriptName name={second} />
+              <span className="t-names" style={rise(1500)}>
+                {second}
               </span>
             </h2>
 
             {couple.hashtag && (
               <div className="flex flex-col items-center gap-1.5" style={rise(1800)}>
                 <span aria-hidden className="h-px w-40" style={{ background: `linear-gradient(to right, transparent, ${GOLD}, transparent)` }} />
-                <p className="text-[15px] font-bold tracking-[0.2em] [font-variant-caps:small-caps]" style={{ color: DARK_GOLD }}>
+                <p className="t-hashtag">
                   {couple.hashtag}
                 </p>
                 <span aria-hidden className="h-px w-40" style={{ background: `linear-gradient(to right, transparent, ${GOLD}, transparent)` }} />
@@ -133,7 +128,7 @@ export function Couple() {
             {/* A few words, under a small lotus */}
             <div className="flex flex-col items-center" style={rise(2000)}>
               <LotusIcon className="h-5 w-auto" />
-              <p className="mt-1.5 max-w-[17rem] text-[16px] font-medium italic leading-[1.7] [text-wrap:balance]" style={{ color: QUOTE_INK }}>
+              <p className="t-quote mt-1.5 max-w-[17rem] [text-wrap:balance]">
                 {couple.quote}
               </p>
             </div>

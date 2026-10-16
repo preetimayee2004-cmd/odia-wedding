@@ -4,10 +4,7 @@ import { useInView } from "@/hooks/useInView";
 import { EASE } from "@/lib/motion";
 import { formatVenueDate, parseVenueDateTime } from "@/lib/venueTime";
 
-// Continues the thank-you screen's ochre cream.
-const PAGE = "rgb(var(--page))";
 const GOLD = "#A6782C";
-const TEXT_SOFT = "#6B4A3A";
 
 /**
  * Closing sign-off, beneath the thank-you screen.
@@ -36,7 +33,6 @@ export function Footer() {
       id="closing"
       aria-label="Closing note"
       className="px-[var(--gutter)] pb-[max(3.5rem,env(safe-area-inset-bottom))] pt-8 text-center"
-      style={{ backgroundColor: PAGE }}
     >
       <div aria-hidden className="flex items-center justify-center gap-3">
         <span className="h-px w-20 bg-gradient-to-l from-[#A6782C]/80 to-transparent" style={thread("right")} />
@@ -45,20 +41,20 @@ export function Footer() {
       </div>
 
       <div style={fade(600)}>
-        <p className="mt-8 text-[0.6875rem] font-medium uppercase tracking-eyebrow" style={{ color: TEXT_SOFT }}>
+        <p className="t-label mt-8">
           {blessing}
         </p>
-        <p className="mt-2 font-script text-[2.6rem] leading-tight" style={{ color: GOLD }}>
-          {first} <span className="font-display text-2xl italic text-[#6B4A3A]">&amp;</span>{" "}
+        <p className="t-names mt-2">
+          {first} <span className="t-amp">&amp;</span>{" "}
           {second}
         </p>
         {date && (
-          <p className="mt-1 text-[0.75rem] font-medium uppercase tracking-[0.18em]" style={{ color: TEXT_SOFT }}>
+          <p className="t-label mt-1">
             {date.day} {date.month} {date.year}
           </p>
         )}
         {credit && (
-          <p className="mt-10 text-[0.6875rem]" style={{ color: TEXT_SOFT }}>
+          <p className="t-note mt-10">
             {credit}
           </p>
         )}

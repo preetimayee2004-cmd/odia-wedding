@@ -17,6 +17,42 @@
     --ink: 43 36 32; /* #2B2420 — body text, ~11:1 on the page background */
     --ink-soft: 94 82 74; /* #5E524A — secondary text, ~5.2:1 on the page background */
 
+    /* ── Typography: change fonts, colours and sizes here ── */
+    --font-cinzel: "Cinzel", Georgia, serif; /* blessing and hashtag only */
+    --font-serif: "Cormorant Garamond", Georgia, serif; /* headings, body, quotes, values */
+    --font-ui: "Jost", system-ui, -apple-system, "Segoe UI", sans-serif; /* buttons, labels, notes */
+    --font-odia: "Noto Sans Oriya", sans-serif; /* all Odia script */
+    /* The couple's names: Cormorant Garamond italic. For Cinzel instead, set
+       --font-names: var(--font-cinzel); --names-style: normal;
+       --names-weight: 500; --names-tracking: 3px; */
+    --font-names: var(--font-serif);
+    --names-style: italic;
+    --names-weight: 600;
+    --names-tracking: 0.5px;
+
+    --c-text: #3b2218;
+    --c-muted: #6b4a38;
+    --c-red: #8c1c24; /* names */
+    --c-red-odia: #a51c1c; /* Odia text */
+    --c-gold: #c9a24d;
+    --c-gold-brown: #a58433; /* labels */
+    --c-blessing: #5a3b2a;
+
+    --fs-blessing: 13px;
+    --fs-names: 38px;
+    --fs-amp: 28px;
+    --fs-hashtag: 12px;
+    --fs-heading: 40px;
+    --fs-event: 30px;
+    --fs-odia: 20px;
+    --fs-greeting: 22px;
+    --fs-body: 18px;
+    --fs-quote: 20px;
+    --fs-button: 13px;
+    --fs-label: 11px;
+    --fs-value: 20px;
+    --fs-note: 12px;
+
     /* Layout rhythm (mobile-first) */
     --gutter: 1.5rem;
     --section-y: 5.5rem;
@@ -28,10 +64,23 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  /* Headings and names about 10% smaller on the narrowest phones */
+  @media (max-width: 359px) {
+    :root {
+      --fs-names: 34px;
+      --fs-amp: 25px;
+      --fs-heading: 36px;
+      --fs-event: 27px;
+    }
+  }
+
   body {
-    @apply bg-cream font-sans text-ink antialiased;
-    font-size: 0.9375rem; /* 15px — comfortable body size on phones */
-    line-height: 1.65;
+    @apply bg-cream antialiased;
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: var(--fs-body);
+    line-height: 1.5;
+    color: var(--c-text);
     text-rendering: optimizeLegibility;
   }
 
@@ -39,7 +88,7 @@
   h2,
   h3,
   h4 {
-    @apply font-display font-medium text-sindoor;
+    @apply font-display font-semibold text-sindoor;
     line-height: 1.15;
   }
 
@@ -75,13 +124,127 @@
   }
 
   .eyebrow {
-    @apply font-sans text-[0.6875rem] font-medium uppercase tracking-eyebrow text-ink-soft;
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--c-gold-brown);
   }
 
   /* Odia script needs taller line boxes for its vowel signs */
   .odia {
     @apply font-odia;
     line-height: 1.9;
+  }
+
+  /* Every section after the couple card (Wedding Events excepted) sits on the
+     page cream with faint white flowers, set once on the box around them. */
+  .page-flowers {
+    background-color: rgb(var(--page));
+    background-image: url("/art/gallery-flowers.svg");
+    background-size: 280px auto;
+  }
+
+  /* ── Typography roles (sizes and colours from the variables above) ── */
+  .t-blessing {
+    font-family: var(--font-cinzel);
+    font-weight: 500;
+    font-size: var(--fs-blessing);
+    letter-spacing: 2px;
+    color: var(--c-blessing);
+  }
+  .t-names {
+    font-family: var(--font-names);
+    font-style: var(--names-style);
+    font-weight: var(--names-weight);
+    font-size: var(--fs-names);
+    letter-spacing: var(--names-tracking);
+    line-height: 1.1;
+    color: var(--c-red);
+  }
+  .t-amp {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 600;
+    font-size: var(--fs-amp);
+    line-height: 1;
+    color: var(--c-gold);
+  }
+  .t-hashtag {
+    font-family: var(--font-cinzel);
+    font-weight: 500;
+    font-size: var(--fs-hashtag);
+    letter-spacing: 3px;
+    color: var(--c-gold-brown);
+  }
+  .t-heading {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: var(--fs-heading);
+    line-height: 1.1;
+  }
+  .t-event {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    font-size: var(--fs-event);
+    line-height: 1.1;
+  }
+  .t-odia {
+    font-family: var(--font-odia);
+    font-weight: 700;
+    font-size: var(--fs-odia);
+    line-height: 1.5;
+    color: var(--c-red-odia);
+  }
+  .t-greeting {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 600;
+    font-size: var(--fs-greeting);
+    line-height: 1.25;
+  }
+  .t-body {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: var(--fs-body);
+    line-height: 1.5;
+  }
+  .t-quote {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 500;
+    font-size: var(--fs-quote);
+    line-height: 1.45;
+    color: var(--c-muted);
+  }
+  .t-button {
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: var(--fs-button);
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+  }
+  .t-label {
+    font-family: var(--font-ui);
+    font-weight: 500;
+    font-size: var(--fs-label);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--c-gold-brown);
+  }
+  .t-value {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: var(--fs-value);
+    line-height: 1.35;
+  }
+  .t-note {
+    font-family: var(--font-ui);
+    font-weight: 400;
+    font-size: var(--fs-note);
+    line-height: 1.5;
+    color: var(--c-muted);
   }
 }
 
@@ -307,12 +470,12 @@
    the section unless reduced motion is preferred; `.ev-paused` while it is
    off screen. */
 .ev {
-  --ev-ink: #3b2416;
+  --ev-ink: var(--c-text);
   --ev-ink-soft: #6b4a33;
-  --ev-red: #a51c1c;
+  --ev-red: var(--c-red-odia);
   --ev-gold: #c9a24b;
   --ev-gold-soft: #e2cc9a;
-  --ev-gold-ink: #8a6420; /* small gold labels: dark enough to read on cream */
+  --ev-gold-ink: var(--c-gold-brown); /* labels */
   --ev-tan: #cfb089;
   --ev-card: #fffbf3;
   --ev-band: calc(100% * 35 / 768); /* the side bands' width */
@@ -322,9 +485,9 @@
   animation-play-state: paused !important;
 }
 .ev-title {
-  font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 42px;
-  font-weight: 500;
+  font-family: var(--font-serif);
+  font-size: var(--fs-heading);
+  font-weight: 600;
   line-height: 1.05;
   color: var(--ev-ink);
 }
@@ -388,8 +551,8 @@
   position: relative;
   margin-top: 12px;
   padding: 0 16px;
-  font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 31px;
+  font-family: var(--font-serif);
+  font-size: var(--fs-event);
   font-weight: 600;
   line-height: 1.05;
   white-space: nowrap;
@@ -413,8 +576,8 @@
 .ev-name::after { right: 0; }
 .ev-odia {
   margin-top: 4px;
-  font-family: "Noto Sans Oriya", "Noto Serif Oriya", sans-serif;
-  font-size: 17px;
+  font-family: var(--font-odia);
+  font-size: var(--fs-odia);
   font-weight: 700;
   line-height: 1.5;
   color: var(--ev-red);
@@ -433,8 +596,8 @@
   border-radius: 999px;
   background: #fffaf1;
   color: var(--ev-ink);
-  font: 500 10.5px/1 "Jost", system-ui, sans-serif;
-  letter-spacing: 0.15em;
+  font: 500 var(--fs-button)/1 var(--font-ui);
+  letter-spacing: 1.4px;
   text-transform: uppercase;
   white-space: nowrap;
   cursor: pointer;
@@ -491,21 +654,21 @@
 .ev-row + .ev-row { border-top: 1px dashed #e6d3a8; }
 .ev-row dt {
   margin-bottom: 6px;
-  font: 600 10.5px/1 "Jost", system-ui, sans-serif;
-  letter-spacing: 0.18em;
+  font: 500 var(--fs-label)/1 var(--font-ui);
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--ev-gold-ink);
 }
 .ev-row dd {
   margin: 0;
-  font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 19px;
+  font-family: var(--font-serif);
+  font-size: var(--fs-value);
   font-weight: 500;
   line-height: 1.35;
   white-space: pre-line;
   color: var(--ev-ink);
 }
-.ev-row.about dd { font-size: 18px; color: var(--ev-ink-soft); }
+.ev-row.about dd { font-size: var(--fs-body); color: var(--c-muted); }
 .ev-maplink {
   display: inline-flex;
   align-items: center;
@@ -513,8 +676,8 @@
   margin-top: 8px;
   padding: 4px 0;
   border-bottom: 1px solid var(--ev-gold-soft);
-  font: 500 11px/1 "Jost", system-ui, sans-serif;
-  letter-spacing: 0.14em;
+  font: 500 var(--fs-button)/1 var(--font-ui);
+  letter-spacing: 1.4px;
   text-transform: uppercase;
   color: var(--ev-gold-ink);
 }

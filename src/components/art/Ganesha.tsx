@@ -1,12 +1,9 @@
 const GOLD = "#B8863B";
 const GOLD_LIGHT = "#D9AE5F";
 
-/**
- * Ganesha as a single red brushstroke (the couple's image): the trunk's long
- * S-curve rising to an eye, crown and ear. Tall and slim — set its height.
- */
+/** A small Ganesha in a single dark red silhouette (the couple's image). */
 export function GaneshaIcon({ className = "" }: { className?: string }) {
-  return <img src="/art/ganesha-red.png" width={253} height={682} alt="Lord Ganesha" decoding="async" className={className} />;
+  return <img src="/art/ganesha-dark-red.png" width={164} height={199} alt="Lord Ganesha" decoding="async" className={className} />;
 }
 
 /** A small gold lotus, above the couple's quote. */

@@ -20,16 +20,3 @@ export function PinIcon() {
     </svg>
   );
 }
-
-/**
- * A name in Great Vibes with its first letter in Pinyon Script, whose
- * capitals read unmistakably as capitals (Great Vibes' "A" looks like "a").
- */
-export function ScriptName({ name }: { name: string }) {
-  return (
-    <>
-      <span className="font-script">{name.charAt(0)}</span>
-      {name.slice(1)}
-    </>
-  );
-}

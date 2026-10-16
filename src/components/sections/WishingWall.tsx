@@ -11,7 +11,6 @@ import { controlClass, Field, Honeypot } from "@/components/ui/Field";
 import { Sheet } from "@/components/ui/Sheet";
 
 const PAGE = 20;
-const PAGE_BG = "rgb(var(--page))";
 const GOLD = "#A6782C";
 const TEXT = "#2B1A14";
 const MAROON = "#7A1424";
@@ -147,10 +146,10 @@ function WishingWallSection() {
       id="wishes"
       aria-labelledby="wishes-heading"
       className="overflow-hidden py-[var(--section-y)]"
-      style={{ backgroundColor: PAGE_BG, color: TEXT }}
+      style={{ color: TEXT }}
     >
       <div className="px-[var(--gutter)] text-center" style={fade()}>
-        <p className="text-[0.6875rem] font-medium uppercase tracking-eyebrow" style={{ color: GOLD }}>
+        <p className="t-label" style={{ color: GOLD }}>
           {eyebrow}
         </p>
         {odiaHeading && (
@@ -158,10 +157,10 @@ function WishingWallSection() {
             {odiaHeading}
           </p>
         )}
-        <h2 id="wishes-heading" className="mt-1 text-[2.25rem]" style={{ color: MAROON }}>
+        <h2 id="wishes-heading" className="t-heading mt-1" style={{ color: MAROON }}>
           {heading}
         </h2>
-        <p className="mx-auto mt-2 max-w-[17rem] text-[0.8125rem]" style={{ color: TEXT_SOFT }}>
+        <p className="t-body mx-auto mt-2 max-w-[19rem]" style={{ color: TEXT_SOFT }}>
           Leave a few words of love and blessing for the couple.
         </p>
       </div>
@@ -171,7 +170,7 @@ function WishingWallSection() {
         {loadFailed ? (
           <p className="px-[var(--gutter)] text-center text-sm" style={{ color: TEXT_SOFT }}>
             We couldn&rsquo;t load the blessings just now.{" "}
-            <button type="button" onClick={loadPreview} className="font-medium underline underline-offset-4" style={{ color: TEXT }}>
+            <button type="button" onClick={loadPreview} className="t-button underline underline-offset-4" style={{ color: TEXT }}>
               Try again
             </button>
           </p>
@@ -180,7 +179,7 @@ function WishingWallSection() {
             Gathering blessings…
           </p>
         ) : preview.length === 0 ? (
-          <p className="text-center font-display text-lg italic" style={{ color: TEXT_SOFT }}>
+          <p className="t-quote text-center">
             Be the first to leave a blessing.
           </p>
         ) : (
@@ -206,7 +205,7 @@ function WishingWallSection() {
         )}
 
         {preview && preview.length > 1 && (
-          <p aria-hidden className="text-center text-[0.625rem] uppercase tracking-[0.2em]" style={{ color: TEXT_SOFT }}>
+          <p aria-hidden className="t-label text-center">
             Swipe for more blessings →
           </p>
         )}
@@ -217,7 +216,7 @@ function WishingWallSection() {
               type="button"
               onClick={() => setWallOpen(true)}
               aria-haspopup="dialog"
-              className="inline-flex min-h-12 items-center rounded-full border px-7 text-sm font-medium"
+              className="t-button inline-flex min-h-12 items-center rounded-full border px-7"
               style={{ color: TEXT, borderColor: `${GOLD}99` }}
             >
               View All Blessings ({total})
@@ -236,8 +235,8 @@ function WishingWallSection() {
         style={{ ...fade(300), borderColor: `${GOLD}66` }}
       >
         <fieldset disabled={!backendReady} className="space-y-4 disabled:opacity-60">
-        <h3 className="text-center text-[1.5rem]">Send your blessing</h3>
-        {!backendReady && <p className="text-center text-[0.8125rem] text-ink-soft">Blessings open soon.</p>}
+        <h3 className="t-event text-center">Send your blessing</h3>
+        {!backendReady && <p className="t-note text-center">Blessings open soon.</p>}
         <Field label="Your name" error={errors.name} optional={allowAnonymous}>
           <input
             className={controlClass}
@@ -266,7 +265,7 @@ function WishingWallSection() {
 
         <p
           role="status"
-          className={`min-h-5 text-center text-[0.8125rem] ${status === "error" ? "font-medium text-sindoor" : "text-ink"}`}
+          className={`t-note min-h-5 text-center ${status === "error" ? "font-medium text-sindoor" : "text-ink"}`}
         >
           {status === "saved" || status === "error" ? statusText : ""}
         </p>
@@ -293,8 +292,8 @@ function PalmLeaf({ wish, marigold = false }: { wish: Wish; marigold?: boolean }
         />
       ))}
       <span aria-hidden className="absolute left-[16px] top-1/2 h-10 w-[1.5px] origin-top rotate-[16deg] rounded-full bg-[#8E2A1F]/80" />
-      <blockquote className="font-display text-[1.08rem] italic leading-snug text-[#3A2208]">“{wish.message}”</blockquote>
-      <figcaption className="mt-2 text-[0.6875rem] text-[#5C3B12]">
+      <blockquote className="t-quote leading-snug text-[#3A2208]">“{wish.message}”</blockquote>
+      <figcaption className="t-note mt-2 text-[#5C3B12]">
         — {wish.name ?? "A well-wisher"} · {shortDate(wish.created_at)}
       </figcaption>
       {marigold && <Marigold className="marigold-drop absolute -top-5 right-5 h-11 w-11" />}
@@ -354,7 +353,7 @@ function AllWishes() {
 
   return (
     <div>
-      <h3 className="text-center text-[2rem]">All Blessings</h3>
+      <h3 className="t-heading text-center">All Blessings</h3>
       {total !== null && <p className="mt-1 text-center text-xs text-ink-soft">{total} blessings</p>}
       <ul className="mt-6 space-y-3">
         {items.map((w) => (
@@ -366,7 +365,7 @@ function AllWishes() {
       <div className="mt-6 text-center text-sm text-ink-soft" aria-live="polite">
         {state === "loading" && "Loading…"}
         {state === "error" && (
-          <button type="button" onClick={() => loadMore(items.length)} className="font-medium text-sindoor underline underline-offset-4">
+          <button type="button" onClick={() => loadMore(items.length)} className="t-button text-sindoor underline underline-offset-4">
             Couldn't load — try again
           </button>
         )}

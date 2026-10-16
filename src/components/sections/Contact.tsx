@@ -29,13 +29,13 @@ export function Contact() {
   const list = hasContacts ? people : PLACEHOLDERS;
 
   return (
-    <section ref={ref} id="contact" aria-labelledby="contact-heading" className="section text-center" style={{ backgroundColor: "rgb(var(--page))" }}>
+    <section ref={ref} id="contact" aria-labelledby="contact-heading" className="section text-center">
       <div style={{ opacity: inView ? 1 : 0, transition: `opacity 900ms ${EASE.silk}` }}>
-        <h2 id="contact-heading" className="text-[2.25rem]">
+        <h2 id="contact-heading" className="t-heading">
           {heading}
         </h2>
         <GoldDivider className="mt-4" />
-        <p className="mx-auto mt-4 max-w-[18rem] text-[0.875rem] text-ink-soft">{note}</p>
+        <p className="t-body mx-auto mt-4 max-w-[19rem] text-ink-soft">{note}</p>
       </div>
 
       <ul className="mt-8 space-y-4">
@@ -69,8 +69,8 @@ function ContactCard({ person }: { person: Person }) {
     <div className="flex items-center gap-4 rounded-2xl border border-gold/45 bg-cream-light px-5 py-4 text-left">
       <div className="min-w-0 flex-1">
         {person.relation && <p className="eyebrow">{person.relation}</p>}
-        <p className="mt-0.5 font-display text-[1.35rem] font-medium leading-tight text-ink">{person.name}</p>
-        <p className="mt-0.5 text-[0.8125rem] text-ink-soft">{person.phone}</p>
+        <p className="t-value mt-0.5 font-semibold leading-tight text-ink">{person.name}</p>
+        <p className="t-body mt-0.5 text-ink-soft">{person.phone}</p>
       </div>
       <div className="flex shrink-0 gap-2">
         <IconLink href={`tel:${digits}`} label={`Call ${person.name}`}>
