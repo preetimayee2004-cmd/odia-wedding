@@ -22,7 +22,7 @@ const PORTRAIT_MASK = "radial-gradient(ellipse 72% 68% at center, #000 60%, tran
  * A gold filigree crest over "THE FAMILIES" (gold and maroon), "Bound by
  * Love, Blessed by Family" and a lotus divider; the couple with both sets of
  * parents, its edges fading into the page; the parents of the groom and of
- * the bride side by side, each with their family's blessing; "|| ବସୁଧୈବ
+ * the bride one above the other, each with their family's blessing; "|| ବସୁଧୈବ
  * କୁଟୁମ୍ବକମ୍ ||" (the world is one family); and Lord Jagannath between two
  * scrolls over Jai Jagannath.
  */
@@ -71,9 +71,10 @@ export function Family() {
           />
         )}
 
-        {/* The parents of the groom and of the bride */}
-        <div className="-mx-3 mt-4 grid grid-cols-2 gap-x-3" style={rise(420)}>
+        {/* The parents of the groom, then of the bride, one above the other */}
+        <div className="mt-4" style={rise(420)}>
           <Parents side={groom} />
+          <span aria-hidden className="mx-auto my-5 block h-px w-14" style={{ backgroundImage: `linear-gradient(to right, transparent, ${GOLD}, transparent)` }} />
           <Parents side={bride} />
         </div>
 
@@ -106,7 +107,7 @@ function Parents({ side }: { side: FamilySide }) {
   const [a, b] = side.parents;
   return (
     <div>
-      <p className="t-label whitespace-nowrap text-[10px] tracking-[0.14em] min-[380px]:text-[10.5px]" style={{ color: LABEL }}>
+      <p className="t-label text-[11px] tracking-[0.14em]" style={{ color: LABEL }}>
         {side.label}
       </p>
       {side.parents.length > 0 ? (
