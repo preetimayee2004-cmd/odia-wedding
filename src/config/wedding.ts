@@ -132,15 +132,19 @@ export interface WeddingConfig {
     chapters: Array<{ label: string; title: string; text: string }>;
   };
   family: {
-    /** Under the couple's names, e.g. "Bound by Love, Blessed by Family". */
+    /** The section heading; its first word is set in gold, the rest in maroon. */
+    heading: string;
+    /** Under the heading, e.g. "Bound by Love, Blessed by Family". */
     tagline: string;
+    /** Over the parents, e.g. "Family Blessings". */
+    blessingsHeading: string;
     /** The couple with both sets of parents; null hides it. */
     art: { src: string; alt: string; w: number; h: number } | null;
     groom: FamilySide;
     bride: FamilySide;
     /** Odia line near the foot, e.g. "|| ବସୁଧୈବ କୁଟୁମ୍ବକମ୍ ||". */
     odiaLine: string | null;
-    /** Under the pranam hands, e.g. "Jai Jagannath". */
+    /** Under the Jagannath icon, e.g. "Jai Jagannath". */
     closing: string;
   };
   events: {
@@ -355,8 +359,10 @@ export const wedding: WeddingConfig = {
     ],
   },
   family: {
+    heading: "The Families",
     tagline: "Bound by Love, Blessed by Family",
-    art: { src: "/art/family/family.webp", alt: "Avi and Pragyan in their wedding finery, with both sets of parents beside them", w: 316, h: 200 },
+    blessingsHeading: "Family Blessings",
+    art: { src: "/art/family/family.webp", alt: "Avi and Pragyan in their wedding finery, with both sets of parents beside them", w: 650, h: 394 },
     // From the couple's family design (16 Oct 2026), exactly as written there —
     // confirm every name and its spelling with the family before sharing.
     groom: {
