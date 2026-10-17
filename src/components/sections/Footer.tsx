@@ -67,7 +67,8 @@ export function Footer() {
       {/* The couple's initials, a heart between them */}
       <p className="mt-6 font-serif text-[46px] font-semibold leading-none tracking-[2px]" style={{ ...after(500), color: "#B4483E" }}>
         <span className="sr-only">{`${first} and ${second}`}</span>
-        <span aria-hidden>
+        {/* the Hastaganthi cord ends in a ring around these */}
+        <span aria-hidden data-thread="monogram">
           {first.charAt(0)}
           <svg viewBox="0 0 24 22" className="mx-2.5 inline-block h-[0.62em] w-auto -translate-y-[0.05em]" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round">
             <path d="M12 20C6 15.6 2 12 2 7.5 2 4.4 4.4 2 7.4 2c2 0 3.6 1.1 4.6 2.7C13 3.1 14.6 2 16.6 2 19.6 2 22 4.4 22 7.5 22 12 18 15.6 12 20Z" />

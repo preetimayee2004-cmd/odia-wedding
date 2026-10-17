@@ -432,6 +432,25 @@
   .petal-rise { animation: none; }
 }
 
+/* The Hastaganthi thread (art/HastaganthiThread.tsx): a marigold blooms, petals burst */
+.ht-bloom {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ht-bloom 0.7s cubic-bezier(0.2, 0.9, 0.25, 1.3) both;
+}
+@keyframes ht-bloom {
+  from { transform: scale(0) rotate(-45deg); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.ht-petal { animation: ht-burst 1s ease-out both; }
+@keyframes ht-burst {
+  0% { transform: translateY(0) scale(0.6); opacity: 0.95; }
+  100% { transform: translateY(-18px) scale(1.1); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ht-bloom, .ht-petal { animation: none; }
+}
+
 /* The Families: a carved gold frame around each set of parents (see GoldFrame).
    The band is a gilded gradient with a row of beads along it; the panel inside
    is a lighter cream behind a fine dark-and-gold edge. */

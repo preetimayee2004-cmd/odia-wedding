@@ -1,4 +1,5 @@
 import { SideBands } from "@/components/art/SideBands";
+import { HastaganthiThread } from "@/components/art/HastaganthiThread";
 import { FallingPetals } from "@/components/art/FallingPetals";
 import { SectionSeparator } from "@/components/ui/SectionSeparator";
 import { Couple } from "@/components/sections/Couple";
@@ -30,6 +31,8 @@ export default function RestOfSite() {
           over the page cream with faint white flowers (Wedding Events keeps plain cream) */}
       <div className="page-flowers relative">
         <SideBands />
+        {/* the groom's and bride's threads, from the countdown to the closing initials */}
+        <HastaganthiThread />
         <Countdown />
         {/* Countdown → Our Story: the countdown's gold thread already runs down to the scroll's nail */}
         <Story />

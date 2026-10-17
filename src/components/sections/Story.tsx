@@ -48,8 +48,8 @@ export function Story() {
         {/* The thread from the countdown's wheel, down to the nail; the string to the rod */}
         <Hanger />
 
-        {/* The top rod */}
-        <Rod />
+        {/* The top rod (the Hastaganthi threads hang it) */}
+        <Rod thread />
 
         {/* The parchment, unrolling, with the bottom rod travelling down its edge */}
         <div ref={scrollRef} className="relative mx-[14px]">
@@ -148,11 +148,11 @@ function Hanger() {
   );
 }
 
-/** A maroon scroll rod with a turned wooden knob at each end. */
-function Rod({ className = "relative", style }: { className?: string; style?: CSSProperties }) {
+/** A maroon scroll rod with a turned wooden knob at each end; `thread` marks the top one for the Hastaganthi threads. */
+function Rod({ className = "relative", style, thread = false }: { className?: string; style?: CSSProperties; thread?: boolean }) {
   const knob = "radial-gradient(circle at 38% 32%, #C48A55, #8A5128 48%, #4E2A12)";
   return (
-    <div aria-hidden className={`z-[1] h-[18px] ${className}`} style={style}>
+    <div aria-hidden data-thread={thread ? "rod" : undefined} className={`z-[1] h-[18px] ${className}`} style={style}>
       <span
         className="absolute inset-y-[2px] left-[9px] right-[9px] rounded-full shadow-[0_3px_5px_-1px_rgb(50_20_5/0.45)]"
         style={{ background: "linear-gradient(to bottom, #C2454A, #8E1B1F 45%, #5E0E12)" }}

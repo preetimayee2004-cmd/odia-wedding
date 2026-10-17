@@ -121,7 +121,9 @@ function RsvpBody() {
     }
   };
 
-  const accept = () => {
+  const accept = (from: HTMLElement) => {
+    // the Hastaganthi cord blooms a marigold beside the button
+    window.dispatchEvent(new CustomEvent<HTMLElement>("tila:accepted", { detail: from }));
     setAccepted(true);
     setJustAccepted(true);
     if (!PREVIEW) void save();
@@ -191,7 +193,7 @@ function RsvpBody() {
         /* The ornate Accept plaque: one tap accepts */
         <button
           type="button"
-          onClick={accept}
+          onClick={(e) => accept(e.currentTarget)}
           aria-label={r.acceptLabel}
           className="relative mx-auto mt-6 block w-full max-w-[21rem] transition-transform duration-200 ease-silk active:scale-[0.98]"
         >

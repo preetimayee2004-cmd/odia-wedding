@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { wedding } from "@/config/wedding";
-import { playSankha, type SoundHandle } from "@/lib/sankha";
+import { playSankha, playSoftConch, type SoundHandle } from "@/lib/sankha";
 
 /**
  * The one sound shared by the opening's sound button and the floating one
@@ -8,6 +8,8 @@ import { playSankha, type SoundHandle } from "@/lib/sankha";
  * (and stops) whatever is playing.
  */
 let current: SoundHandle | null = null;
+/** The guest has turned sound on (and not turned it off) during this visit. */
+let enabled = false;
 const listeners = new Set<() => void>();
 const notify = () => listeners.forEach((l) => l());
 
@@ -16,9 +18,11 @@ export function toggleSound() {
   if (current) {
     current.stop();
     current = null;
+    enabled = false;
     notify();
     return;
   }
+  enabled = true;
   const handle = playSankha(wedding.assets.openingSound);
   current = handle;
   notify();
@@ -37,4 +41,9 @@ export function useSoundOn(): boolean {
     },
     () => current !== null,
   );
+}
+
+/** A soft conch as the Hastaganthi knot ties — only if the guest has sound on. */
+export function playKnotSound() {
+  if (enabled) playSoftConch();
 }
