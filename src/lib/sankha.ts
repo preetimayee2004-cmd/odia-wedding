@@ -18,22 +18,6 @@ export interface SoundHandle {
 let ctx: AudioContext | null = null;
 const SILENT: SoundHandle = { stop: () => {}, ended: Promise.resolve() };
 
-/**
- * A short, soft conch call, for the Hastaganthi knot. Only played once the
- * guest has already turned sound on (so the browser allows it).
- */
-export function playSoftConch(): void {
-  try {
-    const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!AC) return;
-    ctx ??= new AC();
-    if (ctx.state === "suspended") void ctx.resume();
-    synthConch(ctx, 2.4, 0.12);
-  } catch {
-    // no sound — nothing else depends on it
-  }
-}
-
 export function playSankha(src: string | null): SoundHandle {
   try {
     if (src) {
@@ -58,17 +42,16 @@ export function playSankha(src: string | null): SoundHandle {
 }
 
 /** A brassy, swelling call with a slight pitch rise, gentle vibrato and breath. */
-function synthConch(ac: AudioContext, dur = 4.4, peak = 0.3): SoundHandle {
+function synthConch(ac: AudioContext): SoundHandle {
   const t = ac.currentTime + 0.02;
-  const swell = Math.min(0.75, dur * 0.3);
-  const held = Math.max(swell + 0.05, dur - 1.5);
+  const dur = 4.4;
   const f0 = 220; // A3 — the low, resonant register of a large sankha
 
   // Master envelope: slow swell, long sustain, soft release
   const out = ac.createGain();
   out.gain.setValueAtTime(0.0001, t);
-  out.gain.exponentialRampToValueAtTime(peak, t + swell);
-  out.gain.setValueAtTime(peak, t + held);
+  out.gain.exponentialRampToValueAtTime(0.3, t + 0.75);
+  out.gain.setValueAtTime(0.3, t + dur - 1.5);
   out.gain.exponentialRampToValueAtTime(0.0001, t + dur);
 
   // Tone shaping: opening filter (the "bloom" of the call) + a horn-like formant
