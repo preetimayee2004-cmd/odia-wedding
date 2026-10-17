@@ -6,6 +6,7 @@ import { smoothScrollTo } from "@/lib/scroll";
 import { showPlaceholders } from "@/lib/placeholders";
 import { Pending } from "@/components/ui/Pending";
 import { EVENT_ART_DEFS, FLOWER_IDS, rng } from "@/components/art/eventVineArt";
+import { Dock } from "@/components/ui/Dock";
 
 /**
  * Section — Wedding Events.
@@ -93,6 +94,7 @@ export function Events() {
 
       <div className="mx-auto max-w-[460px]">
         <header className="px-12 pb-2 pt-14 text-center">
+          <Dock name="events" special />
           <h2 id="events-heading" className="ev-title">
             {heading}
           </h2>

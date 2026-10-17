@@ -1,5 +1,6 @@
 import { SideBands } from "@/components/art/SideBands";
 import { HastaganthiThread } from "@/components/art/HastaganthiThread";
+import { MarigoldCompanion } from "@/components/art/MarigoldCompanion";
 import { FallingPetals } from "@/components/art/FallingPetals";
 import { SectionSeparator } from "@/components/ui/SectionSeparator";
 import { Couple } from "@/components/sections/Couple";
@@ -26,6 +27,8 @@ export default function RestOfSite() {
     <div className="relative">
       {/* Rose and marigold petals drift down the screen from the couple card to the footer */}
       <FallingPetals />
+      {/* one marigold that travels from section to section with the reader */}
+      <MarigoldCompanion />
       <Couple />
       {/* From here to the end, the couple card's looped band runs down both sides,
           over the page cream with faint white flowers (Wedding Events keeps plain cream) */}

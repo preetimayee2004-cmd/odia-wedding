@@ -3,6 +3,7 @@ import { wedding } from "@/config/wedding";
 import { useInView } from "@/hooks/useInView";
 import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { EASE } from "@/lib/motion";
+import { Dock } from "@/components/ui/Dock";
 
 // The countdown section's text colours
 const VERMILION = "#7A1424"; // headings (the countdown's maroon)
@@ -65,6 +66,7 @@ export function Story() {
             <EdgeOrnaments />
 
             <header className="relative text-center" style={reveal(500)}>
+              <Dock name="story" />
               <p className="t-quote leading-none" style={{ color: LABEL }}>
                 {eyebrow}
               </p>

@@ -10,6 +10,7 @@ import { showPlaceholders } from "@/lib/placeholders";
 import { formatVenueDate, parseVenueDateTime, venueDateKey } from "@/lib/venueTime";
 import { AcceptPlaque, LotusConfirm, RiceShower } from "@/components/art/RsvpArt";
 import { hasContactNumbers } from "@/components/sections/Contact";
+import { Dock } from "@/components/ui/Dock";
 
 const SAVED_KEY = "tila:rsvp";
 const MAROON = "#7A1424";
@@ -67,6 +68,7 @@ export function Rsvp() {
           transition: `opacity 900ms ${EASE.silk}, transform 1000ms ${EASE.silk}`,
         }}
       >
+        <Dock name="rsvp" />
         {/* The section heading, as on every section */}
         <h2 id="rsvp-heading" className="t-heading" style={{ color: MAROON }}>
           {wedding.rsvp.heading}
