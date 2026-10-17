@@ -198,35 +198,35 @@ export interface WeddingConfig {
     closing: string;
   };
   wishes: {
-    eyebrow: string;
     heading: string;
     /** A line of blessing under the heading. */
     quote: string;
-    /** Over the recent wishes. */
-    subtitle: string;
+    /** Heading of the "Leave a Blessing" sheet. */
     formHeading: string;
     formText: string;
+    /** Who the guest is to the couple, offered as choices in the form. */
+    relations: string[];
     /** Let guests leave a wish without a name (shown as "A well-wisher"). */
     allowAnonymous: boolean;
-    /** Must match the database: true when new wishes default to 'pending'. */
+    /** Must match the database: true when new wishes default to 'pending' (see the 20261017 migration). */
     requireApproval: boolean;
-    /** How many recent wishes show on the page; the rest open in "View All Wishes". */
+    /** How many recent wishes show as palm-leaf strips; the rest open in "View all wishes". */
     previewCount: number;
     maxLength: number;
     /**
-     * SAMPLE wishes that fill the wall's cards until enough real ones arrive,
-     * so it is never blank. Shown only while placeholders are on
-     * (site.showPlaceholders), never counted, and gone once the wall has
-     * `previewCount` real wishes.
+     * SAMPLE wishes that fill the strips until enough approved ones arrive,
+     * so the wall is never blank. Shown only while placeholders are on
+     * (site.showPlaceholders), and gone once the wall has `previewCount`
+     * real wishes.
      */
-    samples: { name: string; message: string }[];
+    samples: { name: string; relation: string | null; message: string }[];
   };
   rsvp: {
     /** The section's heading, as on every section. */
     heading: string;
     /** The invitation, top to bottom. "{names}" becomes the couple's names. */
     invocationOdia: string | null; // small, e.g. "|| ଶ୍ରୀ ଗଣେଶାୟ ନମଃ ||"
-    titleOdia: string | null; // large, framed, e.g. "|| ଶୁଭ ବିବାହ ||"
+    titleOdia: string | null; // large, e.g. "|| ଶୁଭ ବିବାହ ||"
     eyebrow: string;
     explanation: string;
     /** Under the offering of gua. */
@@ -570,21 +570,23 @@ export const wedding: WeddingConfig = {
     closing: "Jay Jagannath",
   },
   wishes: {
-    eyebrow: "Blessings • Love • Togetherness",
     heading: "The Wishing Wall",
     quote: "May every blessing bloom into a lifetime of love, joy and togetherness.",
-    subtitle: "Wishes from our loved ones",
-    formHeading: "Leave Your Blessings",
+    formHeading: "Leave a Blessing",
     formText: "Share a heartfelt message for the happy couple.",
+    relations: ["Family", "Friend", "Elder", "Colleague"],
     allowAnonymous: false,
-    requireApproval: false,
+    requireApproval: true,
     previewCount: 3,
-    maxLength: 280,
-    // SAMPLE — not from real guests; replaced by real wishes as they arrive.
+    maxLength: 200,
+    // SAMPLE — made-up guests, not real wishes; replaced as approved wishes
+    // arrive. (The Odia one reads: "May your lives be filled with love and
+    // joy; may Mahaprabhu Jagannath's blessings always be with you" — have
+    // the family check its wording.)
     samples: [
-      { name: "A dear friend", message: "Wishing you both a lifetime of love, laughter and togetherness." },
-      { name: "With love, family", message: "May Lord Jagannath bless your union with joy, health and prosperity." },
-      { name: "A well-wisher", message: "Best wishes on this wonderful journey, as you build your new lives together." },
+      { name: "Aja & Aai", relation: "Groom's Grandparents", message: "We waited so long to see this day. May Lord Jagannath keep you both happy, healthy and side by side for a hundred years." },
+      { name: "Lipsa", relation: "Bride's Friend", message: "ତୁମ ଦୁହିଁଙ୍କ ଜୀବନ ପ୍ରେମ ଓ ଆନନ୍ଦରେ ଭରି ରହୁ। ମହାପ୍ରଭୁ ଜଗନ୍ନାଥଙ୍କ ଆଶୀର୍ବାଦ ସର୍ବଦା ରହୁ।" },
+      { name: "Ananya", relation: "Bride's Cousin", message: "So happy for you both! May every day feel as bright as your wedding day, full of laughter and little adventures." },
     ],
   },
   rsvp: {

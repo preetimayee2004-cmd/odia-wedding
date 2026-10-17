@@ -389,6 +389,83 @@
   box-shadow: 0 0 0 1px #1a0f0a;
 }
 
+/* The Wishing Wall: wishes on talapatra, palm-leaf strips like the leaves of
+   an Odia pothi, each with a string hole; a red thread runs through them all.
+   No borders or corner marks, only a very soft shadow. */
+.talapatra {
+  position: relative;
+  display: block;
+  width: 90%;
+  min-height: 88px;
+  margin-inline: auto;
+  padding: 13px 16px 11px 38px;
+  border-radius: 16px / 44px;
+  background:
+    repeating-linear-gradient(180deg, rgb(120 80 30 / 0.05) 0 1px, transparent 1px 7px),
+    linear-gradient(180deg, #e9d3a3, #d9bb80);
+  box-shadow: 0 2px 6px rgb(90 60 20 / 0.15);
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+.talapatra:focus-visible { outline: 2px solid #7a1f1f; outline-offset: 3px; }
+.talapatra-hole {
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  width: 9px;
+  height: 9px;
+  margin-top: -4.5px;
+  border-radius: 50%;
+  background: #7b5a2c;
+  box-shadow: inset 0 1px 1.5px rgb(0 0 0 / 0.4), 0 0 0 1.5px rgb(255 240 205 / 0.45);
+}
+.talapatra-text {
+  display: block;
+  overflow: hidden;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-style: italic;
+  font-weight: 500;
+  line-height: 1.45;
+  color: #4a2e1a;
+  transition: max-height 0.45s cubic-bezier(0.22, 0.7, 0.2, 1);
+}
+.talapatra-text.odia { font-family: var(--font-odia); font-style: normal; font-size: 13.5px; line-height: 1.6; }
+/* folded: the words fade out at the foot of the leaf */
+.talapatra-text.folded {
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent);
+}
+.talapatra-by {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-serif);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #7a1f1f;
+}
+.talapatra-thread {
+  position: absolute;
+  width: 1.3px;
+  background: #b3261e;
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+/* A marigold petal floats up when a blessing is sent */
+.petal-rise { animation: petal-rise 1.9s ease-out both; }
+@keyframes petal-rise {
+  0% { transform: translateY(12px) rotate(0deg) scale(0.8); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translateY(-72px) rotate(50deg) scale(1); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .petal-rise { animation: none; }
+  .talapatra-text { transition: none; }
+}
+
 /* The Families: a carved gold frame around each set of parents (see GoldFrame).
    The band is a gilded gradient with a row of beads along it; the panel inside
    is a lighter cream behind a fine dark-and-gold edge. */

@@ -11,23 +11,23 @@ const LINE = "#DCC296";
 const GOLD = "#B8893A";
 const HEADING = "#9E2B2B";
 const TEXT_SOFT = "#6B4A3A";
+/** Every card's Call Now, in reddish brown. */
+const CALL = "#8A3B2C";
 
-/** Each card's colour and art, from the couple's design. */
-const THEME: Record<ContactGroup["id"], { ink: string; button: string; art: { src: string; w: number; h: number; alt: string; width: string } }> = {
+/** Each card's colour and art: the couple's design, with their two crowns. */
+const THEME: Record<ContactGroup["id"], { ink: string; art: { src: string; w: number; h: number; alt: string; width: string; filter?: string } }> = {
   bride: {
     ink: "#9E2B2B",
-    button: "#A3322D",
-    art: { src: "/art/contact/bride-art.webp", w: 220, h: 199, alt: "A bride's red-and-white tiara beside a stack of red bangles and jasmine", width: "6.5rem" },
+    art: { src: "/art/contact/bride-mukut.webp", w: 457, h: 374, alt: "The bride's golden mukut, a tall peak of filigree set with a green gem, a plume at its side", width: "6rem" },
   },
   groom: {
     ink: "#4E6B3E",
-    button: "#56704B",
     art: { src: "/art/contact/groom-mukut.webp", w: 448, h: 447, alt: "The groom's golden mukut, set with gems, a plume at its side", width: "5.25rem" },
   },
   guests: {
     ink: "#AD7428",
-    button: "#BF873A",
-    art: { src: "/art/contact/guests-art.webp", w: 232, h: 203, alt: "A brass kalash with a coconut and mango leaves, beside a suitcase", width: "6.5rem" },
+    // a deeper brass, as the couple asked
+    art: { src: "/art/contact/guests-art.webp", w: 232, h: 203, alt: "A brass kalash with a coconut and mango leaves, beside a suitcase", width: "6.5rem", filter: "brightness(0.8) saturate(1.2) contrast(1.08)" },
   },
 };
 
@@ -45,9 +45,8 @@ const shownPeople = (g: ContactGroup) => (showPlaceholders ? g.people : g.people
  * Section 12 — Contact, after the couple's design.
  * On the page's own background, between its side bands: "Contact" under a
  * lotus rule and a line of help, then three arch-topped cards — the bride's
- * family (maroon, her tiara and bangles), the groom's family (green, his
- * golden mukut) and the guests' coordinators (ochre, a kalash and a
- * suitcase). Each card is laid out side by side, as in the design: the art,
+ * family (maroon, her golden mukut), the groom's family (green, his golden
+ * mukut) and the guests' coordinators (ochre, a kalash and a suitcase). Each card is laid out side by side, as in the design: the art,
  * title and Call Now on the left; its contacts on the right, each with a
  * round icon, role, name and tap-to-call number.
  */
@@ -92,16 +91,17 @@ export function Contact() {
 }
 
 function ContactCard({ group }: { group: ContactGroup }) {
-  const { ink, button, art } = THEME[group.id];
+  const { ink, art } = THEME[group.id];
   const people = shownPeople(group);
   const first = people.find(hasNumber)?.phone ?? null;
+  const [soon, setSoon] = useState(false); // tapped Call Now before the numbers are in
 
   return (
     <ArchCard>
       <div className="flex items-stretch">
         {/* the art, the title and Call Now */}
         <div className="flex w-[41%] shrink-0 flex-col items-center pr-2.5 text-center">
-          <img src={art.src} width={art.w} height={art.h} alt={art.alt} decoding="async" loading="lazy" className="block h-auto max-w-full" style={{ width: art.width }} />
+          <img src={art.src} width={art.w} height={art.h} alt={art.alt} decoding="async" loading="lazy" className="block h-auto max-w-full" style={{ width: art.width, filter: art.filter }} />
           <h3 className="mt-2 font-serif text-[17.5px] font-semibold leading-[1.1] [text-wrap:balance]" style={{ color: ink }}>
             {group.title}
           </h3>
@@ -115,20 +115,26 @@ function ContactCard({ group }: { group: ContactGroup }) {
               <a
                 href={tel(first)}
                 className="inline-flex min-h-10 items-center gap-1 whitespace-nowrap rounded-full px-3.5 font-sans text-[12.5px] font-medium text-[#FFF8EE] shadow-[0_6px_12px_-8px_rgb(80_40_10/0.7)] transition-transform duration-200 ease-silk active:scale-[0.97]"
-                style={{ backgroundColor: button }}
+                style={{ backgroundColor: CALL }}
               >
                 Call Now <span aria-hidden>→</span>
               </a>
             ) : (
               showPlaceholders && (
-                <span
-                  aria-disabled
-                  title="Numbers to be added"
-                  className="inline-flex min-h-10 cursor-default items-center gap-1 whitespace-nowrap rounded-full px-3.5 font-sans text-[12.5px] font-medium text-[#FFF8EE] opacity-60"
-                  style={{ backgroundColor: button }}
-                >
-                  Call Now <span aria-hidden>→</span>
-                </span>
+                <>
+                  <button
+                    type="button"
+                    aria-disabled
+                    onClick={() => setSoon(true)}
+                    className="inline-flex min-h-10 items-center gap-1 whitespace-nowrap rounded-full px-3.5 font-sans text-[12.5px] font-medium text-[#FFF8EE] shadow-[0_6px_12px_-8px_rgb(80_40_10/0.7)]"
+                    style={{ backgroundColor: CALL }}
+                  >
+                    Call Now <span aria-hidden>→</span>
+                  </button>
+                  <p role="status" className="mt-1 min-h-4 font-sans text-[10.5px]" style={{ color: TEXT_SOFT }}>
+                    {soon ? "Numbers coming soon" : ""}
+                  </p>
+                </>
               )
             )}
           </div>

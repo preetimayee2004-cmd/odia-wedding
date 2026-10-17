@@ -44,7 +44,7 @@ const PREVIEW_NOTE = "Preview — online responses aren't being saved yet.";
 /**
  * Section 08 — Kindly RSVP, after the couple's design.
  * Between the side bands on the flowered cream, under the section heading:
- * "|| ଶ୍ରୀ ଗଣେଶାୟ ନମଃ ||", a framed "|| ଶୁଭ ବିବାହ ||", An Auspicious
+ * "|| ଶ୍ରୀ ଗଣେଶାୟ ନମଃ ||", "|| ଶୁଭ ବିବାହ ||", An Auspicious
  * Invitation and its words; a brass thali of gua with marigolds, rose petals
  * and two lit diyas (the couple's image); "Accept the Sacred Gua & Bless Us"
  * and an ornate maroon Accept Invitation plaque; Jai Jagannath. One tap
@@ -142,7 +142,7 @@ function RsvpBody() {
       {r.titleOdia && (
         <p
           lang="or"
-          className="mx-auto mt-3 inline-block border border-[#A51C1C]/70 px-5 py-0.5 font-odia text-[30px] font-bold leading-[1.45] outline outline-1 outline-offset-[3px] outline-[#A51C1C]/30"
+          className="mx-auto mt-3 font-odia text-[30px] font-bold leading-[1.45]"
           style={{ color: RED }}
         >
           {r.titleOdia}

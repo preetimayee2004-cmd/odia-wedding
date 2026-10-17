@@ -4,7 +4,7 @@
  * Talks to Supabase's REST API (PostgREST) with plain fetch — no SDK — using
  * the public anon key. Row-level security in
  * supabase/migrations/*_tila.sql decides what that key may do:
- *   wishes: insert, and read only rows with status = 'visible'
+ *   wishes: insert (always as 'pending'), and read only rows with status = 'visible'
  *   rsvps:  insert only — responses are never readable from the site
  *
  * Without VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY:
@@ -34,6 +34,8 @@ export class BackendError extends Error {
 export interface Wish {
   id: string;
   name: string | null;
+  /** Who they are to the couple, e.g. "Friend". */
+  relation: string | null;
   message: string;
   created_at: string;
 }
@@ -100,7 +102,7 @@ function devRead<T>(table: string): T[] {
   }
 }
 
-async function devInsert(table: string, row: { id: string; message?: string | null }) {
+async function devInsert(table: string, row: { id: string; message?: string | null; status?: string }) {
   await devDelay();
   // Type "#fail" in a message to rehearse the error state.
   if (row.message?.includes("#fail")) throw new BackendError("server", "Something went wrong on our side. Please try again in a moment.");
@@ -114,11 +116,12 @@ async function devInsert(table: string, row: { id: string; message?: string | nu
 export async function listWishes(limit: number, offset = 0): Promise<{ items: Wish[]; total: number }> {
   if (devFallback) {
     await devDelay();
-    const all = devRead<Wish>("wishes");
+    // like the database: only wishes the couple has approved
+    const all = devRead<Wish & { status?: string }>("wishes").filter((w) => w.status !== "pending");
     return { items: all.slice(offset, offset + limit), total: all.length };
   }
   const res = await rest(
-    `wishes?select=id,name,message,created_at&order=created_at.desc&limit=${limit}&offset=${offset}`,
+    `wishes?select=id,name,relation,message,created_at&order=created_at.desc&limit=${limit}&offset=${offset}`,
     { prefer: "count=exact" },
   );
   const items = (await res.json()) as Wish[];
@@ -126,8 +129,9 @@ export async function listWishes(limit: number, offset = 0): Promise<{ items: Wi
   return { items, total };
 }
 
-export async function addWish(wish: { id: string; name: string | null; message: string }): Promise<void> {
-  if (devFallback) return devInsert("wishes", wish);
+/** Saves a wish as pending: it appears once the couple approves it. */
+export async function addWish(wish: { id: string; name: string | null; relation: string | null; message: string }): Promise<void> {
+  if (devFallback) return devInsert("wishes", { ...wish, status: "pending" });
   return insert("wishes", wish);
 }
 
