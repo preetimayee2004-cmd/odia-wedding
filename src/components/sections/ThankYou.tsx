@@ -1,75 +1,146 @@
-import { useRef } from "react";
+import { useRef, type CSSProperties } from "react";
 import { wedding } from "@/config/wedding";
 import { useInView } from "@/hooks/useInView";
 import { EASE } from "@/lib/motion";
-import { PranamHands } from "@/components/art/PranamHands";
+import { formatVenueDate, parseVenueDateTime } from "@/lib/venueTime";
 
-const DRAW_MS = 2600;
-const GOLD = "#A6782C";
-const MAROON = "#7A1424";
-// The page's ochre cream, with a soft warm glow behind the hands.
-const SKY = "radial-gradient(60% 40% at 50% 38%, rgb(255 248 230 / 0.7), transparent 70%)";
-// A few early stars: [left %, top %, size px, opacity]
-const STARS: Array<[number, number, number, number]> = [
-  [14, 12, 2, 0.55],
-  [78, 9, 1.5, 0.45],
-  [88, 24, 2, 0.35],
-  [24, 31, 1.5, 0.3],
-  [64, 17, 1.5, 0.4],
-  [8, 52, 1.5, 0.25],
-  [92, 58, 1.5, 0.25],
-];
+const MAROON = "#8C1C24";
+const INK = "#6B2A22";
+const ART = "/art/thanks";
+/** Room on each side for the page's looped side bands. */
+const BAND = "calc(100% * 35 / 768)";
+
+/** "12 FEB 2027", from the wedding date. */
+function shortDate(): string | null {
+  const p = parseVenueDateTime(wedding.wedding.dateTime);
+  if (!p) return null;
+  const f = formatVenueDate(p);
+  return `${f.day} ${f.month.slice(0, 3)} ${f.year}`.toUpperCase();
+}
+
+/** "Bhubaneswar, Odisha": the venue's city, or the last two parts of the invitation's place. */
+function shortPlace(): string | null {
+  if (wedding.venue.city) return wedding.venue.city;
+  const parts = wedding.invitation.place?.split(",").map((s) => s.trim()) ?? [];
+  return parts.length ? parts.slice(-2).join(", ") : null;
+}
 
 /**
- * Section 11 — Thank You (The Mahaprasad Grace).
- * One quiet, minimal screen of charcoal evening sky: golden line-art hands joined in Pranam,
- * holding a Tulsi leaf, trace themselves in; then the words of gratitude.
+ * Section 11 — Thank You, after the couple's design.
+ * Between the side bands on the page cream: mango leaves with jasmine and
+ * hanging brass bells in the top corners; Lord Jagannath between red
+ * filigree; "Thank You" in italic and a line of gratitude; the couple at
+ * Puri, looking out over the sea to the Jagannath temple; their hashtag, the
+ * date and the place, between Pattachitra fish-and-wheel motifs. The
+ * decorations and the painting are cut from the couple's design.
  */
 export function ThankYou() {
-  const { heading, message, closing } = wedding.thankYou;
+  const { heading, message } = wedding.thankYou;
+  const hashtag = wedding.couple.hashtag;
+  const date = shortDate();
+  const place = shortPlace();
   const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { threshold: 0.4 });
+  const inView = useInView(ref, { threshold: 0.2 });
 
-  const fade = (delay: number) => ({
+  const rise = (delay: number): CSSProperties => ({
     opacity: inView ? 1 : 0,
-    transform: inView ? "none" : "translateY(8px)",
-    transition: `opacity 1100ms ${EASE.silk} ${delay}ms, transform 1300ms ${EASE.silk} ${delay}ms`,
+    transform: inView ? "none" : "translateY(10px)",
+    transition: `opacity 1000ms ${EASE.silk} ${delay}ms, transform 1100ms ${EASE.silk} ${delay}ms`,
   });
 
   return (
-    <section
-      ref={ref}
-      id="thank-you"
-      aria-labelledby="thanks-heading"
-      className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden px-[var(--gutter)] pb-[max(4rem,env(safe-area-inset-bottom))] pt-[calc(4rem_+_var(--status-bar,0px))] text-center"
-      style={{ background: SKY }}
-    >
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        {STARS.map(([x, y, size, opacity]) => (
-          <span
-            key={`${x}-${y}`}
-            className="absolute rounded-full bg-[#C9A25A]"
-            style={{ left: `${x}%`, top: `${y}%`, width: size, height: size, opacity }}
-          />
-        ))}
-      </div>
+    <section ref={ref} id="thank-you" aria-labelledby="thanks-heading" className="relative overflow-hidden pb-16 text-center" style={{ paddingInline: `calc(${BAND} + 16px)` }}>
+      {/* Mango leaves, jasmine and brass bells in the top corners */}
+      <img src={`${ART}/garland-left.webp`} width={294} height={226} alt="" aria-hidden decoding="async" loading="lazy" className="pointer-events-none absolute top-0 w-[32%]" style={{ left: BAND }} />
+      <img src={`${ART}/garland-right.webp`} width={290} height={226} alt="" aria-hidden decoding="async" loading="lazy" className="pointer-events-none absolute top-0 w-[32%]" style={{ right: BAND }} />
 
-      <div className="relative flex flex-col items-center">
-        <PranamHands className="h-[min(30dvh,13.5rem)] w-auto" color={GOLD} drawn={inView} duration={DRAW_MS} />
+      <div className="relative mx-auto max-w-[24rem] pt-12">
+        {/* Lord Jagannath between red filigree */}
+        <img src={`${ART}/ornament.webp`} width={290} height={120} alt="Lord Jagannath" decoding="async" loading="lazy" className="mx-auto block h-auto w-[10.5rem]" style={rise(0)} />
 
-        <h2 id="thanks-heading" className="t-heading mt-8" style={{ ...fade(DRAW_MS * 0.6), color: MAROON }}>
+        <h2 id="thanks-heading" className="mt-4 font-serif text-[58px] font-semibold italic leading-none" style={{ ...rise(120), color: MAROON }}>
           {heading}
         </h2>
-        <p
-          className="t-quote mx-auto mt-4 max-w-[19rem]"
-          style={fade(DRAW_MS * 0.6 + 400)}
-        >
-          {message}
+        <Divider className="mx-auto mt-4" style={rise(220)} />
+
+        <p className="t-quote mx-auto mt-5 max-w-[19rem] text-[19px]" style={{ ...rise(320), color: INK }}>
+          “{message}”
         </p>
-        <p className="t-blessing mt-8" style={{ ...fade(DRAW_MS + 400), color: GOLD }}>
-          {closing}
-        </p>
+        <LotusMark className="mx-auto mt-4" style={rise(420)} />
       </div>
+
+      {/* The couple at Puri, out over the sea to the Jagannath temple */}
+      <img
+        src={`${ART}/couple.webp`}
+        width={916}
+        height={650}
+        alt="The bride and groom from behind, side by side on a terrace at Puri, looking out over the sea towards the Jagannath temple"
+        decoding="async"
+        loading="lazy"
+        className="relative -mx-4 mt-2 block h-auto w-[calc(100%+2rem)] max-w-none"
+        style={{
+          ...rise(500),
+          WebkitMaskImage: "linear-gradient(to bottom, transparent, #000 12%, #000 86%, transparent), linear-gradient(to right, transparent, #000 5%, #000 95%, transparent)",
+          WebkitMaskComposite: "source-in",
+          maskImage: "linear-gradient(to bottom, transparent, #000 12%, #000 86%, transparent), linear-gradient(to right, transparent, #000 5%, #000 95%, transparent)",
+          maskComposite: "intersect",
+        }}
+      />
+
+      <div className="relative mx-auto max-w-[24rem]">
+        {hashtag && (
+          <p className="font-serif text-[26px] font-semibold italic leading-tight" style={{ ...rise(600), color: MAROON }}>
+            {hashtag}
+          </p>
+        )}
+        <Divider className="mx-auto mt-3" style={rise(650)} />
+        {date && (
+          <p className="t-label mt-4 text-[14px] tracking-[3px]" style={{ ...rise(700), color: INK }}>
+            {date}
+          </p>
+        )}
+        {place && (
+          <p className="t-label mt-2 inline-flex items-center gap-1.5 text-[12px] tracking-[3px]" style={{ ...rise(750), color: INK }}>
+            <svg viewBox="0 0 12 16" className="h-3.5 w-3" aria-hidden fill={INK}>
+              <path d="M6 0a6 6 0 0 0-6 6c0 4.5 6 10 6 10s6-5.5 6-10a6 6 0 0 0-6-6Zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8Z" />
+            </svg>
+            {place}
+          </p>
+        )}
+      </div>
+
+      {/* Pattachitra fish and Konark wheels in the bottom corners */}
+      <img src={`${ART}/motif-left.webp`} width={164} height={226} alt="" aria-hidden decoding="async" loading="lazy" className="pointer-events-none absolute bottom-0 w-[24%]" style={{ left: `calc(${BAND} + 4px)` }} />
+      <img src={`${ART}/motif-right.webp`} width={164} height={226} alt="" aria-hidden decoding="async" loading="lazy" className="pointer-events-none absolute bottom-0 w-[24%]" style={{ right: `calc(${BAND} + 4px)` }} />
     </section>
+  );
+}
+
+/** A fine maroon line with a small four-petal flower at its centre. */
+function Divider({ className = "", style }: { className?: string; style?: CSSProperties }) {
+  return (
+    <svg viewBox="0 0 220 14" className={`block h-3.5 w-[13.75rem] ${className}`} style={style} aria-hidden>
+      <path d="M4 7H96M124 7H216" stroke={MAROON} strokeWidth="0.9" strokeLinecap="round" />
+      <g fill={MAROON}>
+        {[0, 90, 180, 270].map((a) => (
+          <ellipse key={a} cx="110" cy="3.4" rx="2" ry="3.4" transform={`rotate(${a} 110 7)`} />
+        ))}
+        <circle cx="110" cy="7" r="1.4" fill="#F3E4C9" />
+        <circle cx="100" cy="7" r="1.1" />
+        <circle cx="120" cy="7" r="1.1" />
+      </g>
+    </svg>
+  );
+}
+
+/** A small maroon lotus with curling tendrils. */
+function LotusMark({ className = "", style }: { className?: string; style?: CSSProperties }) {
+  return (
+    <svg viewBox="0 0 120 26" className={`block h-6 w-[7.5rem] ${className}`} style={style} aria-hidden fill="none" stroke={MAROON} strokeWidth="1.2" strokeLinecap="round">
+      <path d="M60 4C64 9 64 15 60 20 56 15 56 9 60 4Z" fill={`${MAROON}33`} />
+      <path d="M60 20C55 19 50 15 49 10 54 11 58 14 60 20ZM60 20C65 19 70 15 71 10 66 11 62 14 60 20Z" />
+      <path d="M49 20C38 20 30 16 22 18 16 19 15 24 20 24 23 24 23 21 21 21" />
+      <path d="M71 20C82 20 90 16 98 18 104 19 105 24 100 24 97 24 97 21 99 21" />
+    </svg>
   );
 }

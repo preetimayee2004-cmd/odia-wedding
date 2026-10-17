@@ -225,11 +225,10 @@ export interface WeddingConfig {
     }>;
   };
   thankYou: {
-    /** First line, set large. */
+    /** Set large, in italic. */
     heading: string;
+    /** The quotation under it. */
     message: string;
-    /** Closing invocation, in gold. */
-    closing: string;
   };
   footer: {
     /** Short closing blessing or sign-off. */
@@ -550,10 +549,8 @@ export const wedding: WeddingConfig = {
     people: [],
   },
   thankYou: {
-    heading: "Our hearts are full.",
-    message:
-      "We bow in gratitude to our families and to Mahaprabhu. We await your presence under the eternal shadow of the Lord.",
-    closing: "Jai Jagannath",
+    heading: "Thank You",
+    message: "Your presence made our special day more beautiful, more joyful and more meaningful.",
   },
   footer: {
     blessing: "With love and gratitude",

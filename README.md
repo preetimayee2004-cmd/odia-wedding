@@ -96,7 +96,7 @@ Each section has its own entrance. All of them respect *reduced motion*.
 | Blessings Wall | The Ananda Bazar: blessings on talapatra palm leaves in a swipeable carousel; a marigold drops onto a guest's leaf when they send one |
 | Venue, Travel & Stay | The Path to Purushottam Kshetra: off-white cards with gold Kalash markers in place of map pins; a golden "Atithi Culture & Style Guide" button opens colours, handlooms and places to visit |
 | Contact | Circular wipe reveal |
-| Thank you | The Mahaprasad Grace: one minimal screen; golden Pranam hands holding a Tulsi leaf trace themselves in, then the words of gratitude |
+| Thank you | After the couple's design, between the side bands on the flowered cream: mango leaves, jasmine and brass bells in the top corners; Lord Jagannath between red filigree; "Thank You" in italic and a line of gratitude; the couple at Puri looking out to the sea and the Jagannath temple; the hashtag, the date and the place between Pattachitra fish-and-wheel motifs. Decorations and painting cut from the design (`public/art/thanks/`) |
 | Footer | Gold thread draws outward |
 | Side bands | From the countdown to the footer, the looped red band of the couple card's border (`public/art/border-loops.png`, an exact repeat cut from `couple-card.jpg`) runs down both sides of the page (`art/SideBands.tsx`); sections no longer carry borders of their own |
 | Backgrounds | The couple card's paper and every later section share one colour: the page ochre, a little lighter (`--page`, #F3E4C9, in `src/index.css`). Every section after the couple card except Wedding Events also carries faint white flowers (`.page-flowers`, `public/art/gallery-flowers.svg`), set once on the box around them in `RestOfSite.tsx` |
