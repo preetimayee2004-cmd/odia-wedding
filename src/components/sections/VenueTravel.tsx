@@ -18,14 +18,19 @@ const INK = "var(--c-text)";
 
 const mapSearch = (q: string) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
 
+/** Each stop's painting: one scale and one treatment for all three, centred. */
+const PAINTING = "mx-auto block h-auto w-[84%] max-w-[19rem]";
+
 /**
  * Section 10 — The Wedding Journey, after the couple's design.
- * Between the side bands on the flowered cream: three numbered stops on a
- * dashed route — 01 The Venue (beside the Jagannath temple painting), 02
- * Getting Here (by air, by train, local transport; the beach at Puri beside
- * it), 03 Where to Stay (beside a seaside hotel) — each under a gold
- * medallion. "Travel Guide" opens the Atithi Culture & Style Guide. Ends with
- * Jay Jagannath and a faint wheel-and-temple sketch.
+ * A narrow editorial column between the side bands on the flowered cream.
+ * Three stops, each the same way round — a painting, then a header (gold
+ * medallion, rule, number, title, tagline), then its details:
+ * 01 The Venue (the Jagannath temple), 02 Getting Here (the beach at Puri;
+ * by air, by train, local transport), 03 Where to Stay (a seaside hotel).
+ * A small dashed route with a pin links one stop to the next, a tiny plane
+ * on the first. "Travel Guide" opens the Atithi Culture & Style Guide.
+ * Ends with Jay Jagannath and a faint wheel-and-temple sketch.
  */
 export function VenueTravel() {
   const { eyebrow, heading, intro, gettingHere, stay, closing } = wedding.travel;
@@ -40,93 +45,103 @@ export function VenueTravel() {
   });
 
   return (
-    <section ref={ref} id="venue" aria-labelledby="venue-heading" className="relative overflow-hidden py-[var(--section-y)]" style={{ paddingInline: "calc(100% * 35 / 768 + 16px)" }}>
-      {/* The heading */}
-      <div className="text-center" style={fade(0)}>
-        <p className="t-label flex items-center justify-center gap-2 text-[10.5px] tracking-[1.6px]" style={{ color: ROUTE }}>
-          <Sprig />
-          {eyebrow}
-          <Sprig mirrored />
-        </p>
-        <h2 id="venue-heading" className="mt-2 font-serif text-[40px] font-semibold leading-[1.05]" style={{ color: MAROON }}>
-          <span className="italic">{heading.split(" ")[0]}</span> {heading.split(" ").slice(1).join(" ")}
-        </h2>
-        <FlowerDivider className="mx-auto mt-3" />
-        <p className="t-quote mx-auto mt-3 max-w-[21rem] text-[18px]" style={{ color: "#5A3B2A" }}>
-          {intro}
-        </p>
-      </div>
+    <section
+      ref={ref}
+      id="venue"
+      aria-labelledby="venue-heading"
+      data-no-petals
+      className="relative overflow-hidden py-[var(--section-y)]"
+      style={{ paddingInline: "calc(100% * 35 / 768 + 20px)" }}
+    >
+      <div className="mx-auto max-w-[24rem]">
+        {/* The heading */}
+        <header className="text-center" style={fade(0)}>
+          <p className="t-label flex items-center justify-center gap-2 text-[10.5px] tracking-[1.6px]" style={{ color: ROUTE }}>
+            <Sprig />
+            <span className="max-w-[15rem]">{eyebrow}</span>
+            <Sprig mirrored />
+          </p>
+          <h2 id="venue-heading" className="mt-3 font-serif text-[40px] font-semibold leading-[1.05]" style={{ color: MAROON }}>
+            <span className="italic">{heading.split(" ")[0]}</span> {heading.split(" ").slice(1).join(" ")}
+          </h2>
+          <FlowerDivider className="mx-auto mt-4" />
+          <p className="t-quote mx-auto mt-4 max-w-[20rem] text-[18px]" style={{ color: "#5A3B2A" }}>
+            {intro}
+          </p>
+        </header>
 
-      <div className="relative mx-auto mt-6 max-w-[26rem]">
         {/* 01 — The Venue */}
-        <img src={`${ART}/temple.webp`} width={478} height={415} alt="The Jagannath temple by the sea, with Lord Jagannath among jasmine and marigolds" loading="lazy" decoding="async" className="block h-auto w-[86%]" style={fade(100)} />
-        <div className="relative -mt-2" style={fade(200)}>
-          <Venue />
+        <div className="mt-10" style={fade(100)}>
+          <img src={`${ART}/temple.webp`} width={478} height={415} alt="The Jagannath temple by the sea, with Lord Jagannath among jasmine and marigolds" loading="lazy" decoding="async" className={PAINTING} />
+          <div className="mt-6">
+            <Venue />
+          </div>
         </div>
 
-        <Route from="right" icons={<><RouteIcon kind="pin" className="right-[18%] top-0" /><RouteIcon kind="plane" className="right-[5%] top-[36%]" /><Waves className="left-[56%] top-[66%]" /></>} />
+        <Connector plane />
 
         {/* 02 — Getting Here */}
-        <div id="travel" className="relative" style={fade(300)}>
-          <StopHeading number="02" title={gettingHere.title} tagline={gettingHere.tagline} icon="plane" />
-          <p className="t-body mt-3">{gettingHere.intro}</p>
-          <ul className="mt-4 divide-y divide-dashed divide-[#E3CFA4]">
-            {gettingHere.modes.map((m) => (
-              <li key={m.kind} className="py-3">
-                <Mode mode={m} />
-              </li>
-            ))}
-          </ul>
-          <div className="mt-4 text-center">
-            <PillButton onClick={() => setGuideOpen(true)} dialog>
-              Travel Guide
-            </PillButton>
+        <div id="travel" style={fade(200)}>
+          <img src={`${ART}/beach.webp`} width={408} height={355} alt="The beach at Puri, waves rolling in under palm trees, a temple on the shore" loading="lazy" decoding="async" className={PAINTING} />
+          <div className="mt-6">
+            <StopHeading number="02" title={gettingHere.title} tagline={gettingHere.tagline} icon="plane" />
+            <p className="t-body mt-4">{gettingHere.intro}</p>
+            <ul className="mt-3 divide-y divide-dashed divide-[#E3CFA4] border-y border-dashed border-[#E3CFA4]">
+              {gettingHere.modes.map((m) => (
+                <li key={m.kind} className="py-3.5">
+                  <Mode mode={m} />
+                </li>
+              ))}
+            </ul>
+            <div className="mt-5">
+              <PillButton onClick={() => setGuideOpen(true)} dialog>
+                Travel Guide
+              </PillButton>
+            </div>
           </div>
         </div>
 
-        <img src={`${ART}/beach.webp`} width={408} height={355} alt="The beach at Puri, waves rolling in under palm trees, a temple on the shore" loading="lazy" decoding="async" className="-mt-2 ml-auto block h-auto w-[80%]" style={fade(400)} />
-
-        <Route from="right" short icons={<RouteIcon kind="pin" className="left-[30%] top-[40%]" />} />
+        <Connector />
 
         {/* 03 — Where to Stay */}
-        <img src={`${ART}/hotel.webp`} width={470} height={350} alt="A seaside hotel among palm trees, with a pool" loading="lazy" decoding="async" className="block h-auto w-[86%]" style={fade(500)} />
-        <div className="relative -mt-2" style={fade(600)}>
-          <StopHeading number="03" title={stay.title} tagline={stay.tagline} icon="hotel" />
-          <p className="t-body mt-3">{stay.intro}</p>
-          <ul className="mt-4 divide-y divide-dashed divide-[#E3CFA4]">
-            {stay.hotels.map((h) => (
-              <li key={h.name} className="flex items-center gap-3 py-3">
-                <Medallion icon="bed" small />
-                <div className="min-w-0 flex-1">
-                  <p className="font-serif text-[19px] font-semibold leading-tight" style={{ color: INK }}>
-                    {h.name}
-                  </p>
-                  <p className="t-body text-[17px] leading-snug" style={{ color: "var(--c-muted)" }}>
-                    {h.area}
-                  </p>
-                </div>
-                <a
-                  href={mapSearch(`${h.name}, ${h.area}, Bhubaneswar`)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="t-button inline-flex min-h-11 shrink-0 items-center gap-1 text-[11px]"
-                  style={{ color: ROUTE }}
-                >
-                  Map <span aria-hidden>↗</span>
-                  <span className="sr-only">for {h.name} (opens in a new tab)</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-4 text-center">
-            <PillButton href={mapSearch(`Hotels near ${wedding.venue.name ?? "the venue"}, Bhubaneswar`)}>View Hotel Options</PillButton>
+        <div style={fade(300)}>
+          <img src={`${ART}/hotel.webp`} width={470} height={350} alt="A seaside hotel among palm trees, with a pool" loading="lazy" decoding="async" className={PAINTING} />
+          <div className="mt-6">
+            <StopHeading number="03" title={stay.title} tagline={stay.tagline} icon="hotel" />
+            <p className="t-body mt-4">{stay.intro}</p>
+            <ul className="mt-3 divide-y divide-dashed divide-[#E3CFA4] border-y border-dashed border-[#E3CFA4]">
+              {stay.hotels.map((h) => (
+                <li key={h.name} className="flex min-h-[4.25rem] items-center gap-3 py-2.5">
+                  <Medallion icon="bed" small />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-serif text-[19px] font-semibold leading-tight" style={{ color: INK }}>
+                      {h.name}
+                    </p>
+                    <p className="t-body text-[17px] leading-snug" style={{ color: "var(--c-muted)" }}>
+                      {h.area}
+                    </p>
+                  </div>
+                  <a
+                    href={mapSearch(`${h.name}, ${h.area}, Bhubaneswar`)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="t-button inline-flex min-h-11 shrink-0 items-center gap-1 whitespace-nowrap pl-1 text-[11px]"
+                    style={{ color: ROUTE }}
+                  >
+                    Map <span aria-hidden>↗</span>
+                    <span className="sr-only">for {h.name} (opens in a new tab)</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-5">
+              <PillButton href={mapSearch(`Hotels near ${wedding.venue.name ?? "the venue"}, Bhubaneswar`)}>View Hotel Options</PillButton>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Jay Jagannath */}
-      <div className="relative mt-12 text-center" style={fade(700)}>
-        <p className="t-label inline-flex items-center gap-3 text-[12px] tracking-[3px]" style={{ color: ROUTE }}>
+        {/* Jay Jagannath */}
+        <p className="t-label mt-14 flex items-center justify-center gap-3 text-[12px] tracking-[3px]" style={{ ...fade(400), color: ROUTE }}>
           <Sprig />
           {closing}
           <Sprig mirrored />
@@ -134,7 +149,7 @@ export function VenueTravel() {
       </div>
 
       {/* The faint wheel-and-temple sketch in the corner */}
-      <img src={`${ART}/sketch.webp`} width={172} height={200} alt="" aria-hidden loading="lazy" decoding="async" className="pointer-events-none absolute bottom-0 w-[20%] opacity-80" style={{ right: "calc(100% * 35 / 768 + 6px)" }} />
+      <img src={`${ART}/sketch.webp`} width={172} height={200} alt="" aria-hidden loading="lazy" decoding="async" className="pointer-events-none absolute bottom-0 w-[20%] max-w-[6rem] opacity-70" style={{ right: "calc(100% * 35 / 768 + 6px)" }} />
 
       <Sheet open={guideOpen} onClose={() => setGuideOpen(false)} label={wedding.atithi.button}>
         <AtithiGuide />
@@ -153,9 +168,9 @@ function Venue() {
   return (
     <article aria-label="The venue">
       <StopHeading number="01" title="The Venue" tagline={[name, city?.split(",")[0]].filter(Boolean).join(", ") || null} icon="temple" />
-      {description && <p className="t-body mt-3">{description}</p>}
+      {description && <p className="t-body mt-4">{description}</p>}
 
-      <ul className="mt-3 space-y-1.5">
+      <ul className="mt-3 space-y-2 border-y border-dashed border-[#E3CFA4] py-3">
         <InfoRow icon="pin">
           {address ?? city ?? <Pending label="Address awaiting confirmation">Full address</Pending>}
           {!address && showPlaceholders && <span className="t-note block">Exact address to be confirmed</span>}
@@ -181,11 +196,11 @@ function Venue() {
       </ul>
 
       {directions ? (
-        <div className="mt-4">
+        <div className="mt-5">
           <PillButton href={directions}>View on Map</PillButton>
         </div>
       ) : (
-        <div className="mt-4">
+        <div className="mt-5">
           <Pending label="Directions need a confirmed address">View on Map</Pending>
         </div>
       )}
@@ -200,10 +215,10 @@ function StopHeading({ number, title, tagline, icon }: { number: string; title: 
       <Medallion icon={icon} />
       <span aria-hidden className="w-px self-stretch" style={{ backgroundColor: "#C9A86A" }} />
       <div className="min-w-0 text-left">
-        <p className="font-serif text-[18px] font-semibold leading-none" style={{ color: MAROON }}>
+        <p className="font-serif text-[16px] font-semibold leading-none tracking-[1px]" style={{ color: GOLD }}>
           {number}
         </p>
-        <h3 className="mt-0.5 font-serif text-[30px] font-semibold leading-[1.05]" style={{ color: MAROON }}>
+        <h3 className="mt-1 font-serif text-[30px] font-semibold leading-[1.05]" style={{ color: MAROON }}>
           {title}
         </h3>
         {tagline && (
@@ -223,10 +238,12 @@ function Mode({ mode }: { mode: TravelMode }) {
     <div className="flex items-start gap-3">
       <Medallion icon={icon[mode.kind]} small />
       <div className="min-w-0 flex-1">
-        <p className="font-serif text-[20px] font-semibold leading-tight" style={{ color: MAROON }}>
+        <p className="t-label text-[11px] tracking-[1.6px]" style={{ color: ROUTE }}>
           {mode.title}
         </p>
-        <p className="t-body font-semibold leading-snug">{mode.place}</p>
+        <p className="mt-1 font-serif text-[19px] font-semibold leading-tight" style={{ color: INK }}>
+          {mode.place}
+        </p>
         {mode.detail && (
           <p className="t-body text-[17px] leading-snug" style={{ color: "var(--c-muted)" }}>
             {mode.detail}
@@ -286,7 +303,7 @@ type MedallionIcon = "temple" | "plane" | "hotel" | "train" | "car" | "bed";
 /** A gold medallion: a ring within a dotted ring, small ornaments at its points, and an icon. */
 function Medallion({ icon, small = false }: { icon: MedallionIcon; small?: boolean }) {
   return (
-    <svg viewBox="0 0 64 64" className={small ? "h-11 w-11 shrink-0" : "h-[4.5rem] w-[4.5rem] shrink-0"} aria-hidden>
+    <svg viewBox="0 0 64 64" className={small ? "h-10 w-10 shrink-0" : "h-14 w-14 shrink-0"} aria-hidden>
       <circle cx="32" cy="32" r="24" fill="#FFFAF1" fillOpacity="0.7" stroke={GOLD} strokeWidth="1.3" />
       <circle cx="32" cy="32" r="28" fill="none" stroke={GOLD} strokeWidth="0.8" strokeDasharray="0.1 3.2" strokeLinecap="round" />
       {!small && (
@@ -372,37 +389,30 @@ function FlowerDivider({ className = "" }: { className?: string }) {
   );
 }
 
-/** A stretch of the dashed route, swinging from one side to the other, with its icons. */
-function Route({ from, icons, short = false }: { from: "left" | "right"; icons: ReactNode; short?: boolean }) {
-  const d = from === "right" ? "M78 0C92 34 12 32 22 66S70 96 40 100" : "M22 0C8 34 88 32 78 66S30 96 60 100";
+/**
+ * The small route between two stops: a short, gently curving dashed line
+ * from the stop above to a map pin, a tiny plane beside the first one, and a
+ * few strokes of sea. It has its own height, so it never touches the text.
+ */
+function Connector({ plane = false }: { plane?: boolean }) {
   return (
-    <div aria-hidden className={`pointer-events-none relative mx-auto w-full ${short ? "h-16" : "h-28"}`}>
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 h-full w-full overflow-visible">
-        <path d={d} fill="none" stroke={ROUTE} strokeWidth="1.3" strokeDasharray="5 6" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+    <div aria-hidden className="pointer-events-none relative mx-auto my-8 h-[5.5rem] w-[11rem]">
+      <svg viewBox="0 0 176 88" className="absolute inset-0 h-full w-full overflow-visible" fill="none">
+        <path d="M88 0C88 22 52 24 56 46S96 62 88 74" stroke={ROUTE} strokeWidth="1.2" strokeDasharray="4 5" strokeLinecap="round" />
+        {/* the pin at the next stop */}
+        <path d="M88 88s-6.5-7.2-6.5-12a6.5 6.5 0 0 1 13 0C94.5 80.8 88 88 88 88Z" fill={ROUTE} transform="translate(0 -4)" />
+        <circle cx="88" cy="72" r="2.2" fill="#F3E4C9" />
+        {/* a few strokes of sea */}
+        <path d="M118 52c3-2.6 5 2.6 8 0s5 2.6 8 0M124 58c3-2.6 5 2.6 8 0" stroke="#7FA6C0" strokeWidth="1" strokeLinecap="round" />
+        {plane && (
+          <path
+            transform="translate(118 10) rotate(60 10 10) scale(0.85)"
+            d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5Z"
+            fill={ROUTE}
+          />
+        )}
       </svg>
-      {icons}
     </div>
-  );
-}
-
-/** The route's icons: a map pin and a plane. */
-function RouteIcon({ kind, className = "" }: { kind: "pin" | "plane"; className?: string }) {
-  return (
-    <svg viewBox="0 0 40 28" className={`absolute h-7 w-10 ${className}`} fill={ROUTE}>
-      {kind === "pin" && <path transform="translate(9 0) scale(1.15)" d="M10 1a7.5 7.5 0 0 0-7.5 7.5C2.5 14 10 23 10 23s7.5-9 7.5-14.5A7.5 7.5 0 0 0 10 1Zm0 10.3a2.8 2.8 0 1 1 0-5.6 2.8 2.8 0 0 1 0 5.6Z" />}
-      {kind === "plane" && <path transform="translate(8 2) rotate(64 12 12)" d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5Z" />}
-    </svg>
-  );
-}
-
-/** Three little waves, in sea blue. */
-function Waves({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 40 16" className={`absolute h-4 w-10 ${className}`} fill="none" stroke="#5B8DB0" strokeWidth="1.2" strokeLinecap="round">
-      <path d="M2 4c3-3 5 3 8 0s5 3 8 0 5 3 8 0 5 3 8 0" />
-      <path d="M6 9c3-3 5 3 8 0s5 3 8 0 5 3 8 0" opacity="0.8" />
-      <path d="M10 14c3-3 5 3 8 0s5 3 8 0" opacity="0.6" />
-    </svg>
   );
 }
 

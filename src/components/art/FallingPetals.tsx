@@ -8,19 +8,38 @@ import { rng } from "@/components/art/eventVineArt";
  * `relative` box around those sections: it fills the box, and a screen-tall
  * layer inside stays stuck to the viewport while the guest scrolls, so the
  * petals fall across the screen but never above the couple card. They pause
- * while the box is off screen and are left out when reduced motion is
- * preferred. Styles: `.site-petal` in index.css.
+ * while the box is off screen, fade away while a section marked
+ * `data-no-petals` fills the middle of the screen (the travel guide, dense
+ * with details), and are left out when reduced motion is preferred. Styles:
+ * `.site-petal` in index.css.
  */
 export function FallingPetals() {
   const reduced = usePrefersReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const [onScreen, setOnScreen] = useState(true);
+  const [quiet, setQuiet] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const io = new IntersectionObserver(([e]) => setOnScreen(e.isIntersecting));
     io.observe(el);
+    return () => io.disconnect();
+  }, [reduced]);
+
+  // fade out over the sections that ask for calm (their middle band in view)
+  useEffect(() => {
+    const calm = Array.from(document.querySelectorAll("[data-no-petals]"));
+    if (!calm.length) return;
+    const showing = new Set<Element>();
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) (e.isIntersecting ? showing.add(e.target) : showing.delete(e.target));
+        setQuiet(showing.size > 0);
+      },
+      { rootMargin: "-30% 0px -30% 0px" },
+    );
+    calm.forEach((c) => io.observe(c));
     return () => io.disconnect();
   }, [reduced]);
 
@@ -45,7 +64,7 @@ export function FallingPetals() {
   if (reduced) return null;
 
   return (
-    <div ref={ref} aria-hidden className={`pointer-events-none absolute inset-0 z-[25] overflow-clip ${onScreen ? "" : "petals-paused"}`}>
+    <div ref={ref} aria-hidden className={`pointer-events-none absolute inset-0 z-[25] overflow-clip transition-opacity duration-700 ${onScreen ? "" : "petals-paused"} ${quiet ? "opacity-0" : ""}`}>
       <svg className="absolute h-0 w-0">
         <defs>
           <radialGradient id="site-petal-rose" cx="0.4" cy="0.35" r="0.8">

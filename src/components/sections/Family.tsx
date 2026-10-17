@@ -32,14 +32,7 @@ export function Family() {
   });
 
   return (
-    <section
-      ref={ref}
-      id="family"
-      aria-labelledby="family-heading"
-      className="py-20 text-center"
-      // a veil of the page cream over the background flowers, so none sit behind the portrait or the names
-      style={{ paddingInline: "calc(100% * 35 / 768 + 16px)", backgroundColor: "rgb(var(--page) / 0.75)" }}
-    >
+    <section ref={ref} id="family" aria-labelledby="family-heading" className="py-20 text-center" style={{ paddingInline: "calc(100% * 35 / 768 + 16px)" }}>
       <div className="mx-auto max-w-[24rem]">
         {/* The crest and heading */}
         <div style={rise(0)}>
