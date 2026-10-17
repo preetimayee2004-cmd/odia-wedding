@@ -23,7 +23,7 @@ export function downloadWeddingCalendar() {
   const p = parseVenueDateTime(wedding.wedding.dateTime);
   if (!p) return;
   const names = wedding.invitation.names.join(" & ");
-  const place = [wedding.venue.name, wedding.venue.address].filter(Boolean).join(", ") || wedding.invitation.place || "";
+  const place = [wedding.venue.name, wedding.venue.address ?? wedding.venue.city].filter(Boolean).join(", ") || wedding.invitation.place || "";
 
   let when: string[];
   if (p.hour === null) {

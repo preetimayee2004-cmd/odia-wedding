@@ -58,15 +58,14 @@ export interface WeddingEvent {
 }
 
 /** Travel information — every value must be verified, never estimated. */
-export interface TravelPlace {
-  name: string | null;
-  location: string | null;
-  /** Verified distance from the venue, e.g. "18 km (about 40 min by road)". */
-  distance: string | null;
-  info: string | null;
-  mapsUrl: string | null;
-  phone: string | null;
-  bookingUrl: string | null;
+/** One way to reach the venue, in "Getting Here". */
+export interface TravelMode {
+  kind: "air" | "train" | "local";
+  title: string;
+  /** e.g. "Biju Patnaik International Airport". */
+  place: string;
+  /** A line on getting from there to the venue. */
+  detail: string | null;
 }
 
 export interface WeddingConfig {
@@ -162,13 +161,20 @@ export interface WeddingConfig {
      */
     photos: Array<{ src: string; alt: string; tall?: boolean; focus?: string }>;
   };
+  /** "The Wedding Journey": the venue, getting here, and where to stay. */
   travel: {
     eyebrow: string;
     heading: string;
-    airport: TravelPlace;
-    railway: TravelPlace;
-    bus: TravelPlace;
-    stay: TravelPlace;
+    intro: string;
+    gettingHere: { title: string; tagline: string; intro: string; modes: TravelMode[] };
+    stay: {
+      title: string;
+      tagline: string;
+      intro: string;
+      hotels: Array<{ name: string; area: string }>;
+    };
+    /** At the foot of the section, e.g. "Jay Jagannath". */
+    closing: string;
   };
   wishes: {
     eyebrow: string;
@@ -254,7 +260,7 @@ export interface WeddingConfig {
     /** Optional exact map link (e.g. a Google Maps share URL). */
     mapsUrl: string | null;
     description: string | null;
-    /** Venue photograph; while null, a mandap illustration is shown. */
+    /** Venue photograph (not shown at present; the temple painting stands in). */
     image: { src: string; alt: string } | null;
   };
   assets: {
@@ -303,10 +309,6 @@ pm run og. */
     /** Keep the invitation out of search engines (it holds personal details). */
     noindex: boolean;
   };
-}
-
-function emptyPlace(): TravelPlace {
-  return { name: null, location: null, distance: null, info: null, mapsUrl: null, phone: null, bookingUrl: null };
 }
 
 export const wedding: WeddingConfig = {
@@ -500,13 +502,33 @@ export const wedding: WeddingConfig = {
       { src: "/photos/gallery/mehendi-palms.webp", alt: "Hennaed palms cupped together", focus: "right bottom" },
     ],
   },
+  // From the couple (17 Oct 2026). Distances and the nearest bus stop to be
+  // added once the mandap's exact address is confirmed.
   travel: {
-    eyebrow: "The Path to Purushottam Kshetra",
-    heading: "Venue, Travel & Stay",
-    airport: emptyPlace(),
-    railway: emptyPlace(),
-    bus: emptyPlace(),
-    stay: emptyPlace(),
+    eyebrow: "Your presence makes our journey more special",
+    heading: "The Wedding Journey",
+    intro: "From the temple city of Bhubaneswar to the hearts of our loved ones — here's everything you need to know.",
+    gettingHere: {
+      title: "Getting Here",
+      tagline: "Travel made easy",
+      intro: "Bhubaneswar is well connected by air, rail and road. Here are the best ways to reach the venue:",
+      modes: [
+        { kind: "air", title: "By Air", place: "Biju Patnaik International Airport", detail: "Taxi or cab from the airport to the mandap." },
+        { kind: "train", title: "By Train", place: "Bhubaneswar Railway Station", detail: "Auto, taxi or cab from the station to the venue." },
+        { kind: "local", title: "Local Transport", place: "Mo Bus, auto-rickshaw and taxi", detail: "All run across the city." },
+      ],
+    },
+    stay: {
+      title: "Where to Stay",
+      tagline: "A comfortable stay for our loved ones",
+      intro: "Hotels in Bhubaneswar, from the Airports Authority of India's hotel listing:",
+      hotels: [
+        { name: "Hotel Kalinga Ashok", area: "Gautam Nagar" },
+        { name: "Swosti Grand", area: "Near the railway station" },
+        { name: "Hotel Trident", area: "CB-1, Nayapalli" },
+      ],
+    },
+    closing: "Jay Jagannath",
   },
   wishes: {
     eyebrow: "The Ananda Bazar",
@@ -589,11 +611,12 @@ export const wedding: WeddingConfig = {
     ],
   },
   venue: {
-    name: null,
-    city: null,
-    address: null,
-    mapsUrl: null,
-    description: null,
+    name: "Jagannath Kalyan Mandap",
+    city: "Bhubaneswar, Odisha",
+    address: null, // the exact address is still to be confirmed
+    // A map search for the venue by name until the exact address or pin is confirmed
+    mapsUrl: "https://www.google.com/maps/search/?api=1&query=Jagannath%20Kalyan%20Mandap%2C%20Bhubaneswar%2C%20Odisha",
+    description: "Blessed by Lord Jagannath, our celebrations will take place in Bhubaneswar, the temple city of Odisha.",
     image: null,
   },
   assets: {
