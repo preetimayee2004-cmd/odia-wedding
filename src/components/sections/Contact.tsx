@@ -17,21 +17,22 @@ const THEME: Record<ContactGroup["id"], { ink: string; button: string; art: { sr
   bride: {
     ink: "#9E2B2B",
     button: "#A3322D",
-    art: { src: "/art/contact/bride-art.webp", w: 220, h: 199, alt: "A bride's red-and-white tiara beside a stack of red bangles and jasmine", width: "9.5rem" },
+    art: { src: "/art/contact/bride-art.webp", w: 220, h: 199, alt: "A bride's red-and-white tiara beside a stack of red bangles and jasmine", width: "6.5rem" },
   },
   groom: {
     ink: "#4E6B3E",
     button: "#56704B",
-    art: { src: "/art/contact/groom-mukut.webp", w: 448, h: 447, alt: "The groom's golden mukut, set with gems, a plume at its side", width: "7.5rem" },
+    art: { src: "/art/contact/groom-mukut.webp", w: 448, h: 447, alt: "The groom's golden mukut, set with gems, a plume at its side", width: "5.25rem" },
   },
   guests: {
     ink: "#AD7428",
     button: "#BF873A",
-    art: { src: "/art/contact/guests-art.webp", w: 232, h: 203, alt: "A brass kalash with a coconut and mango leaves, beside a suitcase", width: "9.5rem" },
+    art: { src: "/art/contact/guests-art.webp", w: 232, h: 203, alt: "A brass kalash with a coconut and mango leaves, beside a suitcase", width: "6.5rem" },
   },
 };
 
-const hasNumber = (p: ContactPerson) => !!p.phone;
+/** A real number to call (samples are masked stand-ins). */
+const hasNumber = (p: ContactPerson) => !!p.phone && !p.sample;
 const tel = (phone: string) => `tel:${phone.replace(/[^\d+]/g, "")}`;
 
 /** Whether any contact has a number yet (the RSVP points here only then). */
@@ -46,8 +47,9 @@ const shownPeople = (g: ContactGroup) => (showPlaceholders ? g.people : g.people
  * lotus rule and a line of help, then three arch-topped cards — the bride's
  * family (maroon, her tiara and bangles), the groom's family (green, his
  * golden mukut) and the guests' coordinators (ochre, a kalash and a
- * suitcase). Each card has a line of help, its contacts with a round icon,
- * role, name and tap-to-call number, and Call Now for the first number.
+ * suitcase). Each card is laid out side by side, as in the design: the art,
+ * title and Call Now on the left; its contacts on the right, each with a
+ * round icon, role, name and tap-to-call number.
  */
 export function Contact() {
   const { heading, note, groups } = wedding.contact;
@@ -77,7 +79,7 @@ export function Contact() {
           </p>
         </header>
 
-        <ul className="mt-10 space-y-9">
+        <ul className="mt-9 space-y-7">
           {cards.map((g, i) => (
             <li key={g.id} style={rise(150 + i * 140)}>
               <ContactCard group={g} />
@@ -96,47 +98,49 @@ function ContactCard({ group }: { group: ContactGroup }) {
 
   return (
     <ArchCard>
-      <img src={art.src} width={art.w} height={art.h} alt={art.alt} decoding="async" loading="lazy" className="mx-auto block h-auto" style={{ width: art.width }} />
+      <div className="flex items-stretch">
+        {/* the art, the title and Call Now */}
+        <div className="flex w-[41%] shrink-0 flex-col items-center pr-2.5 text-center">
+          <img src={art.src} width={art.w} height={art.h} alt={art.alt} decoding="async" loading="lazy" className="block h-auto max-w-full" style={{ width: art.width }} />
+          <h3 className="mt-2 font-serif text-[17.5px] font-semibold leading-[1.1] [text-wrap:balance]" style={{ color: ink }}>
+            {group.title}
+          </h3>
+          {group.subtitle && (
+            <p className="mt-0.5 font-serif text-[13.5px] italic leading-tight" style={{ color: ink }}>
+              ({group.subtitle})
+            </p>
+          )}
+          <div className="mt-auto pt-3">
+            {first ? (
+              <a
+                href={tel(first)}
+                className="inline-flex min-h-10 items-center gap-1 whitespace-nowrap rounded-full px-3.5 font-sans text-[12.5px] font-medium text-[#FFF8EE] shadow-[0_6px_12px_-8px_rgb(80_40_10/0.7)] transition-transform duration-200 ease-silk active:scale-[0.97]"
+                style={{ backgroundColor: button }}
+              >
+                Call Now <span aria-hidden>→</span>
+              </a>
+            ) : (
+              showPlaceholders && (
+                <span
+                  aria-disabled
+                  title="Numbers to be added"
+                  className="inline-flex min-h-10 cursor-default items-center gap-1 whitespace-nowrap rounded-full px-3.5 font-sans text-[12.5px] font-medium text-[#FFF8EE] opacity-60"
+                  style={{ backgroundColor: button }}
+                >
+                  Call Now <span aria-hidden>→</span>
+                </span>
+              )
+            )}
+          </div>
+        </div>
 
-      <h3 className="mt-2.5 font-serif text-[27px] font-semibold leading-tight" style={{ color: ink }}>
-        {group.title}
-      </h3>
-      {group.subtitle && (
-        <p className="font-serif text-[18px] italic leading-snug" style={{ color: ink }}>
-          ({group.subtitle})
-        </p>
-      )}
-      <DiamondRule color={GOLD} className="mx-auto mt-2.5" />
-      <p className="t-quote mx-auto mt-2.5 max-w-[16.5rem] text-[16.5px] leading-snug [text-wrap:balance]" style={{ color: TEXT_SOFT }}>
-        {group.text}
-      </p>
-
-      <ul className="mx-auto mt-4 max-w-[17.5rem] space-y-3.5 border-t pt-4 text-left" style={{ borderColor: LINE }}>
-        {people.map((p) => (
-          <PersonRow key={p.role} person={p} ink={ink} />
-        ))}
-      </ul>
-
-      {first ? (
-        <a
-          href={tel(first)}
-          className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full px-7 font-sans text-[15px] font-medium text-[#FFF8EE] shadow-[0_8px_16px_-10px_rgb(80_40_10/0.7)] transition-transform duration-200 ease-silk active:scale-[0.97]"
-          style={{ backgroundColor: button }}
-        >
-          Call Now <span aria-hidden>→</span>
-        </a>
-      ) : (
-        showPlaceholders && (
-          <span
-            aria-disabled
-            title="Numbers to be added"
-            className="mt-5 inline-flex min-h-11 cursor-default items-center gap-2 rounded-full px-7 font-sans text-[15px] font-medium text-[#FFF8EE] opacity-50"
-            style={{ backgroundColor: button }}
-          >
-            Call Now <span aria-hidden>→</span>
-          </span>
-        )
-      )}
+        {/* the contacts */}
+        <ul className="min-w-0 flex-1 space-y-2.5 border-l pl-2.5 text-left" style={{ borderColor: LINE }}>
+          {people.map((p) => (
+            <PersonRow key={p.role} person={p} ink={ink} />
+          ))}
+        </ul>
+      </div>
     </ArchCard>
   );
 }
@@ -145,30 +149,34 @@ function ContactCard({ group }: { group: ContactGroup }) {
 function PersonRow({ person, ink }: { person: ContactPerson; ink: string }) {
   const { role, name, phone, icon = "person" } = person;
   return (
-    <li className="flex items-start gap-3">
-      <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border" style={{ borderColor: LINE, backgroundColor: "#F6E6CC", color: ink }}>
-        <svg viewBox="0 0 20 20" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <li className="flex items-start gap-2">
+      <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border" style={{ borderColor: LINE, backgroundColor: "#F6E6CC", color: ink }}>
+        <svg viewBox="0 0 20 20" className="h-[15px] w-[15px]" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           {ICONS[icon]}
         </svg>
       </span>
       <div className="min-w-0 flex-1">
-        <p className="font-sans text-[12.5px] leading-tight" style={{ color: TEXT_SOFT }}>
+        <p className="font-sans text-[10.5px] leading-tight" style={{ color: TEXT_SOFT }}>
           {role}
         </p>
         {name ? (
-          <p className="font-serif text-[17px] font-semibold leading-snug" style={{ color: "var(--c-text)" }}>
+          <p className="font-serif text-[14px] font-semibold leading-tight" style={{ color: "var(--c-text)" }}>
             {name}
           </p>
         ) : (
-          showPlaceholders && <ToCome className="font-serif text-[15px]">Name to be added</ToCome>
+          showPlaceholders && <ToCome className="font-serif text-[13px]">Name to be added</ToCome>
         )}
-        {phone ? (
-          <a href={tel(phone)} aria-label={`Call ${name ?? role}, ${phone}`} className="inline-flex min-h-8 items-center gap-1.5 font-sans text-[14px] font-medium" style={{ color: "var(--c-text)" }}>
+        {phone && hasNumber(person) ? (
+          <a href={tel(phone)} aria-label={`Call ${name ?? role}, ${phone}`} className="inline-flex min-h-7 items-center gap-1 whitespace-nowrap font-sans text-[11.5px] font-medium" style={{ color: "var(--c-text)" }}>
             <PhoneIcon /> {phone}
           </a>
+        ) : phone ? (
+          <p className="mt-0.5 flex items-center gap-1 whitespace-nowrap font-sans text-[11.5px] font-medium" style={{ color: TEXT_SOFT }}>
+            <PhoneIcon /> {phone}
+          </p>
         ) : (
           showPlaceholders && (
-            <p className="mt-0.5 flex items-center gap-1.5 font-sans text-[13px]" style={{ color: TEXT_SOFT }}>
+            <p className="mt-0.5 flex items-center gap-1 font-sans text-[11px]" style={{ color: TEXT_SOFT }}>
               <PhoneIcon /> <ToCome>Number to be added</ToCome>
             </p>
           )
@@ -218,7 +226,7 @@ const ICONS: Record<NonNullable<ContactPerson["icon"]>, ReactNode> = {
 
 function PhoneIcon() {
   return (
-    <svg viewBox="0 0 20 20" className="h-3.5 w-3.5 shrink-0" aria-hidden fill="currentColor">
+    <svg viewBox="0 0 20 20" className="h-3 w-3 shrink-0" aria-hidden fill="currentColor">
       <path d="M6.5 3.5h-2a1 1 0 0 0-1 1.1A15 15 0 0 0 15.4 16.5a1 1 0 0 0 1.1-1v-2a1 1 0 0 0-.8-1l-2.3-.5a1 1 0 0 0-1 .3l-1 1a11 11 0 0 1-4.7-4.7l1-1a1 1 0 0 0 .3-1l-.5-2.3a1 1 0 0 0-1-.8Z" />
     </svg>
   );
@@ -244,7 +252,7 @@ function ArchCard({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <div ref={ref} className="relative px-5 pb-6 pt-9" style={{ filter: "drop-shadow(0 10px 14px rgb(120 80 30 / 0.1))" }}>
+    <div ref={ref} className="relative px-3 pb-5 pt-8" style={{ filter: "drop-shadow(0 10px 14px rgb(120 80 30 / 0.1))" }}>
       {size && (
         <svg aria-hidden className="pointer-events-none absolute inset-0 h-full w-full overflow-visible" viewBox={`0 0 ${size[0]} ${size[1]}`}>
           <path d={archPath(size[0], size[1])} fill={CARD_BG} stroke={LINE} strokeWidth="1" />

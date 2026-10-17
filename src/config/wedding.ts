@@ -28,6 +28,8 @@ export interface ContactPerson {
   phone: string | null;
   /** The small round icon; "person" by default. */
   icon?: "person" | "planner" | "hotel" | "car";
+  /** SAMPLE stand-in (made-up name or masked number): shown only while placeholders are on, never tappable. */
+  sample?: boolean;
 }
 
 /** A Contact card. Its id sets the colour and the art: the bride's tiara, the groom's mukut, the coordinators' kalash. */
@@ -36,7 +38,6 @@ export interface ContactGroup {
   title: string;
   /** In italics under the title, e.g. "Kanya Paksha". */
   subtitle: string | null;
-  text: string;
   people: ContactPerson[];
 }
 
@@ -342,6 +343,9 @@ pm run og. */
   };
 }
 
+/** A masked number for the sample contacts — never a real person's. */
+const SAMPLE_PHONE = "+91 XXXXX XXXXX";
+
 export const wedding: WeddingConfig = {
   couple: {
     bride: { displayName: "Bride", fullName: null }, // PLACEHOLDER
@@ -610,41 +614,40 @@ export const wedding: WeddingConfig = {
     heading: "Contact",
     note: "For any assistance, please reach out to the respective family members or coordinators.",
     // Cards and roles from the couple's contact design (17 Oct 2026). The
-    // fathers' names are from the Families section; every other name and all
-    // the numbers are still to come — add them here, and remove any role that
-    // doesn't apply.
+    // fathers' names are from the Families section. Entries marked `sample`
+    // are SAMPLE stand-ins so the cards aren't empty: the other names are made
+    // up and every number is masked (never a real person's), shown only while
+    // placeholders are on and never tappable. Replace each with the real name
+    // and number and drop `sample` (or remove a role that doesn't apply).
     groups: [
       {
         id: "bride",
         title: "Bride's Family Side",
         subtitle: "Kanya Paksha",
-        text: "For wedding related queries, please contact our family members from the bride's side.",
         people: [
-          { role: "Father (Kanyadana)", name: "Sri Bijay Kumar Das", phone: null },
-          { role: "Brother (Coordinator)", name: null, phone: null },
-          { role: "Family Coordinator", name: null, phone: null },
+          { role: "Father (Kanyadana)", name: "Sri Bijay Kumar Das", phone: SAMPLE_PHONE, sample: true },
+          { role: "Brother (Coordinator)", name: "Mr. Sushant Das", phone: SAMPLE_PHONE, sample: true },
+          { role: "Family Coordinator", name: "Mrs. Priyanka Mishra", phone: SAMPLE_PHONE, sample: true },
         ],
       },
       {
         id: "groom",
         title: "Groom's Family Side",
         subtitle: "Bara Paksha",
-        text: "For wedding related queries, please contact our family members from the groom's side.",
         people: [
-          { role: "Father (Bara Paksha)", name: "Sri Debashis Mohapatra", phone: null },
-          { role: "Brother (Coordinator)", name: null, phone: null },
-          { role: "Family Coordinator", name: null, phone: null },
+          { role: "Father (Bara Paksha)", name: "Sri Debashis Mohapatra", phone: SAMPLE_PHONE, sample: true },
+          { role: "Brother (Coordinator)", name: "Mr. Ankit Mohapatra", phone: SAMPLE_PHONE, sample: true },
+          { role: "Family Coordinator", name: "Mrs. Sunita Mohapatra", phone: SAMPLE_PHONE, sample: true },
         ],
       },
       {
         id: "guests",
         title: "Guest & Wedding Coordinator",
         subtitle: "Tattwadhikari",
-        text: "For hotel, transport, travel or any on\u2011the\u2011day assistance, please reach out to our coordinators.",
         people: [
-          { role: "Wedding Planner", name: null, phone: null, icon: "planner" },
-          { role: "Hotel Front Desk", name: null, phone: null, icon: "hotel" },
-          { role: "Transport Desk", name: null, phone: null, icon: "car" },
+          { role: "Wedding Planner", name: "The planning team", phone: SAMPLE_PHONE, icon: "planner", sample: true },
+          { role: "Hotel Front Desk", name: "Guest hotel desk", phone: SAMPLE_PHONE, icon: "hotel", sample: true },
+          { role: "Transport Desk", name: "Travel desk", phone: SAMPLE_PHONE, icon: "car", sample: true },
         ],
       },
     ],
