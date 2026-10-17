@@ -108,7 +108,6 @@ export function VenueTravel() {
           </svg>
           {button}
         </Button>
-        <FlowerDivider className="mx-auto mt-10" />
       </div>
 
       {/* The faint wheel-and-temple sketch in the corner */}

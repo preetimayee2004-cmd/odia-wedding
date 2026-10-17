@@ -3,13 +3,13 @@ import { wedding } from "@/config/wedding";
 import { useInView } from "@/hooks/useInView";
 import { EASE } from "@/lib/motion";
 import { formatVenueDate, parseVenueDateTime } from "@/lib/venueTime";
-
-const GOLD = "#A6782C";
+import { SectionSeparator } from "@/components/ui/SectionSeparator";
 
 /**
  * Closing sign-off, beneath the thank-you screen.
- * Identity: a gold thread draws outward from a small diamond, then the
- * couple's names settle beneath it. Deliberately not a "site footer".
+ * Opened by the separator system's closing signature (a maroon bloom with two
+ * leaves), then the couple's names settle beneath it. Deliberately not a
+ * "site footer".
  */
 export function Footer() {
   const { blessing, credit } = wedding.footer;
@@ -21,11 +21,6 @@ export function Footer() {
   const date = parts && formatVenueDate(parts);
 
   const fade = (delay: number) => ({ opacity: inView ? 1 : 0, transition: `opacity 900ms ${EASE.silk} ${delay}ms` });
-  const thread = (origin: "left" | "right") => ({
-    transform: inView ? "scaleX(1)" : "scaleX(0)",
-    transformOrigin: origin,
-    transition: `transform 1100ms ${EASE.silk} 200ms`,
-  });
 
   return (
     <footer
@@ -34,10 +29,8 @@ export function Footer() {
       aria-label="Closing note"
       className="px-[var(--gutter)] pb-[max(3.5rem,env(safe-area-inset-bottom))] pt-8 text-center"
     >
-      <div aria-hidden className="flex items-center justify-center gap-3">
-        <span className="h-px w-20 bg-gradient-to-l from-[#A6782C]/80 to-transparent" style={thread("right")} />
-        <span className="h-2 w-2 rotate-45" style={{ ...fade(0), backgroundColor: GOLD }} />
-        <span className="h-px w-20 bg-gradient-to-r from-[#A6782C]/80 to-transparent" style={thread("left")} />
+      <div style={fade(0)}>
+        <SectionSeparator emblem="maroon" pull="none" />
       </div>
 
       <div style={fade(600)}>
