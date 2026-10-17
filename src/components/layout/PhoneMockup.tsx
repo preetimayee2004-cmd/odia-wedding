@@ -13,8 +13,8 @@ export const STATUS_BAR_H = 54;
 // Space kept free above and below the phone.
 const PAD = 28;
 
-// Rose-cream of the palace backdrop, shown while the image loads.
-const BACKDROP_BASE = "#EAD3C1";
+// The dark of the palace-hall backdrop, shown while the image loads.
+const BACKDROP_BASE = "#1B0F0C";
 
 function useFitScale(): number {
   const compute = () => Math.max(0.5, Math.min(1, (window.innerHeight - PAD * 2) / FRAME_H));
@@ -57,7 +57,7 @@ export function PhoneMockup({ src }: { src: string }) {
       style={
         backdrop
           ? {
-              // The rose-gold palace arches and paisley, covering the screen around the phone.
+              // A dim palace hall — arches, a jali and drifting gold dust — around the phone.
               backgroundColor: BACKDROP_BASE,
               backgroundImage: `url(${backdrop})`,
               backgroundRepeat: "no-repeat",

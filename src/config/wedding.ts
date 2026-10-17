@@ -16,31 +16,30 @@ export interface Person {
   fullName: string | null;
 }
 
-/** An elder named in Gurujana Pranam. */
-/** One side of the family, as the couple's design shows it. */
-/** One person (or desk) in a Contact card. */
+/** One person in Contact. */
 export interface ContactPerson {
-  /** e.g. "Father (Kanyadana)". */
+  /** e.g. "Brother". */
   role: string;
-  /** With honorific; null until confirmed. */
+  /** With honorific; null until confirmed (shown as "[Name]" while placeholders are on). */
   name: string | null;
+  /** What to ask them about, e.g. "Stay, travel & pickups". */
+  note: string | null;
   /** With country code, e.g. "+91 98765 43210"; null until confirmed. */
   phone: string | null;
-  /** The small round icon; "person" by default. */
-  icon?: "person" | "planner" | "hotel" | "car";
   /** SAMPLE stand-in (made-up name or masked number): shown only while placeholders are on, never tappable. */
   sample?: boolean;
 }
 
-/** A Contact card. Its id sets the colour and the art: the bride's tiara, the groom's mukut, the coordinators' kalash. */
+/** One side in Contact; its id picks the small crown over its name. */
 export interface ContactGroup {
-  id: "bride" | "groom" | "guests";
+  id: "bride" | "groom";
   title: string;
   /** In italics under the title, e.g. "Kanya Paksha". */
   subtitle: string | null;
   people: ContactPerson[];
 }
 
+/** One side of the family, as the couple's design shows it. */
 export interface FamilySide {
   /** e.g. "Parents of the Groom". */
   label: string;
@@ -250,10 +249,12 @@ export interface WeddingConfig {
   contact: {
     heading: string;
     note: string;
+    /** Pre-filled when a guest taps a message button (WhatsApp). */
+    whatsappMessage: string;
     /**
-     * The cards, in order. A contact with a number becomes a tap-to-call link,
-     * and "Call Now" calls the first number in its card. On the live site
-     * only contacts with a number show, and a card with none is hidden.
+     * The two sides, in order. A contact with a number gets a call button and
+     * a WhatsApp button. On the live site only contacts with a number show,
+     * and a side with none is hidden.
      */
     groups: ContactGroup[];
   };
@@ -609,42 +610,32 @@ export const wedding: WeddingConfig = {
   },
   contact: {
     heading: "Contact",
-    note: "For any assistance, please reach out to the respective family members or coordinators.",
-    // Cards and roles from the couple's contact design (17 Oct 2026). The
-    // fathers' names are from the Families section. Entries marked `sample`
-    // are SAMPLE stand-ins so the cards aren't empty: the other names are made
-    // up and every number is masked (never a real person's), shown only while
-    // placeholders are on and never tappable. Replace each with the real name
-    // and number and drop `sample` (or remove a role that doesn't apply).
+    note: "Need help? Reach out to the right person below.",
+    whatsappMessage: "Namaste! I have a question about the wedding.",
+    // Sides and roles from the couple's contact design (17 Oct 2026). Entries
+    // marked `sample` are SAMPLE stand-ins so the list isn't empty: the names
+    // are made up and every number is masked (never a real person's), shown
+    // only while placeholders are on and never tappable. Replace each with the
+    // real name and number and drop `sample` (or remove a role that doesn't apply).
     groups: [
       {
         id: "bride",
-        title: "Bride's Family Side",
+        title: "Bride's Side",
         subtitle: "Kanya Paksha",
         people: [
-          { role: "Father (Kanyadana)", name: "Sri Bijay Kumar Das", phone: SAMPLE_PHONE, sample: true },
-          { role: "Brother (Coordinator)", name: "Mr. Sushant Das", phone: SAMPLE_PHONE, sample: true },
-          { role: "Family Coordinator", name: "Mrs. Priyanka Mishra", phone: SAMPLE_PHONE, sample: true },
+          { role: "Brother", name: "Mr. Sushant Das", note: "Family & personal queries", phone: SAMPLE_PHONE, sample: true },
+          { role: "Guest Coordinator", name: "Mrs. Priyanka Mishra", note: "Stay, travel & pickups", phone: SAMPLE_PHONE, sample: true },
+          { role: "Event Coordinator", name: null, note: "Venue, timings & rituals", phone: SAMPLE_PHONE, sample: true },
         ],
       },
       {
         id: "groom",
-        title: "Groom's Family Side",
+        title: "Groom's Side",
         subtitle: "Bara Paksha",
         people: [
-          { role: "Father (Bara Paksha)", name: "Sri Debashis Mohapatra", phone: SAMPLE_PHONE, sample: true },
-          { role: "Brother (Coordinator)", name: "Mr. Ankit Mohapatra", phone: SAMPLE_PHONE, sample: true },
-          { role: "Family Coordinator", name: "Mrs. Sunita Mohapatra", phone: SAMPLE_PHONE, sample: true },
-        ],
-      },
-      {
-        id: "guests",
-        title: "Guest & Wedding Coordinator",
-        subtitle: "Tattwadhikari",
-        people: [
-          { role: "Wedding Planner", name: "The planning team", phone: SAMPLE_PHONE, icon: "planner", sample: true },
-          { role: "Hotel Front Desk", name: "Guest hotel desk", phone: SAMPLE_PHONE, icon: "hotel", sample: true },
-          { role: "Transport Desk", name: "Travel desk", phone: SAMPLE_PHONE, icon: "car", sample: true },
+          { role: "Brother", name: "Mr. Ankit Mohapatra", note: "Family & personal queries", phone: SAMPLE_PHONE, sample: true },
+          { role: "Guest Coordinator", name: "Mrs. Sunita Mohapatra", note: "Stay, travel & pickups", phone: SAMPLE_PHONE, sample: true },
+          { role: "Event Coordinator", name: null, note: "Venue, timings & rituals", phone: SAMPLE_PHONE, sample: true },
         ],
       },
     ],
@@ -700,7 +691,7 @@ export const wedding: WeddingConfig = {
     image: null,
   },
   assets: {
-    desktopBackdrop: "/art/desktop-palace.webp",
+    desktopBackdrop: "/art/desktop-dark.webp",
     openingSound: null, // synthesised sankha until a recording is supplied
   },
   site: {
