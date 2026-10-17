@@ -9,18 +9,25 @@ import { Pending } from "@/components/ui/Pending";
 const GOLD = "#B8893A";
 const GOLD_TEXT = "#A6782C";
 const MAROON = "#7A1424";
+const NAME = "#7A1F1F";
+const BLESSING = "#8A6A4A";
+const LABEL = "#7A3B2E";
+/** A veil of the page cream over the background flowers (about 30% of them show), soft at the section's top and bottom. */
+const VEIL = "linear-gradient(to bottom, rgb(var(--page) / 0), rgb(var(--page) / 0.7) 72px, rgb(var(--page) / 0.7) calc(100% - 72px), rgb(var(--page) / 0))";
+/** The portrait's edges fade into the page. */
+const PORTRAIT_MASK = "radial-gradient(ellipse 72% 68% at center, #000 60%, transparent 100%)";
 
 /**
  * Section 06 — The Families, after the couple's design.
  * A gold filigree crest over "THE FAMILIES" (gold and maroon), "Bound by
  * Love, Blessed by Family" and a lotus divider; the couple with both sets of
- * parents; FAMILY BLESSINGS between gold flourishes, over the parents of the
- * groom and of the bride side by side, each with their family's blessing;
- * "|| ବସୁଧୈବ କୁଟୁମ୍ବକମ୍ ||" (the world is one family); and Lord Jagannath
- * between two scrolls over Jai Jagannath.
+ * parents, its edges fading into the page; the parents of the groom and of
+ * the bride side by side, each with their family's blessing; "|| ବସୁଧୈବ
+ * କୁଟୁମ୍ବକମ୍ ||" (the world is one family); and Lord Jagannath between two
+ * scrolls over Jai Jagannath.
  */
 export function Family() {
-  const { heading, tagline, blessingsHeading, art, groom, bride, odiaLine, closing } = wedding.family;
+  const { heading, tagline, art, groom, bride, odiaLine, closing } = wedding.family;
   const [lead, ...rest] = heading.split(" ");
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { threshold: 0.12 });
@@ -32,7 +39,7 @@ export function Family() {
   });
 
   return (
-    <section ref={ref} id="family" aria-labelledby="family-heading" className="py-20 text-center" style={{ paddingInline: "calc(100% * 35 / 768 + 16px)" }}>
+    <section ref={ref} id="family" aria-labelledby="family-heading" className="py-20 text-center" style={{ paddingInline: "calc(100% * 35 / 768 + 16px)", backgroundImage: VEIL }}>
       <div className="mx-auto max-w-[24rem]">
         {/* The crest and heading */}
         <div style={rise(0)}>
@@ -50,7 +57,7 @@ export function Family() {
           <span className="h-px flex-1" style={{ backgroundImage: `linear-gradient(to right, ${GOLD}, transparent)` }} />
         </div>
 
-        {/* The couple with both sets of parents, its edges fading into the page */}
+        {/* The couple with both sets of parents, a little wider than the text, its edges fading into the page */}
         {art && (
           <img
             src={art.src}
@@ -59,43 +66,31 @@ export function Family() {
             alt={art.alt}
             loading="lazy"
             decoding="async"
-            className="mx-auto mt-4 block h-auto w-[calc(100%+1.5rem)] max-w-none -translate-x-3"
-            style={{
-              ...rise(320),
-              WebkitMaskImage: "radial-gradient(closest-side, #000 80%, transparent 100%)",
-              maskImage: "radial-gradient(closest-side, #000 80%, transparent 100%)",
-            }}
+            className="-mx-[14px] mt-4 block h-auto w-[calc(100%+28px)] max-w-none"
+            style={{ ...rise(320), WebkitMaskImage: PORTRAIT_MASK, maskImage: PORTRAIT_MASK }}
           />
         )}
 
-        {/* FAMILY BLESSINGS, between flourishes */}
-        <div className="mt-3 flex items-center justify-center gap-2" style={rise(420)}>
-          <Flourish />
-          <h3 className="whitespace-nowrap font-serif text-[22px] font-semibold uppercase leading-none tracking-[1.5px]" style={{ color: GOLD_TEXT }}>
-            {blessingsHeading}
-          </h3>
-          <Flourish mirrored />
-        </div>
-
         {/* The parents of the groom and of the bride */}
-        <div className="mt-5 grid grid-cols-2 gap-x-3" style={rise(500)}>
+        <div className="-mx-3 mt-4 grid grid-cols-2 gap-x-3" style={rise(420)}>
           <Parents side={groom} />
           <Parents side={bride} />
         </div>
 
         {odiaLine && (
-          <p lang="or" className="t-odia mt-9 text-[22px]" style={rise(620)}>
-            {odiaLine}
+          <p lang="or" className="t-odia mt-9 text-[17.5px] font-normal" style={{ ...rise(620), color: MAROON }}>
+            {/* the bars in gold, the words in maroon, as in the heading */}
+            {odiaLine.split(/(||)/).map((part, i) => (part === "||" ? <span key={i} style={{ color: GOLD_TEXT }}>{part}</span> : part))}
           </p>
         )}
 
         {/* Lord Jagannath between two scrolls, over Jai Jagannath */}
         <div aria-hidden className="mx-auto mt-5 flex items-center justify-center gap-2" style={rise(720)}>
           <Scroll />
-          <img src="/art/family/jagannath.png" width={76} height={106} alt="" decoding="async" loading="lazy" className="h-16 w-auto" />
+          <img src="/art/family/jagannath.png" width={76} height={106} alt="" decoding="async" loading="lazy" className="block h-16 w-auto" style={{ filter: "brightness(0.86) contrast(1.3) saturate(1.2)" }} />
           <Scroll mirrored />
         </div>
-        <p className="t-blessing mt-2" style={{ ...rise(820), color: "var(--c-text)" }}>
+        <p className="t-blessing mt-[10px]" style={{ ...rise(820), color: "var(--c-text)" }}>
           {closing}
         </p>
       </div>
@@ -103,25 +98,21 @@ export function Family() {
   );
 }
 
-/** One side: "Parents of the Groom", the two names, and their family's blessing. */
+/** Keeps a title (Sri, Smt.) on the same line as the first name. */
+const withTitle = (name: string) => name.replace(/^(Sri|Shri|Smt\.?|Srimati|Late|Dr\.?)\s+/, "$1\u00A0");
+
+/** One side: "Parents of the Groom", each parent on a line of their own, and their family's blessing. */
 function Parents({ side }: { side: FamilySide }) {
   const [a, b] = side.parents;
   return (
     <div>
-      <p className="t-label whitespace-nowrap text-[10.5px] tracking-[1px]" style={{ color: "#7A3B2E" }}>
+      <p className="t-label whitespace-nowrap text-[10px] tracking-[0.14em] min-[380px]:text-[10.5px]" style={{ color: LABEL }}>
         {side.label}
       </p>
       {side.parents.length > 0 ? (
-        <p className="mt-1.5 font-serif text-[18px] font-semibold leading-snug" style={{ color: "var(--c-text)" }}>
-          {b ? (
-            <>
-              {a} &amp;
-              <br />
-              {b}
-            </>
-          ) : (
-            a
-          )}
+        <p className="mt-2 font-serif text-[16.5px] font-medium leading-snug" style={{ color: NAME }}>
+          <span className="block [text-wrap:balance]">{withTitle(a)}</span>
+          {b && <span className="block [text-wrap:balance]">&amp;&nbsp;{withTitle(b)}</span>}
         </p>
       ) : (
         showPlaceholders && (
@@ -132,7 +123,11 @@ function Parents({ side }: { side: FamilySide }) {
           </div>
         )
       )}
-      {side.blessing && <p className="t-body mt-2 text-[17px] leading-snug">{side.blessing}</p>}
+      {side.blessing && (
+        <p className="mt-[6px] font-serif text-[13px] italic leading-snug" style={{ color: BLESSING }}>
+          {side.blessing}
+        </p>
+      )}
     </div>
   );
 }
@@ -162,19 +157,6 @@ function Crest({ className = "" }: { className?: string }) {
         <circle cx="110" cy="3" r="1.6" />
         <path d="M98 36H122" stroke={GOLD} strokeWidth="1.2" />
       </g>
-    </svg>
-  );
-}
-
-/** A gold flourish beside FAMILY BLESSINGS. */
-function Flourish({ mirrored = false }: { mirrored?: boolean }) {
-  return (
-    <svg viewBox="0 0 64 22" className={`h-5 w-14 shrink-0 ${mirrored ? "-scale-x-100" : ""}`} aria-hidden fill="none" stroke={GOLD} strokeWidth="1.1" strokeLinecap="round">
-      <path d="M2 11H24" />
-      <path d="M24 11C30 11 33 5 39 5 45 5 46 12 41 13 37 14 36 9 39 9" />
-      <path d="M24 11C30 11 33 17 39 17 45 17 46 10 41 9" />
-      <path d="M46 11C50 7 55 7 58 11 55 15 50 15 46 11Z" fill={`${GOLD}33`} />
-      <circle cx="62" cy="11" r="1.3" fill={GOLD} stroke="none" />
     </svg>
   );
 }

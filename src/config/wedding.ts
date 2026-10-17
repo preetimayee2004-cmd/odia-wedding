@@ -135,8 +135,6 @@ export interface WeddingConfig {
     heading: string;
     /** Under the heading, e.g. "Bound by Love, Blessed by Family". */
     tagline: string;
-    /** Over the parents, e.g. "Family Blessings". */
-    blessingsHeading: string;
     /** The couple with both sets of parents; null hides it. */
     art: { src: string; alt: string; w: number; h: number } | null;
     groom: FamilySide;
@@ -377,18 +375,22 @@ export const wedding: WeddingConfig = {
   family: {
     heading: "The Families",
     tagline: "Bound by Love, Blessed by Family",
-    blessingsHeading: "Family Blessings",
-    art: { src: "/art/family/family.webp", alt: "Avi and Pragyan in their wedding finery, with both sets of parents beside them", w: 650, h: 394 },
-    // From the couple's family design (16 Oct 2026), exactly as written there —
+    art: {
+      src: "/art/family/family-portrait.webp",
+      alt: "Avi and Pragyan in gold crowns, hands folded in greeting, with the groom's parents beside him and the bride's parents beside her",
+      w: 1264,
+      h: 848,
+    },
+    // As the couple wrote them (17 Oct 2026), father first —
     // confirm every name and its spelling with the family before sharing.
     groom: {
       label: "Parents of the Groom",
-      parents: ["Smt. Subhashree", "Sri Debashis Mohapatra"],
+      parents: ["Sri Debashis Mohapatra", "Smt. Subhashree Mohapatra"],
       blessing: "With the loving blessings of the Mohapatra Parivar",
     },
     bride: {
       label: "Parents of the Bride",
-      parents: ["Smt. Minati", "Sri Bijay Kumar Das"],
+      parents: ["Sri Bijay Kumar Das", "Smt. Minati Das"],
       blessing: "With the loving blessings of the Das Parivar",
     },
     odiaLine: "|| ବସୁଧୈବ କୁଟୁମ୍ବକମ୍ ||",
