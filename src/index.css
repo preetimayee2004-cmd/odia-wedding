@@ -464,10 +464,10 @@
 }
 
 /* the vine */
-.ev-vine .stem { fill: none; stroke: #2c5719; stroke-width: 5.5; stroke-linecap: round; }
-.ev-vine .stem-mid { fill: none; stroke: #467d2b; stroke-width: 3.4; stroke-linecap: round; }
-.ev-vine .stem-hl { fill: none; stroke: #b2da77; stroke-width: 1.1; stroke-linecap: round; opacity: 0.85; }
-.ev-vine .tendril { fill: none; stroke: #3f7426; stroke-width: 1.5; stroke-linecap: round; }
+.ev-vine .stem { fill: none; stroke: #557a3b; stroke-width: 2; stroke-linecap: round; }
+.ev-vine .stem-mid { fill: none; stroke: #6f9150; stroke-width: 1.1; stroke-linecap: round; }
+.ev-vine .stem-hl { fill: none; stroke: #c4dca0; stroke-width: 0.4; stroke-linecap: round; opacity: 0.6; }
+.ev-vine .tendril { fill: none; stroke: #5e7f45; stroke-width: 0.9; stroke-linecap: round; }
 .ev-vine .lf { transform-box: view-box; transform-origin: 0 0; transition: transform 0.7s var(--ev-ease), opacity 0.5s; }
 .ev-motion .ev-vine .lf:not(.on) { transform: scale(0); opacity: 0; }
 
@@ -483,26 +483,19 @@
 .ev-left .ev-col { margin-left: max(calc(var(--ev-band) + 8px), calc(24% - 107px)); }
 .ev-right .ev-col { margin-left: auto; margin-right: max(calc(var(--ev-band) + 8px), calc(24% - 107px)); }
 
-.ev-flower { position: relative; width: clamp(76px, 22vw, 92px); aspect-ratio: 1; }
-.ev-dust { position: absolute; left: -50%; top: -50%; width: 200%; height: 200%; overflow: visible; pointer-events: none; transition: opacity 1.2s 0.2s; }
+.ev-flower { position: relative; width: clamp(61px, 17.6vw, 74px); aspect-ratio: 1; }
 .ev-pop { position: relative; width: 100%; height: 100%; transition: transform 1s cubic-bezier(0.2, 0.9, 0.25, 1.15), opacity 0.7s; }
 .ev-bloom {
   display: block;
   width: 100%;
   height: 100%;
   overflow: visible;
-  filter: drop-shadow(0 9px 10px rgb(90 50 10 / 0.24)) drop-shadow(0 2px 2px rgb(90 50 10 / 0.18));
+  filter: drop-shadow(0 5px 6px rgb(90 50 10 / 0.2)) drop-shadow(0 1px 1px rgb(90 50 10 / 0.15));
 }
 .ev-motion .ev-bloom { animation: ev-sway var(--sway-d, 5s) ease-in-out var(--sway-delay, 0s) infinite alternate; }
 @keyframes ev-sway {
   from { transform: rotate(-4deg) translateX(-1px); }
   to { transform: rotate(4deg) translateX(1px); }
-}
-.ev-twinkle { transform-box: fill-box; transform-origin: center; }
-.ev-motion .ev-twinkle { animation: ev-twinkle 3.4s ease-in-out infinite; }
-@keyframes ev-twinkle {
-  0%, 100% { opacity: 0.15; transform: scale(0.45); }
-  50% { opacity: 1; transform: scale(1.1); }
 }
 
 .ev-name {
@@ -571,7 +564,6 @@
 
 /* entrance, once the flower scrolls into view */
 .ev-motion .ev-item:not(.in) .ev-pop { transform: scale(0.55) rotate(-25deg); opacity: 0; }
-.ev-motion .ev-item:not(.in) .ev-dust { opacity: 0; }
 .ev-motion .ev-name,
 .ev-motion .ev-odia,
 .ev-motion .ev-toggle { transition: opacity 0.7s, transform 0.7s var(--ev-ease), background 0.2s, box-shadow 0.2s; }
@@ -672,8 +664,7 @@
 @media (prefers-reduced-motion: reduce) {
   .site-petal,
   .site-petal svg,
-  .ev-bloom,
-  .ev-twinkle {
+  .ev-bloom {
     animation: none !important;
   }
 }

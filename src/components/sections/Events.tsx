@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type RefObject } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
 import { flushSync } from "react-dom";
 import { wedding, type WeddingEvent } from "@/config/wedding";
 import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { smoothScrollTo } from "@/lib/scroll";
 import { showPlaceholders } from "@/lib/placeholders";
 import { Pending } from "@/components/ui/Pending";
-import { EVENT_ART_DEFS, FLOWER_IDS, dustMarkup, rng } from "@/components/art/eventVineArt";
+import { EVENT_ART_DEFS, FLOWER_IDS, rng } from "@/components/art/eventVineArt";
 
 /**
  * Section — Wedding Events.
@@ -28,7 +28,6 @@ export function Events() {
   const [onScreen, setOnScreen] = useState(false);
 
   useVine(timelineRef, vineRef, itemRefs, reduced);
-  const dust = useMemo(() => items.map((_, i) => dustMarkup(i)), [items]);
 
   // flowers bloom as they scroll into view
   useEffect(() => {
@@ -118,7 +117,6 @@ export function Events() {
               >
                 <div className="ev-col">
                   <div className="ev-flower" data-index={i}>
-                    <svg className="ev-dust" viewBox="-120 -120 240 240" aria-hidden dangerouslySetInnerHTML={{ __html: dust[i] }} />
                     <div className="ev-pop">
                       <svg className="ev-bloom" viewBox="-60 -60 120 120" aria-hidden>
                         <use href={`#${FLOWER_IDS[i % FLOWER_IDS.length]}`} />
@@ -327,6 +325,14 @@ function useVine(
         leaf(si, t, -52, scale);
         leaf(si, t + 0.01, 52, scale * 0.92);
       };
+      const bud = (si: number, t: number, side: number) => {
+        const p = bez(segs[si], t);
+        const th = deg(bezTan(segs[si], t));
+        bits.push({
+          len: lenAt(si, t),
+          svg: `<g transform="translate(${f1(p[0])} ${f1(p[1])}) rotate(${f1(th + 90 + side * 35)})"><use href="#ev-bud" class="lf"/></g>`,
+        });
+      };
       const tendril = (si: number, t: number, side: number) => {
         const p = bez(segs[si], t);
         const th = deg(bezTan(segs[si], t));
@@ -335,15 +341,18 @@ function useVine(
           svg: `<g transform="translate(${f1(p[0])} ${f1(p[1])}) rotate(${f1(th + 180 + side * 70)})"><path class="tendril lf" d="M0 0c7-1 15-5 16-12 1-6-6-9-9-4-2 3 1 6 4 4"/></g>`,
         });
       };
-      pair(0, 0.5, 1.05);
+      pair(0, 0.5, 0.85);
+      bud(0, 0.3, 1);
       for (let si = 1; si < segs.length - 1; si++) {
-        pair(si, 0.62, 0.78);
-        tendril(si, 0.72, si % 2 ? 1 : -1);
-        pair(si, 0.86, 1.1);
+        const side = si % 2 ? 1 : -1;
+        bud(si, 0.42, side);
+        pair(si, 0.6, 0.7);
+        tendril(si, 0.72, side);
+        pair(si, 0.86, 0.85);
       }
       const last = segs.length - 1;
-      pair(last, 0.4, 0.82);
-      leaf(last, 0.78, -55, 0.75);
+      pair(last, 0.4, 0.7);
+      leaf(last, 0.78, -55, 0.65);
       {
         const p = segs[last][3];
         const th = deg(bezTan(segs[last], 1));
