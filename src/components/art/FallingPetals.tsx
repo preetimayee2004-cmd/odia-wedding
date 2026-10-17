@@ -26,7 +26,7 @@ export function FallingPetals() {
 
   const petals = useMemo(() => {
     const R = rng(77);
-    return Array.from({ length: 16 }, (_, k) => {
+    return Array.from({ length: 7 }, (_, k) => {
       const d = 13 + R() * 11;
       return {
         rose: k % 2 === 0,

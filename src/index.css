@@ -149,11 +149,24 @@
   }
 
   /* Every section after the couple card (Wedding Events excepted) sits on the
-     page cream with faint white flowers, set once on the box around them. */
+     page cream with faint white flowers, set once on the box around them: a
+     barely-there watermark (about a third of their drawn strength), and only
+     along the outer edges, fading out well before the text in the middle. */
   .page-flowers {
     background-color: rgb(var(--page));
+    isolation: isolate; /* keeps the flower layer behind the sections' content */
+  }
+  .page-flowers::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
     background-image: url("/art/gallery-flowers.svg");
     background-size: 280px auto;
+    opacity: 0.32;
+    -webkit-mask-image: linear-gradient(to right, #000 0%, #000 9%, transparent 21%, transparent 79%, #000 91%, #000 100%);
+    mask-image: linear-gradient(to right, #000 0%, #000 9%, transparent 21%, transparent 79%, #000 91%, #000 100%);
   }
 
   /* ── Typography roles (sizes and colours from the variables above) ── */
