@@ -1,14 +1,11 @@
-import { useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useRef, type CSSProperties, type ReactNode } from "react";
 import { wedding, type TravelMode } from "@/config/wedding";
 import { useInView } from "@/hooks/useInView";
 import { showPlaceholders } from "@/lib/placeholders";
 import { EASE } from "@/lib/motion";
 import { directionsUrl } from "@/lib/maps";
 import { formatVenueDate, parseVenueDateTime } from "@/lib/venueTime";
-import { KalashPin } from "@/components/art/Kalash";
-import { GoldDivider } from "@/components/ui/GoldDivider";
 import { Pending } from "@/components/ui/Pending";
-import { Sheet } from "@/components/ui/Sheet";
 import { Dock } from "@/components/ui/Dock";
 
 const ART = "/art/venue";
@@ -18,27 +15,23 @@ const GOLD = "#B8893A";
 const INK = "var(--c-text)";
 const ICON = "#F3D98C"; // the gold of the icons on their maroon medallions
 
-const mapSearch = (q: string) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
-
-/** Each stop's painting: one scale and one treatment for all three, centred. */
+/** Each stop's painting: one scale and one treatment for both, centred. */
 const PAINTING = "mx-auto block h-auto w-[84%] max-w-[19rem]";
 
 /**
  * Section 10 — Venue & Accommodation, after the couple's design.
  * A narrow editorial column between the side bands on the flowered cream.
- * Three stops, each the same way round — a painting, then a header (gold
+ * Two stops, each the same way round — a painting, then a header (gold
  * medallion, rule, number, title, tagline), then its details:
  * 01 The Venue (the Jagannath temple), 02 Getting Here (the beach at Puri;
- * by air, by train, local transport), 03 Where to Stay (a seaside hotel).
- * A small dashed route with a pin links one stop to the next, a tiny plane
- * on the first. "Travel Guide" opens the Atithi Culture & Style Guide.
- * Ends with Jay Jagannath and a faint wheel-and-temple sketch.
+ * by air, by train, local transport). A small dashed route with a pin and a
+ * tiny plane links them. Ends with Jay Jagannath and a faint
+ * wheel-and-temple sketch.
  */
 export function VenueTravel() {
-  const { eyebrow, heading, intro, gettingHere, stay, closing } = wedding.travel;
+  const { eyebrow, heading, intro, gettingHere, closing } = wedding.travel;
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { threshold: 0.05 });
-  const [guideOpen, setGuideOpen] = useState(false);
 
   const fade = (delay: number): CSSProperties => ({
     opacity: inView ? 1 : 0,
@@ -96,50 +89,6 @@ export function VenueTravel() {
                 </li>
               ))}
             </ul>
-            <div className="mt-5">
-              <PillButton onClick={() => setGuideOpen(true)} dialog>
-                Travel Guide
-              </PillButton>
-            </div>
-          </div>
-        </div>
-
-        <Connector />
-
-        {/* 03 — Where to Stay */}
-        <div style={fade(300)}>
-          <img src={`${ART}/hotel.webp`} width={470} height={350} alt="A seaside hotel among palm trees, with a pool" loading="lazy" decoding="async" className={PAINTING} />
-          <div className="mt-6">
-            <StopHeading number="03" title={stay.title} tagline={stay.tagline} icon="hotel" />
-            <p className="t-body mt-4">{stay.intro}</p>
-            <ul className="mt-3 divide-y divide-dashed divide-[#E3CFA4] border-y border-dashed border-[#E3CFA4]">
-              {stay.hotels.map((h) => (
-                <li key={h.name} className="flex min-h-[4.25rem] items-center gap-3 py-2.5">
-                  <Medallion icon="bed" small />
-                  <div className="min-w-0 flex-1">
-                    <p className="font-serif text-[19px] font-semibold leading-tight" style={{ color: INK }}>
-                      {h.name}
-                    </p>
-                    <p className="t-body text-[17px] leading-snug" style={{ color: "var(--c-muted)" }}>
-                      {h.area}
-                    </p>
-                  </div>
-                  <a
-                    href={mapSearch(`${h.name}, ${h.area}, Bhubaneswar`)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="t-button inline-flex min-h-11 shrink-0 items-center gap-1 whitespace-nowrap pl-1 text-[11px]"
-                    style={{ color: ROUTE }}
-                  >
-                    Map <span aria-hidden>↗</span>
-                    <span className="sr-only">for {h.name} (opens in a new tab)</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-5">
-              <PillButton href={mapSearch(`Hotels near ${wedding.venue.name ?? "the venue"}, Bhubaneswar`)}>View Hotel Options</PillButton>
-            </div>
           </div>
         </div>
 
@@ -153,10 +102,6 @@ export function VenueTravel() {
 
       {/* The faint wheel-and-temple sketch in the corner */}
       <img src={`${ART}/sketch.webp`} width={172} height={200} alt="" aria-hidden loading="lazy" decoding="async" className="pointer-events-none absolute bottom-0 w-[20%] max-w-[6rem] opacity-70" style={{ right: "calc(100% * 35 / 768 + 6px)" }} />
-
-      <Sheet open={guideOpen} onClose={() => setGuideOpen(false)} label={wedding.atithi.button}>
-        <AtithiGuide />
-      </Sheet>
     </section>
   );
 }
@@ -279,29 +224,24 @@ function InfoRow({ icon, children }: { icon: "pin" | "calendar"; children: React
   );
 }
 
-/** A slim pill with a gold edge, as in the design: a link or a button. */
-function PillButton({ href, onClick, dialog = false, children }: { href?: string; onClick?: () => void; dialog?: boolean; children: ReactNode }) {
-  const cls =
-    "t-button inline-flex min-h-11 items-center gap-2 rounded-full border border-[#C9A86A] bg-[#FFFAF1]/80 px-6 text-[12px] shadow-[0_6px_14px_-10px_rgb(110_70_20/0.5)] transition-transform duration-200 ease-silk active:scale-[0.98]";
-  const inner = (
-    <>
+/** A slim pill link with a gold edge, as in the design. */
+function PillButton({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="t-button inline-flex min-h-11 items-center gap-2 rounded-full border border-[#C9A86A] bg-[#FFFAF1]/80 px-6 text-[12px] shadow-[0_6px_14px_-10px_rgb(110_70_20/0.5)] transition-transform duration-200 ease-silk active:scale-[0.98]"
+      style={{ color: ROUTE }}
+    >
       {children}
       <span aria-hidden>↗</span>
-    </>
-  );
-  return href ? (
-    <a href={href} target="_blank" rel="noopener noreferrer" className={cls} style={{ color: ROUTE }}>
-      {inner}
       <span className="sr-only">(opens in a new tab)</span>
     </a>
-  ) : (
-    <button type="button" onClick={onClick} aria-haspopup={dialog ? "dialog" : undefined} className={cls} style={{ color: ROUTE }}>
-      {inner}
-    </button>
   );
 }
 
-type MedallionIcon = "temple" | "plane" | "hotel" | "train" | "car" | "bed";
+type MedallionIcon = "temple" | "plane" | "train" | "car";
 
 /** A medallion filled in maroon: a gold ring within a dotted gold ring, small ornaments at its points, and a gold icon. */
 function Medallion({ icon, small = false }: { icon: MedallionIcon; small?: boolean }) {
@@ -336,14 +276,6 @@ const MEDALLION_ICONS: Record<MedallionIcon, ReactNode> = {
     </>
   ),
   plane: <path d="M-1.5-12C-1.5-14 1.5-14 1.5-12V-3L12 3.5V6.5L1.5 3V9L5 11.5V13.5L0 12 -5 13.5V11.5L-1.5 9V3L-12 6.5V3.5L-1.5-3Z" fill={ICON} stroke="none" />,
-  hotel: (
-    <>
-      <path d="M-9 13V-11H9V13" />
-      <path d="M-13 13H13" />
-      <path d="M-5-7h2M3-7h2M-5-2h2M3-2h2M-5 3h2M3 3h2" strokeWidth="1.8" />
-      <path d="M-2.5 13V8H2.5V13" />
-    </>
-  ),
   train: (
     <>
       <rect x="-7.5" y="-11" width="15" height="17" rx="3.5" />
@@ -355,12 +287,6 @@ const MEDALLION_ICONS: Record<MedallionIcon, ReactNode> = {
       <path d="M-11 5V0C-11-1.5-10-2.5-8.6-2.7L-5-3.3-1.5-8C-1-8.6 0-9 1-9H6C7-9 8-8.5 8.5-7.7L11-3.3C12.5-3 13-2 13-.5V5Z" />
       <circle cx="-6" cy="6" r="2.6" fill={MAROON} />
       <circle cx="7" cy="6" r="2.6" fill={MAROON} />
-    </>
-  ),
-  bed: (
-    <>
-      <path d="M-11 9V-7M-11 4H11V9M11 4V0C11-2 9.5-3 8-3H-3V4" />
-      <circle cx="-6.5" cy="-0.5" r="2.2" />
     </>
   ),
 };
@@ -416,40 +342,6 @@ function Connector({ plane = false }: { plane?: boolean }) {
           />
         )}
       </svg>
-    </div>
-  );
-}
-
-/** The pop-up: colours to wear, Odisha's handlooms, and places to see. */
-function AtithiGuide() {
-  const { button, intro, sections } = wedding.atithi;
-  return (
-    <div>
-      <div className="text-center">
-        <KalashPin className="mx-auto h-12 w-auto" />
-        <h3 className="t-heading mt-2">{button}</h3>
-        <p className="t-body mx-auto mt-2 max-w-[20rem] text-ink-soft">{intro}</p>
-        <GoldDivider className="mt-4" />
-      </div>
-
-      <div className="mt-6 space-y-7">
-        {sections.map((s) => (
-          <section key={s.title} aria-label={s.title}>
-            <h4 className="text-[1.5rem]">{s.title}</h4>
-            <p className="t-body mt-1">{s.text}</p>
-            {s.items.length > 0 && (
-              <ul className="mt-3 space-y-2.5">
-                {s.items.map((item) => (
-                  <li key={item.name} className="rounded-xl border border-gold/35 bg-cream-light px-4 py-3 t-body">
-                    <span className="block font-display text-[1.1rem] font-semibold leading-snug text-sindoor">{item.name}</span>
-                    {item.text}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        ))}
-      </div>
     </div>
   );
 }

@@ -181,18 +181,12 @@ export interface WeddingConfig {
      */
     photos: Array<{ src: string; alt: string; tall?: boolean; focus?: string }>;
   };
-  /** "The Wedding Journey": the venue, getting here, and where to stay. */
+  /** "The Wedding Journey": the venue and getting here. */
   travel: {
     eyebrow: string;
     heading: string;
     intro: string;
     gettingHere: { title: string; tagline: string; intro: string; modes: TravelMode[] };
-    stay: {
-      title: string;
-      tagline: string;
-      intro: string;
-      hotels: Array<{ name: string; area: string }>;
-    };
     /** At the foot of the section, e.g. "Jay Jagannath". */
     closing: string;
   };
@@ -271,16 +265,6 @@ export interface WeddingConfig {
     odiaLine: string | null;
     /** Optional website credit, e.g. "Made with love by …". */
     credit: string | null;
-  };
-  /** The "Atithi Culture & Style Guide" pop-up in Venue, Travel & Stay. */
-  atithi: {
-    button: string;
-    intro: string;
-    sections: Array<{
-      title: string;
-      text: string;
-      items: Array<{ name: string; text: string }>;
-    }>;
   };
   venue: {
     name: string | null;
@@ -555,16 +539,6 @@ export const wedding: WeddingConfig = {
         { kind: "local", title: "Local Transport", place: "Mo Bus, auto-rickshaw and taxi", detail: "All run across the city." },
       ],
     },
-    stay: {
-      title: "Where to Stay",
-      tagline: "A comfortable stay for our loved ones",
-      intro: "Hotels in Bhubaneswar, from the Airports Authority of India's hotel listing:",
-      hotels: [
-        { name: "Hotel Kalinga Ashok", area: "Gautam Nagar" },
-        { name: "Swosti Grand", area: "Near the railway station" },
-        { name: "Hotel Trident", area: "CB-1, Nayapalli" },
-      ],
-    },
     closing: "Jay Jagannath",
   },
   wishes: {
@@ -648,38 +622,6 @@ export const wedding: WeddingConfig = {
     quote: "Your presence will make our celebration complete.",
     odiaLine: "|| ପ୍ରେମ ଓ ପବିତ୍ର ବନ୍ଧନ ||",
     credit: null,
-  },
-  // General guidance for guests — the family may edit any of it.
-  atithi: {
-    button: "Atithi Culture & Style Guide",
-    intro: "A few notes to help you dress for the celebrations, and to enjoy Odisha if you make a holiday of it.",
-    sections: [
-      {
-        title: "Wedding colours",
-        text: "Bright, festive colours are warmly welcomed: red, maroon, gold, yellow, orange and green. Many Odia families avoid all-white or all-black outfits at a wedding.",
-        items: [],
-      },
-      {
-        title: "Wear Odisha's handlooms",
-        text: "Our celebrations would love to see the state's own weaves.",
-        items: [
-          { name: "Sambalpuri", text: "Ikat (bandha) sarees, kurtas and stoles from western Odisha, the pattern dyed into the threads before weaving." },
-          { name: "Bomkai", text: "Sarees from Ganjam with richly woven borders and pallus, in cotton or silk." },
-          { name: "Khandua", text: "Silk from Nuapatna, the weave long offered to Lord Jagannath." },
-        ],
-      },
-      {
-        title: "Make a holiday of it",
-        text: "If you are staying on, a few favourite places:",
-        items: [
-          { name: "Puri Beach", text: "Golden sands by the Bay of Bengal, loveliest at sunrise." },
-          { name: "Shree Jagannath Temple, Puri", text: "The abode of Mahaprabhu. Only Hindus may enter the temple." },
-          { name: "Konark Sun Temple", text: "The 13th-century stone chariot of the Sun God, a UNESCO World Heritage Site." },
-          { name: "Raghurajpur", text: "The heritage crafts village of Pattachitra painters, near Puri." },
-          { name: "Chilika Lake", text: "Asia's largest brackish-water lagoon, home to migratory birds." },
-        ],
-      },
-    ],
   },
   venue: {
     name: "Jagannath Kalyan Mandap",
