@@ -18,6 +18,28 @@ export interface Person {
 
 /** An elder named in Gurujana Pranam. */
 /** One side of the family, as the couple's design shows it. */
+/** One person (or desk) in a Contact card. */
+export interface ContactPerson {
+  /** e.g. "Father (Kanyadana)". */
+  role: string;
+  /** With honorific; null until confirmed. */
+  name: string | null;
+  /** With country code, e.g. "+91 98765 43210"; null until confirmed. */
+  phone: string | null;
+  /** The small round icon; "person" by default. */
+  icon?: "person" | "planner" | "hotel" | "car";
+}
+
+/** A Contact card. Its id sets the colour and the art: the bride's tiara, the groom's mukut, the coordinators' kalash. */
+export interface ContactGroup {
+  id: "bride" | "groom" | "guests";
+  title: string;
+  /** In italics under the title, e.g. "Kanya Paksha". */
+  subtitle: string | null;
+  text: string;
+  people: ContactPerson[];
+}
+
 export interface FamilySide {
   /** e.g. "Parents of the Groom". */
   label: string;
@@ -230,16 +252,12 @@ export interface WeddingConfig {
   contact: {
     heading: string;
     note: string;
-    /** Message pre-filled when a guest taps WhatsApp. */
-    whatsappMessage: string;
-    people: Array<{
-      name: string;
-      /** e.g. "Bride's brother". */
-      relation: string | null;
-      /** With country code, e.g. "+91 98765 43210". */
-      phone: string;
-      whatsapp: boolean;
-    }>;
+    /**
+     * The cards, in order. A contact with a number becomes a tap-to-call link,
+     * and "Call Now" calls the first number in its card. On the live site
+     * only contacts with a number show, and a card with none is hidden.
+     */
+    groups: ContactGroup[];
   };
   thankYou: {
     /** Set large, in italic. */
@@ -589,12 +607,47 @@ export const wedding: WeddingConfig = {
     deadline: null,
   },
   contact: {
-    heading: "Get in Touch",
-    note: "For any questions about the celebrations, travel or stay, please reach out to:",
-    whatsappMessage: "Namaste! I have a question about the wedding.",
-    // Add family contacts, e.g.
-    // { name: "…", relation: "Bride's brother", phone: "+91 …", whatsapp: true },
-    people: [],
+    heading: "Contact",
+    note: "For any assistance, please reach out to the respective family members or coordinators.",
+    // Cards and roles from the couple's contact design (17 Oct 2026). The
+    // fathers' names are from the Families section; every other name and all
+    // the numbers are still to come — add them here, and remove any role that
+    // doesn't apply.
+    groups: [
+      {
+        id: "bride",
+        title: "Bride's Family Side",
+        subtitle: "Kanya Paksha",
+        text: "For wedding related queries, please contact our family members from the bride's side.",
+        people: [
+          { role: "Father (Kanyadana)", name: "Sri Bijay Kumar Das", phone: null },
+          { role: "Brother (Coordinator)", name: null, phone: null },
+          { role: "Family Coordinator", name: null, phone: null },
+        ],
+      },
+      {
+        id: "groom",
+        title: "Groom's Family Side",
+        subtitle: "Bara Paksha",
+        text: "For wedding related queries, please contact our family members from the groom's side.",
+        people: [
+          { role: "Father (Bara Paksha)", name: "Sri Debashis Mohapatra", phone: null },
+          { role: "Brother (Coordinator)", name: null, phone: null },
+          { role: "Family Coordinator", name: null, phone: null },
+        ],
+      },
+      {
+        id: "guests",
+        title: "Guest & Wedding Coordinator",
+        subtitle: "Tattwadhikari",
+        text: "For hotel, transport, travel or any on\u2011the\u2011day assistance, please reach out to our coordinators.",
+        people: [
+          { role: "Wedding Planner", name: null, phone: null, icon: "planner" },
+          { role: "Hotel Front Desk", name: null, phone: null, icon: "hotel" },
+          { role: "Transport Desk", name: null, phone: null, icon: "car" },
+        ],
+      },
+    ],
   },
   thankYou: {
     heading: "Thank You",

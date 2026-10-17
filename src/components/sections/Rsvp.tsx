@@ -9,6 +9,7 @@ import { EASE } from "@/lib/motion";
 import { showPlaceholders } from "@/lib/placeholders";
 import { formatVenueDate, parseVenueDateTime, venueDateKey } from "@/lib/venueTime";
 import { AcceptPlaque, LotusConfirm, RiceShower } from "@/components/art/RsvpArt";
+import { hasContactNumbers } from "@/components/sections/Contact";
 
 const SAVED_KEY = "tila:rsvp";
 const MAROON = "#7A1424";
@@ -180,7 +181,7 @@ function RsvpBody() {
               ? `Responses closed on ${deadlineDate}. Please contact the family directly.`
               : "Online responses will open soon. Meanwhile, please reach out to the family directly."}
           </p>
-          {wedding.contact.people.length > 0 && (
+          {hasContactNumbers && (
             <a href="#contact" className="t-button mt-4 inline-block text-sindoor underline underline-offset-4">
               Contact the family
             </a>
