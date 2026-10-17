@@ -9,7 +9,6 @@ import { useSpamGuard } from "@/lib/spam";
 import { Button } from "@/components/ui/Button";
 import { controlClass, Field, Honeypot } from "@/components/ui/Field";
 import { GoldDivider } from "@/components/ui/GoldDivider";
-import { Pending } from "@/components/ui/Pending";
 import { Sheet } from "@/components/ui/Sheet";
 
 const PAGE = 20;
@@ -25,11 +24,32 @@ const LANTERN_CLEAR = 0.47;
 
 /**
  * Without a database on the live site (no Supabase keys yet), while the site
- * shows its full structure, the wall runs as a preview: a wish appears on the
- * page for its sender only, nothing is saved, and the page says so.
+ * shows its full structure, the wall runs as a preview: a wish is kept in this
+ * browser only (so it is still there after a reload), nothing reaches other
+ * guests, and the page says so.
  */
 const PREVIEW = !backendReady && showPlaceholders;
-const PREVIEW_NOTE = "Preview — wishes aren't being saved yet; yours shows here on this device only.";
+const PREVIEW_NOTE = "Preview — wishes aren't saved online yet; yours are kept on this device only.";
+const PREVIEW_STORE = "tila:preview-wishes";
+
+/** The sample wishes that fill empty cards while placeholders are on (never counted). */
+const SAMPLES: Wish[] = showPlaceholders ? wedding.wishes.samples.map((s, i) => ({ id: `sample-${i}`, name: s.name, message: s.message, created_at: "" })) : [];
+
+const isWish = (w: unknown): w is Wish => {
+  const o = w as Wish | null;
+  return !!o && typeof o.id === "string" && typeof o.message === "string" && typeof o.created_at === "string" && (o.name === null || typeof o.name === "string");
+};
+
+/** This browser's preview wishes, newest first; empty if storage is unavailable. */
+function readPreviewWishes(): Wish[] {
+  if (!PREVIEW) return [];
+  try {
+    const v: unknown = JSON.parse(localStorage.getItem(PREVIEW_STORE) ?? "[]");
+    return Array.isArray(v) ? v.filter(isWish).slice(0, 200) : [];
+  } catch {
+    return [];
+  }
+}
 
 const shortDate = (iso: string) => new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short" }).format(new Date(iso));
 
@@ -60,8 +80,17 @@ function WishingWallSection() {
   const [preview, setPreview] = useState<Wish[] | null>(backendReady ? null : []);
   const [total, setTotal] = useState(0);
   const [loadFailed, setLoadFailed] = useState(false);
-  const [mine, setMine] = useState<Wish[]>([]); // the preview's own wishes, unsaved
+  const [mine, setMine] = useState<Wish[]>(readPreviewWishes); // the preview's own wishes, kept in this browser
   const [wallOpen, setWallOpen] = useState(false);
+
+  useEffect(() => {
+    if (!PREVIEW) return;
+    try {
+      localStorage.setItem(PREVIEW_STORE, JSON.stringify(mine));
+    } catch {
+      // storage unavailable (private window, blocked): the wishes stay for this visit
+    }
+  }, [mine]);
 
   const loadPreview = useCallback(async () => {
     setLoadFailed(false);
@@ -111,12 +140,12 @@ function WishingWallSection() {
       return;
     }
     if (PREVIEW) {
-      // Shown on this page only — nothing is saved, and the note says so.
+      // Kept in this browser only — nothing reaches other guests, and the note says so.
       setMine((p) => [{ ...wish, created_at: new Date().toISOString() }, ...p]);
       pendingId.current = newId();
       setMessage("");
       setStatus("saved");
-      setStatusText("Thank you! Your wish is shown above — in this preview it isn't saved yet.");
+      setStatusText("Thank you! Your wish is on the wall — in this preview it's kept on this device only.");
       return;
     }
     if (guard.coolingDown()) {
@@ -151,7 +180,10 @@ function WishingWallSection() {
     }
   };
 
-  const shown = [...mine, ...(preview ?? [])].slice(0, previewCount);
+  const real = [...mine, ...(preview ?? [])].slice(0, previewCount);
+  // sample wishes fill any empty cards, so the wall always shows its three
+  const fill = SAMPLES.slice(0, Math.max(0, previewCount - real.length));
+  const shown = [...real, ...fill];
   const allCount = mine.length + total;
 
   const fade = (delay = 0) => ({
@@ -222,19 +254,6 @@ function WishingWallSection() {
                 </li>
               ))}
             </ul>
-          ) : showPlaceholders ? (
-            <ul aria-label="Recent wishes" className="space-y-3">
-              {[0, 1, 2].map((k) => (
-                <li key={k}>
-                  <Pending label="Wishes from guests will appear here">
-                    <div className="px-3 py-2 text-left">
-                      <p className="font-serif text-[18px] font-semibold">A guest&rsquo;s name</p>
-                      <p className="t-quote text-[17px]">Their wish for the couple will appear here.</p>
-                    </div>
-                  </Pending>
-                </li>
-              ))}
-            </ul>
           ) : (
             <p className="t-quote text-center">Be the first to leave a blessing.</p>
           )}
@@ -299,7 +318,7 @@ function WishingWallSection() {
       </div>
 
       <Sheet open={wallOpen} onClose={() => setWallOpen(false)} label="All wishes">
-        {wallOpen && <AllWishes local={mine} />}
+        {wallOpen && <AllWishes local={mine} fill={fill} />}
       </Sheet>
     </section>
   );
@@ -320,7 +339,7 @@ function WishCard({ wish }: { wish: Wish }) {
         <span className="min-w-0 flex-1 truncate font-serif text-[18px] font-semibold" style={{ color: MAROON }}>
           {wish.name ?? "A well-wisher"}
         </span>
-        <span className="t-note shrink-0">{shortDate(wish.created_at)}</span>
+        {wish.created_at && <span className="t-note shrink-0">{shortDate(wish.created_at)}</span>}
       </figcaption>
       <blockquote className="t-quote mt-1 text-[17px] leading-snug" style={{ color: "var(--c-text)" }}>
         {wish.message}
@@ -329,8 +348,11 @@ function WishCard({ wish }: { wish: Wish }) {
   );
 }
 
-/** Every wish, a page at a time (in the preview, only this visitor's own). */
-function AllWishes({ local }: { local: Wish[] }) {
+/**
+ * Every wish, a page at a time (in the preview, this browser's own), then the
+ * sample wishes the wall is showing, if any.
+ */
+function AllWishes({ local, fill }: { local: Wish[]; fill: Wish[] }) {
   const [items, setItems] = useState<Wish[]>([]);
   const [total, setTotal] = useState<number | null>(backendReady ? null : 0);
   const [state, setState] = useState<"loading" | "ready" | "error">(backendReady ? "loading" : "ready");
@@ -351,7 +373,7 @@ function AllWishes({ local }: { local: Wish[] }) {
     if (backendReady) void loadMore(0);
   }, [loadMore]);
 
-  const all = [...local, ...items];
+  const all = [...local, ...items, ...fill];
   const count = local.length + (total ?? 0);
 
   return (
@@ -359,7 +381,7 @@ function AllWishes({ local }: { local: Wish[] }) {
       <h3 className="t-heading text-center" style={{ color: MAROON }}>
         All Wishes
       </h3>
-      {total !== null && (
+      {total !== null && (count > 0 || fill.length === 0) && (
         <p className="t-note mt-1 text-center">
           {count} {count === 1 ? "wish" : "wishes"}
         </p>

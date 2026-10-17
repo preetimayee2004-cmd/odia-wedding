@@ -192,6 +192,13 @@ export interface WeddingConfig {
     /** How many recent wishes show on the page; the rest open in "View All Wishes". */
     previewCount: number;
     maxLength: number;
+    /**
+     * SAMPLE wishes that fill the wall's cards until enough real ones arrive,
+     * so it is never blank. Shown only while placeholders are on
+     * (site.showPlaceholders), never counted, and gone once the wall has
+     * `previewCount` real wishes.
+     */
+    samples: { name: string; message: string }[];
   };
   rsvp: {
     /** The section's heading, as on every section. */
@@ -549,6 +556,12 @@ export const wedding: WeddingConfig = {
     requireApproval: false,
     previewCount: 3,
     maxLength: 280,
+    // SAMPLE — not from real guests; replaced by real wishes as they arrive.
+    samples: [
+      { name: "A dear friend", message: "Wishing you both a lifetime of love, laughter and togetherness." },
+      { name: "With love, family", message: "May Lord Jagannath bless your union with joy, health and prosperity." },
+      { name: "A well-wisher", message: "Best wishes on this wonderful journey, as you build your new lives together." },
+    ],
   },
   rsvp: {
     heading: "Kindly RSVP",
