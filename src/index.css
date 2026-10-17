@@ -507,44 +507,46 @@
   text-shadow: 0 0 6px rgb(var(--page)), 0 0 12px rgb(var(--page));
 }
 
+/* the details button: a thin gold outline on the page cream, no shadow, a maroon label; the label is centred
+   under the name, the chevron sits in the right padding */
 .ev-toggle {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  min-height: 36px;
-  margin-top: 13px;
-  padding: 0 14px 0 17px;
-  border: 1px solid var(--ev-gold-soft);
+  justify-content: center;
+  min-height: 32px;
+  margin-top: 12px;
+  padding: 0 23px;
+  border: 1px solid var(--ev-gold);
   border-radius: 999px;
-  background: #fffaf1;
-  color: var(--ev-ink);
-  font: 500 var(--fs-button)/1 var(--font-ui);
-  letter-spacing: 1.4px;
+  background: rgb(var(--page)); /* the page cream: reads as no fill, but hides the vine behind the label */
+  color: var(--ev-red);
+  font: 500 10.5px/1 var(--font-ui);
+  letter-spacing: 1px;
   text-transform: uppercase;
   white-space: nowrap;
   cursor: pointer;
-  box-shadow: 0 8px 18px -10px rgb(110 70 20 / 0.45), inset 0 1px 0 #fff;
-  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+  transition: border-color 0.2s, transform 0.15s;
 }
-.ev-toggle::before { content: ""; position: absolute; inset: -4px 0; } /* keeps a 44px tap target */
-.ev-toggle:hover { background: #fff5e3; }
+.ev-toggle span { margin-right: -1px; } /* cancels the trailing letter-spacing */
+.ev-toggle::before { content: ""; position: absolute; inset: -6px 0; } /* keeps a 44px tap target */
+@media (hover: hover) { .ev-toggle:hover { border-color: var(--ev-red); } }
 .ev-toggle:active { transform: scale(0.97); }
 .ev-toggle:focus-visible { outline: 2px solid var(--ev-gold-ink); outline-offset: 3px; }
-.ev-toggle svg { width: 12px; height: 12px; color: var(--ev-gold-ink); transition: transform 0.45s var(--ev-ease); }
+.ev-toggle svg { position: absolute; right: 9px; top: 50%; width: 10px; height: 10px; margin-top: -5px; color: var(--ev-red); transition: transform 0.45s var(--ev-ease); }
 .ev-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
 
 /* entrance, once the flower scrolls into view */
 .ev-motion .ev-item:not(.in) .ev-pop { transform: scale(0.55) rotate(-25deg); opacity: 0; }
 .ev-motion .ev-name,
 .ev-motion .ev-odia,
-.ev-motion .ev-toggle { transition: opacity 0.7s, transform 0.7s var(--ev-ease), background 0.2s, box-shadow 0.2s; }
+.ev-motion .ev-toggle { transition: opacity 0.7s, transform 0.7s var(--ev-ease), border-color 0.2s; }
 .ev-motion .ev-item:not(.in) .ev-name,
 .ev-motion .ev-item:not(.in) .ev-odia,
 .ev-motion .ev-item:not(.in) .ev-toggle { opacity: 0; transform: translateY(12px); }
 .ev-motion .ev-item.in .ev-name { transition-delay: 0.25s; }
 .ev-motion .ev-item.in .ev-odia { transition-delay: 0.35s; }
-.ev-motion .ev-item.in .ev-toggle { transition-delay: 0.45s, 0.45s, 0s, 0s; }
+.ev-motion .ev-item.in .ev-toggle { transition-delay: 0.45s, 0.45s, 0s; }
 
 /* the details card */
 .ev-details {
