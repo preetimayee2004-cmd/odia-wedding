@@ -8,25 +8,39 @@ import { showPlaceholders } from "@/lib/placeholders";
 import { useSpamGuard } from "@/lib/spam";
 import { Button } from "@/components/ui/Button";
 import { controlClass, Field, Honeypot } from "@/components/ui/Field";
+import { GoldDivider } from "@/components/ui/GoldDivider";
+import { Pending } from "@/components/ui/Pending";
 import { Sheet } from "@/components/ui/Sheet";
 
 const PAGE = 20;
-const GOLD = "#A6782C";
-const TEXT = "#2B1A14";
 const MAROON = "#7A1424";
+const GOLD_LINE = "#D2B478";
 const TEXT_SOFT = "#6B4A3A";
-const TILTS = [-1.2, 0.8, -0.5, 1.1];
-
-const shortDate = (iso: string) =>
-  new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short" }).format(new Date(iso));
+const LANTERNS = { src: "/art/wishes/lanterns.webp", w: 716, h: 476 };
+/**
+ * Where the inner four lanterns end, as a share of the artwork's width: the
+ * heading starts below them, between the two longest at the edges.
+ */
+const LANTERN_CLEAR = 0.47;
 
 /**
- * Section 09 — Blessings Wall (The Ananda Bazar).
- * On the page's ochre cream, the blessings sit in a horizontal carousel of
- * talapatra (palm-leaf) manuscripts, ink-etched and tied with thread. When a
- * guest sends a blessing, a tiny marigold drops onto their leaf.
- * Without a storage backend it is hidden, or (while placeholders are on)
- * shown with the form closed.
+ * Without a database on the live site (no Supabase keys yet), while the site
+ * shows its full structure, the wall runs as a preview: a wish appears on the
+ * page for its sender only, nothing is saved, and the page says so.
+ */
+const PREVIEW = !backendReady && showPlaceholders;
+const PREVIEW_NOTE = "Preview — wishes aren't being saved yet; yours shows here on this device only.";
+
+const shortDate = (iso: string) => new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short" }).format(new Date(iso));
+
+/**
+ * Section 09 — The Wishing Wall.
+ * Between the side bands on the flowered cream, under the couple's
+ * colourful hanging lanterns: "Blessings • Love • Togetherness", the heading,
+ * a line of blessing, the three latest wishes on light cream cards (each
+ * with a small maroon heart), "View All Wishes" for the rest, and a form to
+ * leave a blessing. Hidden on the live site until there is somewhere to save
+ * wishes, unless the site is showing its full structure (then a preview).
  */
 export function WishingWall() {
   if (!backendReady && !showPlaceholders) return null;
@@ -36,18 +50,18 @@ export function WishingWall() {
 type Status = "idle" | "saving" | "saved" | "error";
 
 function WishingWallSection() {
-  const { eyebrow, heading, odiaHeading, allowAnonymous, requireApproval, previewCount, maxLength } = wedding.wishes;
+  const { eyebrow, heading, quote, subtitle, formHeading, formText, allowAnonymous, requireApproval, previewCount, maxLength } = wedding.wishes;
   const { guestName, isPersonalized } = useGuest();
 
   const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { threshold: 0.1 });
-  const carouselRef = useRef<HTMLUListElement>(null);
+  const inView = useInView(ref, { threshold: 0.08 });
 
-  // Wall
+  // The wall
   const [preview, setPreview] = useState<Wish[] | null>(backendReady ? null : []);
   const [total, setTotal] = useState(0);
   const [loadFailed, setLoadFailed] = useState(false);
-  const [marigoldOn, setMarigoldOn] = useState<string | null>(null);
+  const [mine, setMine] = useState<Wish[]>([]); // the preview's own wishes, unsaved
+  const [wallOpen, setWallOpen] = useState(false);
 
   const loadPreview = useCallback(async () => {
     setLoadFailed(false);
@@ -64,15 +78,7 @@ function WishingWallSection() {
     if (inView && preview === null) void loadPreview();
   }, [inView, preview, loadPreview]);
 
-  // Bring the guest's own leaf into view; the marigold drops once it is there.
-  useEffect(() => {
-    if (!marigoldOn) return;
-    const carousel = carouselRef.current;
-    carousel?.scrollTo({ left: 0, behavior: "smooth" });
-    carousel?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }, [marigoldOn]);
-
-  // Form
+  // The form
   const [name, setName] = useState(isPersonalized ? guestName : "");
   const [message, setMessage] = useState("");
   const [trap, setTrap] = useState("");
@@ -96,10 +102,21 @@ function WishingWallSection() {
     setErrors(next);
     if (next.name || next.message) return;
 
+    const wish = { id: pendingId.current, name: n || null, message: m };
+
     if (trap) {
       // Almost certainly a bot: look successful, store nothing.
       setStatus("saved");
       setStatusText("Thank you for your blessing.");
+      return;
+    }
+    if (PREVIEW) {
+      // Shown on this page only — nothing is saved, and the note says so.
+      setMine((p) => [{ ...wish, created_at: new Date().toISOString() }, ...p]);
+      pendingId.current = newId();
+      setMessage("");
+      setStatus("saved");
+      setStatusText("Thank you! Your wish is shown above — in this preview it isn't saved yet.");
       return;
     }
     if (guard.coolingDown()) {
@@ -114,7 +131,6 @@ function WishingWallSection() {
     }
 
     setStatus("saving");
-    const wish = { id: pendingId.current, name: n || null, message: m };
     try {
       await addWish(wish);
       guard.markSubmitted();
@@ -128,7 +144,6 @@ function WishingWallSection() {
         // Shown only now that it is saved.
         setPreview((p) => [{ ...wish, created_at: new Date().toISOString() }, ...(p ?? [])].slice(0, previewCount));
         setTotal((t) => t + 1);
-        setMarigoldOn(wish.id);
       }
     } catch (err) {
       setStatus("error");
@@ -136,204 +151,189 @@ function WishingWallSection() {
     }
   };
 
-  const [wallOpen, setWallOpen] = useState(false);
+  const shown = [...mine, ...(preview ?? [])].slice(0, previewCount);
+  const allCount = mine.length + total;
 
-  const fade = (delay = 0) => ({ opacity: inView ? 1 : 0, transition: `opacity 900ms ${EASE.silk} ${delay}ms` });
+  const fade = (delay = 0) => ({
+    opacity: inView ? 1 : 0,
+    transform: inView ? "none" : "translateY(10px)",
+    transition: `opacity 900ms ${EASE.silk} ${delay}ms, transform 1000ms ${EASE.silk} ${delay}ms`,
+  });
 
   return (
     <section
       ref={ref}
       id="wishes"
       aria-labelledby="wishes-heading"
-      className="overflow-hidden py-[var(--section-y)]"
-      style={{ color: TEXT }}
+      className="relative overflow-hidden pb-[var(--section-y)]"
+      style={{ color: "var(--c-text)", paddingInline: "calc(100% * 35 / 768)" }}
     >
-      <div className="px-[var(--gutter)] text-center" style={fade()}>
-        <p className="t-label" style={{ color: GOLD }}>
-          {eyebrow}
-        </p>
-        {odiaHeading && (
-          <p lang="or" className="odia mt-2 text-base" style={{ color: TEXT_SOFT }}>
-            {odiaHeading}
-          </p>
-        )}
-        <h2 id="wishes-heading" className="t-heading mt-1" style={{ color: MAROON }}>
-          {heading}
-        </h2>
-        <p className="t-body mx-auto mt-2 max-w-[19rem]" style={{ color: TEXT_SOFT }}>
-          Leave a few words of love and blessing for the couple.
-        </p>
-      </div>
+      {/* The couple's lanterns, hanging from the top of the section; the heading sits below the middle two */}
+      <div className="relative">
+        <img
+          src={LANTERNS.src}
+          width={LANTERNS.w}
+          height={LANTERNS.h}
+          alt=""
+          aria-hidden
+          decoding="async"
+          loading="lazy"
+          className="pointer-events-none absolute inset-x-0 top-0 h-auto w-full"
+          style={{ opacity: inView ? 1 : 0, transition: `opacity 1200ms ${EASE.silk}` }}
+        />
 
-      {/* The carousel of palm leaves */}
-      <div className="mt-8" aria-live="polite" aria-busy={preview === null && !loadFailed}>
-        {loadFailed ? (
-          <p className="px-[var(--gutter)] text-center text-sm" style={{ color: TEXT_SOFT }}>
-            We couldn&rsquo;t load the blessings just now.{" "}
-            <button type="button" onClick={loadPreview} className="t-button underline underline-offset-4" style={{ color: TEXT }}>
-              Try again
-            </button>
-          </p>
-        ) : preview === null ? (
-          <p className="text-center text-sm" style={{ color: TEXT_SOFT }}>
-            Gathering blessings…
-          </p>
-        ) : preview.length === 0 ? (
-          <p className="t-quote text-center">
-            Be the first to leave a blessing.
-          </p>
-        ) : (
-          <ul
-            ref={carouselRef}
-            aria-label="Blessings"
-            className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-[var(--gutter)] px-[var(--gutter)] pb-6 pt-8 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-            {preview.map((w, i) => (
-              <li
-                key={w.id}
-                className="w-[16.5rem] shrink-0 snap-start"
-                style={{
-                  opacity: inView ? 1 : 0,
-                  transform: inView ? `rotate(${TILTS[i % 4]}deg)` : `rotate(${TILTS[i % 4] * 4}deg) translateX(40px)`,
-                  transition: `opacity 700ms ${EASE.silk} ${200 + Math.min(i, 4) * 140}ms, transform 1000ms ${EASE.silk} ${200 + Math.min(i, 4) * 140}ms`,
-                }}
-              >
-                <PalmLeaf wish={w} marigold={w.id === marigoldOn} />
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {preview && preview.length > 1 && (
-          <p aria-hidden className="t-label text-center">
-            Swipe for more blessings →
-          </p>
-        )}
-
-        {total > (preview?.length ?? 0) && (
-          <div className="mt-6 text-center">
-            <button
-              type="button"
-              onClick={() => setWallOpen(true)}
-              aria-haspopup="dialog"
-              className="t-button inline-flex min-h-12 items-center rounded-full border px-7"
-              style={{ color: TEXT, borderColor: `${GOLD}99` }}
-            >
-              View All Blessings ({total})
-            </button>
+        <div className="relative mx-auto max-w-[24rem] px-5 text-center" style={{ paddingTop: `${LANTERN_CLEAR * 100}%` /* % of the lanterns' width */ }}>
+          <div style={fade(100)}>
+            <p className="t-label whitespace-nowrap text-[9px] tracking-[1px]" style={{ color: "#8C2A20" }}>
+              {eyebrow}
+            </p>
+            <h2 id="wishes-heading" className="mt-1.5 font-serif text-[32px] font-semibold leading-tight" style={{ color: MAROON }}>
+              {heading}
+            </h2>
+            <p className="t-quote mx-auto mt-3 max-w-[16.5rem] text-[19px]" style={{ color: "#5A3B2A" }}>
+              {quote}
+            </p>
           </div>
-        )}
+        </div>
       </div>
 
-      {/* The form */}
-      <form
-        onSubmit={onSubmit}
-        onFocus={guard.touch}
-        onInput={guard.touch}
-        noValidate
-        className="relative mx-[var(--gutter)] mt-10 rounded-2xl border bg-[#F6EEDC] p-5 text-ink"
-        style={{ ...fade(300), borderColor: `${GOLD}66` }}
-      >
-        <fieldset disabled={!backendReady} className="space-y-4 disabled:opacity-60">
-        <h3 className="t-event text-center">Send your blessing</h3>
-        {!backendReady && <p className="t-note text-center">Blessings open soon.</p>}
-        <Field label="Your name" error={errors.name} optional={allowAnonymous}>
-          <input
-            className={controlClass}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            autoComplete="name"
-            maxLength={60}
-          />
-        </Field>
-        <Field label="Your wish" error={errors.message} hint={`${message.length}/${maxLength}`}>
-          <textarea
-            className={`${controlClass} min-h-28 resize-y`}
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            maxLength={maxLength}
-            rows={4}
-          />
-        </Field>
-        <Honeypot value={trap} onChange={setTrap} />
+      <div className="relative mx-auto max-w-[24rem] px-5">
+        {/* The three latest wishes */}
+        <p className="t-label mt-8 text-center text-[11px]" style={fade(200)}>
+          {subtitle}
+        </p>
+        <div className="mt-4" aria-live="polite" aria-busy={preview === null && !loadFailed} style={fade(250)}>
+          {loadFailed ? (
+            <p className="t-body text-center" style={{ color: TEXT_SOFT }}>
+              We couldn&rsquo;t load the wishes just now.{" "}
+              <button type="button" onClick={loadPreview} className="t-button underline underline-offset-4">
+                Try again
+              </button>
+            </p>
+          ) : preview === null ? (
+            <p className="t-body text-center" style={{ color: TEXT_SOFT }}>
+              Gathering wishes…
+            </p>
+          ) : shown.length > 0 ? (
+            <ul aria-label="Recent wishes" className="space-y-3">
+              {shown.map((w) => (
+                <li key={w.id}>
+                  <WishCard wish={w} />
+                </li>
+              ))}
+            </ul>
+          ) : showPlaceholders ? (
+            <ul aria-label="Recent wishes" className="space-y-3">
+              {[0, 1, 2].map((k) => (
+                <li key={k}>
+                  <Pending label="Wishes from guests will appear here">
+                    <div className="px-3 py-2 text-left">
+                      <p className="font-serif text-[18px] font-semibold">A guest&rsquo;s name</p>
+                      <p className="t-quote text-[17px]">Their wish for the couple will appear here.</p>
+                    </div>
+                  </Pending>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="t-quote text-center">Be the first to leave a blessing.</p>
+          )}
 
-        <div className="pt-1 text-center">
-          <Button variant="gold" type="submit" disabled={status === "saving"} className="w-full">
-            {status === "saving" ? "Sending…" : "Send Blessing"}
-          </Button>
+          {(allCount > 0 || showPlaceholders) && (
+            <div className="mt-5 text-center">
+              <button
+                type="button"
+                onClick={() => setWallOpen(true)}
+                aria-haspopup="dialog"
+                className="t-button inline-flex min-h-11 items-center gap-2 rounded-full border border-[#C9A86A] bg-[#FFFAF1]/80 px-6 text-[12px] shadow-[0_6px_14px_-10px_rgb(110_70_20/0.5)]"
+                style={{ color: "#8C2A20" }}
+              >
+                View All Wishes{allCount > 0 ? ` (${allCount})` : ""}
+              </button>
+            </div>
+          )}
         </div>
 
-        <p
-          role="status"
-          className={`t-note min-h-5 text-center ${status === "error" ? "font-medium text-sindoor" : "text-ink"}`}
-        >
-          {status === "saved" || status === "error" ? statusText : ""}
-        </p>
-        </fieldset>
-      </form>
+        <GoldDivider className="mt-9" />
 
-      <Sheet open={wallOpen} onClose={() => setWallOpen(false)} label="All blessings">
-        {wallOpen && <AllWishes />}
+        {/* Leave your blessings */}
+        <form onSubmit={onSubmit} onFocus={guard.touch} onInput={guard.touch} noValidate className="relative mt-8" style={fade(300)}>
+          <div className="text-center">
+            <h3 className="font-serif text-[28px] font-semibold leading-tight" style={{ color: MAROON }}>
+              {formHeading}
+            </h3>
+            <p className="t-body mt-1.5" style={{ color: TEXT_SOFT }}>
+              {formText}
+            </p>
+          </div>
+
+          <div className="mt-5 space-y-4">
+            <Field label="Your name" error={errors.name} optional={allowAnonymous}>
+              <input className={controlClass} value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" maxLength={60} />
+            </Field>
+            <Field label="Your wish" error={errors.message} hint={`${message.length}/${maxLength}`}>
+              <textarea className={`${controlClass} min-h-28 resize-y`} value={message} onChange={(e) => setMessage(e.target.value)} maxLength={maxLength} rows={4} />
+            </Field>
+            <Honeypot value={trap} onChange={setTrap} />
+
+            <button
+              type="submit"
+              disabled={status === "saving"}
+              className="t-button inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full text-[#FBF3E4] shadow-[0_10px_20px_-12px_rgb(122_20_36/0.8)] transition duration-200 ease-silk active:scale-[0.98] disabled:opacity-60"
+              style={{ backgroundColor: MAROON }}
+            >
+              {status === "saving" ? (
+                "Sending…"
+              ) : (
+                <>
+                  <span aria-hidden>♡</span> Leave a Wish
+                </>
+              )}
+            </button>
+
+            <p role="status" className={`t-note min-h-5 text-center ${status === "error" ? "font-medium text-sindoor" : ""}`}>
+              {status === "saved" || status === "error" ? statusText : PREVIEW ? PREVIEW_NOTE : ""}
+            </p>
+          </div>
+        </form>
+      </div>
+
+      <Sheet open={wallOpen} onClose={() => setWallOpen(false)} label="All wishes">
+        {wallOpen && <AllWishes local={mine} />}
       </Sheet>
     </section>
   );
 }
 
-/** One blessing, ink-etched on a palm leaf tied with thread through its two holes. */
-function PalmLeaf({ wish, marigold = false }: { wish: Wish; marigold?: boolean }) {
+/** One wish on a light cream card: a thin gold border with small corner marks, a maroon heart, the name and the words. */
+function WishCard({ wish }: { wish: Wish }) {
   return (
-    <figure className="talapatra relative flex min-h-[9.5rem] flex-col justify-center px-9 py-5 text-left">
-      {/* Binding holes, and the thread through the first */}
-      {["left-[13px]", "right-[13px]"].map((pos) => (
-        <span
-          key={pos}
-          aria-hidden
-          className={`absolute top-1/2 h-[7px] w-[7px] -translate-y-1/2 rounded-full bg-[#3E260C] shadow-[inset_0_1px_1px_rgb(0_0_0/0.6)] ${pos}`}
-        />
+    <figure className="relative rounded-xl border bg-[#FFFBF3]/90 px-4 pb-3.5 pt-3 text-left" style={{ borderColor: GOLD_LINE }}>
+      {/* corner marks */}
+      {["left-1.5 top-1.5 border-l border-t", "right-1.5 top-1.5 border-r border-t", "bottom-1.5 left-1.5 border-b border-l", "bottom-1.5 right-1.5 border-b border-r"].map((c) => (
+        <span key={c} aria-hidden className={`absolute h-2.5 w-2.5 ${c}`} style={{ borderColor: "#B8893A" }} />
       ))}
-      <span aria-hidden className="absolute left-[16px] top-1/2 h-10 w-[1.5px] origin-top rotate-[16deg] rounded-full bg-[#8E2A1F]/80" />
-      <blockquote className="t-quote leading-snug text-[#3A2208]">“{wish.message}”</blockquote>
-      <figcaption className="t-note mt-2 text-[#5C3B12]">
-        — {wish.name ?? "A well-wisher"} · {shortDate(wish.created_at)}
+      <figcaption className="flex items-center gap-2">
+        <svg viewBox="0 0 24 22" className="h-3.5 w-3.5 shrink-0" aria-hidden fill={MAROON}>
+          <path d="M12 20C6 15.6 2 12 2 7.5 2 4.4 4.4 2 7.4 2c2 0 3.6 1.1 4.6 2.7C13 3.1 14.6 2 16.6 2 19.6 2 22 4.4 22 7.5 22 12 18 15.6 12 20Z" />
+        </svg>
+        <span className="min-w-0 flex-1 truncate font-serif text-[18px] font-semibold" style={{ color: MAROON }}>
+          {wish.name ?? "A well-wisher"}
+        </span>
+        <span className="t-note shrink-0">{shortDate(wish.created_at)}</span>
       </figcaption>
-      {marigold && <Marigold className="marigold-drop absolute -top-5 right-5 h-11 w-11" />}
+      <blockquote className="t-quote mt-1 text-[17px] leading-snug" style={{ color: "var(--c-text)" }}>
+        {wish.message}
+      </blockquote>
     </figure>
   );
 }
 
-/** A tiny marigold (genda), layered orange petals around a deep centre. */
-function Marigold({ className = "" }: { className?: string }) {
-  const ring = (n: number, r: number, len: number, fill: string, offset = 0) =>
-    Array.from({ length: n }, (_, i) => (
-      <ellipse
-        key={`${r}-${i}`}
-        cx="24"
-        cy={24 - r}
-        rx={len * 0.55}
-        ry={len}
-        fill={fill}
-        stroke="#B4520C"
-        strokeWidth="0.5"
-        transform={`rotate(${(i * 360) / n + offset} 24 24)`}
-      />
-    ));
-  return (
-    <svg viewBox="0 0 48 48" className={className} style={{ animationDelay: "550ms" }} role="img" aria-label="A marigold for your blessing">
-      <g style={{ filter: "drop-shadow(0 3px 2px rgb(0 0 0 / 0.35))" }}>
-        {ring(14, 13, 8, "#F08A0E")}
-        {ring(12, 9, 6.5, "#F7A21B", 15)}
-        {ring(10, 5.5, 5, "#FDBB2D", 8)}
-        <circle cx="24" cy="24" r="4" fill="#C2570A" />
-        <circle cx="23" cy="23" r="1.4" fill="#FFD36A" opacity="0.8" />
-      </g>
-    </svg>
-  );
-}
-
-function AllWishes() {
+/** Every wish, a page at a time (in the preview, only this visitor's own). */
+function AllWishes({ local }: { local: Wish[] }) {
   const [items, setItems] = useState<Wish[]>([]);
-  const [total, setTotal] = useState<number | null>(null);
-  const [state, setState] = useState<"loading" | "ready" | "error">("loading");
+  const [total, setTotal] = useState<number | null>(backendReady ? null : 0);
+  const [state, setState] = useState<"loading" | "ready" | "error">(backendReady ? "loading" : "ready");
 
   const loadMore = useCallback(async (offset: number) => {
     setState("loading");
@@ -348,21 +348,34 @@ function AllWishes() {
   }, []);
 
   useEffect(() => {
-    void loadMore(0);
+    if (backendReady) void loadMore(0);
   }, [loadMore]);
+
+  const all = [...local, ...items];
+  const count = local.length + (total ?? 0);
 
   return (
     <div>
-      <h3 className="t-heading text-center">All Blessings</h3>
-      {total !== null && <p className="mt-1 text-center text-xs text-ink-soft">{total} blessings</p>}
-      <ul className="mt-6 space-y-3">
-        {items.map((w) => (
-          <li key={w.id}>
-            <PalmLeaf wish={w} />
-          </li>
-        ))}
-      </ul>
-      <div className="mt-6 text-center text-sm text-ink-soft" aria-live="polite">
+      <h3 className="t-heading text-center" style={{ color: MAROON }}>
+        All Wishes
+      </h3>
+      {total !== null && (
+        <p className="t-note mt-1 text-center">
+          {count} {count === 1 ? "wish" : "wishes"}
+        </p>
+      )}
+      {all.length > 0 ? (
+        <ul className="mt-6 space-y-3">
+          {all.map((w) => (
+            <li key={w.id}>
+              <WishCard wish={w} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        state === "ready" && <p className="t-quote mt-6 text-center">No wishes yet — be the first to leave one.</p>
+      )}
+      <div className="t-note mt-6 text-center" aria-live="polite">
         {state === "loading" && "Loading…"}
         {state === "error" && (
           <button type="button" onClick={() => loadMore(items.length)} className="t-button text-sindoor underline underline-offset-4">

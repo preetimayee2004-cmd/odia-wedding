@@ -179,11 +179,17 @@ export interface WeddingConfig {
   wishes: {
     eyebrow: string;
     heading: string;
-    odiaHeading: string | null;
+    /** A line of blessing under the heading. */
+    quote: string;
+    /** Over the recent wishes. */
+    subtitle: string;
+    formHeading: string;
+    formText: string;
     /** Let guests leave a wish without a name (shown as "A well-wisher"). */
     allowAnonymous: boolean;
     /** Must match the database: true when new wishes default to 'pending'. */
     requireApproval: boolean;
+    /** How many recent wishes show on the page; the rest open in "View All Wishes". */
     previewCount: number;
     maxLength: number;
   };
@@ -533,12 +539,15 @@ export const wedding: WeddingConfig = {
     closing: "Jay Jagannath",
   },
   wishes: {
-    eyebrow: "The Ananda Bazar",
-    heading: "Blessings Wall",
-    odiaHeading: "ଶୁଭେଚ୍ଛା",
+    eyebrow: "Blessings • Love • Togetherness",
+    heading: "The Wishing Wall",
+    quote: "May every blessing bloom into a lifetime of love, joy and togetherness.",
+    subtitle: "Wishes from our loved ones",
+    formHeading: "Leave Your Blessings",
+    formText: "Share a heartfelt message for the happy couple.",
     allowAnonymous: false,
     requireApproval: false,
-    previewCount: 10,
+    previewCount: 3,
     maxLength: 280,
   },
   rsvp: {

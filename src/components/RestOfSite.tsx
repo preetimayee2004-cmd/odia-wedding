@@ -41,7 +41,8 @@ export default function RestOfSite() {
         <Gallery />
         <SectionSeparator emblem="gold" />
         <Rsvp />
-        <SectionSeparator emblem="lotus" />
+        {/* in the RSVP's bottom padding, clear of the wishing wall's hanging lanterns */}
+        <SectionSeparator emblem="lotus" pull="up" />
         <WishingWall />
         <SectionSeparator emblem="chakra" />
         <VenueTravel />
