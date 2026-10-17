@@ -201,20 +201,19 @@ export interface WeddingConfig {
     heading: string;
     /** A line of blessing under the heading. */
     quote: string;
-    /** Heading of the "Leave a Blessing" sheet. */
+    /** Over the note box, e.g. "Write your note". */
     formHeading: string;
-    formText: string;
     /** Who the guest is to the couple, offered as choices in the form. */
     relations: string[];
     /** Let guests leave a wish without a name (shown as "A well-wisher"). */
     allowAnonymous: boolean;
     /** Must match the database: true when new wishes default to 'pending' (see the 20261017 migration). */
     requireApproval: boolean;
-    /** How many recent wishes show as palm-leaf strips; the rest open in "View all wishes". */
+    /** How many recent wishes show as notes on the wall; the rest open in "View all wishes". */
     previewCount: number;
     maxLength: number;
     /**
-     * SAMPLE wishes that fill the strips until enough approved ones arrive,
+     * SAMPLE wishes that fill the notes until enough approved ones arrive,
      * so the wall is never blank. Shown only while placeholders are on
      * (site.showPlaceholders), and gone once the wall has `previewCount`
      * real wishes.
@@ -572,8 +571,7 @@ export const wedding: WeddingConfig = {
   wishes: {
     heading: "The Wishing Wall",
     quote: "May every blessing bloom into a lifetime of love, joy and togetherness.",
-    formHeading: "Leave a Blessing",
-    formText: "Share a heartfelt message for the happy couple.",
+    formHeading: "Write your note",
     relations: ["Family", "Friend", "Elder", "Colleague"],
     allowAnonymous: false,
     requireApproval: true,
