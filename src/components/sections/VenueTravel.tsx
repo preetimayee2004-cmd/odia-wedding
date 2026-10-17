@@ -15,6 +15,7 @@ const MAROON = "#7A1424";
 const ROUTE = "#8C2A20"; // the dashed route, its icons and the small ornaments
 const GOLD = "#B8893A";
 const INK = "var(--c-text)";
+const ICON = "#F3D98C"; // the gold of the icons on their maroon medallions
 
 const mapSearch = (q: string) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
 
@@ -22,7 +23,7 @@ const mapSearch = (q: string) => `https://www.google.com/maps/search/?api=1&quer
 const PAINTING = "mx-auto block h-auto w-[84%] max-w-[19rem]";
 
 /**
- * Section 10 — The Wedding Journey, after the couple's design.
+ * Section 10 — Venue & Accommodation, after the couple's design.
  * A narrow editorial column between the side bands on the flowered cream.
  * Three stops, each the same way round — a painting, then a header (gold
  * medallion, rule, number, title, tagline), then its details:
@@ -300,11 +301,12 @@ function PillButton({ href, onClick, dialog = false, children }: { href?: string
 
 type MedallionIcon = "temple" | "plane" | "hotel" | "train" | "car" | "bed";
 
-/** A gold medallion: a ring within a dotted ring, small ornaments at its points, and an icon. */
+/** A medallion filled in maroon: a gold ring within a dotted gold ring, small ornaments at its points, and a gold icon. */
 function Medallion({ icon, small = false }: { icon: MedallionIcon; small?: boolean }) {
   return (
     <svg viewBox="0 0 64 64" className={small ? "h-10 w-10 shrink-0" : "h-14 w-14 shrink-0"} aria-hidden>
-      <circle cx="32" cy="32" r="24" fill="#FFFAF1" fillOpacity="0.7" stroke={GOLD} strokeWidth="1.3" />
+      <circle cx="32" cy="32" r="24" fill={MAROON} stroke={GOLD} strokeWidth="1.6" />
+      <circle cx="32" cy="32" r="21.5" fill="none" stroke={ICON} strokeWidth="0.5" opacity="0.55" />
       <circle cx="32" cy="32" r="28" fill="none" stroke={GOLD} strokeWidth="0.8" strokeDasharray="0.1 3.2" strokeLinecap="round" />
       {!small && (
         <g fill={GOLD}>
@@ -313,7 +315,7 @@ function Medallion({ icon, small = false }: { icon: MedallionIcon; small?: boole
           <path d="M0.5 32 3 30.4 5.5 32 3 33.6Z" />
         </g>
       )}
-      <g transform="translate(32 32)" fill="none" stroke={ROUTE} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <g transform="translate(32 32)" fill="none" stroke={ICON} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         {MEDALLION_ICONS[icon]}
       </g>
     </svg>
@@ -331,7 +333,7 @@ const MEDALLION_ICONS: Record<MedallionIcon, ReactNode> = {
       <path d="M-8 10V13H8V10" />
     </>
   ),
-  plane: <path d="M-1.5-12C-1.5-14 1.5-14 1.5-12V-3L12 3.5V6.5L1.5 3V9L5 11.5V13.5L0 12 -5 13.5V11.5L-1.5 9V3L-12 6.5V3.5L-1.5-3Z" fill={ROUTE} stroke="none" />,
+  plane: <path d="M-1.5-12C-1.5-14 1.5-14 1.5-12V-3L12 3.5V6.5L1.5 3V9L5 11.5V13.5L0 12 -5 13.5V11.5L-1.5 9V3L-12 6.5V3.5L-1.5-3Z" fill={ICON} stroke="none" />,
   hotel: (
     <>
       <path d="M-9 13V-11H9V13" />
@@ -349,8 +351,8 @@ const MEDALLION_ICONS: Record<MedallionIcon, ReactNode> = {
   car: (
     <>
       <path d="M-11 5V0C-11-1.5-10-2.5-8.6-2.7L-5-3.3-1.5-8C-1-8.6 0-9 1-9H6C7-9 8-8.5 8.5-7.7L11-3.3C12.5-3 13-2 13-.5V5Z" />
-      <circle cx="-6" cy="6" r="2.6" fill="#FFFAF1" />
-      <circle cx="7" cy="6" r="2.6" fill="#FFFAF1" />
+      <circle cx="-6" cy="6" r="2.6" fill={MAROON} />
+      <circle cx="7" cy="6" r="2.6" fill={MAROON} />
     </>
   ),
   bed: (

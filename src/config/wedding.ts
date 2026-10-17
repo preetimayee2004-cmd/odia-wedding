@@ -237,8 +237,10 @@ export interface WeddingConfig {
     message: string;
   };
   footer: {
-    /** Short closing blessing or sign-off. */
-    blessing: string;
+    /** The closing line, typed out as the guest arrives. */
+    quote: string;
+    /** Under it, e.g. "|| ପ୍ରେମ ଓ ପବିତ୍ର ବନ୍ଧନ ||". */
+    odiaLine: string | null;
     /** Optional website credit, e.g. "Made with love by …". */
     credit: string | null;
   };
@@ -478,7 +480,7 @@ export const wedding: WeddingConfig = {
       {
         id: "reception",
         name: "Reception",
-        odiaName: "ରିସେପ୍ସନ୍",
+        odiaName: "ପ୍ରୀତିଭୋଜନ",
         date: "Sunday, 14 February 2027",
         when: "8:00 PM onwards",
         about: "An evening of dinner and celebration to welcome the newly-weds. Come and bless the couple.",
@@ -506,7 +508,7 @@ export const wedding: WeddingConfig = {
   // added once the mandap's exact address is confirmed.
   travel: {
     eyebrow: "Your presence makes our journey more special",
-    heading: "The Wedding Journey",
+    heading: "Venue & Accommodation",
     intro: "From the temple city of Bhubaneswar to the hearts of our loved ones — here's everything you need to know.",
     gettingHere: {
       title: "Getting Here",
@@ -575,7 +577,8 @@ export const wedding: WeddingConfig = {
     message: "Your presence made our special day more beautiful, more joyful and more meaningful.",
   },
   footer: {
-    blessing: "With love and gratitude",
+    quote: "Your presence will make our celebration complete.",
+    odiaLine: "|| ପ୍ରେମ ଓ ପବିତ୍ର ବନ୍ଧନ ||",
     credit: null,
   },
   // General guidance for guests — the family may edit any of it.

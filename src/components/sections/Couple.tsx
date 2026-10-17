@@ -82,7 +82,7 @@ export function Couple() {
                   transition: `opacity 600ms ${EASE.silk}, transform 600ms ${EASE.silk}`,
                 }}
               >
-                <GaneshaIcon className="h-[60px] w-auto" />
+                <GaneshaIcon className="mt-4 h-[46px] w-auto" />
               </div>
               <p className="t-blessing mt-2.5 whitespace-nowrap" style={rise(250)}>
                 {couple.invocation}

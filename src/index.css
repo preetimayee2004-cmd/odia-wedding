@@ -774,3 +774,14 @@
 @media (prefers-reduced-motion: reduce) {
   .rice-grain { display: none; }
 }
+
+/* The closing note's typing caret: steady while typing, then a slow blink. */
+.caret-blink {
+  animation: caret-blink 1.1s steps(1, end) infinite;
+}
+@keyframes caret-blink {
+  50% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .caret-blink { animation: none; }
+}

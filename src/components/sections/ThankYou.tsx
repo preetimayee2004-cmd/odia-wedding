@@ -27,12 +27,11 @@ function shortPlace(): string | null {
 
 /**
  * Section 11 — Thank You, after the couple's design.
- * Between the side bands on the page cream: mango leaves with jasmine and
- * hanging brass bells in the top corners; Lord Jagannath between red
+ * Between the side bands on the page cream: Lord Jagannath between red
  * filigree; "Thank You" in italic and a line of gratitude; the couple at
  * Puri, looking out over the sea to the Jagannath temple; their hashtag, the
- * date and the place, between Pattachitra fish-and-wheel motifs. The
- * decorations and the painting are cut from the couple's design.
+ * date and the place. The ornament and the painting are cut from the
+ * couple's design.
  */
 export function ThankYou() {
   const { heading, message } = wedding.thankYou;
@@ -49,11 +48,7 @@ export function ThankYou() {
   });
 
   return (
-    <section ref={ref} id="thank-you" aria-labelledby="thanks-heading" className="relative overflow-hidden pb-16 text-center" style={{ paddingInline: `calc(${BAND} + 16px)` }}>
-      {/* Mango leaves, jasmine and brass bells in the top corners */}
-      <img src={`${ART}/garland-left.webp`} width={294} height={226} alt="" aria-hidden decoding="async" loading="lazy" className="pointer-events-none absolute top-0 w-[32%]" style={{ left: BAND }} />
-      <img src={`${ART}/garland-right.webp`} width={290} height={226} alt="" aria-hidden decoding="async" loading="lazy" className="pointer-events-none absolute top-0 w-[32%]" style={{ right: BAND }} />
-
+    <section ref={ref} id="thank-you" aria-labelledby="thanks-heading" className="relative overflow-hidden pb-6 text-center" style={{ paddingInline: `calc(${BAND} + 16px)` }}>
       <div className="relative mx-auto max-w-[24rem] pt-12">
         {/* Lord Jagannath between red filigree */}
         <img src={`${ART}/ornament.webp`} width={290} height={120} alt="Lord Jagannath" decoding="async" loading="lazy" className="mx-auto block h-auto w-[10.5rem]" style={rise(0)} />
@@ -108,10 +103,6 @@ export function ThankYou() {
           </p>
         )}
       </div>
-
-      {/* Pattachitra fish and Konark wheels in the bottom corners */}
-      <img src={`${ART}/motif-left.webp`} width={164} height={226} alt="" aria-hidden decoding="async" loading="lazy" className="pointer-events-none absolute bottom-0 w-[24%]" style={{ left: `calc(${BAND} + 4px)` }} />
-      <img src={`${ART}/motif-right.webp`} width={164} height={226} alt="" aria-hidden decoding="async" loading="lazy" className="pointer-events-none absolute bottom-0 w-[24%]" style={{ right: `calc(${BAND} + 4px)` }} />
     </section>
   );
 }
