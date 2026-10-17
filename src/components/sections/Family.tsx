@@ -4,14 +4,16 @@ import { useInView } from "@/hooks/useInView";
 import { EASE } from "@/lib/motion";
 import { showPlaceholders } from "@/lib/placeholders";
 import { LotusIcon } from "@/components/art/Ganesha";
+import { GoldFrame } from "@/components/art/GoldFrame";
 import { Pending } from "@/components/ui/Pending";
 
 const GOLD = "#B8893A";
 const GOLD_TEXT = "#A6782C";
 const MAROON = "#7A1424";
-const NAME = "#7A1F1F";
-const BLESSING = "#8A6A4A";
-const LABEL = "#7A3B2E";
+const NAME = "#6B1C2C";
+const BLESSING = "#5A2630";
+const LABEL_GOLD = "#A9843A";
+const LABEL_MAROON = "#7A2335";
 /** A veil of the page cream over the background flowers (about 30% of them show), soft at the section's top and bottom. */
 const VEIL = "linear-gradient(to bottom, rgb(var(--page) / 0), rgb(var(--page) / 0.7) 72px, rgb(var(--page) / 0.7) calc(100% - 72px), rgb(var(--page) / 0))";
 /** The portrait's edges fade into the page. */
@@ -22,7 +24,8 @@ const PORTRAIT_MASK = "radial-gradient(ellipse 72% 68% at center, #000 60%, tran
  * A gold filigree crest over "THE FAMILIES" (gold and maroon), "Bound by
  * Love, Blessed by Family" and a lotus divider; the couple with both sets of
  * parents, its edges fading into the page; the parents of the groom and of
- * the bride one above the other, each with their family's blessing; "|| ବସୁଧୈବ
+ * the bride one above the other, each in a carved gold frame under a lotus
+ * with their family's blessing; "|| ବସୁଧୈବ
  * କୁଟୁମ୍ବକମ୍ ||" (the world is one family); and Lord Jagannath between two
  * scrolls over Jai Jagannath.
  */
@@ -71,10 +74,9 @@ export function Family() {
           />
         )}
 
-        {/* The parents of the groom, then of the bride, one above the other */}
-        <div className="mt-4" style={rise(420)}>
+        {/* The parents of the groom, then of the bride, each in a carved gold frame under a lotus */}
+        <div className="-mx-2 mt-14 space-y-16" style={rise(420)}>
           <Parents side={groom} />
-          <span aria-hidden className="mx-auto my-5 block h-px w-14" style={{ backgroundImage: `linear-gradient(to right, transparent, ${GOLD}, transparent)` }} />
           <Parents side={bride} />
         </div>
 
@@ -102,18 +104,28 @@ export function Family() {
 /** Keeps a title (Sri, Smt.) on the same line as the first name. */
 const withTitle = (name: string) => name.replace(/^(Sri|Shri|Smt\.?|Srimati|Late|Dr\.?)\s+/, "$1\u00A0");
 
-/** One side: "Parents of the Groom", each parent on a line of their own, and their family's blessing. */
+/**
+ * One side in its gold frame, after the couple's design: "BRIDE'S PARENTS"
+ * (gold, then maroon), the parents in large bold maroon with "&" on its own
+ * line, and their family's blessing in bold italics.
+ */
 function Parents({ side }: { side: FamilySide }) {
   const [a, b] = side.parents;
+  const [lead, ...rest] = side.label.split(" ");
   return (
-    <div>
-      <p className="t-label text-[11px] tracking-[0.14em]" style={{ color: LABEL }}>
-        {side.label}
+    <GoldFrame>
+      <p className="font-serif text-[15px] font-bold uppercase leading-none tracking-[0.04em]">
+        <span style={{ color: LABEL_GOLD }}>{lead}</span> <span style={{ color: LABEL_MAROON }}>{rest.join(" ")}</span>
       </p>
       {side.parents.length > 0 ? (
-        <p className="mt-2 font-serif text-[16.5px] font-medium leading-snug" style={{ color: NAME }}>
+        <p className="mt-2.5 font-serif text-[clamp(20px,6vw,25px)] font-bold leading-[1.15]" style={{ color: NAME }}>
           <span className="block [text-wrap:balance]">{withTitle(a)}</span>
-          {b && <span className="block [text-wrap:balance]">&amp;&nbsp;{withTitle(b)}</span>}
+          {b && (
+            <>
+              <span className="block">&amp;</span>
+              <span className="block [text-wrap:balance]">{withTitle(b)}</span>
+            </>
+          )}
         </p>
       ) : (
         showPlaceholders && (
@@ -125,11 +137,11 @@ function Parents({ side }: { side: FamilySide }) {
         )
       )}
       {side.blessing && (
-        <p className="mt-[6px] font-serif text-[13px] italic leading-snug" style={{ color: BLESSING }}>
+        <p className="mt-2.5 font-serif text-[14.5px] font-bold italic leading-snug [text-wrap:balance]" style={{ color: BLESSING }}>
           {side.blessing}
         </p>
       )}
-    </div>
+    </GoldFrame>
   );
 }
 

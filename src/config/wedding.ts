@@ -384,12 +384,12 @@ export const wedding: WeddingConfig = {
     // As the couple wrote them (17 Oct 2026), father first —
     // confirm every name and its spelling with the family before sharing.
     groom: {
-      label: "Parents of the Groom",
+      label: "Groom's Parents",
       parents: ["Sri Debashis Mohapatra", "Smt. Subhashree Mohapatra"],
       blessing: "With the loving blessings of the Mohapatra Parivar",
     },
     bride: {
-      label: "Parents of the Bride",
+      label: "Bride's Parents",
       parents: ["Sri Bijay Kumar Das", "Smt. Minati Das"],
       blessing: "With the loving blessings of the Das Parivar",
     },
