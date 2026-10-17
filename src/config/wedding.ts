@@ -203,8 +203,6 @@ export interface WeddingConfig {
     quote: string;
     /** Over the note box, e.g. "Write your note". */
     formHeading: string;
-    /** Who the guest is to the couple, offered as choices in the form. */
-    relations: string[];
     /** Let guests leave a wish without a name (shown as "A well-wisher"). */
     allowAnonymous: boolean;
     /** Must match the database: true when new wishes default to 'pending' (see the 20261017 migration). */
@@ -572,7 +570,6 @@ export const wedding: WeddingConfig = {
     heading: "The Wishing Wall",
     quote: "May every blessing bloom into a lifetime of love, joy and togetherness.",
     formHeading: "Write your note",
-    relations: ["Family", "Friend", "Elder", "Colleague"],
     allowAnonymous: false,
     requireApproval: true,
     previewCount: 3,

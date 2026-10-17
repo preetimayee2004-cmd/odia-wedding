@@ -2,7 +2,6 @@ import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, ty
 import { wedding } from "@/config/wedding";
 import { useGuest } from "@/context/GuestContext";
 import { useInView } from "@/hooks/useInView";
-import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { addWish, BackendError, backendReady, listWishes, newId, type Wish } from "@/lib/backend";
 import { EASE } from "@/lib/motion";
 import { showPlaceholders } from "@/lib/placeholders";
@@ -10,7 +9,6 @@ import { useSpamGuard } from "@/lib/spam";
 import { Button } from "@/components/ui/Button";
 import { Honeypot } from "@/components/ui/Field";
 import { Sheet } from "@/components/ui/Sheet";
-import { LotusIcon } from "@/components/art/Ganesha";
 import { Toran } from "@/components/art/Toran";
 
 const PAGE = 20;
@@ -18,11 +16,13 @@ const MAROON = "#7A1424";
 /** The note box's stroke and the Leave a Wish button. */
 const RUST = "#8A3B2C";
 const TEXT_SOFT = "#6B4A3A";
+/** Both note boxes: white, rounded, with a rust stroke. */
+const BOX =
+  "rounded-2xl border-[1.5px] bg-white text-left text-ink placeholder:text-ink-soft/55 focus:outline-none focus:shadow-[0_0_0_3px_rgb(138_59_44/0.12)] focus-within:shadow-[0_0_0_3px_rgb(138_59_44/0.12)]";
 /** The notes' papers, in turn: cream, blush, butter. */
 const PAPERS = ["#FCF7EA", "#FBE9E6", "#F8F1D5"];
 /** Each note's slight tilt, in turn. */
 const TILTS = [-0.8, 0.7, -0.4];
-const FEATURE_MS = 5000;
 
 /**
  * Without a database on the live site (no Supabase keys yet), while the site
@@ -57,10 +57,9 @@ const isOdia = (text: string) => /[଀-୿]/.test(text);
 /**
  * Section 09 — The Wishing Wall, handcrafted and Odia.
  * Under a toran of mango leaves and marigolds: the heading and a line of
- * blessing; one featured wish that changes every few seconds under a small
- * lotus; the latest wishes on notes of lined paper, each pinned with a
- * marigold; "View all wishes"; and "Write your note", a box for a name,
- * relation and blessing, with Leave a Wish. New blessings wait for the
+ * blessing; the latest wishes on notes of lined paper, each pinned with a
+ * marigold; "View all wishes"; and "Write your note", with a box for the
+ * name, a box for the blessing, and Leave a Wish. New blessings wait for the
  * couple's approval before they appear.
  */
 export function WishingWall() {
@@ -72,7 +71,6 @@ function WishingWallSection() {
   const { heading, quote, previewCount } = wedding.wishes;
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { threshold: 0.08 });
-  const reduced = usePrefersReducedMotion();
 
   // The approved wishes
   const [approved, setApproved] = useState<Wish[] | null>(backendReady ? null : []);
@@ -110,26 +108,6 @@ function WishingWallSection() {
   const fill = SAMPLES.slice(0, Math.max(0, previewCount - real.length));
   const notes = [...real, ...fill];
   const count = total + fill.length;
-
-  // The featured wish: one of the wall's, changing every few seconds with a fade
-  const [featured, setFeatured] = useState(0);
-  const [featureShown, setFeatureShown] = useState(true);
-  useEffect(() => {
-    if (!inView || reduced || notes.length < 2) return;
-    let swap = 0;
-    const t = window.setInterval(() => {
-      setFeatureShown(false);
-      swap = window.setTimeout(() => {
-        setFeatured((n) => (n + 1) % notes.length);
-        setFeatureShown(true);
-      }, 450);
-    }, FEATURE_MS);
-    return () => {
-      clearInterval(t);
-      clearTimeout(swap);
-    };
-  }, [inView, reduced, notes.length]);
-  const feature = notes[featured % Math.max(1, notes.length)];
 
   const fade = (delay = 0): CSSProperties => ({
     opacity: inView ? 1 : 0,
@@ -173,27 +151,8 @@ function WishingWallSection() {
           ) : (
             notes.length > 0 && (
               <>
-                {/* One wish, featured, changing every few seconds */}
-                {feature && (
-                  <figure className="mx-auto mt-8 min-h-[8.5rem] max-w-[19rem]" style={fade(200)}>
-                    <LotusIcon className="mx-auto h-4 w-auto" />
-                    <div style={{ opacity: featureShown ? 1 : 0, transition: `opacity 450ms ${EASE.silk}` }}>
-                      <blockquote
-                        lang={isOdia(feature.message) ? "or" : undefined}
-                        className={`mt-2.5 leading-snug ${isOdia(feature.message) ? "font-odia text-[16px]" : "font-serif text-[18px] italic"}`}
-                        style={{ color: "#4A2E1A" }}
-                      >
-                        “{feature.message}”
-                      </blockquote>
-                      <figcaption className="wish-byline mt-2 text-center">
-                        <Byline wish={feature} />
-                      </figcaption>
-                    </div>
-                  </figure>
-                )}
-
                 {/* The latest wishes, each on a note pinned with a marigold */}
-                <Notes wishes={notes} className="mt-6" style={fade(280)} />
+                <Notes wishes={notes} className="mt-8" style={fade(200)} />
               </>
             )
           )}
@@ -277,15 +236,14 @@ function MarigoldPin({ className = "" }: { className?: string }) {
 type Status = "idle" | "saving" | "sent" | "error";
 
 /**
- * "Write your note": one white box with a rust stroke holding the name, the
- * relation and the blessing (with a counter), then Leave a Wish. When sent,
- * a marigold petal rises over "Your blessing has been sent to the couple".
+ * "Write your note": a box for the name and a box for the blessing (with a
+ * counter), each white with a rust stroke, then Leave a Wish. When sent, a
+ * marigold petal rises over "Your blessing has been sent to the couple".
  */
 function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSProperties }) {
-  const { formHeading, relations, allowAnonymous, maxLength } = wedding.wishes;
+  const { formHeading, allowAnonymous, maxLength } = wedding.wishes;
   const { guestName, isPersonalized } = useGuest();
   const [name, setName] = useState(isPersonalized ? guestName : "");
-  const [relation, setRelation] = useState("");
   const [message, setMessage] = useState("");
   const [trap, setTrap] = useState("");
   const [error, setError] = useState("");
@@ -315,7 +273,7 @@ function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSPro
       return;
     }
 
-    const wish = { id: pendingId.current, name: n || null, relation: relation || null, message: m };
+    const wish = { id: pendingId.current, name: n || null, relation: null, message: m };
     const sent = () => {
       onSent({ ...wish, created_at: new Date().toISOString() });
       pendingId.current = newId();
@@ -358,33 +316,20 @@ function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSPro
         {formHeading}
       </h3>
 
-      {/* One white box: name and relation, then the blessing */}
-      <div className="mt-3 overflow-hidden rounded-2xl border-[1.5px] bg-white text-left focus-within:shadow-[0_0_0_3px_rgb(138_59_44/0.12)]" style={{ borderColor: RUST }}>
-        <div className="flex items-center border-b" style={{ borderColor: "rgb(138 59 44 / 0.25)" }}>
-          <input
-            aria-label="Your name"
-            placeholder="Your name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            autoComplete="name"
-            maxLength={60}
-            className="min-h-11 min-w-0 flex-1 bg-transparent px-4 font-sans text-[15px] text-ink placeholder:text-ink-soft/55 focus:outline-none"
-          />
-          <select
-            aria-label="Relation (optional)"
-            value={relation}
-            onChange={(e) => setRelation(e.target.value)}
-            className="min-h-11 max-w-[8.5rem] shrink-0 border-l bg-transparent pl-3 pr-2 font-sans text-[14px] focus:outline-none"
-            style={{ borderColor: "rgb(138 59 44 / 0.25)", color: relation ? "var(--c-text)" : "rgb(107 74 58 / 0.7)" }}
-          >
-            <option value="">Relation</option>
-            {relations.map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* A box for the name */}
+      <input
+        aria-label="Your name"
+        placeholder="Your name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        autoComplete="name"
+        maxLength={60}
+        className={`mt-3 block min-h-12 w-full px-4 font-sans text-[15px] ${BOX}`}
+        style={{ borderColor: RUST }}
+      />
+
+      {/* A box for the blessing */}
+      <div className={`mt-3 overflow-hidden ${BOX}`} style={{ borderColor: RUST }}>
         <textarea
           aria-label="Your blessing"
           placeholder="Write your blessing for the couple…"
