@@ -678,69 +678,92 @@
 .pv-btn:active { transform: scale(0.94); }
 .pv-btn:focus-visible { outline: 2px solid #c9a24b; outline-offset: 3px; }
 
-/* The Wishing Wall's blessing card (WishingWall.tsx WishForm): warm ivory, a
-   fine maroon border with a gold hairline inside, a small motif in each
-   corner, clear of the fields. */
+/* The Wishing Wall's form (WishingWall.tsx WishForm): a warm paper card with
+   paper-coloured fields, a gold focus ring, relation chips and Send Blessing. */
 .wish-card {
   position: relative;
-  padding: 26px 26px 28px;
-  border: 1px solid rgb(122 20 36 / 0.55);
-  border-radius: 6px;
-  background: #fffbf2;
-  box-shadow: inset 0 0 0 4px #fffbf2, inset 0 0 0 5px rgb(184 145 106 / 0.55), 0 16px 32px -20px rgb(90 50 20 / 0.45);
+  padding: 22px 16px;
+  border-radius: 16px;
+  background: #fdf7ea;
+  box-shadow: inset 0 0 0 1px rgb(184 145 63 / 0.35);
   text-align: left;
 }
-.wish-corner { position: absolute; width: 18px; height: 18px; }
-.wish-corner-tl { top: 8px; left: 8px; }
-.wish-corner-tr { top: 8px; right: 8px; transform: scaleX(-1); }
-.wish-corner-bl { bottom: 8px; left: 8px; transform: scaleY(-1); }
-.wish-corner-br { bottom: 8px; right: 8px; transform: scale(-1); }
 .wish-label {
   display: block;
-  margin-bottom: 6px;
-  font: 600 10.5px/1.2 var(--font-ui);
+  margin-bottom: 7px;
+  font: 700 10px/1.2 var(--font-ui);
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: #7a4a2a;
-  transition: color 0.25s;
+  color: #7a1f1f;
 }
-.wish-group:focus-within .wish-label { color: #7a1424; }
 .wish-field {
   display: block;
   width: 100%;
-  border: 1px solid rgb(122 20 36 / 0.3);
-  border-radius: 10px;
-  background: #fffefb;
-  color: var(--c-text);
-  transition: border-color 0.25s, box-shadow 0.35s, background-color 0.25s;
+  padding: 13px 14px;
+  border: 1px solid rgb(184 145 63 / 0.4);
+  border-radius: 12px;
+  background: #f6ead3;
+  font: 500 16px/1.4 var(--font-serif);
+  color: #4a2e1a;
+  transition: background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
 }
-@media (hover: hover) { .wish-field:hover { border-color: rgb(122 20 36 / 0.5); } }
-.wish-field:focus,
-.wish-field:focus-within { outline: none; border-color: #7a1424; background: #fff; box-shadow: 0 0 0 3px rgb(201 162 75 / 0.28); }
-.wish-input { min-height: 48px; padding: 0 14px; font: 500 18px/1.2 var(--font-serif); }
-.wish-textarea {
+.wish-field::placeholder { font-style: italic; color: #a68a68; }
+.wish-field:focus { outline: none; background: #fffaf0; border-color: #b8913f; box-shadow: 0 0 0 3px rgb(201 162 78 / 0.2); }
+.wish-textarea { min-height: 110px; resize: none; }
+.wish-chip {
+  padding: 7px 12px;
+  border: 1px solid rgb(184 145 63 / 0.45);
+  border-radius: 999px;
+  background: transparent;
+  font: 500 12px/1.1 var(--font-ui);
+  color: #8a6a4a;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.wish-chip[aria-pressed="true"] { background: #7a1f1f; border-color: #7a1f1f; color: #f7ecd6; }
+.wish-chip:focus-visible { outline: 2px solid #c9a24e; outline-offset: 2px; }
+.wish-send {
   display: block;
   width: 100%;
-  min-height: 7rem;
-  resize: none;
-  padding: 12px 14px 4px;
-  border: 0;
-  background: transparent;
-  font: italic 500 17px/1.4 var(--font-serif);
-  color: var(--c-text);
+  padding: 14px;
+  border-radius: 999px;
+  background: #7a1f1f;
+  color: #f7ecd6;
+  font: 600 12px/1.2 var(--font-ui);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: transform 150ms ease, opacity 200ms ease;
 }
-.wish-textarea:focus { outline: none; }
-.wish-input::placeholder,
-.wish-textarea::placeholder { color: rgb(107 74 58 / 0.55); }
-.wish-submit {
-  box-shadow: 0 10px 20px -12px rgb(138 59 44 / 0.8);
-  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s, background-color 0.2s;
+.wish-send:active:not(:disabled) { transform: scale(0.98); }
+.wish-send:disabled { opacity: 0.5; cursor: not-allowed; }
+.wish-send:focus-visible { outline: 2px solid #c9a24e; outline-offset: 3px; }
+/* the toast, at the foot of the screen */
+.wish-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  z-index: 80;
+  max-width: calc(100vw - 32px);
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: #7a1f1f;
+  color: #f7ecd6;
+  font: 500 13.5px/1.3 var(--font-ui);
+  text-align: center;
+  box-shadow: 0 10px 24px -12px rgb(60 15 15 / 0.6);
+  opacity: 0;
+  transform: translate(-50%, 12px);
+  pointer-events: none;
+  transition: opacity 300ms ease, transform 300ms ease;
 }
-@media (hover: hover) {
-  .wish-submit:hover:not(:disabled) { transform: translateY(-2px); background-color: #973f2f !important; box-shadow: 0 16px 26px -14px rgb(138 59 44 / 0.85); }
+.wish-toast:empty { display: none; }
+.wish-toast-on { opacity: 1; transform: translate(-50%, 0); }
+/* a newly sent blessing fades onto the wall */
+.wish-note-in { animation: wish-note-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes wish-note-in { from { opacity: 0; translate: 0 10px; } to { opacity: 1; translate: 0 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .wish-field, .wish-chip, .wish-send, .wish-toast { transition: none; }
+  .wish-note-in { animation: none; }
 }
-.wish-submit:active:not(:disabled) { transform: translateY(0) scale(0.98); box-shadow: 0 6px 12px -8px rgb(138 59 44 / 0.8); }
-.wish-submit:focus-visible { outline: 2px solid #c9a24b; outline-offset: 3px; }
 
 /* The RSVP's Accept button (Rsvp.tsx): a clear, clickable maroon button with
    a fine gold edge, its ivory label and the Odia beneath. */
@@ -776,14 +799,36 @@
   .arch-btn:hover .arch-img { transform: none; }
   .pv-img[data-dir="1"],
   .pv-img[data-dir="-1"] { animation-name: pv-in !important; }
-  .wish-submit,
   .rsvp-accept,
   .pv-btn { transition: none; }
-  .wish-submit:hover,
-  .wish-submit:active,
   .rsvp-accept:hover,
   .rsvp-accept:active { transform: none; }
 }
+
+/* The couple card: the date block's side words between thin gold lines, and Add to calendar */
+.couple-dateside {
+  display: block;
+  padding: 5px 0 5px 0.2em; /* the left padding balances the trailing letter-spacing */
+  border-top: 1px solid rgb(201 162 78 / 0.75);
+  border-bottom: 1px solid rgb(201 162 78 / 0.75);
+  font: 500 11px/1.2 var(--font-ui);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #7a5a44;
+}
+.couple-cal {
+  padding: 6px 4px;
+  color: #7a1424;
+  font: 500 14px/1 var(--font-ui);
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.1em;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  text-decoration-color: rgb(122 20 36 / 0.5);
+}
+.couple-cal:focus-visible { outline: 2px solid #c9a24e; outline-offset: 3px; border-radius: 2px; }
 
 /* The Families: a carved gold frame around each set of parents (see GoldFrame).
    The band is a gilded gradient with a row of beads along it; the panel inside
@@ -813,8 +858,13 @@
 
 /* The floating sound button arrives gently after the opening. */
 .sound-float {
-  animation: fade-in 700ms ease-out 300ms both;
+  width: 36px;
+  height: 36px;
+  animation: sound-float-in 700ms ease-out 300ms both;
 }
+@keyframes sound-float-in { from { opacity: 0; } to { opacity: 0.7; } }
+.sound-float:hover,
+.sound-float:focus-visible { opacity: 1 !important; }
 
 /* ---------- Wedding Events: a vine timeline ----------
    A green vine zigzags between flowers (marigold, champa, lotus), each with
@@ -975,64 +1025,71 @@
 .ev-motion .ev-item.in .ev-when { transition-delay: 0.4s; }
 .ev-motion .ev-item.in .ev-toggle { transition-delay: 0.45s, 0.45s, 0s; }
 
-/* the details card */
+/* the details panel: opens (300ms), then its parts fade up one after another
+   (60ms apart); closes quickly (200ms) */
 .ev-details {
   display: grid;
   grid-template-rows: 0fr;
   margin: 0 calc(var(--ev-band) + 10px);
   opacity: 0;
   visibility: hidden;
-  transition: grid-template-rows 0.5s var(--ev-ease), opacity 0.35s, visibility 0s 0.5s;
+  transition: grid-template-rows 200ms ease-in, opacity 150ms ease-in, visibility 0s 200ms;
 }
 .ev-details.open {
   grid-template-rows: 1fr;
   opacity: 1;
   visibility: visible;
-  transition: grid-template-rows 0.5s var(--ev-ease), opacity 0.45s 0.05s, visibility 0s;
+  transition: grid-template-rows 300ms var(--ev-ease), opacity 200ms ease-out, visibility 0s;
 }
 .ev-details.instant { transition: none; }
 .ev-details-inner { min-height: 0; overflow: hidden; margin: 0 -12px; }
-.ev-details-pad { padding: 0 12px 26px; } /* room for the card's shadow inside the clipped box */
-.ev-card {
-  margin-top: 18px;
-  padding: 8px 22px;
-  border: 1px solid #ecdcb6;
-  border-radius: 20px;
-  background: var(--ev-card);
-  box-shadow: 0 16px 32px -20px rgb(110 70 20 / 0.5), inset 0 0 0 4px var(--ev-card), inset 0 0 0 5px rgb(201 162 75 / 0.18);
+.ev-details-pad { padding: 0 12px 18px; }
+.evp-in { opacity: 0; transform: translateY(8px); transition: opacity 120ms ease-in, transform 120ms ease-in; }
+.ev-details.open .evp-in {
+  opacity: 1;
+  transform: none;
+  transition: opacity 360ms ease-out, transform 420ms var(--ev-ease);
+  transition-delay: calc(300ms + var(--i, 0) * 60ms);
 }
-.ev-row { padding: 13px 0 12px; text-align: left; }
-.ev-row + .ev-row { border-top: 1px dashed #e6d3a8; }
-.ev-row dt {
-  margin-bottom: 6px;
-  font: 500 var(--fs-label)/1 var(--font-ui);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--ev-gold-ink);
+.ev-details.instant .evp-in { transition: none; }
+
+.evp {
+  position: relative;
+  overflow: hidden;
+  margin-top: 16px;
+  padding: 16px 14px 14px;
+  border-radius: 18px 18px 12px 12px;
+  background: #fdf7ea;
+  box-shadow: inset 0 0 0 1px rgb(184 145 63 / 0.35);
+  text-align: left;
 }
-.ev-row dd {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--fs-value);
-  font-weight: 500;
-  line-height: 1.35;
-  white-space: pre-line;
-  color: var(--ev-ink);
+.evp-band { position: absolute; inset: 0 0 auto; height: 5px; background: repeating-linear-gradient(90deg, #7a1f1f 0 10px, #c9a24e 10px 14px); }
+.evp-mark { position: absolute; top: 14px; right: 12px; font: 700 44px/1 var(--font-odia); color: rgb(122 31 31 / 0.05); white-space: nowrap; pointer-events: none; }
+.evp-icon { position: relative; display: block; height: 46px; width: auto; margin-top: 2px; }
+.evp-chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 12px 0 0; padding: 0; list-style: none; }
+.evp-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 6px 9px; border-radius: 12px; background: rgb(201 162 78 / 0.12); text-align: center; }
+.evp-chip-icon { width: 18px; height: 18px; color: #7a1f1f; }
+.evp-value { font: 600 14.5px/1.2 var(--font-serif); color: var(--ev-ink); overflow-wrap: anywhere; }
+.evp-chip-label { font: 600 9px/1 var(--font-ui); letter-spacing: 0.16em; text-transform: uppercase; color: #a5823a; }
+.evp-about { margin: 14px 0 0; padding-left: 14px; border-left: 2px solid #c9a24e; font: italic 500 16px/1.5 var(--font-serif); color: #4a3528; }
+.evp-dress { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; }
+.evp-label { font: 600 9.5px/1 var(--font-ui); letter-spacing: 0.16em; text-transform: uppercase; color: #a5823a; }
+.evp-style { margin-top: 5px; font: 500 15px/1.35 var(--font-serif); color: var(--ev-ink); white-space: pre-line; }
+.evp-dots { display: flex; flex-shrink: 0; padding-left: 6px; }
+.evp-dots i { width: 22px; height: 22px; margin-left: -6px; border: 2px solid #fdf7ea; border-radius: 50%; box-shadow: 0 0 0 1px rgb(122 31 31 / 0.08); }
+.evp-actions { margin-top: 14px; padding-top: 14px; border-top: 1px dashed rgb(184 145 63 / 0.55); }
+.evp-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; border-radius: 999px; font: 600 12px/1 var(--font-ui); letter-spacing: 0.12em; text-transform: uppercase; transition: transform 150ms ease, background-color 200ms ease; }
+.evp-btn:active { transform: scale(0.98); }
+.evp-btn:focus-visible { outline: 2px solid #c9a24e; outline-offset: 2px; }
+.evp-btn-fill { background: #7a1f1f; color: #f7ecd6; }
+.evp-btn-line { border: 1px solid #7a1f1f; color: #7a1f1f; }
+.evp-ics { display: block; margin: 10px auto 0; padding: 4px 6px; font: 500 12px/1.2 var(--font-ui); color: #8a6a4a; text-decoration: underline; text-decoration-color: rgb(138 106 74 / 0.45); text-underline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  .ev-details,
+  .ev-details.open,
+  .evp-in,
+  .ev-details.open .evp-in { transition: none !important; }
 }
-.ev-row.about dd { font-size: var(--fs-body); color: var(--c-muted); }
-.ev-maplink {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  margin-top: 8px;
-  padding: 4px 0;
-  border-bottom: 1px solid var(--ev-gold-soft);
-  font: 500 var(--fs-button)/1 var(--font-ui);
-  letter-spacing: 1.4px;
-  text-transform: uppercase;
-  color: var(--ev-gold-ink);
-}
-.ev-maplink:hover { border-bottom-color: var(--ev-gold-ink); }
 
 /* Falling rose and marigold petals, from the couple card to the footer (art/FallingPetals.tsx) */
 .site-petal {

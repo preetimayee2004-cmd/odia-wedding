@@ -14,8 +14,6 @@ import { Toran } from "@/components/art/Toran";
 
 const PAGE = 20;
 const MAROON = "#7A1424";
-/** The Leave a Wish button. */
-const RUST = "#8A3B2C";
 const TEXT_SOFT = "#6B4A3A";
 /** The notes' papers, in turn: cream, blush, butter. */
 const PAPERS = ["#FCF7EA", "#FBE9E6", "#F8F1D5"];
@@ -76,6 +74,7 @@ function WishingWallSection() {
   const [loadFailed, setLoadFailed] = useState(false);
   // This browser's own blessings, waiting for the couple
   const [mine, setMine] = useState<Wish[]>(readMine);
+  const [freshId, setFreshId] = useState<string | null>(null); // the blessing just sent, which fades in
   const [allOpen, setAllOpen] = useState(false);
 
   const load = useCallback(async () => {
@@ -101,10 +100,13 @@ function WishingWallSection() {
     }
   }, [mine]);
 
-  const real = (approved ?? []).slice(0, previewCount);
+  // this guest's own blessings first (marked as theirs), then the approved ones
+  const own = mine.filter((w) => !(approved ?? []).some((a) => a.id === w.id));
+  const real = [...own, ...(approved ?? [])].slice(0, previewCount);
   // sample wishes fill any empty notes, so the wall is never blank
   const fill = SAMPLES.slice(0, Math.max(0, previewCount - real.length));
   const notes = [...real, ...fill];
+  const ownIds = new Set(own.map((w) => w.id));
   const count = total + fill.length;
 
   const fade = (delay = 0): CSSProperties => ({
@@ -151,7 +153,7 @@ function WishingWallSection() {
             notes.length > 0 && (
               <>
                 {/* The latest wishes, each on a note pinned with a marigold */}
-                <Notes wishes={notes} className="mt-8" style={fade(200)} />
+                <Notes wishes={notes} own={ownIds} fresh={freshId} className="mt-8" style={fade(200)} />
               </>
             )
           )}
@@ -169,7 +171,13 @@ function WishingWallSection() {
           </button>
         )}
 
-        <WishForm onSent={(w) => setMine((p) => [w, ...p])} style={fade(360)} />
+        <WishForm
+          onSent={(w) => {
+            setFreshId(w.id);
+            setMine((p) => [w, ...p]);
+          }}
+          style={fade(360)}
+        />
       </div>
 
       <Sheet open={allOpen} onClose={() => setAllOpen(false)} label="All wishes">
@@ -179,29 +187,29 @@ function WishingWallSection() {
   );
 }
 
-/** "— ANANYA · BRIDE'S COUSIN": the name in maroon, the relation softer; sample wishes add "· Example". */
-function Byline({ wish }: { wish: Wish }) {
+/** "— ANANYA · BRIDE'S COUSIN": the name in maroon, the relation softer; the guest's own wish says where it stands. */
+function Byline({ wish, own = false }: { wish: Wish; own?: boolean }) {
   return (
     <>
       <b>— {wish.name ?? "A well-wisher"}</b>
       {wish.relation && <> · {wish.relation}</>}
-      {wish.id.startsWith("sample-") && <span className="opacity-75"> · Example</span>}
+      {own && <span className="opacity-75"> · {PREVIEW ? "on this device" : "waiting for the couple"}</span>}
     </>
   );
 }
 
 /** Notes of lined paper, zig-zagging left and right down the wall. */
-function Notes({ wishes, className = "", style }: { wishes: Wish[]; className?: string; style?: CSSProperties }) {
+function Notes({ wishes, own, fresh, className = "", style }: { wishes: Wish[]; own?: ReadonlySet<string>; fresh?: string | null; className?: string; style?: CSSProperties }) {
   return (
     <ul aria-label="Wishes" className={`space-y-6 pt-3 ${className}`} style={style}>
       {wishes.map((w, i) => (
-        <li key={w.id} className={`wish-note ${i % 2 ? "ml-auto" : "mr-auto"}`} style={{ backgroundColor: PAPERS[i % PAPERS.length], transform: `rotate(${TILTS[i % TILTS.length]}deg)` }}>
+        <li key={w.id} className={`wish-note ${i % 2 ? "ml-auto" : "mr-auto"} ${w.id === fresh ? "wish-note-in" : ""}`} style={{ backgroundColor: PAPERS[i % PAPERS.length], transform: `rotate(${TILTS[i % TILTS.length]}deg)` }}>
           <MarigoldPin className="absolute left-1/2 top-[-12px] h-6 w-6 -translate-x-1/2" />
           <p lang={isOdia(w.message) ? "or" : undefined} className={`wish-note-text ${isOdia(w.message) ? "odia" : ""}`}>
             {w.message}
           </p>
           <p className="wish-byline mt-1.5 text-right">
-            <Byline wish={w} />
+            <Byline wish={w} own={own?.has(w.id)} />
           </p>
         </li>
       ))}
@@ -236,24 +244,37 @@ function MarigoldPin({ className = "" }: { className?: string }) {
 type Status = "idle" | "saving" | "sent" | "error";
 
 /**
- * "Leave Your Blessings", on a wedding blessing card: warm ivory, a fine
- * maroon border with a gold hairline inside it, and a small motif in each
- * corner (clear of the fields). Labelled boxes for the name and the blessing
- * (with its counter), then Leave a Wish. A marigold petal rises over "Your
- * blessing has been sent to the couple" only once the database has accepted
- * it; in the preview it says plainly that it is kept on this device.
+ * "Leave Your Blessings", on a warm paper card: the name, a relation chip
+ * (one may be chosen), and the blessing with its counter, in paper-coloured
+ * fields with a gold focus ring; then Send Blessing (disabled until there is
+ * a name and a blessing). Once it is accepted, a small toast says so, the
+ * form resets and the blessing fades onto the wall above. The toast only
+ * says "sent" once the database has accepted it; in the preview it says the
+ * blessing is kept on this device.
  */
 function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSProperties }) {
-  const { formHeading, allowAnonymous, maxLength } = wedding.wishes;
+  const { formHeading, allowAnonymous, maxLength, relations } = wedding.wishes;
   const { guestName, isPersonalized } = useGuest();
-  const [name, setName] = useState(isPersonalized ? guestName : "");
+  const startName = isPersonalized ? guestName : "";
+  const [name, setName] = useState(startName);
+  const [relation, setRelation] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [trap, setTrap] = useState("");
   const [error, setError] = useState("");
   const [status, setStatus] = useState<Status>("idle");
+  const [toast, setToast] = useState<string | null>(null);
   const pendingId = useRef(newId()); // reused on retry so a resend can't duplicate
   const guard = useSpamGuard("tila:wish-sent-at", 30_000);
   const ids = useId();
+
+  // the toast fades away after a few seconds
+  useEffect(() => {
+    if (!toast) return;
+    const t = window.setTimeout(() => setToast(null), 3600);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  const ready = (allowAnonymous || name.trim().length > 0) && message.trim().length > 0;
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -277,21 +298,28 @@ function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSPro
       return;
     }
 
-    const wish = { id: pendingId.current, name: n || null, relation: null, message: m };
-    const sent = () => {
-      onSent({ ...wish, created_at: new Date().toISOString() });
+    const wish = { id: pendingId.current, name: n || null, relation, message: m };
+    const reset = () => {
       pendingId.current = newId();
+      setName(startName);
+      setRelation(null);
       setMessage("");
+    };
+    const sent = (saved: boolean) => {
+      onSent({ ...wish, created_at: new Date().toISOString() });
+      reset();
       setStatus("sent");
+      setToast(saved ? "Your blessing has been sent 🌼" : "Your blessing is kept on this device 🌼");
     };
 
     if (trap) {
       // Almost certainly a bot: look successful, store nothing.
-      setMessage("");
+      reset();
       setStatus("sent");
+      setToast("Your blessing has been sent 🌼");
       return;
     }
-    if (PREVIEW) return sent(); // kept in this browser only; the form says so
+    if (PREVIEW) return sent(false); // kept in this browser only; the toast and the note say so
     if (guard.coolingDown()) {
       setStatus("error");
       setError("Please wait a moment before sending another blessing.");
@@ -307,7 +335,7 @@ function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSPro
     try {
       await addWish(wish);
       guard.markSubmitted();
-      sent();
+      sent(true);
     } catch (err) {
       setStatus("error");
       setError(err instanceof BackendError ? err.message : "Something went wrong. Please try again.");
@@ -316,11 +344,8 @@ function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSPro
 
   return (
     <form onSubmit={onSubmit} onFocus={guard.touch} onInput={guard.touch} noValidate className="mt-8" style={style}>
-      {/* The blessing card */}
+      {/* The paper card */}
       <div className="wish-card">
-        {["tl", "tr", "bl", "br"].map((corner) => (
-          <CardCorner key={corner} className={`wish-corner wish-corner-${corner}`} />
-        ))}
         <h3 className="text-center font-serif text-[26px] font-semibold leading-tight" style={{ color: MAROON }}>
           {formHeading}
         </h3>
@@ -329,7 +354,7 @@ function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSPro
           <path d="M40 0.8L43.2 4 40 7.2 36.8 4Z" fill="#B8916A" />
         </svg>
 
-        <div className="wish-group mt-5">
+        <div className="mt-5">
           <label htmlFor={`${ids}-name`} className="wish-label">
             Your name
           </label>
@@ -340,80 +365,62 @@ function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSPro
             onChange={(e) => setName(e.target.value)}
             autoComplete="name"
             maxLength={60}
-            className="wish-field wish-input"
+            className="wish-field"
           />
         </div>
 
-        <div className="wish-group mt-4">
+        {relations.length > 0 && (
+          <div className="mt-4" role="group" aria-labelledby={`${ids}-rel`}>
+            <p id={`${ids}-rel`} className="wish-label">
+              Relation
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {relations.map((r) => (
+                <button key={r} type="button" aria-pressed={relation === r} onClick={() => setRelation((v) => (v === r ? null : r))} className="wish-chip">
+                  {r}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="mt-4">
           <label htmlFor={`${ids}-message`} className="wish-label">
             Your blessing
           </label>
-          <div className="wish-field">
-            <textarea
-              id={`${ids}-message`}
-              placeholder="Write your blessing for the couple…"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              maxLength={maxLength}
-              rows={4}
-              className="wish-textarea"
-            />
-            <p className="px-3.5 pb-2 text-right font-sans text-[11px]" style={{ color: TEXT_SOFT }} aria-live="polite">
-              {message.length}/{maxLength}
-            </p>
-          </div>
+          <textarea
+            id={`${ids}-message`}
+            placeholder="Write your blessing for the couple…"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            maxLength={maxLength}
+            className="wish-field wish-textarea"
+          />
+          <p className="mt-1.5 text-right font-sans text-[10.5px]" style={{ color: message.length > maxLength - 20 ? MAROON : "#8a6a4a" }} aria-live="polite">
+            {message.length}/{maxLength}
+          </p>
+        </div>
+
+        <Honeypot value={trap} onChange={setTrap} />
+
+        <button type="submit" disabled={!ready || status === "saving"} className="wish-send mt-3">
+          {status === "saving" ? "Sending…" : "Send Blessing"}
+        </button>
+
+        <div role="status" className="mt-3 min-h-5 text-center">
+          {status === "error" ? (
+            <p className="t-note font-medium text-sindoor">{error}</p>
+          ) : (
+            <p className="t-note">{PREVIEW ? "Preview — blessings aren't saved online yet; they're kept on this device." : "Blessings appear on the wall once the couple has seen them."}</p>
+          )}
         </div>
       </div>
-      <Honeypot value={trap} onChange={setTrap} />
 
-      <button type="submit" disabled={status === "saving"} className="wish-submit t-button mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-9 text-[14px] text-[#FBF3E4] disabled:opacity-60" style={{ backgroundColor: RUST }}>
-        {status === "saving" ? (
-          "Sending…"
-        ) : (
-          <>
-            <span aria-hidden>♡</span> Leave a Wish
-          </>
-        )}
-      </button>
-
-      <div role="status" className="mt-3 min-h-5">
-        {status === "sent" && PREVIEW ? (
-          <>
-            <p className="font-serif text-[18px] font-semibold leading-snug" style={{ color: MAROON }}>
-              Your blessing is kept on this device
-            </p>
-            <p className="t-note mt-1">Preview — blessings aren't sent online yet, so the couple won't see it.</p>
-          </>
-        ) : status === "sent" ? (
-          <>
-            <svg key={pendingId.current} viewBox="0 0 24 34" className="petal-rise mx-auto h-7 w-auto" aria-hidden>
-              <path d="M12 1C19 8 21 18 17 26 15 30 13 32 12 33 11 32 9 30 7 26 3 18 5 8 12 1Z" fill="#F29A2E" />
-              <path d="M12 5V30" stroke="#FFD27A" strokeWidth="1" opacity="0.8" />
-            </svg>
-            <p className="font-serif text-[18px] font-semibold leading-snug" style={{ color: MAROON }}>
-              Your blessing has been sent to the couple
-            </p>
-            <p className="t-note mt-1">It will appear on the wall once they&rsquo;ve seen it.</p>
-          </>
-        ) : status === "error" ? (
-          <p className="t-note font-medium text-sindoor">{error}</p>
-        ) : (
-          <p className="t-note">{PREVIEW ? "Preview — blessings aren't saved online yet." : "Blessings appear on the wall once the couple has seen them."}</p>
-        )}
+      {/* A small toast once the blessing is accepted */}
+      <div role="status" aria-live="polite" className={`wish-toast ${toast ? "wish-toast-on" : ""}`}>
+        {toast}
       </div>
     </form>
-  );
-}
-
-/** A restrained corner for the blessing card: a fine maroon corner line, a gold bud and two dots (drawn for the top left; CSS turns it). */
-function CardCorner({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 20 20" aria-hidden className={className} fill="none" strokeLinecap="round">
-      <path d="M1.5 13V4.5a3 3 0 0 1 3-3H13" stroke={MAROON} strokeWidth="1" opacity="0.7" />
-      <path d="M6 6c3.6.2 6.2 2.8 6.4 6.4C8.8 12.2 6.2 9.6 6 6Z" fill="#B8916A" fillOpacity="0.55" stroke="#B8916A" strokeWidth="0.6" />
-      <circle cx="16" cy="1.5" r="1" fill={MAROON} opacity="0.7" />
-      <circle cx="1.5" cy="16" r="1" fill={MAROON} opacity="0.7" />
-    </svg>
   );
 }
 

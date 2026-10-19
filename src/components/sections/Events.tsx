@@ -4,6 +4,8 @@ import { wedding, type WeddingEvent } from "@/config/wedding";
 import { JhotiRule } from "@/components/ui/JhotiThreshold";
 import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { smoothScrollTo } from "@/lib/scroll";
+import { downloadIcs, eventCalendarItem, googleCalendarUrl, shortTime } from "@/lib/calendar";
+import { directionsUrl } from "@/lib/maps";
 import { showPlaceholders } from "@/lib/placeholders";
 import { Pending } from "@/components/ui/Pending";
 import { EVENT_ART_DEFS, FLOWER_IDS, rng } from "@/components/art/eventVineArt";
@@ -14,7 +16,9 @@ import { EVENT_ART_DEFS, FLOWER_IDS, rng } from "@/components/art/eventVineArt";
  * lotus, in turn — alternating left and right, growing as the guest scrolls.
  * Under each flower: the ceremony's name, its Odia name, its day and date
  * ("Wed · 10 February 2027"), and a "Tap to view details" button that opens a
- * card (time, about, dress code, place). One card is open at a time.
+ * panel: the event's illustration, quick facts (time, place, what to wear),
+ * a few words on the ritual, the dress code with its colours, and Calendar
+ * and Directions. One panel is open at a time.
  * Styles: the `.ev-*` block in index.css.
  */
 export function Events() {
@@ -187,40 +191,147 @@ function When({ event }: { event: WeddingEvent }) {
   );
 }
 
-/** The card behind "Tap to view details": time, about, dress code and place (the day and date are always shown). */
+/**
+ * The panel behind "Tap to view details" (the name is already above it): a
+ * maroon-and-gold band along its top, the Odia name as a faint watermark,
+ * the event's illustration; three quick-fact chips (time, place, what to
+ * wear); a few words on the ritual; the dress code with its colours; and
+ * Calendar (Google Calendar, or an .ics file) and Directions.
+ */
 function DetailsCard({ event }: { event: WeddingEvent }) {
-  const rows: Array<{ label: string; value: string | null; className?: string; map?: string | null; toCome?: string }> = [
-    { label: "Time", value: event.when && keepTimesTogether(event.when), toCome: event.isLagna ? "Lagna to be announced" : "Time to be announced" },
-    { label: "About", value: event.about, className: "about" },
-    { label: "Dress code", value: event.dressCode && event.dressCode.split(" | ").join(" · ") },
-    { label: "Place", value: event.venueName, map: event.mapUrl },
-  ];
+  const { venue } = wedding;
+  const time = event.when ? shortTime(event.when) : null;
+  const [lead, style] = event.dressCode?.includes(" | ") ? event.dressCode.split(" | ") : [null, event.dressCode];
+  const wear = event.wear ?? lead?.split(/\s+/)[0] ?? event.dressCode?.split(/[\s:]+/)[0] ?? null;
+  const colors = event.dressColors ?? [];
+  const calendar = eventCalendarItem(event);
+  const directions = event.mapUrl ?? directionsUrl({ mapsUrl: venue.mapsUrl, name: venue.name, address: venue.address });
+  const step = (i: number) => ({ "--i": i }) as CSSProperties;
+  const toCome = (what: string) => (showPlaceholders ? <Pending label={`${what} awaiting confirmation`}>To come</Pending> : "—");
+
   return (
-    <dl className="ev-card">
-      {rows
-        .filter((r) => r.value || showPlaceholders)
-        .map((r) => (
-          <div key={r.label} className={`ev-row ${r.className ?? ""}`}>
-            <dt>{r.label}</dt>
-            <dd>
-              {r.value ?? <Pending label={`${r.label} awaiting confirmation`}>{r.toCome ?? "To be confirmed"}</Pending>}
-              {r.value && r.map && (
-                <>
-                  <br />
-                  <a className="ev-maplink" href={r.map} target="_blank" rel="noopener noreferrer">
-                    View map <span aria-hidden>↗</span>
-                  </a>
-                </>
-              )}
-            </dd>
+    <div className="evp">
+      <span aria-hidden className="evp-band" />
+      {event.odiaName && (
+        <span aria-hidden lang="or" className="evp-mark">
+          {event.odiaName}
+        </span>
+      )}
+      <img src={`/art/events/icons/${event.id}.webp`} alt="" aria-hidden decoding="async" loading="lazy" className="evp-icon" />
+
+      <ul className="evp-chips evp-in" style={step(0)}>
+        <li className="evp-chip">
+          <ClockIcon />
+          <span className="evp-value">{time ?? (event.isLagna ? "At the lagna" : toCome("Time"))}</span>
+          <span className="evp-chip-label">Time</span>
+        </li>
+        <li className="evp-chip">
+          <MandapIcon />
+          <span className="evp-value">{event.venueName ?? toCome("Place")}</span>
+          <span className="evp-chip-label">Place</span>
+        </li>
+        <li className="evp-chip">
+          <WearIcon />
+          <span className="evp-value">{wear ?? toCome("Dress code")}</span>
+          <span className="evp-chip-label">Wear</span>
+        </li>
+      </ul>
+
+      {event.about && (
+        <p className="evp-about evp-in" style={step(1)}>
+          {event.about}
+        </p>
+      )}
+
+      {(style || colors.length > 0) && (
+        <div className="evp-dress evp-in" style={step(2)}>
+          <div className="min-w-0">
+            <p className="evp-label">Dress code</p>
+            {style && <p className="evp-style">{style}</p>}
           </div>
-        ))}
-    </dl>
+          {colors.length > 0 && (
+            <span className="evp-dots" aria-label={`Colours to wear: ${colors.length}`} role="img">
+              {colors.map((c) => (
+                <i key={c} style={{ background: c }} />
+              ))}
+            </span>
+          )}
+        </div>
+      )}
+
+      <div className="evp-actions evp-in" style={step(3)}>
+        <div className="grid grid-cols-2 gap-2">
+          {calendar ? (
+            <a className="evp-btn evp-btn-fill" href={googleCalendarUrl(calendar)} target="_blank" rel="noopener noreferrer">
+              <CalendarIcon /> Calendar
+            </a>
+          ) : (
+            <span className="evp-btn evp-btn-fill opacity-50">
+              <CalendarIcon /> Calendar
+            </span>
+          )}
+          {directions ? (
+            <a className="evp-btn evp-btn-line" href={directions} target="_blank" rel="noopener noreferrer">
+              <PinIcon /> Directions
+            </a>
+          ) : (
+            <span className="evp-btn evp-btn-line opacity-50">
+              <PinIcon /> Directions
+            </span>
+          )}
+        </div>
+        {calendar && (
+          <button type="button" className="evp-ics" onClick={() => downloadIcs(calendar)}>
+            or download an .ics file
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
 
-/** "10:00 AM – 1:00 PM" may break only after the dash, never inside "10:00 AM". */
-const keepTimesTogether = (text: string) => text.replace(/(\d) (AM|PM)/g, "$1 $2");
+const line = { fill: "none", stroke: "currentColor", strokeWidth: 1.5, strokeLinecap: "round", strokeLinejoin: "round" } as const;
+function ClockIcon() {
+  return (
+    <svg viewBox="0 0 18 18" className="evp-chip-icon" aria-hidden {...line}>
+      <circle cx="9" cy="9" r="7" />
+      <path d="M9 5v4l2.6 1.6" />
+    </svg>
+  );
+}
+function MandapIcon() {
+  return (
+    <svg viewBox="0 0 18 18" className="evp-chip-icon" aria-hidden {...line}>
+      <path d="M9 1.5 10 3M3 7c1.5-2.6 3.6-4 6-4s4.5 1.4 6 4Z" />
+      <path d="M2.5 7h13M4 7v8.5M14 7v8.5M2 16h14" />
+      <path d="M6.5 7c0 2 1.1 3 2.5 3s2.5-1 2.5-3" />
+    </svg>
+  );
+}
+function WearIcon() {
+  return (
+    <svg viewBox="0 0 18 18" className="evp-chip-icon" aria-hidden {...line}>
+      <path d="M7.2 4.2a1.8 1.8 0 1 1 2.6 1.6c-.5.3-.8.6-.8 1.2v.6" />
+      <path d="M9 7.6 2.2 12.4c-.7.5-.4 1.6.5 1.6h12.6c.9 0 1.2-1.1.5-1.6L9 7.6Z" />
+    </svg>
+  );
+}
+function CalendarIcon() {
+  return (
+    <svg viewBox="0 0 18 18" className="h-4 w-4" aria-hidden {...line}>
+      <rect x="2.5" y="3.5" width="13" height="12" rx="2" />
+      <path d="M2.5 7.5h13M6 2v3M12 2v3" />
+    </svg>
+  );
+}
+function PinIcon() {
+  return (
+    <svg viewBox="0 0 18 18" className="h-4 w-4" aria-hidden {...line}>
+      <path d="M9 16.5c-3-3.6-5-6.2-5-8.8a5 5 0 0 1 10 0c0 2.6-2 5.2-5 8.8Z" />
+      <circle cx="9" cy="7.6" r="1.8" />
+    </svg>
+  );
+}
 
 /** Scrolls so an opening card (and the button above it) are in view. */
 function bringIntoView(li: HTMLLIElement) {

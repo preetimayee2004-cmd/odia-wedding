@@ -79,8 +79,12 @@ export interface WeddingEvent {
   isLagna?: boolean;
   /** A sentence or two on the ritual, shown in its details card. */
   about: string | null;
-  /** Use "\n" for a new line, " | " between two phrases. */
+  /** Use "\n" for a new line, " | " between two phrases (the part after " | " is the style). */
   dressCode: string | null;
+  /** One word for the WEAR chip, e.g. "Traditional" (else the dress code's first word). */
+  wear?: string | null;
+  /** Three or four colours to wear, shown as overlapping dots beside the dress code. */
+  dressColors?: string[];
   venueName: string | null;
   /** A Google Maps link for the venue; shows "View map" in the details card. */
   mapUrl: string | null;
@@ -103,15 +107,11 @@ export interface WeddingConfig {
     groom: Person;
     /** Section 03, top to bottom: invocation under the Ganesha icon. */
     invocation: string;
-    /** `{guest}` is replaced with the guest's name from the share link. */
-    greeting: string;
-    /** Line under the greeting. */
+    /** Directly above the names, e.g. "Together with their families, we joyfully invite you to the wedding of". */
     invite: string;
     /** Shown under the names; null hides it. */
     hashtag: string | null;
-    /** Under the hashtag: the date as it should read, e.g. "Friday, 12 February 2027". */
-    dateLine: string | null;
-    /** Under the date, e.g. "Jagannath Kalyan Mandap, Bhubaneswar, Odisha". */
+    /** Under the date block (from wedding.dateTime), in two lines split at its first comma, e.g. "Jagannath Kalyan Mandap, Bhubaneswar, Odisha". */
     place: string | null;
     /** Closing quote, under a small lotus. */
     quote: string;
@@ -213,6 +213,8 @@ export interface WeddingConfig {
     requireApproval: boolean;
     /** How many recent wishes show as notes on the wall; the rest open in "View all wishes". */
     previewCount: number;
+    /** The relation chips in the form (one may be chosen). */
+    relations: string[];
     maxLength: number;
     /**
      * SAMPLE wishes that fill the notes until enough approved ones arrive,
@@ -354,11 +356,9 @@ export const wedding: WeddingConfig = {
     bride: { displayName: "Pragyan", fullName: null }, // DEMO (the page title)
     groom: { displayName: "Avi", fullName: null }, // DEMO (the page title)
     invocation: "|| Om Ganeshaya Namah ||",
-    greeting: "Dear {guest},",
-    invite: "We joyfully invite you to celebrate with us.",
+    invite: "Together with their families, we joyfully invite you to the wedding of",
     hashtag: "#AviWedsPragyan", // DEMO
-    // DEMO — the example date and place, as they read on the couple card
-    dateLine: "Friday, 12 February 2027",
+    // DEMO — the example place, under the date block on the couple card
     place: "Jagannath Kalyan Mandap, Bhubaneswar, Odisha",
     quote: "Two souls, one journey, blessed by Lord Jagannath.",
   },
@@ -435,6 +435,8 @@ export const wedding: WeddingConfig = {
         when: "10:00 AM – 1:00 PM",
         about: "Intricate henna is drawn on the bride's hands and feet amid songs and laughter. The darker the colour, the deeper the love, they say.",
         dressCode: "Shades of green & yellow",
+        wear: "Festive",
+        dressColors: ["#3E7B36", "#8DBE4A", "#F2C230", "#E9A21B"],
         venueName: "Courtyard",
         mapUrl: null,
       },
@@ -446,6 +448,8 @@ export const wedding: WeddingConfig = {
         when: "7:00 PM – 9:30 PM",
         about: "An evening of music and dance as both families come together to sing, perform and celebrate.",
         dressCode: "Ladies: Glitter, glam, Indian or Indo-Western\nGentlemen: Suits or tuxedos (black, white or blue)",
+        wear: "Glam",
+        dressColors: ["#1E2A4A", "#F5F1E8", "#C9A24E", "#9B1B5A"],
         venueName: "Lotus Pavilion",
         mapUrl: null,
       },
@@ -457,6 +461,8 @@ export const wedding: WeddingConfig = {
         when: "9:00 AM – 10:30 AM",
         about: "Married women of the family anoint the bride with turmeric paste and bathe her, blessing her for the day ahead.",
         dressCode: "Traditional Odia attire | Pastel & earthy tones",
+        wear: "Traditional",
+        dressColors: ["#F1D6AE", "#E3AE97", "#B5C99A", "#B8977A"],
         venueName: "Mandap",
         mapUrl: null,
       },
@@ -468,6 +474,8 @@ export const wedding: WeddingConfig = {
         when: "4:00 PM – 5:30 PM",
         about: "The groom's wedding procession arrives with music and dancing as family and friends escort him to the venue.",
         dressCode: "Traditional wear | Bright & festive",
+        wear: "Traditional",
+        dressColors: ["#D62839", "#F4A300", "#2A9D8F", "#FFC93C"],
         venueName: "Main Lawn",
         mapUrl: null,
       },
@@ -479,6 +487,8 @@ export const wedding: WeddingConfig = {
         when: "5:30 PM – 6:30 PM",
         about: "The bride's family welcomes the groom at the entrance with aarti, tilak, sweets and the sound of conch shells.",
         dressCode: "Traditional Odia attire | Red, yellow & gold",
+        wear: "Traditional",
+        dressColors: ["#B3202A", "#F2C230", "#C9A24E"],
         venueName: "Entrance",
         mapUrl: null,
       },
@@ -491,6 +501,8 @@ export const wedding: WeddingConfig = {
         when: "7:00 PM – 8:00 PM",
         about: "The bride's father places her hand in the groom's, and their hands are tied together with a sacred thread.",
         dressCode: "Traditional wear | Red, maroon & gold",
+        wear: "Traditional",
+        dressColors: ["#C1121F", "#7A1F1F", "#C9A24E"],
         venueName: "Mandap",
         mapUrl: null,
       },
@@ -502,6 +514,8 @@ export const wedding: WeddingConfig = {
         when: "8:00 PM – 9:00 PM",
         about: "The groom fills the parting of the bride's hair with sindoor, the vermilion mark of a married woman.",
         dressCode: "Traditional wear | Soft & elegant",
+        wear: "Traditional",
+        dressColors: ["#F2D4C9", "#E9C46A", "#C98E9A", "#FBEFD8"],
         venueName: "Mandap",
         mapUrl: null,
       },
@@ -513,6 +527,8 @@ export const wedding: WeddingConfig = {
         when: "9:00 PM – 10:00 PM",
         about: "A tender farewell as the bride leaves her parents' home for her new life, blessed by everyone she grew up with.",
         dressCode: "Traditional wear | Emotive & classy",
+        wear: "Traditional",
+        dressColors: ["#8E1B1F", "#E9C46A", "#F4EEE4", "#5E4B6E"],
         venueName: "Mandap",
         mapUrl: null,
       },
@@ -524,6 +540,8 @@ export const wedding: WeddingConfig = {
         when: "8:00 PM onwards",
         about: "An evening of dinner and celebration to welcome the newly-weds. Come and bless the couple.",
         dressCode: "Formal/Western | Elegant & classy",
+        wear: "Formal",
+        dressColors: ["#1D3557", "#22201E", "#C9A24E", "#F1ECE2"],
         venueName: "Lotus Pavilion",
         mapUrl: null,
       },
@@ -571,6 +589,7 @@ export const wedding: WeddingConfig = {
     allowAnonymous: false,
     requireApproval: true,
     previewCount: 3,
+    relations: ["Family", "Friend", "Elder", "Colleague"],
     maxLength: 200,
     // DEMO — made-up guests, not real wishes: marked "Example" on the wall,
     // shown while site.demo is on, and replaced as approved wishes arrive.

@@ -64,7 +64,7 @@ export function FallingPetals() {
   if (reduced) return null;
 
   return (
-    <div ref={ref} aria-hidden className={`pointer-events-none absolute inset-0 z-[25] overflow-clip transition-opacity duration-700 ${onScreen ? "" : "petals-paused"} ${quiet ? "opacity-0" : ""}`}>
+    <div ref={ref} aria-hidden className={`pointer-events-none absolute inset-0 z-[15] overflow-clip transition-opacity duration-700 ${onScreen ? "" : "petals-paused"} ${quiet ? "opacity-0" : ""}`}>
       <svg className="absolute h-0 w-0">
         <defs>
           <radialGradient id="site-petal-rose" cx="0.4" cy="0.35" r="0.8">

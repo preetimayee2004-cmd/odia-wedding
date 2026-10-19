@@ -44,12 +44,12 @@ Replace every `DEMO` value using the checklist below, then set `site.demo` to `f
 | Item | Where |
 |---|---|
 | Couple's names (DEMO: Avi & Pragyan — also the page title) | `couple.bride` / `couple.groom`, `invitation.names` |
-| Couple section wording (invocation, greeting, invite line, quote; DEMO hashtag, date line and place) | `couple` |
+| Couple section wording (invocation, invite line, quote; DEMO hashtag and place — the date block comes from `wedding.dateTime`) | `couple` |
 | Wedding date & lagna time (DEMO: `"2027-02-12T19:00"`) — drives the countdown, every date shown and Add to Calendar | `wedding.dateTime` |
 | Invitation card wording and names (DEMO names) | `invitation` |
 | Our Story chapters (DEMO wording — replace with the couple's own) | `story.chapters` |
 | Family: the parents of the groom and of the bride (DEMO names — replace, with honorifics), each family's blessing, the illustration and the Odia line | `family` |
-| Itinerary: ceremonies, Odia names, dates, times, about text, dress codes, venues and map links (DEMO dates and times) | `events.items` |
+| Itinerary: ceremonies, Odia names, dates, times, about text, dress codes (with a `wear` word and `dressColors`), venues and map links (DEMO dates and times) | `events.items` |
 | Gallery photographs (`featured: true` for the wide arch at the top, `tall: true` for a taller arch, `focus` for where the crop centres, `still: true` to keep a photographer's mark in view) and the featured photo's Pattachitra painting (`painting`, e.g. `public/gallery/featured-pattachitra.webp`; its toggle appears once the file exists) | `gallery.photos` |
 | Venue name, address, photo, map link (DEMO: a made-up street; the map opens Old Town, Bhubaneswar) | `venue` |
 | The Wedding Journey: heading, getting here (modes), closing | `travel` |
