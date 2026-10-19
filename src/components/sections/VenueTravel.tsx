@@ -23,8 +23,8 @@ const PAINTING = "mx-auto block h-auto w-[84%] max-w-[19rem]";
  * A narrow editorial column between the side bands on the flowered cream.
  * Two stops, each the same way round — a painting, then a header (gold
  * medallion, rule, number, title, tagline), then its details:
- * 01 The Venue (the Jagannath temple), 02 Getting Here (the beach at Puri;
- * by air, by train, local transport). A small dashed route with a pin and a
+ * 01 The Venue (the mandap), 02 Getting Here (a painted signpost — train,
+ * plane, auto-rickshaw and bus; by air, by train, local transport). A small dashed route with a pin and a
  * tiny plane links them. Ends with Jai Jagannath and a faint
  * wheel-and-temple sketch.
  */
@@ -73,7 +73,7 @@ export function VenueTravel() {
 
         {/* 02 — Getting Here */}
         <div id="travel" style={fade(200)}>
-          <img src={`${ART}/beach.webp`} width={408} height={355} alt="The beach at Puri, waves rolling in under palm trees, a temple on the shore" loading="lazy" decoding="async" className={PAINTING} />
+          <img src={`${ART}/signpost.webp`} width={523} height={854} alt="A wooden signpost with three painted arrows: a steam train, an aeroplane, and an auto-rickshaw beside a bus" loading="lazy" decoding="async" className="mx-auto block h-auto w-[56%] max-w-[12.5rem]" />
           <div className="mt-6">
             <StopHeading number="02" title={gettingHere.title} tagline={gettingHere.tagline} icon="plane" />
             <p className="t-body mt-4">{gettingHere.intro}</p>

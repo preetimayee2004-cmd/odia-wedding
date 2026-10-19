@@ -23,25 +23,18 @@ export interface Person {
 
 /** One person in Contact. */
 export interface ContactPerson {
-  /** e.g. "Brother". */
+  /** "family": the two brothers, side by side at the top; "coordinator": a full-width row below. */
+  group: "family" | "coordinator";
+  /** e.g. "Groom's Brother". */
   role: string;
   /** With honorific; null until confirmed (a quiet stand-in while placeholders are on). */
   name: string | null;
-  /** What to ask them about, e.g. "Stay, travel & pickups". */
+  /** In italics under the name: the side ("Bara Paksha") or what to ask them about ("Stay, travel & pickups"). */
   note: string | null;
   /** With country code, e.g. "+91 98765 43210"; null until confirmed. */
   phone: string | null;
   /** SAMPLE stand-in (made-up name or masked number): shown only while placeholders are on, never tappable. */
   sample?: boolean;
-}
-
-/** One side in Contact; its id picks the small crown over its name. */
-export interface ContactGroup {
-  id: "bride" | "groom";
-  title: string;
-  /** In italics under the title, e.g. "Kanya Paksha". */
-  subtitle: string | null;
-  people: ContactPerson[];
 }
 
 /** One side of the family, as the couple's design shows it. */
@@ -257,11 +250,12 @@ export interface WeddingConfig {
     /** Pre-filled when a guest taps a message button (WhatsApp). */
     whatsappMessage: string;
     /**
-     * The two sides, in order. A contact with a number gets a call button and
-     * a WhatsApp button. On the live site only contacts with a number show,
-     * and a side with none is hidden.
+     * Everyone in the one Contact card, in order: the families side by side
+     * (groom's on the left, bride's on the right), then the coordinators.
+     * Each gets a call button and a WhatsApp button. On the live site only
+     * contacts with a number show.
      */
-    groups: ContactGroup[];
+    people: ContactPerson[];
   };
   thankYou: {
     /** Set large, in italic. */
@@ -626,32 +620,16 @@ export const wedding: WeddingConfig = {
     heading: "Contact",
     note: "Need help? Reach out to the right person below.",
     whatsappMessage: "Namaste! I have a question about the wedding.",
-    // Sides and roles from the couple's contact design (17 Oct 2026).
+    // Roles from the couple's contact design (19 Oct 2026).
     // DEMO — the names are made up and the numbers fictional: +91 00000 …
     // can't reach anyone (Indian mobile numbers begin with 6–9), and while
     // site.demo is on, Call and WhatsApp say so instead of dialling. Replace
     // each with the real name and number, or remove a role that doesn't apply.
-    groups: [
-      {
-        id: "bride",
-        title: "Bride's Side",
-        subtitle: "Kanya Paksha",
-        people: [
-          { role: "Brother", name: "Mr. Sushant Das", note: "Family & personal queries", phone: "+91 00000 00001" },
-          { role: "Guest Coordinator", name: "Mrs. Priyanka Mishra", note: "Stay, travel & pickups", phone: "+91 00000 00002" },
-          { role: "Event Coordinator", name: "Mr. Manas Sahoo", note: "Venue, timings & rituals", phone: "+91 00000 00003" },
-        ],
-      },
-      {
-        id: "groom",
-        title: "Groom's Side",
-        subtitle: "Bara Paksha",
-        people: [
-          { role: "Brother", name: "Mr. Ankit Mohapatra", note: "Family & personal queries", phone: "+91 00000 00004" },
-          { role: "Guest Coordinator", name: "Mrs. Sunita Mohapatra", note: "Stay, travel & pickups", phone: "+91 00000 00005" },
-          { role: "Event Coordinator", name: "Ms. Deepika Nayak", note: "Venue, timings & rituals", phone: "+91 00000 00006" },
-        ],
-      },
+    people: [
+      { group: "family", role: "Groom's Brother", name: "Mr. Ankit Mohapatra", note: "Bara Paksha", phone: "+91 00000 00004" },
+      { group: "family", role: "Bride's Brother", name: "Mr. Sushant Das", note: "Kanya Paksha", phone: "+91 00000 00001" },
+      { group: "coordinator", role: "Guest Coordinator", name: "Mrs. Priyanka Mishra", note: "Stay, travel & pickups", phone: "+91 00000 00002" },
+      { group: "coordinator", role: "Event Coordinator", name: "Mr. Manas Sahoo", note: "Venue, timings & rituals", phone: "+91 00000 00003" },
     ],
   },
   thankYou: {

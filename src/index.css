@@ -1218,3 +1218,97 @@
 @media (prefers-reduced-motion: reduce) {
   .caret-blink { animation: none; }
 }
+
+/* Contact (Contact.tsx): one cream card — a gold outer line, a maroon inner
+   line and a dashed gold line — with a lotus on its top edge, curls in its
+   lower corners, and the two mukuts that drop onto its top corners and
+   settle with a small swing. */
+.ct-frame {
+  position: relative;
+  background: #fdf7ea;
+  border-radius: 6px;
+  padding: 46px 16px 34px;
+  box-shadow: 0 0 0 1.5px #b8913f, 0 10px 24px rgba(90, 60, 20, 0.12);
+}
+.ct-frame::before,
+.ct-frame::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+.ct-frame::before {
+  inset: 6px;
+  border: 1px solid rgba(122, 31, 31, 0.55);
+  border-radius: 3px;
+}
+.ct-frame::after {
+  inset: 10px;
+  border: 1px dashed rgba(184, 145, 63, 0.45);
+  border-radius: 2px;
+}
+/* the lotus sits on the top edge; the two inner lines part around it */
+.ct-lotus {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 1;
+  width: 38px;
+  transform: translate(-50%, -58%);
+}
+.ct-lotus::before {
+  content: "";
+  position: absolute;
+  top: 58%;
+  left: -5px;
+  right: -5px;
+  height: 12px;
+  background: #fdf7ea;
+}
+.ct-lotus svg { position: relative; display: block; width: 100%; height: auto; }
+.ct-curl {
+  position: absolute;
+  bottom: 13px;
+  width: 26px;
+  height: 26px;
+  opacity: 0.8;
+  pointer-events: none;
+}
+.ct-curl-l { left: 13px; }
+.ct-curl-r { right: 13px; transform: scaleX(-1); }
+.ct-vrule {
+  width: 1px;
+  background: linear-gradient(to bottom, rgba(184, 145, 63, 0), #b8913f 22%, #b8913f 78%, rgba(184, 145, 63, 0));
+  opacity: 0.75;
+}
+.ct-row-rule { border-top: 1px solid rgba(184, 145, 63, 0.42); }
+
+.ct-crown {
+  position: absolute;
+  top: -38px;
+  z-index: 2;
+  width: 66px;
+  height: auto;
+  filter: drop-shadow(0 3px 3px rgba(90, 50, 10, 0.25));
+  rotate: var(--tilt);
+  translate: 0 0;
+  opacity: 1;
+  transform-origin: 50% 85%;
+  pointer-events: none;
+}
+.ct-crown-groom { left: -20px; --tilt: -14deg; --d: 250ms; }
+.ct-crown-bride { right: -20px; --tilt: 14deg; --d: 370ms; }
+.ct-frame:not(.ct-in) .ct-crown { opacity: 0; translate: 0 -12px; }
+.ct-in .ct-crown {
+  transition: opacity 500ms ease-out var(--d), translate 500ms cubic-bezier(0.22, 1, 0.36, 1) var(--d);
+  animation: ct-settle 1200ms ease-in-out calc(var(--d) + 420ms) both;
+}
+@keyframes ct-settle {
+  0%, 100% { rotate: var(--tilt); }
+  22% { rotate: calc(var(--tilt) + 3deg); }
+  50% { rotate: calc(var(--tilt) - 2deg); }
+  76% { rotate: calc(var(--tilt) + 0.8deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ct-frame:not(.ct-in) .ct-crown { opacity: 1; translate: 0 0; }
+  .ct-in .ct-crown { transition: none; animation: none; }
+}
