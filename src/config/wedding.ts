@@ -70,6 +70,8 @@ export interface WeddingEvent {
   date: string | null;
   /** The time, as it should read, e.g. "4:00 PM onwards" or "Early Morning (Next Day)". */
   when: string | null;
+  /** The ceremony held at the lagna: until its time is set, it reads "Lagna to be announced". */
+  isLagna?: boolean;
   /** A sentence or two on the ritual, shown in its details card. */
   about: string | null;
   /** Use "\n" for a new line, " | " between two phrases. */
@@ -325,9 +327,6 @@ pm run og. */
   };
 }
 
-/** A masked number for the sample contacts — never a real person's. */
-const SAMPLE_PHONE = "+91 XXXXX XXXXX";
-
 export const wedding: WeddingConfig = {
   couple: {
     bride: { displayName: "Bride", fullName: null }, // PLACEHOLDER
@@ -339,8 +338,9 @@ export const wedding: WeddingConfig = {
     quote: "Two souls, one journey, blessed by Lord Jagannath.",
   },
   wedding: {
-    // SAMPLE — the invitation card's date (12 Feb 2027); add the Lagna time, e.g. "2027-02-12T19:30"
-    dateTime: "2027-02-12",
+    // To be announced: add the confirmed date and lagna time, e.g. "2027-02-12T19:30".
+    // Until then every date shows a placeholder and the countdown waits.
+    dateTime: null,
     timeZone: "Asia/Kolkata",
   },
   invitation: {
@@ -353,8 +353,8 @@ export const wedding: WeddingConfig = {
     saveTheDate: "Save the Date",
     names: ["Avi", "Pragyan"],
     announcement: "are getting married",
-    // SAMPLE — replace with the real date and venue (12 Feb 2027 is a Friday)
-    dateLine: "Friday, 12 February 2027",
+    // To be announced: the date as it should read on the card, e.g. "Friday, 12 February 2027"
+    dateLine: null,
     place: "Jagannath Kalyan Mandap, Bhubaneswar, Odisha",
   },
   countdown: {
@@ -402,8 +402,8 @@ export const wedding: WeddingConfig = {
   },
   events: {
     heading: "Wedding Events",
-    // SAMPLE — every date is a placeholder around the sample wedding date
-    // (Friday 12 February 2027); times, venues and dress codes are from the
+    // Dates and times are to be announced: add each once confirmed (they show
+    // as placeholders until then). Places and dress codes are from the
     // couple's Wedding Events design. Confirm each one (and every Odia
     // spelling) with the family. Add a Google Maps link as `mapUrl` to show
     // "View map" in that ceremony's details card.
@@ -412,8 +412,8 @@ export const wedding: WeddingConfig = {
         id: "mehendi",
         name: "Mehendi",
         odiaName: "ମେହେନ୍ଦି",
-        date: "Wednesday, 10 February 2027",
-        when: "10:00 AM – 1:00 PM",
+        date: null,
+        when: null,
         about: "Intricate henna is drawn on the bride's hands and feet amid songs and laughter. The darker the colour, the deeper the love, they say.",
         dressCode: "Shades of green & yellow",
         venueName: "Courtyard",
@@ -423,8 +423,8 @@ export const wedding: WeddingConfig = {
         id: "sangeet",
         name: "Sangeet",
         odiaName: "ସଙ୍ଗୀତ",
-        date: "Wednesday, 10 February 2027",
-        when: "7:00 PM – 9:30 PM",
+        date: null,
+        when: null,
         about: "An evening of music and dance as both families come together to sing, perform and celebrate.",
         dressCode: "Ladies: Glitter, glam, Indian or Indo-Western\nGentlemen: Suits or tuxedos (black, white or blue)",
         venueName: "Lotus Pavilion",
@@ -434,8 +434,8 @@ export const wedding: WeddingConfig = {
         id: "mangana",
         name: "Mangana",
         odiaName: "ମଙ୍ଗନ",
-        date: "Friday, 12 February 2027",
-        when: "9:00 AM – 10:30 AM",
+        date: null,
+        when: null,
         about: "Married women of the family anoint the bride with turmeric paste and bathe her, blessing her for the day ahead.",
         dressCode: "Traditional Odia attire | Pastel & earthy tones",
         venueName: "Mandap",
@@ -445,8 +445,8 @@ export const wedding: WeddingConfig = {
         id: "barajatri",
         name: "Barajatri",
         odiaName: "ବରଯାତ୍ରୀ",
-        date: "Friday, 12 February 2027",
-        when: "4:00 PM – 5:30 PM",
+        date: null,
+        when: null,
         about: "The groom's wedding procession arrives with music and dancing as family and friends escort him to the venue.",
         dressCode: "Traditional wear | Bright & festive",
         venueName: "Main Lawn",
@@ -456,8 +456,8 @@ export const wedding: WeddingConfig = {
         id: "batabarana",
         name: "Batabaran",
         odiaName: "ବରବରଣ",
-        date: "Friday, 12 February 2027",
-        when: "5:30 PM – 6:30 PM",
+        date: null,
+        when: null,
         about: "The bride's family welcomes the groom at the entrance with aarti, tilak, sweets and the sound of conch shells.",
         dressCode: "Traditional Odia attire | Red, yellow & gold",
         venueName: "Entrance",
@@ -465,10 +465,11 @@ export const wedding: WeddingConfig = {
       },
       {
         id: "hastaganthi",
+        isLagna: true, // held at the lagna
         name: "Hastaganthi",
         odiaName: "ହସ୍ତଗଣ୍ଠି",
-        date: "Friday, 12 February 2027",
-        when: "7:00 PM – 8:00 PM",
+        date: null,
+        when: null,
         about: "The bride's father places her hand in the groom's, and their hands are tied together with a sacred thread.",
         dressCode: "Traditional wear | Red, maroon & gold",
         venueName: "Mandap",
@@ -478,8 +479,8 @@ export const wedding: WeddingConfig = {
         id: "sindoor",
         name: "Sindoordaan",
         odiaName: "ସିନ୍ଦୂରଦାନ",
-        date: "Friday, 12 February 2027",
-        when: "8:00 PM – 9:00 PM",
+        date: null,
+        when: null,
         about: "The groom fills the parting of the bride's hair with sindoor, the vermilion mark of a married woman.",
         dressCode: "Traditional wear | Soft & elegant",
         venueName: "Mandap",
@@ -489,8 +490,8 @@ export const wedding: WeddingConfig = {
         id: "bidaai",
         name: "Bidaai",
         odiaName: "ବିଦାୟ",
-        date: "Friday, 12 February 2027",
-        when: "9:00 PM – 10:00 PM",
+        date: null,
+        when: null,
         about: "A tender farewell as the bride leaves her parents' home for her new life, blessed by everyone she grew up with.",
         dressCode: "Traditional wear | Emotive & classy",
         venueName: "Mandap",
@@ -500,8 +501,8 @@ export const wedding: WeddingConfig = {
         id: "reception",
         name: "Reception",
         odiaName: "ପ୍ରୀତିଭୋଜନ",
-        date: "Sunday, 14 February 2027",
-        when: "8:00 PM onwards",
+        date: null,
+        when: null,
         about: "An evening of dinner and celebration to welcome the newly-weds. Come and bless the couple.",
         dressCode: "Formal/Western | Elegant & classy",
         venueName: "Lotus Pavilion",
@@ -526,7 +527,7 @@ export const wedding: WeddingConfig = {
   // From the couple (17 Oct 2026). Distances and the nearest bus stop to be
   // added once the mandap's exact address is confirmed.
   travel: {
-    eyebrow: "Your presence makes our journey more special",
+    eyebrow: "Find your way to us",
     heading: "Venue & Accommodation",
     intro: "From the temple city of Bhubaneswar to the hearts of our loved ones — here's everything you need to know.",
     gettingHere: {
@@ -539,7 +540,7 @@ export const wedding: WeddingConfig = {
         { kind: "local", title: "Local Transport", place: "Mo Bus, auto-rickshaw and taxi", detail: "All run across the city." },
       ],
     },
-    closing: "Jay Jagannath",
+    closing: "Jai Jagannath",
   },
   wishes: {
     heading: "The Wishing Wall",
@@ -586,20 +587,19 @@ export const wedding: WeddingConfig = {
     heading: "Contact",
     note: "Need help? Reach out to the right person below.",
     whatsappMessage: "Namaste! I have a question about the wedding.",
-    // Sides and roles from the couple's contact design (17 Oct 2026). Entries
-    // marked `sample` are SAMPLE stand-ins so the list isn't empty: the names
-    // are made up and every number is masked (never a real person's), shown
-    // only while placeholders are on and never tappable. Replace each with the
-    // real name and number and drop `sample` (or remove a role that doesn't apply).
+    // Sides and roles from the couple's contact design (17 Oct 2026). Names
+    // and numbers are to be added: until then each shows a placeholder (while
+    // placeholders are on); on the live site a contact appears once it has a
+    // number. Remove any role that doesn't apply.
     groups: [
       {
         id: "bride",
         title: "Bride's Side",
         subtitle: "Kanya Paksha",
         people: [
-          { role: "Brother", name: "Mr. Sushant Das", note: "Family & personal queries", phone: SAMPLE_PHONE, sample: true },
-          { role: "Guest Coordinator", name: "Mrs. Priyanka Mishra", note: "Stay, travel & pickups", phone: SAMPLE_PHONE, sample: true },
-          { role: "Event Coordinator", name: null, note: "Venue, timings & rituals", phone: SAMPLE_PHONE, sample: true },
+          { role: "Brother", name: null, note: "Family & personal queries", phone: null },
+          { role: "Guest Coordinator", name: null, note: "Stay, travel & pickups", phone: null },
+          { role: "Event Coordinator", name: null, note: "Venue, timings & rituals", phone: null },
         ],
       },
       {
@@ -607,9 +607,9 @@ export const wedding: WeddingConfig = {
         title: "Groom's Side",
         subtitle: "Bara Paksha",
         people: [
-          { role: "Brother", name: "Mr. Ankit Mohapatra", note: "Family & personal queries", phone: SAMPLE_PHONE, sample: true },
-          { role: "Guest Coordinator", name: "Mrs. Sunita Mohapatra", note: "Stay, travel & pickups", phone: SAMPLE_PHONE, sample: true },
-          { role: "Event Coordinator", name: null, note: "Venue, timings & rituals", phone: SAMPLE_PHONE, sample: true },
+          { role: "Brother", name: null, note: "Family & personal queries", phone: null },
+          { role: "Guest Coordinator", name: null, note: "Stay, travel & pickups", phone: null },
+          { role: "Event Coordinator", name: null, note: "Venue, timings & rituals", phone: null },
         ],
       },
     ],

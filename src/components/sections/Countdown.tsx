@@ -227,7 +227,7 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
           ) : (
             <div className="flex justify-center">
               <Pending label="Wedding date awaiting confirmation">
-                <p className="font-serif text-[1.65rem] font-semibold tracking-[0.3em]">DD · MM · YYYY</p>
+                <span className="font-serif text-[20px]">Date to be announced</span>
               </Pending>
             </div>
           )}

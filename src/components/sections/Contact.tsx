@@ -3,6 +3,7 @@ import { wedding, type ContactGroup, type ContactPerson } from "@/config/wedding
 import { useInView } from "@/hooks/useInView";
 import { EASE } from "@/lib/motion";
 import { showPlaceholders } from "@/lib/placeholders";
+import { Pending } from "@/components/ui/Pending";
 
 /** Room on each side for the page's looped side bands. */
 const BAND = "calc(100% * 35 / 768)";
@@ -111,7 +112,7 @@ function PersonRow({ person, first }: { person: ContactPerson; first: boolean })
           {role}
         </p>
         <p className="mt-0.5 font-serif text-[18px] font-semibold leading-tight" style={{ color: "var(--c-text)" }}>
-          {name ?? (showPlaceholders ? "[Name]" : role)}
+          {name ?? (showPlaceholders ? <Pending label="Name awaiting confirmation">Name to be added</Pending> : role)}
         </p>
         {note && (
           <p className="font-serif text-[13.5px] italic leading-snug" style={{ color: TEXT_SOFT }}>

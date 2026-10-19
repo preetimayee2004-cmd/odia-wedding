@@ -3,9 +3,11 @@ import { wedding } from "@/config/wedding";
 import { useGuest } from "@/context/GuestContext";
 import { useFitToArea } from "@/hooks/useFitToArea";
 import { EASE } from "@/lib/motion";
+import { showPlaceholders } from "@/lib/placeholders";
 import { CardBackdrop, cardCq, cardMinHeight, type CardArt } from "@/components/art/CardBackdrop";
 import { RangoliStart } from "@/components/sections/RangoliStart";
 import { Divider, PinIcon } from "@/components/ui/CardOrnaments";
+import { Pending } from "@/components/ui/Pending";
 
 export type RevealState = "hidden" | "revealing" | "shown";
 
@@ -102,10 +104,16 @@ export function Invitation({ reveal, onOpen }: InvitationProps) {
       {invitation.announcement}
     </p>,
     <Divider key="d2" className="mb-1.5" />,
-    invitation.dateLine && (
+    invitation.dateLine ? (
       <p key="dt" className="t-value mb-1 font-semibold" style={{ color: MAROON }}>
         {invitation.dateLine}
       </p>
+    ) : (
+      showPlaceholders && (
+        <p key="dt" className="t-value mb-1" style={{ color: MAROON }}>
+          <Pending label="Wedding date and lagna awaiting confirmation">Date &amp; lagna to be announced</Pending>
+        </p>
+      )
     ),
     invitation.place && (
       <div key="pl" className="flex flex-col items-center">

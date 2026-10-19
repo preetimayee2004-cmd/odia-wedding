@@ -180,12 +180,13 @@ function WishingWallSection() {
   );
 }
 
-/** "— ANANYA · BRIDE'S COUSIN": the name in maroon, the relation softer. */
+/** "— ANANYA · BRIDE'S COUSIN": the name in maroon, the relation softer; sample wishes say so. */
 function Byline({ wish }: { wish: Wish }) {
   return (
     <>
       <b>— {wish.name ?? "A well-wisher"}</b>
       {wish.relation && <> · {wish.relation}</>}
+      {wish.id.startsWith("sample-") && <span className="ph-tag">Sample wish</span>}
     </>
   );
 }

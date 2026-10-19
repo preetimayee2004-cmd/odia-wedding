@@ -24,7 +24,7 @@ const PAINTING = "mx-auto block h-auto w-[84%] max-w-[19rem]";
  * medallion, rule, number, title, tagline), then its details:
  * 01 The Venue (the Jagannath temple), 02 Getting Here (the beach at Puri;
  * by air, by train, local transport). A small dashed route with a pin and a
- * tiny plane links them. Ends with Jay Jagannath and a faint
+ * tiny plane links them. Ends with Jai Jagannath and a faint
  * wheel-and-temple sketch.
  */
 export function VenueTravel() {
@@ -90,7 +90,7 @@ export function VenueTravel() {
           </div>
         </div>
 
-        {/* Jay Jagannath */}
+        {/* Jai Jagannath */}
         <p className="t-label mt-14 flex items-center justify-center gap-3 text-[12px] tracking-[3px]" style={{ ...fade(400), color: ROUTE }}>
           <Sprig />
           {closing}
@@ -119,26 +119,32 @@ function Venue() {
       <ul className="mt-3 space-y-2 border-y border-dashed border-[#E3CFA4] py-3">
         <InfoRow icon="pin">
           {address ?? city ?? <Pending label="Address awaiting confirmation">Full address</Pending>}
-          {!address && showPlaceholders && <span className="t-note block">Exact address to be confirmed</span>}
-        </InfoRow>
-        <InfoRow icon="calendar">
-          {date ? (
-            <>
-              {date.day} {date.month.slice(0, 3)} {date.year}
-              {date.time && (
-                <>
-                  <span aria-hidden className="mx-2 text-[#C9A86A]">
-                    |
-                  </span>
-                  {date.time}
-                </>
-              )}
-            </>
-          ) : (
-            <Pending label="Date awaiting confirmation">Wedding date</Pending>
+          {!address && showPlaceholders && (
+            <span className="block">
+              <Pending label="Venue address awaiting confirmation">Venue address · to be confirmed</Pending>
+            </span>
           )}
-          {date && !date.time && showPlaceholders && <span className="t-note block">Timings to be announced</span>}
         </InfoRow>
+        {(date || showPlaceholders) && (
+          <InfoRow icon="calendar">
+            {date ? (
+              <>
+                {date.day} {date.month.slice(0, 3)} {date.year}
+                {date.time && (
+                  <>
+                    <span aria-hidden className="mx-2 text-[#C9A86A]">
+                      |
+                    </span>
+                    {date.time}
+                  </>
+                )}
+              </>
+            ) : (
+              <Pending label="Date awaiting confirmation">Date to be announced</Pending>
+            )}
+            {date && !date.time && showPlaceholders && <span className="t-note block">Timings to be announced</span>}
+          </InfoRow>
+        )}
       </ul>
 
       {directions ? (

@@ -164,9 +164,9 @@ function swayStyle(i: number): CSSProperties {
 }
 
 function DetailsCard({ event }: { event: WeddingEvent }) {
-  const rows: Array<{ label: string; value: string | null; className?: string; map?: string | null }> = [
-    { label: "Date", value: event.date },
-    { label: "Time", value: event.when && keepTimesTogether(event.when) },
+  const rows: Array<{ label: string; value: string | null; className?: string; map?: string | null; toCome?: string }> = [
+    { label: "Date", value: event.date, toCome: "Date to be announced" },
+    { label: "Time", value: event.when && keepTimesTogether(event.when), toCome: event.isLagna ? "Lagna to be announced" : "Time to be announced" },
     { label: "About", value: event.about, className: "about" },
     { label: "Dress code", value: event.dressCode && event.dressCode.split(" | ").join(" · ") },
     { label: "Place", value: event.venueName, map: event.mapUrl },
@@ -179,7 +179,7 @@ function DetailsCard({ event }: { event: WeddingEvent }) {
           <div key={r.label} className={`ev-row ${r.className ?? ""}`}>
             <dt>{r.label}</dt>
             <dd>
-              {r.value ?? <Pending label={`${r.label} awaiting confirmation`}>To be confirmed</Pending>}
+              {r.value ?? <Pending label={`${r.label} awaiting confirmation`}>{r.toCome ?? "To be confirmed"}</Pending>}
               {r.value && r.map && (
                 <>
                   <br />

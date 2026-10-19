@@ -432,6 +432,25 @@
   .petal-rise { animation: none; }
 }
 
+/* A detail still to come (ui/Pending.tsx): quiet italics and a small dashed tag,
+   inline so it wraps and aligns with the text around it */
+.ph { pointer-events: none; user-select: none; }
+.ph-text { font-style: italic; font-weight: 500; opacity: 0.72; }
+.ph-tag {
+  display: inline-block;
+  padding: 0 6px;
+  border: 1px dashed rgb(107 74 58 / 0.5);
+  border-radius: 999px;
+  font: 500 9px/1.7 var(--font-ui);
+  font-style: normal;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #6b4a3a;
+  vertical-align: 2px;
+  margin-left: 7px;
+}
+
 /* The Families: a carved gold frame around each set of parents (see GoldFrame).
    The band is a gilded gradient with a row of beads along it; the panel inside
    is a lighter cream behind a fine dark-and-gold edge. */
