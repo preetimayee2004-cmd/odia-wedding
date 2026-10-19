@@ -4,7 +4,7 @@ import { useGuest } from "@/context/GuestContext";
 import { useInView } from "@/hooks/useInView";
 import { addWish, BackendError, backendReady, listWishes, newId, type Wish } from "@/lib/backend";
 import { EASE } from "@/lib/motion";
-import { showPlaceholders } from "@/lib/placeholders";
+import { demoMode, showPlaceholders } from "@/lib/placeholders";
 import { useSpamGuard } from "@/lib/spam";
 import { Button } from "@/components/ui/Button";
 import { Honeypot } from "@/components/ui/Field";
@@ -26,15 +26,15 @@ const TILTS = [-0.8, 0.7, -0.4];
 
 /**
  * Without a database on the live site (no Supabase keys yet), while the site
- * shows its full structure, the wall runs as a preview: a blessing is kept
- * in this browser only, and the form says so.
+ * shows its example wedding or its full structure, the wall runs as a
+ * preview: a blessing is kept in this browser only, and the form says so.
  */
-const PREVIEW = !backendReady && showPlaceholders;
+const PREVIEW = !backendReady && (demoMode || showPlaceholders);
 /** This browser's own blessings (awaiting the couple), newest first. */
 const MINE_STORE = "tila:preview-wishes";
 
-/** The sample wishes that fill empty notes while placeholders are on. */
-const SAMPLES: Wish[] = showPlaceholders
+/** The sample wishes that fill empty notes in the example wedding (or while placeholders are on). */
+const SAMPLES: Wish[] = demoMode || showPlaceholders
   ? wedding.wishes.samples.map((s, i) => ({ id: `sample-${i}`, name: s.name, relation: s.relation, message: s.message, created_at: "" }))
   : [];
 
@@ -63,7 +63,7 @@ const isOdia = (text: string) => /[଀-୿]/.test(text);
  * couple's approval before they appear.
  */
 export function WishingWall() {
-  if (!backendReady && !showPlaceholders) return null;
+  if (!backendReady && !demoMode && !showPlaceholders) return null;
   return <WishingWallSection />;
 }
 
@@ -180,13 +180,13 @@ function WishingWallSection() {
   );
 }
 
-/** "— ANANYA · BRIDE'S COUSIN": the name in maroon, the relation softer; sample wishes say so. */
+/** "— ANANYA · BRIDE'S COUSIN": the name in maroon, the relation softer; sample wishes add "· Example". */
 function Byline({ wish }: { wish: Wish }) {
   return (
     <>
       <b>— {wish.name ?? "A well-wisher"}</b>
       {wish.relation && <> · {wish.relation}</>}
-      {wish.id.startsWith("sample-") && <span className="ph-tag">Sample wish</span>}
+      {wish.id.startsWith("sample-") && <span className="opacity-75"> · Example</span>}
     </>
   );
 }

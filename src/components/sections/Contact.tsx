@@ -2,7 +2,7 @@ import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { wedding, type ContactGroup, type ContactPerson } from "@/config/wedding";
 import { useInView } from "@/hooks/useInView";
 import { EASE } from "@/lib/motion";
-import { showPlaceholders } from "@/lib/placeholders";
+import { demoMode, showPlaceholders } from "@/lib/placeholders";
 import { Pending } from "@/components/ui/Pending";
 
 /** Room on each side for the page's looped side bands. */
@@ -101,9 +101,10 @@ function Side({ group, style }: { group: ContactGroup; style: CSSProperties }) {
 /** One person: role, name and what they help with; a round call button and a round message button. */
 function PersonRow({ person, first }: { person: ContactPerson; first: boolean }) {
   const { role, name, note, phone } = person;
-  const live = hasNumber(person);
+  const live = hasNumber(person) && !demoMode; // the example wedding's numbers never dial
   const [soon, setSoon] = useState(false); // tapped before the number is in
   const who = name ?? role;
+  const why = demoMode ? "example number" : "number coming soon";
 
   return (
     <li className={`flex items-center gap-3 py-3 ${first ? "" : "border-t"}`} style={{ borderColor: RULE }}>
@@ -121,7 +122,7 @@ function PersonRow({ person, first }: { person: ContactPerson; first: boolean })
         )}
         {soon && (
           <p role="status" className="mt-0.5 font-sans text-[11px]" style={{ color: MAROON }}>
-            Numbers coming soon
+            {demoMode ? "Example number — calling is off in this demo" : "Numbers coming soon"}
           </p>
         )}
       </div>
@@ -138,10 +139,10 @@ function PersonRow({ person, first }: { person: ContactPerson; first: boolean })
           </>
         ) : (
           <>
-            <RoundButton label={`Call ${who} (number coming soon)`} filled onClick={() => setSoon(true)}>
+            <RoundButton label={`Call ${who} (${why})`} filled onClick={() => setSoon(true)}>
               <PhoneIcon />
             </RoundButton>
-            <RoundButton label={`Message ${who} (number coming soon)`} onClick={() => setSoon(true)}>
+            <RoundButton label={`Message ${who} (${why})`} onClick={() => setSoon(true)}>
               <ChatIcon />
             </RoundButton>
           </>

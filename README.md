@@ -25,30 +25,41 @@ https://your-site.example/?guest=Priya%20Mishra
 
 Everything a guest reads lives in [`src/config/wedding.ts`](src/config/wedding.ts).
 
+**It ships with an example wedding.** So every section can be seen working, the template is filled with a complete sample: Avi & Pragyan, Friday 12 February 2027 (lagna 7:00 PM), Jagannath Kalyan Mandap in Bhubaneswar, nine ceremonies, six contacts and three wishes. Every example value is marked `DEMO` in the config. While `site.demo` is `true`:
+
+- the closing note ends with one quiet line saying it's an example invitation;
+- the three sample wishes carry an "Example" mark;
+- Call and WhatsApp never dial (the example numbers, `+91 00000 0000x`, can't reach anyone either way);
+- without a database, RSVP and wishes run as labelled previews and nothing is saved.
+
+Replace every `DEMO` value using the checklist below, then set `site.demo` to `false`.
+
 - **`null` means unconfirmed.** While placeholders are on (always in development, or with `site.showPlaceholders`) these show as quiet italic stand-ins with a small dashed "Placeholder" tag. With it off they are hidden, and whole sections hide until they have content (countdown, story, family, venue, travel, contacts). Nothing unconfirmed is ever published.
-- Values marked `PLACEHOLDER` (names, wording) are stand-ins and must be replaced.
+- Values marked `DEMO` are the example wedding and must be replaced.
 - Dates are **venue-local** (`"2027-02-14T19:30"`), with `wedding.timeZone` (default `Asia/Kolkata`). The countdown is correct for guests anywhere.
 - Odia text (invocation, headings, event names) is best-effort and **must be confirmed with the family**.
 
-### Content checklist before publishing
+### Before you publish: replace the example data
 
 | Item | Where |
 |---|---|
-| Couple's names | `couple.bride` / `couple.groom` |
-| Couple section wording (invocation, greeting, invite line, hashtag, quote) | `couple` |
-| Wedding date & time (now the invitation's SAMPLE date — add the Lagna time) | `wedding.dateTime` |
-| Invitation card wording, names, date and place (date and place are SAMPLES — replace) | `invitation` |
-| Our Story chapters (SAMPLE wording — replace with the couple's own) | `story.chapters` |
-| Family: the parents of the groom and of the bride (names as written, with honorifics), each family's blessing, the illustration and the Odia line | `family` |
-| Itinerary: ceremonies, Odia names, dates, times, about text, dress codes, venues and map links (SAMPLE values — confirm) | `events.items` |
+| Couple's names (DEMO: Avi & Pragyan — also the page title) | `couple.bride` / `couple.groom`, `invitation.names` |
+| Couple section wording (invocation, greeting, invite line, quote; DEMO hashtag) | `couple` |
+| Wedding date & lagna time (DEMO: `"2027-02-12T19:00"`) — drives the countdown, every date shown and Add to Calendar | `wedding.dateTime` |
+| Invitation card wording, names, date line and place (DEMO) | `invitation` |
+| Our Story chapters (DEMO wording — replace with the couple's own) | `story.chapters` |
+| Family: the parents of the groom and of the bride (DEMO names — replace, with honorifics), each family's blessing, the illustration and the Odia line | `family` |
+| Itinerary: ceremonies, Odia names, dates, times, about text, dress codes, venues and map links (DEMO dates and times) | `events.items` |
 | Gallery photographs (`tall: true` for a taller arch, `focus` for where the crop centres) | `gallery.photos` |
-| Venue name, address, photo, map link | `venue` |
+| Venue name, address, photo, map link (DEMO: a made-up street; the map opens Old Town, Bhubaneswar) | `venue` |
 | The Wedding Journey: heading, getting here (modes), closing | `travel` |
-| Contacts (with country code) | `contact.groups` (bride's side, groom's side, coordinators) |
+| Contacts (DEMO: made-up names, fictional numbers — replace with real ones, with country code) | `contact.groups` (bride's side, groom's side, coordinators) |
 | RSVP deadline, party-size limit | `rsvp` |
 | Opening sound button: a recording to play instead of the synthesised sankha (optional) | `assets.openingSound`, e.g. `"/audio/opening.mp3"` in `/public` |
 | Thank-you message | `thankYou` |
-| Show every section with dashed placeholders for unconfirmed details (turn **off** before sharing the final invitation, so empty sections hide) | `site.showPlaceholders` |
+| Sample wishes (DEMO — shown only while `site.demo` or placeholders are on) | `wishes.samples` |
+| Quiet stand-ins for any detail left empty (turn **off** before sharing, so empty details simply don't show) | `site.showPlaceholders` |
+| **Last: turn the example off** | `site.demo: false` |
 | Public URL (for WhatsApp previews) | `meta.siteUrl`, then `npm run og` |
 
 ## Blessings Wall & RSVP storage (Supabase)
@@ -92,9 +103,9 @@ Each section has its own entrance. All of them respect *reduced motion*.
 | Family | The Families, after the couple's design: a gold filigree crest over THE FAMILIES (gold and maroon), "Bound by Love, Blessed by Family" and a gold lotus divider; the couple with both sets of parents (`public/art/family/family-portrait.webp`, edges fading into the page); the Groom's Parents and the Bride's Parents one above the other, each in a carved gold frame under a lotus (`GoldFrame`, after the couple's design) with the names in large bold maroon and their family's blessing in bold italics; || ବସୁଧୈବ କୁଟୁମ୍ବକମ୍ || (regular weight, gold bars and maroon words); a veil keeps the background flowers at about 30% here; Lord Jagannath (`public/art/family/jagannath.png`) between gold scrolls over Jai Jagannath |
 | Gallery | The Raghurajpur Canvas: photographs in an asymmetric masonry on the page cream among faint white flowers (`public/art/gallery-flowers.svg`), each in a palace arch (`art/GoldArch.tsx`: a smooth pointed top with a small gold finial, a fine gold outline and hairline, a wide cream mat and a maroon line round the photograph); tap to enlarge |
 | RSVP | Kindly RSVP, after the couple's design, between the side bands on the flowered cream: || ଶ୍ରୀ ଗଣେଶାୟ ନମଃ ||, a framed || ଶୁଭ ବିବାହ ||, An Auspicious Invitation and its words; the couple's image of a brass thali of gua with marigolds, rose petals and two lit diyas (`public/art/rsvp-gua-thali.webp`, its edges fading into the page); "Accept the Sacred Gua & Bless Us" and an ornate maroon Accept Invitation plaque with its Odia; Jai Jagannath · ଜୟ ଜଗନ୍ନାଥ. One tap accepts (saved under the guest's name from their link): a lotus blooms ring by ring over a golden glow, a thin gold ring draws round it and a red seal with a white tick appears as marigold and rose petals scatter (`LotusConfirm`) and about 110 grains of turmeric rice shower down the screen (`RiceShower`, removed after five seconds), over RSVP Confirmed · ଧନ୍ୟବାଦ · Thank you!, a blessing card in English and Odia, and Add to Calendar (an .ics file, `lib/calendar.ts`). Without a database (the live site today) it runs as a labelled preview that saves nothing. Wording in `rsvp.*` |
-| Wishing Wall | Handcrafted and Odia, between the side bands: a toran of mango leaves and marigolds across the top (`art/Toran.tsx`); The Wishing Wall and a line of blessing; the latest wishes on notes of lined paper (cream, blush, butter), each pinned with a marigold and signed "— NAME · RELATION"; View all wishes; then Write your note: a box for the name and a box for the blessing (up to 200 characters), each white with a rust stroke, and Leave a Wish, after which a marigold petal rises. New blessings are saved as pending and appear only once the couple sets them to visible in Supabase (run `supabase/migrations/20261017000000_wish_relation_approval.sql`). Without a database (the live site today) a blessing is kept in the sender's browser and shown to them as waiting. While placeholders are on, the SAMPLE wishes in `wishes.samples` fill the notes. Wording in `wishes` |
+| Wishing Wall | Handcrafted and Odia, between the side bands: a toran of mango leaves and marigolds across the top (`art/Toran.tsx`); The Wishing Wall and a line of blessing; the latest wishes on notes of lined paper (cream, blush, butter), each pinned with a marigold and signed "— NAME · RELATION"; View all wishes; then Write your note: a box for the name and a box for the blessing (up to 200 characters), each white with a rust stroke, and Leave a Wish, after which a marigold petal rises. New blessings are saved as pending and appear only once the couple sets them to visible in Supabase (run `supabase/migrations/20261017000000_wish_relation_approval.sql`). Without a database (the live site today) a blessing is kept in the sender's browser and shown to them as waiting. In the example wedding (or while placeholders are on), the sample wishes in `wishes.samples` fill the notes, each marked "Example". Wording in `wishes` |
 | Venue & Travel | Venue & Accommodation, after the couple's design, as a narrow editorial column: two stops built the same way — a painting at one shared scale (temple, beach at Puri; `public/art/venue/`), then a header (maroon medallion with a gold icon, rule, number, title, tagline), then details in even rows with dashed separators — 01 The Venue (Jagannath Kalyan Mandap, Bhubaneswar; place, date; View on Map), 02 Getting Here (air, train, local transport). A small dashed route with a pin and a tiny plane links them. Falling petals fade out while it fills the screen (`data-no-petals`). Jay Jagannath and a faint wheel sketch at the foot |
-| Contact | After the couple's design, on the page's own background: Contact over a lotus rule and a line of help; then Bride's Side (Kanya Paksha) and Groom's Side (Bara Paksha), each under its small crown (`public/art/contact/`) and name in maroon, with a row per person — role, name, what to ask them — and a round call button and a round WhatsApp button. Contacts in `contact.groups`; names and numbers still to be added show as placeholders while placeholders are on, and a contact appears on the live site once it has a number |
+| Contact | After the couple's design, on the page's own background: Contact over a lotus rule and a line of help; then Bride's Side (Kanya Paksha) and Groom's Side (Bara Paksha), each under its small crown (`public/art/contact/`) and name in maroon, with a row per person — role, name, what to ask them — and a round call button and a round WhatsApp button. Contacts in `contact.groups`; the example contacts have made-up names and fictional numbers that never dial while `site.demo` is on; otherwise a contact appears once it has a number |
 | Thank you | After the couple's design, between the side bands on the flowered cream: Lord Jagannath between red filigree; "Thank You" in italic and a line of gratitude; the couple at Puri looking out to the sea and the Jagannath temple; the hashtag, the date and the place (`public/art/thanks/`) |
 | Closing note | Opened by the maroon separator: "Your presence will make our celebration complete." types itself out behind a blinking caret, then || ପ୍ରେମ ଓ ପବିତ୍ର ବନ୍ଧନ ||, the initials A ♡ P, and Back to top (returns to the couple card). Wording in `footer` |
 | Side bands | From the countdown to the footer, the looped red band of the couple card's border (`public/art/border-loops.png`, an exact repeat cut from `couple-card.jpg`) runs down both sides of the page (`art/SideBands.tsx`); sections no longer carry borders of their own |

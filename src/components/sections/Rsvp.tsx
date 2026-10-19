@@ -6,7 +6,7 @@ import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { BackendError, backendReady, newId, submitRsvp } from "@/lib/backend";
 import { canAddToCalendar, downloadWeddingCalendar } from "@/lib/calendar";
 import { EASE } from "@/lib/motion";
-import { showPlaceholders } from "@/lib/placeholders";
+import { demoMode, showPlaceholders } from "@/lib/placeholders";
 import { formatVenueDate, parseVenueDateTime, venueDateKey } from "@/lib/venueTime";
 import { AcceptPlaque, LotusConfirm, RiceShower } from "@/components/art/RsvpArt";
 import { hasContactNumbers } from "@/components/sections/Contact";
@@ -34,11 +34,12 @@ const withNames = (text: string) => text.replace("{names}", coupleNames());
 
 /**
  * Without a database on the live site (no Supabase keys yet), while the site
- * shows its full structure, Accept still plays the seal as a preview —
+ * shows its example wedding or its full structure, Accept still plays the
+ * seal as a preview —
  * nothing is saved, and the seal says so. Otherwise, without a database the
  * design shows with a note to contact the family in place of the button.
  */
-const PREVIEW = !backendReady && showPlaceholders;
+const PREVIEW = !backendReady && (demoMode || showPlaceholders);
 const PREVIEW_NOTE = "Preview — online responses aren't being saved yet.";
 
 /**

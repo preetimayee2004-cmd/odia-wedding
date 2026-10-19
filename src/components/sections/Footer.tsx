@@ -3,6 +3,7 @@ import { wedding } from "@/config/wedding";
 import { useInView } from "@/hooks/useInView";
 import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { EASE } from "@/lib/motion";
+import { demoMode } from "@/lib/placeholders";
 import { scrollToSection } from "@/lib/scroll";
 import { SectionSeparator } from "@/components/ui/SectionSeparator";
 
@@ -14,7 +15,8 @@ const TYPE_MS = 55; // per character
  * "Your presence will make our celebration complete." types itself out
  * behind a blinking caret; then "|| ପ୍ରେମ ଓ ପବିତ୍ର ବନ୍ଧନ ||", the couple's
  * initials with a heart between them, and "Back to top", which returns to
- * the couple card. Deliberately not a "site footer".
+ * the couple card. Deliberately not a "site footer". In the template's
+ * example wedding, a quiet line beneath says so.
  */
 export function Footer() {
   const { quote, odiaLine, credit } = wedding.footer;
@@ -84,6 +86,12 @@ export function Footer() {
       >
         Back to top <span aria-hidden>↑</span>
       </button>
+
+      {demoMode && (
+        <p className="t-note mx-auto mt-6 max-w-[17rem]" style={after(1000)}>
+          This is an example invitation — names, dates, venue and contacts are sample details.
+        </p>
+      )}
 
       {credit && <p className="t-note mt-8">{credit}</p>}
     </footer>

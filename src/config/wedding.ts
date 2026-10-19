@@ -2,6 +2,11 @@
  * THE single place to edit invitation content (PRD §4, "all names, dates,
  * venue details and invitation text must be configurable").
  *
+ * This is a template: it ships with a complete EXAMPLE wedding so every
+ * section can be seen working. Values marked DEMO are example details —
+ * replace them all ("Before you publish" in the README), then set
+ * `site.demo` to false before sharing a real invitation.
+ *
  * Rules:
  *  - Anything set to `null` is unconfirmed. Sections hide null fields rather
  *    than inventing them (PRD §6, §8).
@@ -20,7 +25,7 @@ export interface Person {
 export interface ContactPerson {
   /** e.g. "Brother". */
   role: string;
-  /** With honorific; null until confirmed (shown as "[Name]" while placeholders are on). */
+  /** With honorific; null until confirmed (a quiet stand-in while placeholders are on). */
   name: string | null;
   /** What to ask them about, e.g. "Stay, travel & pickups". */
   note: string | null;
@@ -207,9 +212,9 @@ export interface WeddingConfig {
     maxLength: number;
     /**
      * SAMPLE wishes that fill the notes until enough approved ones arrive,
-     * so the wall is never blank. Shown only while placeholders are on
-     * (site.showPlaceholders), and gone once the wall has `previewCount`
-     * real wishes.
+     * so the wall is never blank. Shown while `site.demo` (or placeholders)
+     * is on, each marked "Example", and gone once the wall has
+     * `previewCount` real wishes.
      */
     samples: { name: string; relation: string | null; message: string }[];
   };
@@ -290,9 +295,18 @@ export interface WeddingConfig {
   };
   site: {
     /**
-     * Show every section's layout, with dashed placeholders where details
-     * are not confirmed yet. Turn off before sharing the final invitation:
-     * sections without confirmed details then hide themselves.
+     * The template's example wedding: true while the DEMO details are in
+     * place. The closing note then says it's an example invitation, the
+     * sample wishes fill the wall (marked "Example"), the example phone
+     * numbers never dial, and without a database the RSVP and wishes run as
+     * labelled previews (nothing is saved). Set to false once every DEMO
+     * value is replaced.
+     */
+    demo: boolean;
+    /**
+     * Quiet stand-ins for any detail left empty (null), so the layout still
+     * shows. Off: empty details simply don't show, and a section with
+     * nothing to show hides itself.
      */
     showPlaceholders: boolean;
   };
@@ -328,19 +342,23 @@ pm run og. */
 }
 
 export const wedding: WeddingConfig = {
+  // ── EXAMPLE DATA ── The template ships with a sample wedding (Avi &
+  // Pragyan, Friday 12 February 2027, Bhubaneswar) so every section shows
+  // working. Everything marked DEMO is made up: replace it with the real
+  // details, then set site.demo to false (README: "Before you publish").
   couple: {
-    bride: { displayName: "Bride", fullName: null }, // PLACEHOLDER
-    groom: { displayName: "Groom", fullName: null }, // PLACEHOLDER
+    bride: { displayName: "Pragyan", fullName: null }, // DEMO (the page title)
+    groom: { displayName: "Avi", fullName: null }, // DEMO (the page title)
     invocation: "|| Om Ganeshaya Namah ||",
     greeting: "Dear {guest},",
     invite: "We joyfully invite you to celebrate with us.",
-    hashtag: "#AviWedsPragyan",
+    hashtag: "#AviWedsPragyan", // DEMO
     quote: "Two souls, one journey, blessed by Lord Jagannath.",
   },
   wedding: {
-    // To be announced: add the confirmed date and lagna time, e.g. "2027-02-12T19:30".
-    // Until then every date shows a placeholder and the countdown waits.
-    dateTime: null,
+    // DEMO — the example lagna, Friday 12 February 2027 at 7:00 PM (venue
+    // time). It drives the countdown, every date shown and Add to Calendar.
+    dateTime: "2027-02-12T19:00",
     timeZone: "Asia/Kolkata",
   },
   invitation: {
@@ -351,10 +369,10 @@ export const wedding: WeddingConfig = {
       "we cordially invite you to witness the union of our families.",
     ],
     saveTheDate: "Save the Date",
-    names: ["Avi", "Pragyan"],
+    names: ["Avi", "Pragyan"], // DEMO
     announcement: "are getting married",
-    // To be announced: the date as it should read on the card, e.g. "Friday, 12 February 2027"
-    dateLine: null,
+    // DEMO — the example date and place, as they read on the card
+    dateLine: "Friday, 12 February 2027",
     place: "Jagannath Kalyan Mandap, Bhubaneswar, Odisha",
   },
   countdown: {
@@ -368,7 +386,7 @@ export const wedding: WeddingConfig = {
   story: {
     eyebrow: "Two Hearts, One Journey",
     heading: "Our Story",
-    // SAMPLE wording — replace with the couple's own words.
+    // DEMO wording — replace with the couple's own words.
     chapters: [
       { label: "Chapter 01", title: "The Beginning", text: "Two paths crossed, and a simple hello quietly became the start of everything." },
       { label: "Chapter 02", title: "Growing Together", text: "Through long talks, shared laughter and little adventures, friendship grew into love." },
@@ -385,8 +403,8 @@ export const wedding: WeddingConfig = {
       w: 1264,
       h: 848,
     },
-    // As the couple wrote them (17 Oct 2026), father first —
-    // confirm every name and its spelling with the family before sharing.
+    // DEMO — the names from the couple's design (17 Oct 2026), father first:
+    // replace with the families' own, spelled as they write them.
     groom: {
       label: "Groom's Parents",
       parents: ["Sri Debashis Mohapatra", "Smt. Subhashree Mohapatra"],
@@ -402,18 +420,18 @@ export const wedding: WeddingConfig = {
   },
   events: {
     heading: "Wedding Events",
-    // Dates and times are to be announced: add each once confirmed (they show
-    // as placeholders until then). Places and dress codes are from the
-    // couple's Wedding Events design. Confirm each one (and every Odia
-    // spelling) with the family. Add a Google Maps link as `mapUrl` to show
+    // DEMO — example dates and times around the example wedding day (Friday
+    // 12 February 2027); places and dress codes are from the couple's Wedding
+    // Events design. Replace each with the real details, and check every Odia
+    // spelling with the family. Add a Google Maps link as `mapUrl` to show
     // "View map" in that ceremony's details card.
     items: [
       {
         id: "mehendi",
         name: "Mehendi",
         odiaName: "ମେହେନ୍ଦି",
-        date: null,
-        when: null,
+        date: "Wednesday, 10 February 2027",
+        when: "10:00 AM – 1:00 PM",
         about: "Intricate henna is drawn on the bride's hands and feet amid songs and laughter. The darker the colour, the deeper the love, they say.",
         dressCode: "Shades of green & yellow",
         venueName: "Courtyard",
@@ -423,8 +441,8 @@ export const wedding: WeddingConfig = {
         id: "sangeet",
         name: "Sangeet",
         odiaName: "ସଙ୍ଗୀତ",
-        date: null,
-        when: null,
+        date: "Wednesday, 10 February 2027",
+        when: "7:00 PM – 9:30 PM",
         about: "An evening of music and dance as both families come together to sing, perform and celebrate.",
         dressCode: "Ladies: Glitter, glam, Indian or Indo-Western\nGentlemen: Suits or tuxedos (black, white or blue)",
         venueName: "Lotus Pavilion",
@@ -434,8 +452,8 @@ export const wedding: WeddingConfig = {
         id: "mangana",
         name: "Mangana",
         odiaName: "ମଙ୍ଗନ",
-        date: null,
-        when: null,
+        date: "Friday, 12 February 2027",
+        when: "9:00 AM – 10:30 AM",
         about: "Married women of the family anoint the bride with turmeric paste and bathe her, blessing her for the day ahead.",
         dressCode: "Traditional Odia attire | Pastel & earthy tones",
         venueName: "Mandap",
@@ -445,8 +463,8 @@ export const wedding: WeddingConfig = {
         id: "barajatri",
         name: "Barajatri",
         odiaName: "ବରଯାତ୍ରୀ",
-        date: null,
-        when: null,
+        date: "Friday, 12 February 2027",
+        when: "4:00 PM – 5:30 PM",
         about: "The groom's wedding procession arrives with music and dancing as family and friends escort him to the venue.",
         dressCode: "Traditional wear | Bright & festive",
         venueName: "Main Lawn",
@@ -456,8 +474,8 @@ export const wedding: WeddingConfig = {
         id: "batabarana",
         name: "Batabaran",
         odiaName: "ବରବରଣ",
-        date: null,
-        when: null,
+        date: "Friday, 12 February 2027",
+        when: "5:30 PM – 6:30 PM",
         about: "The bride's family welcomes the groom at the entrance with aarti, tilak, sweets and the sound of conch shells.",
         dressCode: "Traditional Odia attire | Red, yellow & gold",
         venueName: "Entrance",
@@ -468,8 +486,8 @@ export const wedding: WeddingConfig = {
         isLagna: true, // held at the lagna
         name: "Hastaganthi",
         odiaName: "ହସ୍ତଗଣ୍ଠି",
-        date: null,
-        when: null,
+        date: "Friday, 12 February 2027",
+        when: "7:00 PM – 8:00 PM",
         about: "The bride's father places her hand in the groom's, and their hands are tied together with a sacred thread.",
         dressCode: "Traditional wear | Red, maroon & gold",
         venueName: "Mandap",
@@ -479,8 +497,8 @@ export const wedding: WeddingConfig = {
         id: "sindoor",
         name: "Sindoordaan",
         odiaName: "ସିନ୍ଦୂରଦାନ",
-        date: null,
-        when: null,
+        date: "Friday, 12 February 2027",
+        when: "8:00 PM – 9:00 PM",
         about: "The groom fills the parting of the bride's hair with sindoor, the vermilion mark of a married woman.",
         dressCode: "Traditional wear | Soft & elegant",
         venueName: "Mandap",
@@ -490,8 +508,8 @@ export const wedding: WeddingConfig = {
         id: "bidaai",
         name: "Bidaai",
         odiaName: "ବିଦାୟ",
-        date: null,
-        when: null,
+        date: "Friday, 12 February 2027",
+        when: "9:00 PM – 10:00 PM",
         about: "A tender farewell as the bride leaves her parents' home for her new life, blessed by everyone she grew up with.",
         dressCode: "Traditional wear | Emotive & classy",
         venueName: "Mandap",
@@ -501,8 +519,8 @@ export const wedding: WeddingConfig = {
         id: "reception",
         name: "Reception",
         odiaName: "ପ୍ରୀତିଭୋଜନ",
-        date: null,
-        when: null,
+        date: "Sunday, 14 February 2027",
+        when: "8:00 PM onwards",
         about: "An evening of dinner and celebration to welcome the newly-weds. Come and bless the couple.",
         dressCode: "Formal/Western | Elegant & classy",
         venueName: "Lotus Pavilion",
@@ -550,10 +568,11 @@ export const wedding: WeddingConfig = {
     requireApproval: true,
     previewCount: 3,
     maxLength: 200,
-    // SAMPLE — made-up guests, not real wishes; replaced as approved wishes
-    // arrive. (The Odia one reads: "May your lives be filled with love and
-    // joy; may Mahaprabhu Jagannath's blessings always be with you" — have
-    // the family check its wording.)
+    // DEMO — made-up guests, not real wishes: marked "Example" on the wall,
+    // shown while site.demo is on, and replaced as approved wishes arrive.
+    // (The Odia one reads: "May your lives be filled with love and joy; may
+    // Mahaprabhu Jagannath's blessings always be with you" — have the family
+    // check its wording.)
     samples: [
       { name: "Aja & Aai", relation: "Groom's Grandparents", message: "We waited so long to see this day. May Lord Jagannath keep you both happy, healthy and side by side for a hundred years." },
       { name: "Lipsa", relation: "Bride's Friend", message: "ତୁମ ଦୁହିଁଙ୍କ ଜୀବନ ପ୍ରେମ ଓ ଆନନ୍ଦରେ ଭରି ରହୁ। ମହାପ୍ରଭୁ ଜଗନ୍ନାଥଙ୍କ ଆଶୀର୍ବାଦ ସର୍ବଦା ରହୁ।" },
@@ -587,19 +606,20 @@ export const wedding: WeddingConfig = {
     heading: "Contact",
     note: "Need help? Reach out to the right person below.",
     whatsappMessage: "Namaste! I have a question about the wedding.",
-    // Sides and roles from the couple's contact design (17 Oct 2026). Names
-    // and numbers are to be added: until then each shows a placeholder (while
-    // placeholders are on); on the live site a contact appears once it has a
-    // number. Remove any role that doesn't apply.
+    // Sides and roles from the couple's contact design (17 Oct 2026).
+    // DEMO — the names are made up and the numbers fictional: +91 00000 …
+    // can't reach anyone (Indian mobile numbers begin with 6–9), and while
+    // site.demo is on, Call and WhatsApp say so instead of dialling. Replace
+    // each with the real name and number, or remove a role that doesn't apply.
     groups: [
       {
         id: "bride",
         title: "Bride's Side",
         subtitle: "Kanya Paksha",
         people: [
-          { role: "Brother", name: null, note: "Family & personal queries", phone: null },
-          { role: "Guest Coordinator", name: null, note: "Stay, travel & pickups", phone: null },
-          { role: "Event Coordinator", name: null, note: "Venue, timings & rituals", phone: null },
+          { role: "Brother", name: "Mr. Sushant Das", note: "Family & personal queries", phone: "+91 00000 00001" },
+          { role: "Guest Coordinator", name: "Mrs. Priyanka Mishra", note: "Stay, travel & pickups", phone: "+91 00000 00002" },
+          { role: "Event Coordinator", name: "Mr. Manas Sahoo", note: "Venue, timings & rituals", phone: "+91 00000 00003" },
         ],
       },
       {
@@ -607,9 +627,9 @@ export const wedding: WeddingConfig = {
         title: "Groom's Side",
         subtitle: "Bara Paksha",
         people: [
-          { role: "Brother", name: null, note: "Family & personal queries", phone: null },
-          { role: "Guest Coordinator", name: null, note: "Stay, travel & pickups", phone: null },
-          { role: "Event Coordinator", name: null, note: "Venue, timings & rituals", phone: null },
+          { role: "Brother", name: "Mr. Ankit Mohapatra", note: "Family & personal queries", phone: "+91 00000 00004" },
+          { role: "Guest Coordinator", name: "Mrs. Sunita Mohapatra", note: "Stay, travel & pickups", phone: "+91 00000 00005" },
+          { role: "Event Coordinator", name: "Ms. Deepika Nayak", note: "Venue, timings & rituals", phone: "+91 00000 00006" },
         ],
       },
     ],
@@ -624,11 +644,13 @@ export const wedding: WeddingConfig = {
     credit: null,
   },
   venue: {
+    // DEMO — an example venue: the street is made up, and the map opens the
+    // Old Town area rather than any real hall. Replace all of these; with a
+    // real address, `mapsUrl` can be null (directions are then built from it).
     name: "Jagannath Kalyan Mandap",
     city: "Bhubaneswar, Odisha",
-    address: null, // the exact address is still to be confirmed
-    // A map search for the venue by name until the exact address or pin is confirmed
-    mapsUrl: "https://www.google.com/maps/search/?api=1&query=Jagannath%20Kalyan%20Mandap%2C%20Bhubaneswar%2C%20Odisha",
+    address: "108 Mandap Lane, Old Town, Bhubaneswar, Odisha 751002",
+    mapsUrl: "https://www.google.com/maps/search/?api=1&query=Old%20Town%2C%20Bhubaneswar%2C%20Odisha",
     description: "Blessed by Lord Jagannath, our celebrations will take place in Bhubaneswar, the temple city of Odisha.",
     image: null,
   },
@@ -637,7 +659,8 @@ export const wedding: WeddingConfig = {
     openingSound: null, // synthesised sankha until a recording is supplied
   },
   site: {
-    showPlaceholders: true, // the full structure, while details are being gathered
+    demo: true, // the example wedding above: set to false once every DEMO value is replaced
+    showPlaceholders: true, // quiet stand-ins for any detail left empty
   },
   opening: {
     playOncePerSession: false, // every load starts from the opening
