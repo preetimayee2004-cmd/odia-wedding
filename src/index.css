@@ -164,10 +164,10 @@
     pointer-events: none;
     background-image: url("/art/gallery-flowers.svg");
     background-size: 280px auto;
-    opacity: 0.6;
+    opacity: 0.42;
     /* full along the outer edges, a faint trace across the middle */
-    -webkit-mask-image: linear-gradient(to right, #000 0%, #000 16%, rgb(0 0 0 / 0.12) 34%, rgb(0 0 0 / 0.12) 66%, #000 84%, #000 100%);
-    mask-image: linear-gradient(to right, #000 0%, #000 16%, rgb(0 0 0 / 0.12) 34%, rgb(0 0 0 / 0.12) 66%, #000 84%, #000 100%);
+    -webkit-mask-image: linear-gradient(to right, #000 0%, #000 16%, rgb(0 0 0 / 0.06) 34%, rgb(0 0 0 / 0.06) 66%, #000 84%, #000 100%);
+    mask-image: linear-gradient(to right, #000 0%, #000 16%, rgb(0 0 0 / 0.06) 34%, rgb(0 0 0 / 0.06) 66%, #000 84%, #000 100%);
   }
 
   /* ── Typography roles (sizes and colours from the variables above) ── */
@@ -462,6 +462,9 @@
 .jhoti .r { fill: none; stroke: #fffbf2; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .jhoti .d { fill: #fffbf2; stroke: #b8916a; stroke-width: 1; }
 .jhoti-bloom { transform-box: fill-box; transform-origin: center; }
+/* the small rule under a heading: the same line, finer */
+.jhoti-rule .k { stroke-width: 2.2; }
+.jhoti-rule .r { stroke-width: 0.9; }
 .jhoti[data-state="armed"] .jhoti-draw { clip-path: inset(-30px 50%); }
 .jhoti[data-state="armed"] .jhoti-bloom { opacity: 0; transform: scale(0.55); }
 .jhoti[data-state="play"] .jhoti-draw { animation: jhoti-draw 0.7s cubic-bezier(0.22, 0.7, 0.2, 1) both; }
@@ -708,20 +711,7 @@
   font-size: var(--fs-heading);
   font-weight: 600;
   line-height: 1.05;
-  color: var(--ev-ink);
-}
-.ev-divider span {
-  width: 72px;
-  height: 1px;
-}
-.ev-divider span:first-child { background: linear-gradient(to left, var(--ev-gold), transparent); }
-.ev-divider span:last-child { background: linear-gradient(to right, var(--ev-gold), transparent); }
-.ev-divider i {
-  width: 7px;
-  height: 7px;
-  transform: rotate(45deg);
-  border: 1px solid var(--ev-gold);
-  background: #f3e2b8;
+  color: #7a1424; /* maroon, like every section heading */
 }
 
 /* the vine */

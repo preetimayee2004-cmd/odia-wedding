@@ -1,5 +1,6 @@
 import { useRef, type CSSProperties } from "react";
 import { wedding } from "@/config/wedding";
+import { JhotiRule } from "@/components/ui/JhotiThreshold";
 import { useInView } from "@/hooks/useInView";
 import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { EASE } from "@/lib/motion";
@@ -65,13 +66,13 @@ export function Story() {
             <EdgeOrnaments />
 
             <header className="relative text-center" style={reveal(500)}>
-              <p className="t-quote leading-none" style={{ color: LABEL }}>
+              <p className="t-label leading-none" style={{ color: LABEL }}>
                 {eyebrow}
               </p>
               <h2 id="story-heading" className="t-heading mt-1.5 leading-none" style={{ color: VERMILION }}>
                 {heading}
               </h2>
-              <Underline className="mx-auto mt-1 block h-3 w-[9.5rem]" />
+              <JhotiRule motif="champa" className="mt-3" />
             </header>
 
             <ol className="relative mt-7">
@@ -205,12 +206,3 @@ function Heart({ className = "", filled = false }: { className?: string; filled?
   );
 }
 
-/** An imperfect, hand-drawn underline. */
-function Underline({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 200 12" preserveAspectRatio="none" className={className} aria-hidden fill="none" stroke={LINE} strokeLinecap="round">
-      <path d="M4 7.5C38 4.6 72 5.8 104 6.6s62-.4 92-3.2" strokeWidth="1.8" />
-      <path d="M22 9.6c30-1.6 64-1.2 96-.4" strokeWidth="1" strokeOpacity="0.5" />
-    </svg>
-  );
-}

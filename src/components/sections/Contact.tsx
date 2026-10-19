@@ -1,5 +1,6 @@
 import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { wedding, type ContactGroup, type ContactPerson } from "@/config/wedding";
+import { JhotiRule } from "@/components/ui/JhotiThreshold";
 import { useInView } from "@/hooks/useInView";
 import { EASE } from "@/lib/motion";
 import { demoMode, showPlaceholders } from "@/lib/placeholders";
@@ -8,7 +9,6 @@ import { Pending } from "@/components/ui/Pending";
 /** Room on each side for the page's looped side bands. */
 const BAND = "calc(100% * 35 / 768)";
 const MAROON = "#7A1424";
-const GOLD = "#B8893A";
 const LABEL = "#A6782C";
 const TEXT_SOFT = "#7A6250";
 const RULE = "#E2D0AE";
@@ -55,11 +55,11 @@ export function Contact() {
     <section ref={ref} id="contact" aria-labelledby="contact-heading" className="pb-12 pt-12" style={{ paddingInline: `calc(${BAND} + 16px)` }}>
       <div className="mx-auto max-w-[24rem]">
         <header className="text-center" style={rise(0)}>
-          <h2 id="contact-heading" className="font-serif text-[44px] font-semibold leading-none" style={{ color: MAROON }}>
+          <h2 id="contact-heading" className="t-heading" style={{ color: MAROON }}>
             {heading}
           </h2>
-          <LotusRule className="mx-auto mt-2 block h-4 w-[11rem]" />
-          <p className="t-quote mx-auto mt-2 max-w-[19rem] text-[16.5px]" style={{ color: TEXT_SOFT }}>
+          <JhotiRule motif="champa" className="mt-3" />
+          <p className="t-quote mx-auto mt-3 max-w-[19rem] text-[16.5px]" style={{ color: TEXT_SOFT }}>
             {note}
           </p>
         </header>
@@ -86,7 +86,6 @@ function Side({ group, style }: { group: ContactGroup; style: CSSProperties }) {
             {group.subtitle}
           </p>
         )}
-        <LotusRule className="mx-auto mt-2 block h-3 w-[7.5rem]" />
       </div>
 
       <ul className="mt-4">
@@ -191,15 +190,3 @@ function ChatIcon() {
   );
 }
 
-/** Fine gold lines either side of a small lotus. */
-function LotusRule({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 176 16" className={className} aria-hidden fill="none" stroke={GOLD} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M8 9.5H70M106 9.5H168" strokeWidth="0.8" opacity="0.85" />
-      <g fill={`${GOLD}55`} strokeWidth="1">
-        <path d="M88 2.5C91 5.5 91.5 9.5 88 13.5 84.5 9.5 85 5.5 88 2.5Z" />
-        <path d="M88 13.5C84 13 80.5 10.5 80 7 83.5 7.5 86.5 10 88 13.5ZM88 13.5C92 13 95.5 10.5 96 7 92.5 7.5 89.5 10 88 13.5Z" />
-      </g>
-    </svg>
-  );
-}

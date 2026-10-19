@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
 import { wedding } from "@/config/wedding";
+import { JhotiRule } from "@/components/ui/JhotiThreshold";
 import { useInView } from "@/hooks/useInView";
 import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { showPlaceholders } from "@/lib/placeholders";
@@ -156,7 +157,7 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
         <h2 id="countdown-heading" className="t-heading mt-1.5 whitespace-nowrap leading-none" style={{ ...fadeIn(220), color: MAROON }}>
           {heading}
         </h2>
-        <Ornament className="mt-4" style={fadeIn(280)} />
+        <JhotiRule motif="padma" className="mt-3" style={fadeIn(280)} />
 
         {/* The ikat medallion, its cream heart counting down */}
         <div className="relative mx-auto mt-6 aspect-square w-[min(66vw,18rem)] drop-shadow-[0_8px_14px_rgb(60_10_5/0.35)]" style={fadeIn(340)}>
@@ -232,25 +233,12 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
             </div>
           )}
         </div>
-        <Ornament className="mt-5" style={fadeIn(480)} />
         <WheelDivider className="mt-1" style={fadeIn(560)} />
       </div>
     </section>
   );
 }
 
-/** Rule — dot — small temple-top motif — dot — rule, in the couple border's red with gold dots. */
-function Ornament({ className = "", style }: { className?: string; style?: CSSProperties }) {
-  return (
-    <div aria-hidden className={`mx-auto flex w-[14rem] max-w-full items-center gap-2 ${className}`} style={style}>
-      <span className="h-px flex-1" style={{ background: `linear-gradient(to left, ${BORDER_RED}, transparent)` }} />
-      <span className="h-1 w-1 rounded-full" style={{ backgroundColor: GOLD }} />
-      <TempleTop className="h-3.5 w-5" color={BORDER_RED} />
-      <span className="h-1 w-1 rounded-full" style={{ backgroundColor: GOLD }} />
-      <span className="h-px flex-1" style={{ background: `linear-gradient(to right, ${BORDER_RED}, transparent)` }} />
-    </div>
-  );
-}
 
 /**
  * The hand-drawn divider beneath the date: fine antique-gold lines reaching

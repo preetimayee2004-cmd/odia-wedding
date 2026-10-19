@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
 import { flushSync } from "react-dom";
 import { wedding, type WeddingEvent } from "@/config/wedding";
+import { JhotiRule } from "@/components/ui/JhotiThreshold";
 import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { smoothScrollTo } from "@/lib/scroll";
 import { showPlaceholders } from "@/lib/placeholders";
@@ -98,11 +99,7 @@ export function Events() {
           <h2 id="events-heading" className="ev-title">
             {heading}
           </h2>
-          <div aria-hidden className="ev-divider mt-3.5 flex items-center justify-center gap-2.5">
-            <span />
-            <i />
-            <span />
-          </div>
+          <JhotiRule motif="champa" className="mt-3" />
         </header>
 
         <div ref={timelineRef} className="relative pb-[56px] pt-10">

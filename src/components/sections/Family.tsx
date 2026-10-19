@@ -1,9 +1,9 @@
 import { useRef, type CSSProperties } from "react";
 import { wedding, type FamilySide } from "@/config/wedding";
+import { JhotiRule } from "@/components/ui/JhotiThreshold";
 import { useInView } from "@/hooks/useInView";
 import { EASE } from "@/lib/motion";
 import { showPlaceholders } from "@/lib/placeholders";
-import { LotusIcon } from "@/components/art/Ganesha";
 import { GoldFrame } from "@/components/art/GoldFrame";
 import { Pending } from "@/components/ui/Pending";
 
@@ -50,15 +50,11 @@ export function Family() {
           <h2 id="family-heading" className="mt-1 font-serif text-[36px] font-semibold uppercase leading-none tracking-[2px]">
             <span style={{ color: GOLD_TEXT }}>{lead}</span> <span style={{ color: MAROON }}>{rest.join(" ")}</span>
           </h2>
+          <JhotiRule motif="padma" className="mt-3" />
         </div>
         <p className="t-body mt-3 text-[20px]" style={rise(120)}>
           {tagline}
         </p>
-        <div aria-hidden className="mx-auto mt-3 flex w-44 items-center gap-2" style={rise(220)}>
-          <span className="h-px flex-1" style={{ backgroundImage: `linear-gradient(to left, ${GOLD}, transparent)` }} />
-          <LotusIcon className="h-4 w-auto" />
-          <span className="h-px flex-1" style={{ backgroundImage: `linear-gradient(to right, ${GOLD}, transparent)` }} />
-        </div>
 
         {/* The couple with both sets of parents, a little wider than the text, its edges fading into the page */}
         {art && (

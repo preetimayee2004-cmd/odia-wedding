@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, type FormEvent } from "react";
 import { wedding } from "@/config/wedding";
+import { JhotiRule } from "@/components/ui/JhotiThreshold";
 import { useGuest } from "@/context/GuestContext";
 import { useInView } from "@/hooks/useInView";
 import { addWish, BackendError, backendReady, listWishes, newId, type Wish } from "@/lib/backend";
@@ -125,10 +126,11 @@ function WishingWallSection() {
 
       <div className="relative mx-auto max-w-[24rem] px-5 text-center">
         <div style={fade(100)}>
-          <h2 id="wishes-heading" className="mt-4 font-serif text-[34px] font-semibold leading-tight" style={{ color: MAROON }}>
+          <h2 id="wishes-heading" className="t-heading mt-4" style={{ color: MAROON }}>
             {heading}
           </h2>
-          <p className="t-quote mx-auto mt-2.5 max-w-[17rem] text-[18.5px]" style={{ color: "#5A3B2A" }}>
+          <JhotiRule motif="gendu" className="mt-3" />
+          <p className="t-quote mx-auto mt-3 max-w-[17rem] text-[18.5px]" style={{ color: "#5A3B2A" }}>
             {quote}
           </p>
         </div>

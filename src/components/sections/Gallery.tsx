@@ -5,7 +5,7 @@ import { useInView } from "@/hooks/useInView";
 import { showPlaceholders } from "@/lib/placeholders";
 import { EASE } from "@/lib/motion";
 import { PhotoViewer } from "@/components/ui/PhotoViewer";
-import { ChampaSprig } from "@/components/ui/JhotiThreshold";
+import { ChampaSprig, JhotiRule } from "@/components/ui/JhotiThreshold";
 import { GoldArchFrame } from "@/components/art/GoldArch";
 
 type Photo = (typeof wedding.gallery.photos)[number];
@@ -44,14 +44,10 @@ export function Gallery() {
     >
       <div ref={headerRef} className="text-center" style={{ opacity: headerIn ? 1 : 0, transition: `opacity 900ms ${EASE.silk}` }}>
         <p className="eyebrow">{eyebrow}</p>
-        <h2 id="gallery-heading" className="t-heading mt-2">
+        <h2 id="gallery-heading" className="t-heading mt-1.5" style={{ color: "#7A1424" }}>
           {heading}
         </h2>
-        <span aria-hidden className="mx-auto mt-4 flex w-40 items-center gap-2">
-          <span className="h-px flex-1 bg-gradient-to-l from-[#B8893A] to-transparent" />
-          <span className="h-1.5 w-1.5 rotate-45 bg-[#B8893A]" />
-          <span className="h-px flex-1 bg-gradient-to-r from-[#B8893A] to-transparent" />
-        </span>
+        <JhotiRule motif="champa" className="mt-3" />
       </div>
 
       <div className="mx-auto mt-12 grid max-w-[32rem] grid-cols-2 items-start gap-x-4">

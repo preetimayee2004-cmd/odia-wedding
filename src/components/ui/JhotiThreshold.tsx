@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 
 /*
  * Jhoti (ଝୋଟି): the rice-paste drawing at an Odia threshold that welcomes
@@ -220,6 +220,44 @@ export function JhotiThreshold({ motif, pull = "center" }: { motif: ThresholdMot
         </svg>
       </div>
     </div>
+  );
+}
+
+const KEYLINE = "#B8916A"; // the jhoti's ochre keyline (also in index.css)
+
+export type RuleMotif = "champa" | "padma" | "gendu";
+const RULE_FLOWERS: Record<RuleMotif, Flower> = { champa, padma, gendu };
+
+/**
+ * The rule beneath a section heading: fine ochre lines and a rice dot either
+ * side of a small rice-white flower — the same flower as the threshold above
+ * the section, so the jhoti drawn at the seam welcomes you into the room.
+ * `wide` for Thank You, the finale.
+ */
+export function JhotiRule({ motif, wide = false, className = "", style }: { motif: RuleMotif; wide?: boolean; className?: string; style?: CSSProperties }) {
+  const id = useId().replace(/:/g, "");
+  const { box, body } = RULE_FLOWERS[motif];
+  const [bx, by, bw] = box;
+  const size = motif === "gendu" ? 19 : 22;
+  return (
+    <svg viewBox="0 0 200 24" aria-hidden className={`jhoti jhoti-rule mx-auto block h-auto overflow-visible ${wide ? "w-[13.5rem]" : "w-[11rem]"} ${className}`} style={style}>
+      <defs>
+        {/* user-space gradients: a flat line has no height for a bounding-box gradient */}
+        <linearGradient id={`${id}-l`} gradientUnits="userSpaceOnUse" x1="6" y1="12" x2="82" y2="12">
+          <stop offset="0" stopColor={KEYLINE} stopOpacity="0" />
+          <stop offset="1" stopColor={KEYLINE} />
+        </linearGradient>
+        <linearGradient id={`${id}-r`} gradientUnits="userSpaceOnUse" x1="118" y1="12" x2="194" y2="12">
+          <stop offset="0" stopColor={KEYLINE} />
+          <stop offset="1" stopColor={KEYLINE} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d="M6 12H80" stroke={`url(#${id}-l)`} strokeWidth="1" strokeLinecap="round" />
+      <path d="M120 12H194" stroke={`url(#${id}-r)`} strokeWidth="1" strokeLinecap="round" />
+      {dot(84, 12, 1.6)}
+      {dot(116, 12, 1.6)}
+      <g transform={`translate(${f(100 - size / 2)} ${f(12 - size / 2)}) scale(${f(size / bw)}) translate(${-bx} ${-by})`}>{body}</g>
+    </svg>
   );
 }
 

@@ -1,5 +1,6 @@
 import { useRef, type CSSProperties } from "react";
 import { wedding } from "@/config/wedding";
+import { JhotiRule } from "@/components/ui/JhotiThreshold";
 import { useInView } from "@/hooks/useInView";
 import { EASE } from "@/lib/motion";
 import { formatVenueDate, parseVenueDateTime } from "@/lib/venueTime";
@@ -56,12 +57,11 @@ export function ThankYou() {
         <h2 id="thanks-heading" className="mt-4 font-serif text-[58px] font-semibold italic leading-none" style={{ ...rise(120), color: MAROON }}>
           {heading}
         </h2>
-        <Divider className="mx-auto mt-4" style={rise(220)} />
+        <JhotiRule motif="padma" wide className="mt-4" style={rise(220)} />
 
         <p className="t-quote mx-auto mt-5 max-w-[19rem] text-[19px]" style={{ ...rise(320), color: INK }}>
           “{message}”
         </p>
-        <LotusMark className="mx-auto mt-4" style={rise(420)} />
       </div>
 
       {/* The couple at Puri, out over the sea to the Jagannath temple */}
@@ -124,14 +124,3 @@ function Divider({ className = "", style }: { className?: string; style?: CSSPro
   );
 }
 
-/** A small maroon lotus with curling tendrils. */
-function LotusMark({ className = "", style }: { className?: string; style?: CSSProperties }) {
-  return (
-    <svg viewBox="0 0 120 26" className={`block h-6 w-[7.5rem] ${className}`} style={style} aria-hidden fill="none" stroke={MAROON} strokeWidth="1.2" strokeLinecap="round">
-      <path d="M60 4C64 9 64 15 60 20 56 15 56 9 60 4Z" fill={`${MAROON}33`} />
-      <path d="M60 20C55 19 50 15 49 10 54 11 58 14 60 20ZM60 20C65 19 70 15 71 10 66 11 62 14 60 20Z" />
-      <path d="M49 20C38 20 30 16 22 18 16 19 15 24 20 24 23 24 23 21 21 21" />
-      <path d="M71 20C82 20 90 16 98 18 104 19 105 24 100 24 97 24 97 21 99 21" />
-    </svg>
-  );
-}

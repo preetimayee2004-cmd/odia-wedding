@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { wedding } from "@/config/wedding";
+import { JhotiRule } from "@/components/ui/JhotiThreshold";
 import { useGuest } from "@/context/GuestContext";
 import { useInView } from "@/hooks/useInView";
 import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
@@ -14,7 +15,6 @@ import { hasContactNumbers } from "@/components/sections/Contact";
 const SAVED_KEY = "tila:rsvp";
 const MAROON = "#7A1424";
 const RED = "#A51C1C";
-const STONE = "#B8893A";
 
 function hasAccepted(): boolean {
   try {
@@ -72,11 +72,7 @@ export function Rsvp() {
         <h2 id="rsvp-heading" className="t-heading" style={{ color: MAROON }}>
           {wedding.rsvp.heading}
         </h2>
-        <span aria-hidden className="mx-auto mt-4 flex w-40 items-center gap-2">
-          <span className="h-px flex-1" style={{ backgroundImage: `linear-gradient(to left, ${STONE}, transparent)` }} />
-          <span className="h-1.5 w-1.5 rotate-45" style={{ backgroundColor: STONE }} />
-          <span className="h-px flex-1" style={{ backgroundImage: `linear-gradient(to right, ${STONE}, transparent)` }} />
-        </span>
+        <JhotiRule motif="gendu" className="mt-3" />
 
         <div className="mt-8">
           <RsvpBody />

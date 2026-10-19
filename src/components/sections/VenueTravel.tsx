@@ -1,5 +1,6 @@
 import { useRef, type CSSProperties, type ReactNode } from "react";
 import { wedding, type TravelMode } from "@/config/wedding";
+import { JhotiRule } from "@/components/ui/JhotiThreshold";
 import { useInView } from "@/hooks/useInView";
 import { showPlaceholders } from "@/lib/placeholders";
 import { EASE } from "@/lib/motion";
@@ -50,16 +51,12 @@ export function VenueTravel() {
       <div className="mx-auto max-w-[24rem]">
         {/* The heading */}
         <header className="text-center" style={fade(0)}>
-          <p className="t-label flex items-center justify-center gap-2 text-[10.5px] tracking-[1.6px]" style={{ color: ROUTE }}>
-            <Sprig />
-            <span className="max-w-[15rem]">{eyebrow}</span>
-            <Sprig mirrored />
-          </p>
-          <h2 id="venue-heading" className="mt-3 font-serif text-[40px] font-semibold leading-[1.05]" style={{ color: MAROON }}>
-            <span className="italic">{heading.split(" ")[0]}</span> {heading.split(" ").slice(1).join(" ")}
+          <p className="t-label">{eyebrow}</p>
+          <h2 id="venue-heading" className="t-heading mt-1.5" style={{ color: MAROON }}>
+            {heading}
           </h2>
-          <FlowerDivider className="mx-auto mt-4" />
-          <p className="t-quote mx-auto mt-4 max-w-[20rem] text-[18px]" style={{ color: "#5A3B2A" }}>
+          <JhotiRule motif="champa" className="mt-3" />
+          <p className="t-quote mx-auto mt-3 max-w-[20rem] text-[18px]" style={{ color: "#5A3B2A" }}>
             {intro}
           </p>
         </header>
@@ -306,22 +303,6 @@ function Sprig({ mirrored = false, className = "" }: { mirrored?: boolean; class
   );
 }
 
-/** The red flower between two fine lines, under the heading. */
-function FlowerDivider({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 220 18" className={`block h-[1.1rem] w-[13.75rem] ${className}`} aria-hidden>
-      <path d="M4 9H92M128 9H216" stroke={ROUTE} strokeWidth="0.9" strokeLinecap="round" />
-      <g fill={ROUTE}>
-        {[0, 45, 90, 135, 180, 225, 270, 315].map((a) => (
-          <ellipse key={a} cx="110" cy="3.6" rx="2.1" ry="4" transform={`rotate(${a} 110 9)`} opacity={a % 90 ? 0.65 : 1} />
-        ))}
-        <circle cx="110" cy="9" r="1.8" fill="#F3E4C9" />
-        <circle cx="98" cy="9" r="1.2" />
-        <circle cx="122" cy="9" r="1.2" />
-      </g>
-    </svg>
-  );
-}
 
 /**
  * The small route between two stops: a short, gently curving dashed line
