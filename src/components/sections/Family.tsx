@@ -11,27 +11,28 @@ const GOLD = "#B8893A";
 const GOLD_TEXT = "#A6782C";
 const MAROON = "#7A1424";
 const NAME = "#6B1C2C";
-const BLESSING = "#5A2630";
-const LABEL_GOLD = "#A9843A";
-const LABEL_MAROON = "#7A2335";
-/** A veil of the page cream over the background flowers (about 30% of them show), soft at the section's top and bottom. */
-const VEIL = "linear-gradient(to bottom, rgb(var(--page) / 0), rgb(var(--page) / 0.7) 72px, rgb(var(--page) / 0.7) calc(100% - 72px), rgb(var(--page) / 0))";
+const TEXT_SOFT = "#6B4A3A";
+const LABEL = "#8A6526"; // the cards' small capitals, a deeper gold for legibility
+/** The page cream over the background flowers, so none sit behind the portrait or the text; soft at the section's top and bottom. */
+const VEIL = "linear-gradient(to bottom, rgb(var(--page) / 0), rgb(var(--page)) 72px, rgb(var(--page)) calc(100% - 72px), rgb(var(--page) / 0))";
+/** Where the four faint corner flowers sit, and how each is turned. */
+const CORNER_FLOWERS = ["left-[calc(100%*35/768+4px)] top-[14px]", "right-[calc(100%*35/768+4px)] top-[14px] rotate-[22deg]", "bottom-[20px] left-[calc(100%*35/768+4px)] rotate-[12deg]", "bottom-[20px] right-[calc(100%*35/768+4px)] -rotate-[10deg]"];
 /** The portrait's edges fade into the page. */
 const PORTRAIT_MASK = "radial-gradient(ellipse 72% 68% at center, #000 60%, transparent 100%)";
 
 /**
- * Section 06 — The Families, after the couple's design.
- * A gold filigree crest over "THE FAMILIES" (gold and maroon), "Bound by
- * Love, Blessed by Family" and a lotus divider; the couple with both sets of
- * parents, its edges fading into the page; the parents of the groom and of
- * the bride one above the other, each in a carved gold frame under a lotus
- * with their family's blessing; "|| ବସୁଧୈବ
+ * Section 06 — The Families, after the couple's design, kept quiet.
+ * The gold filigree crest; "TWO FAMILIES · ONE CELEBRATION" over "Our
+ * Families", its jhoti rule and "Bound by Love, Blessed by Family"; the couple
+ * with both sets of parents, its edges fading into the page; the groom's and
+ * the bride's families one above the other in matching compact gold frames
+ * (label, names, blessing); "Together, our families become one."; "|| ବସୁଧୈବ
  * କୁଟୁମ୍ବକମ୍ ||" (the world is one family); and Lord Jagannath between two
- * scrolls over Jai Jagannath.
+ * scrolls over Jai Jagannath. The page's flowers are veiled here, leaving
+ * four faint ones in the corners.
  */
 export function Family() {
-  const { heading, tagline, art, groom, bride, odiaLine, closing } = wedding.family;
-  const [lead, ...rest] = heading.split(" ");
+  const { eyebrow, heading, tagline, art, groom, bride, together, odiaLine, closing } = wedding.family;
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { threshold: 0.12 });
 
@@ -42,17 +43,23 @@ export function Family() {
   });
 
   return (
-    <section ref={ref} id="family" aria-labelledby="family-heading" className="py-7 text-center" style={{ paddingInline: "calc(100% * 35 / 768 + 16px)", backgroundImage: VEIL }}>
-      <div className="mx-auto max-w-[24rem]">
+    <section ref={ref} id="family" aria-labelledby="family-heading" className="relative overflow-hidden py-7 text-center" style={{ paddingInline: "calc(100% * 35 / 768 + 16px)", backgroundImage: VEIL }}>
+      {/* four faint flowers in the corners, clear of the portrait and the text */}
+      {CORNER_FLOWERS.map((at) => (
+        <CornerFlower key={at} className={`pointer-events-none absolute h-[68px] w-[68px] ${at}`} />
+      ))}
+
+      <div className="relative mx-auto max-w-[24rem]">
         {/* The crest and heading */}
         <div style={rise(0)}>
-          <Crest className="mx-auto block h-auto w-[13rem]" />
-          <h2 id="family-heading" className="mt-1 font-serif text-[36px] font-semibold uppercase leading-none tracking-[2px]">
-            <span style={{ color: GOLD_TEXT }}>{lead}</span> <span style={{ color: MAROON }}>{rest.join(" ")}</span>
+          <Crest className="mx-auto block h-auto w-[12rem]" />
+          {eyebrow && <p className="t-label mt-3">{eyebrow}</p>}
+          <h2 id="family-heading" className="t-heading mt-1.5" style={{ color: MAROON }}>
+            {heading}
           </h2>
           <JhotiRule motif="padma" className="mt-3" />
         </div>
-        <p className="t-body mt-3 text-[20px]" style={rise(120)}>
+        <p className="mt-3 font-sans text-[14.5px] leading-snug" style={{ ...rise(120), color: TEXT_SOFT }}>
           {tagline}
         </p>
 
@@ -70,14 +77,20 @@ export function Family() {
           />
         )}
 
-        {/* The parents of the groom, then of the bride, each in a carved gold frame under a lotus */}
-        <div className="-mx-2 mt-14 space-y-16" style={rise(420)}>
+        {/* The groom's family, then the bride's, in matching compact gold frames (equal rows, so equal heights) */}
+        <div className="mt-12 grid auto-rows-fr gap-12" style={rise(420)}>
           <Parents side={groom} />
           <Parents side={bride} />
         </div>
 
+        {together && (
+          <p className="t-quote mt-9 text-[20px]" style={{ ...rise(560), color: MAROON }}>
+            {together}
+          </p>
+        )}
+
         {odiaLine && (
-          <p lang="or" className="t-odia mt-9 text-[17.5px] font-normal" style={{ ...rise(620), color: MAROON }}>
+          <p lang="or" className="t-odia mt-4 text-[17px] font-normal" style={{ ...rise(620), color: MAROON }}>
             {/* the bars in gold, the words in maroon, as in the heading */}
             {odiaLine.split(/(||)/).map((part, i) => (part === "||" ? <span key={i} style={{ color: GOLD_TEXT }}>{part}</span> : part))}
           </p>
@@ -101,24 +114,25 @@ export function Family() {
 const withTitle = (name: string) => name.replace(/^(Sri|Shri|Smt\.?|Srimati|Late|Dr\.?)\s+/, "$1\u00A0");
 
 /**
- * One side in its gold frame, after the couple's design: "BRIDE'S PARENTS"
- * (gold, then maroon), the parents in large bold maroon with "&" on its own
- * line, and their family's blessing in bold italics.
+ * One family in its gold frame: the relationship in small gold capitals, the
+ * parents' names in the serif with a small gold "&" between them, and the
+ * family's blessing in the plain sans. Both frames share one layout.
  */
 function Parents({ side }: { side: FamilySide }) {
   const [a, b] = side.parents;
-  const [lead, ...rest] = side.label.split(" ");
   return (
-    <GoldFrame>
-      <p className="font-serif text-[15px] font-bold uppercase leading-none tracking-[0.04em]">
-        <span style={{ color: LABEL_GOLD }}>{lead}</span> <span style={{ color: LABEL_MAROON }}>{rest.join(" ")}</span>
+    <GoldFrame className="h-full" panelClassName="flex h-full flex-col items-center justify-center">
+      <p className="font-sans text-[11px] font-semibold uppercase leading-none tracking-[0.2em]" style={{ color: LABEL }}>
+        {side.label}
       </p>
       {side.parents.length > 0 ? (
-        <p className="mt-2.5 font-serif text-[clamp(20px,6vw,25px)] font-bold leading-[1.15]" style={{ color: NAME }}>
+        <p className="mt-3 font-serif text-[clamp(20px,5.8vw,23px)] font-semibold leading-[1.2]" style={{ color: NAME }}>
           <span className="block [text-wrap:balance]">{withTitle(a)}</span>
           {b && (
             <>
-              <span className="block">&amp;</span>
+              <span className="block font-medium leading-[1.15]" style={{ color: GOLD_TEXT, fontSize: "0.9em" }}>
+                &amp;
+              </span>
               <span className="block [text-wrap:balance]">{withTitle(b)}</span>
             </>
           )}
@@ -133,7 +147,7 @@ function Parents({ side }: { side: FamilySide }) {
         )
       )}
       {side.blessing && (
-        <p className="mt-2.5 font-serif text-[14.5px] font-bold italic leading-snug [text-wrap:balance]" style={{ color: BLESSING }}>
+        <p className="mt-3 font-sans text-[13px] leading-snug [text-wrap:balance]" style={{ color: TEXT_SOFT }}>
           {side.blessing}
         </p>
       )}
@@ -165,6 +179,23 @@ function Crest({ className = "" }: { className?: string }) {
         <path d="M110 19C106 16 104 11 106 6 108 9 109 12 110 15 111 12 112 9 114 6 116 11 114 16 110 19Z" />
         <circle cx="110" cy="3" r="1.6" />
         <path d="M98 36H122" stroke={GOLD} strokeWidth="1.2" />
+      </g>
+    </svg>
+  );
+}
+
+/** One faint white flower, as in the page's background, for a corner. */
+function CornerFlower({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="-36 -36 72 72" aria-hidden className={className} style={{ opacity: 0.42 }}>
+      <g opacity="0.85">
+        {[0, 45, 90, 135, 180, 225, 270, 315].map((a) => (
+          <g key={a} transform={`rotate(${a})`}>
+            <path d="M0 0C-11.6 -11.9 -9.2 -27.2 0 -34C9.2 -27.2 11.6 -11.9 0 0Z" fill="#fff" fillOpacity="0.38" stroke="#fff" strokeWidth="0.6" strokeOpacity="0.85" />
+            <path d="M0 -6.8V-26.5" stroke="#fff" strokeWidth="0.45" strokeOpacity="0.8" />
+          </g>
+        ))}
+        <circle r="4" fill="#fff" fillOpacity="0.5" />
       </g>
     </svg>
   );

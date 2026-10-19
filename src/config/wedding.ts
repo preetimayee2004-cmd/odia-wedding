@@ -160,7 +160,8 @@ export interface WeddingConfig {
     chapters: Array<{ label: string; title: string; text: string }>;
   };
   family: {
-    /** The section heading; its first word is set in gold, the rest in maroon. */
+    /** Small capitals above the heading, e.g. "Two Families · One Celebration". */
+    eyebrow: string | null;
     heading: string;
     /** Under the heading, e.g. "Bound by Love, Blessed by Family". */
     tagline: string;
@@ -168,6 +169,8 @@ export interface WeddingConfig {
     art: { src: string; alt: string; w: number; h: number } | null;
     groom: FamilySide;
     bride: FamilySide;
+    /** After the two families, e.g. "Together, our families become one." */
+    together: string | null;
     /** Odia line near the foot, e.g. "|| ବସୁଧୈବ କୁଟୁମ୍ବକମ୍ ||". */
     odiaLine: string | null;
     /** Under the Jagannath icon, e.g. "Jai Jagannath". */
@@ -395,7 +398,8 @@ export const wedding: WeddingConfig = {
     ],
   },
   family: {
-    heading: "The Families",
+    eyebrow: "Two Families · One Celebration",
+    heading: "Our Families",
     tagline: "Bound by Love, Blessed by Family",
     art: {
       src: "/art/family/family-portrait.webp",
@@ -406,15 +410,16 @@ export const wedding: WeddingConfig = {
     // DEMO — the names from the couple's design (17 Oct 2026), father first:
     // replace with the families' own, spelled as they write them.
     groom: {
-      label: "Groom's Parents",
+      label: "Groom's Family",
       parents: ["Sri Debashis Mohapatra", "Smt. Subhashree Mohapatra"],
       blessing: "With the loving blessings of the Mohapatra Parivar",
     },
     bride: {
-      label: "Bride's Parents",
+      label: "Bride's Family",
       parents: ["Sri Bijay Kumar Das", "Smt. Minati Das"],
       blessing: "With the loving blessings of the Das Parivar",
     },
+    together: "Together, our families become one.",
     odiaLine: "|| ବସୁଧୈବ କୁଟୁମ୍ବକମ୍ ||",
     closing: "Jai Jagannath",
   },

@@ -3,34 +3,34 @@ import { useId, type ReactNode } from "react";
 const DARK = "#6E4612";
 const SHINE = "#FFF3C4";
 /** Where each corner sits, and how the top-left design is flipped for it. */
-const CORNERS = ["left-[-7px] top-[-7px]", "right-[-7px] top-[-7px] -scale-x-100", "bottom-[-7px] left-[-7px] -scale-y-100", "bottom-[-7px] right-[-7px] -scale-100"];
-const SIDES = ["left-[-8px]", "right-[-8px] -scale-x-100"];
+const CORNERS = ["left-[-5px] top-[-5px]", "right-[-5px] top-[-5px] -scale-x-100", "bottom-[-5px] left-[-5px] -scale-y-100", "bottom-[-5px] right-[-5px] -scale-100"];
+const SIDES = ["left-[-6px]", "right-[-6px] -scale-x-100"];
 
 /**
  * A carved gold frame, after the couple's design: a gilded band with a row
  * of beads, acanthus scrolls at the corners, C-scrolls at the middle of each
  * side and below, and a golden lotus on top. The band is CSS (`.gold-frame`),
  * so the frame grows with its contents; the ornaments are fixed-size SVGs
- * pinned to it.
+ * pinned to it, sized to keep the frame compact.
  */
-export function GoldFrame({ children, className = "" }: { children: ReactNode; className?: string }) {
+export function GoldFrame({ children, className = "", panelClassName = "" }: { children: ReactNode; className?: string; panelClassName?: string }) {
   return (
     <div className={`gold-frame ${className}`}>
-      <div className="gold-frame-panel">{children}</div>
-      <Ornament box="0 0 120 46" className="left-1/2 top-[-42px] h-[55px] w-[144px] -translate-x-1/2">
+      <div className={`gold-frame-panel ${panelClassName}`}>{children}</div>
+      <Ornament box="0 0 120 46" className="left-1/2 top-[-31px] h-[41px] w-[108px] -translate-x-1/2">
         {lotus}
       </Ornament>
       {CORNERS.map((at) => (
-        <Ornament key={at} box="0 0 48 48" className={`h-12 w-12 ${at}`}>
+        <Ornament key={at} box="0 0 48 48" className={`h-9 w-9 ${at}`}>
           {corner}
         </Ornament>
       ))}
       {SIDES.map((at) => (
-        <Ornament key={at} box="0 0 20 56" className={`top-1/2 h-14 w-5 -translate-y-1/2 ${at}`}>
+        <Ornament key={at} box="0 0 20 56" className={`top-1/2 h-[42px] w-[15px] -translate-y-1/2 ${at}`}>
           {sideScroll}
         </Ornament>
       ))}
-      <Ornament box="0 0 76 22" className="bottom-[-8px] left-1/2 h-[22px] w-[76px] -translate-x-1/2">
+      <Ornament box="0 0 76 22" className="bottom-[-6px] left-1/2 h-[17px] w-[58px] -translate-x-1/2">
         {bottomScroll}
       </Ornament>
     </div>
