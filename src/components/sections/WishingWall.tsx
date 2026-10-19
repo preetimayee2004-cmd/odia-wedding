@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/Button";
 import { Honeypot } from "@/components/ui/Field";
 import { Sheet } from "@/components/ui/Sheet";
 import { Toran } from "@/components/art/Toran";
-import { Dock } from "@/components/ui/Dock";
 
 const PAGE = 20;
 const MAROON = "#7A1424";
@@ -128,7 +127,6 @@ function WishingWallSection() {
       <Toran className="block h-auto w-full" />
 
       <div className="relative mx-auto max-w-[24rem] px-5 text-center">
-        <Dock name="wishes" />
         <div style={fade(100)}>
           <h2 id="wishes-heading" className="mt-4 font-serif text-[34px] font-semibold leading-tight" style={{ color: MAROON }}>
             {heading}

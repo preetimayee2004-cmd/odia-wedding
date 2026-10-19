@@ -7,7 +7,6 @@ import { EASE } from "@/lib/motion";
 import { dateKey, formatVenueDate, parseVenueDateTime, venueDateKey, venueInstant, zoneLabel, type VenueDateTime } from "@/lib/venueTime";
 import { IKAT_DISC, IkatWheel } from "@/components/art/IkatWheel";
 import { Pending } from "@/components/ui/Pending";
-import { Dock } from "@/components/ui/Dock";
 
 const DAY = 86_400_000;
 const CARD = "#F8F2E5"; // the couple card cream
@@ -143,7 +142,6 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
   return (
     <section ref={ref} id="countdown" aria-labelledby="countdown-heading" className="relative text-center">
       <div className="relative px-12 pb-0 pt-[3.25rem]">
-        <Dock name="countdown" />
         <p className="t-label flex items-center justify-center gap-2" style={fadeIn(0)}>
           <span aria-hidden>+</span> {eyebrow} <span aria-hidden>+</span>
         </p>

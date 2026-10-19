@@ -6,7 +6,6 @@ import { EASE } from "@/lib/motion";
 import { directionsUrl } from "@/lib/maps";
 import { formatVenueDate, parseVenueDateTime } from "@/lib/venueTime";
 import { Pending } from "@/components/ui/Pending";
-import { Dock } from "@/components/ui/Dock";
 
 const ART = "/art/venue";
 const MAROON = "#7A1424";
@@ -51,7 +50,6 @@ export function VenueTravel() {
       <div className="mx-auto max-w-[24rem]">
         {/* The heading */}
         <header className="text-center" style={fade(0)}>
-          <Dock name="venue" />
           <p className="t-label flex items-center justify-center gap-2 text-[10.5px] tracking-[1.6px]" style={{ color: ROUTE }}>
             <Sprig />
             <span className="max-w-[15rem]">{eyebrow}</span>

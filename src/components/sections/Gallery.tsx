@@ -5,7 +5,6 @@ import { showPlaceholders } from "@/lib/placeholders";
 import { EASE } from "@/lib/motion";
 import { Sheet } from "@/components/ui/Sheet";
 import { GoldArchFrame } from "@/components/art/GoldArch";
-import { Dock } from "@/components/ui/Dock";
 
 type Photo = (typeof wedding.gallery.photos)[number];
 
@@ -39,7 +38,6 @@ export function Gallery() {
     <section id="gallery" aria-labelledby="gallery-heading" className="px-[var(--gutter)] py-[var(--section-y)]"
     >
       <div ref={headerRef} className="text-center" style={{ opacity: headerIn ? 1 : 0, transition: `opacity 900ms ${EASE.silk}` }}>
-        <Dock name="gallery" />
         <p className="eyebrow">{eyebrow}</p>
         <h2 id="gallery-heading" className="t-heading mt-2">
           {heading}

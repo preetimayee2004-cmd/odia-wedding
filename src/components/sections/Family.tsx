@@ -6,7 +6,6 @@ import { showPlaceholders } from "@/lib/placeholders";
 import { LotusIcon } from "@/components/art/Ganesha";
 import { GoldFrame } from "@/components/art/GoldFrame";
 import { Pending } from "@/components/ui/Pending";
-import { Dock } from "@/components/ui/Dock";
 
 const GOLD = "#B8893A";
 const GOLD_TEXT = "#A6782C";
@@ -45,7 +44,6 @@ export function Family() {
   return (
     <section ref={ref} id="family" aria-labelledby="family-heading" className="py-20 text-center" style={{ paddingInline: "calc(100% * 35 / 768 + 16px)", backgroundImage: VEIL }}>
       <div className="mx-auto max-w-[24rem]">
-        <Dock name="family" />
         {/* The crest and heading */}
         <div style={rise(0)}>
           <Crest className="mx-auto block h-auto w-[13rem]" />

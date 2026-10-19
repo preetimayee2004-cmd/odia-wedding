@@ -7,7 +7,6 @@ import { EASE } from "@/lib/motion";
 import { CardBackdrop, cardCq, cardMinHeight, type CardArt } from "@/components/art/CardBackdrop";
 import { GaneshaIcon, LotusIcon } from "@/components/art/Ganesha";
 import { Divider } from "@/components/ui/CardOrnaments";
-import { Dock } from "@/components/ui/Dock";
 
 /**
  * The couple card artwork (768×1376): a carved arch in a red-and-gold border
@@ -58,8 +57,6 @@ export function Couple() {
       className="relative [container-type:inline-size]"
     >
       <CardBackdrop card={CARD} />
-      {/* the marigold companion's first dock, on the peak of the arch */}
-      <Dock name="couple" className="z-30" style={{ position: "absolute", left: "50%", top: "calc(11cqw - 32px)", width: 64, transform: "translateX(-50%)" }} />
 
       <div
         className="relative z-20 flex flex-col"

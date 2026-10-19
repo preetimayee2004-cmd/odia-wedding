@@ -3,7 +3,6 @@ import { wedding, type ContactGroup, type ContactPerson } from "@/config/wedding
 import { useInView } from "@/hooks/useInView";
 import { EASE } from "@/lib/motion";
 import { showPlaceholders } from "@/lib/placeholders";
-import { Dock } from "@/components/ui/Dock";
 
 /** Room on each side for the page's looped side bands. */
 const BAND = "calc(100% * 35 / 768)";
@@ -55,7 +54,6 @@ export function Contact() {
     <section ref={ref} id="contact" aria-labelledby="contact-heading" className="pb-14 pt-12" style={{ paddingInline: `calc(${BAND} + 16px)` }}>
       <div className="mx-auto max-w-[24rem]">
         <header className="text-center" style={rise(0)}>
-          <Dock name="contact" />
           <h2 id="contact-heading" className="font-serif text-[44px] font-semibold leading-none" style={{ color: MAROON }}>
             {heading}
           </h2>
