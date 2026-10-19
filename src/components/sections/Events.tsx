@@ -12,10 +12,9 @@ import { EVENT_ART_DEFS, FLOWER_IDS, rng } from "@/components/art/eventVineArt";
  * Section — Wedding Events.
  * A green vine zigzags down the page from flower to flower — marigold, champa,
  * lotus, in turn — alternating left and right, growing as the guest scrolls.
- * Under each flower: the ceremony's name, its Odia name, its day and time
- * ("Wed · 10:00 AM – 1:00 PM"), and a "Tap to view details" button that opens
- * a card (about, dress code, place). The first ceremony of each day carries
- * the day beside its flower, on the open side. One card is open at a time.
+ * Under each flower: the ceremony's name, its Odia name, its day and date
+ * ("Wed · 10 February 2027"), and a "Tap to view details" button that opens a
+ * card (time, about, dress code, place). One card is open at a time.
  * Styles: the `.ev-*` block in index.css.
  */
 export function Events() {
@@ -114,7 +113,6 @@ export function Events() {
                 className={`ev-item ${i % 2 ? "ev-right" : "ev-left"} ${i ? "pt-[30px]" : ""} ${seen[i] || reduced ? "in" : ""}`}
                 style={swayStyle(i)}
               >
-                {event.date && event.date !== items[i - 1]?.date && <DayLabel date={event.date} />}
                 <div className="ev-col">
                   <div className="ev-flower" data-index={i}>
                     <div className="ev-pop">
@@ -171,35 +169,28 @@ const splitDate = (date: string): [string, string | null] => {
 };
 const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-/** Where a day begins: the weekday and the date, beside the first flower of the day. */
-function DayLabel({ date }: { date: string }) {
-  const [weekday, rest] = splitDate(date);
-  return (
-    <p className="ev-day">
-      <b>{weekday}</b>
-      {rest && <span>{rest}</span>}
-    </p>
-  );
-}
-
-/** "Wed · 10:00 AM – 1:00 PM", always visible under the Odia name. */
+/** "Wed · 10 February 2027", always visible under the Odia name. */
 function When({ event }: { event: WeddingEvent }) {
-  const weekday = event.date && splitDate(event.date)[0];
-  const day = weekday && WEEKDAYS.includes(weekday) ? weekday.slice(0, 3) : null;
-  const time = event.when && keepTimesTogether(event.when);
-  if (!day && !time && !showPlaceholders) return null;
+  if (!event.date) return showPlaceholders ? <p className="ev-when"><Pending label="Date awaiting confirmation">Date to be announced</Pending></p> : null;
+  const [weekday, rest] = splitDate(event.date);
+  const day = WEEKDAYS.includes(weekday) ? weekday.slice(0, 3) : null;
   return (
     <p className="ev-when">
-      {day && <b>{day}</b>}
-      {day && (time || showPlaceholders) && " · "}
-      {time ?? <Pending label="Time awaiting confirmation">{event.isLagna ? "Lagna to be announced" : "Time to be announced"}</Pending>}
+      {day && rest ? (
+        <>
+          <b>{day}</b> · {rest}
+        </>
+      ) : (
+        event.date
+      )}
     </p>
   );
 }
 
-/** The card behind "Tap to view details": about, dress code and place (the day and time are always shown). */
+/** The card behind "Tap to view details": time, about, dress code and place (the day and date are always shown). */
 function DetailsCard({ event }: { event: WeddingEvent }) {
   const rows: Array<{ label: string; value: string | null; className?: string; map?: string | null; toCome?: string }> = [
+    { label: "Time", value: event.when && keepTimesTogether(event.when), toCome: event.isLagna ? "Lagna to be announced" : "Time to be announced" },
     { label: "About", value: event.about, className: "about" },
     { label: "Dress code", value: event.dressCode && event.dressCode.split(" | ").join(" · ") },
     { label: "Place", value: event.venueName, map: event.mapUrl },

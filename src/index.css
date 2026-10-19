@@ -867,7 +867,7 @@
   text-shadow: 0 0 6px rgb(var(--page)), 0 0 12px rgb(var(--page));
 }
 
-/* the day and time, always shown under the Odia name */
+/* the day and date, always shown under the Odia name */
 .ev-when {
   margin-top: 2px;
   padding: 1px 8px;
@@ -879,28 +879,6 @@
 }
 .ev-when b { font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ev-red); }
 
-/* where a day begins: beside the first flower of the day, on the open side */
-.ev-day {
-  position: absolute;
-  top: calc(var(--ev-flower) / 2);
-  width: 112px;
-  transform: translateY(-50%);
-  text-align: center;
-  text-shadow: 0 0 6px rgb(var(--page)), 0 0 12px rgb(var(--page));
-}
-.ev-item + .ev-item .ev-day { top: calc(30px + var(--ev-flower) / 2); } /* below the item's top padding */
-.ev-left .ev-day { right: calc(var(--ev-band) + 6px); }
-.ev-right .ev-day { left: calc(var(--ev-band) + 6px); }
-.ev-day b {
-  display: block;
-  font: 600 11px/1.2 var(--font-ui);
-  letter-spacing: 0.2em;
-  margin-right: -0.2em; /* cancels the trailing letter-spacing */
-  text-transform: uppercase;
-  color: var(--ev-red);
-}
-.ev-day b::after { content: ""; display: block; width: 28px; height: 1px; margin: 6px auto 5px; background: var(--ev-gold); }
-.ev-day span { display: block; font: italic 500 15px/1.25 var(--font-serif); color: var(--ev-ink-soft); }
 
 /* the details button: a thin gold outline on the page cream, no shadow, a maroon label; the label is centred
    under the name, the chevron sits in the right padding */
@@ -941,8 +919,6 @@
 .ev-motion .ev-item:not(.in) .ev-odia,
 .ev-motion .ev-item:not(.in) .ev-when,
 .ev-motion .ev-item:not(.in) .ev-toggle { opacity: 0; transform: translateY(12px); }
-.ev-motion .ev-day { transition: opacity 0.9s 0.2s; }
-.ev-motion .ev-item:not(.in) .ev-day { opacity: 0; }
 .ev-motion .ev-item.in .ev-name { transition-delay: 0.25s; }
 .ev-motion .ev-item.in .ev-odia { transition-delay: 0.35s; }
 .ev-motion .ev-item.in .ev-when { transition-delay: 0.4s; }

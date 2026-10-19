@@ -109,6 +109,10 @@ export interface WeddingConfig {
     invite: string;
     /** Shown under the names; null hides it. */
     hashtag: string | null;
+    /** Under the hashtag: the date as it should read, e.g. "Friday, 12 February 2027". */
+    dateLine: string | null;
+    /** Under the date, e.g. "Jagannath Kalyan Mandap, Bhubaneswar, Odisha". */
+    place: string | null;
     /** Closing quote, under a small lotus. */
     quote: string;
   };
@@ -123,18 +127,12 @@ export interface WeddingConfig {
     heading: string;
     /** `{guest}` is replaced with the guest's name from the share link. */
     greeting: string;
-    /** Opening line, in its two printed lines. */
-    message: [string, string];
     /** Small line above the names. */
     saveTheDate: string;
     /** The couple's names as they appear on the card. */
     names: [string, string];
     /** Line below the names. */
     announcement: string;
-    /** The date exactly as printed on the card, e.g. "Friday, 12 February 2027". */
-    dateLine: string | null;
-    /** The place as printed on the card. */
-    place: string | null;
   };
   countdown: {
     /** Small line at the top, between ornaments. */
@@ -359,6 +357,9 @@ export const wedding: WeddingConfig = {
     greeting: "Dear {guest},",
     invite: "We joyfully invite you to celebrate with us.",
     hashtag: "#AviWedsPragyan", // DEMO
+    // DEMO — the example date and place, as they read on the couple card
+    dateLine: "Friday, 12 February 2027",
+    place: "Jagannath Kalyan Mandap, Bhubaneswar, Odisha",
     quote: "Two souls, one journey, blessed by Lord Jagannath.",
   },
   wedding: {
@@ -370,16 +371,9 @@ export const wedding: WeddingConfig = {
   invitation: {
     heading: "|| Jai Jagannath ||",
     greeting: "Dear {guest},",
-    message: [
-      "Under the eternal protection and grace of the Lord of the Universe,",
-      "we cordially invite you to witness the union of our families.",
-    ],
     saveTheDate: "Save the Date",
     names: ["Avi", "Pragyan"], // DEMO
     announcement: "are getting married",
-    // DEMO — the example date and place, as they read on the card
-    dateLine: "Friday, 12 February 2027",
-    place: "Jagannath Kalyan Mandap, Bhubaneswar, Odisha",
   },
   countdown: {
     eyebrow: "Our Wedding",

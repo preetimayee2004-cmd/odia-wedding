@@ -6,7 +6,7 @@ import { useInView } from "@/hooks/useInView";
 import { EASE } from "@/lib/motion";
 import { CardBackdrop, cardCq, cardMinHeight, type CardArt } from "@/components/art/CardBackdrop";
 import { GaneshaIcon, LotusIcon } from "@/components/art/Ganesha";
-import { Divider } from "@/components/ui/CardOrnaments";
+import { Divider, PinIcon } from "@/components/ui/CardOrnaments";
 
 /**
  * The couple card artwork (768×1376): a carved arch in a red-and-gold border
@@ -122,6 +122,23 @@ export function Couple() {
                   {couple.hashtag}
                 </p>
                 <span aria-hidden className="h-px w-40" style={{ background: `linear-gradient(to right, transparent, ${GOLD}, transparent)` }} />
+              </div>
+            )}
+
+            {/* The date, then the place */}
+            {(couple.dateLine || couple.place) && (
+              <div className="flex flex-col items-center" style={rise(1900)}>
+                {couple.dateLine && (
+                  <p className="t-value font-semibold leading-tight" style={{ color: "#7A1424" }}>
+                    {couple.dateLine}
+                  </p>
+                )}
+                {couple.place && (
+                  <div className="mt-1.5 flex flex-col items-center">
+                    <PinIcon />
+                    <p className="t-body mt-0.5 max-w-[16rem] font-semibold leading-snug [text-wrap:balance]">{couple.place}</p>
+                  </div>
+                )}
               </div>
             )}
 

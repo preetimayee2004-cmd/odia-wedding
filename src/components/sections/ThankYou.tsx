@@ -22,7 +22,7 @@ function shortDate(): string | null {
 /** "Bhubaneswar, Odisha": the venue's city, or the last two parts of the invitation's place. */
 function shortPlace(): string | null {
   if (wedding.venue.city) return wedding.venue.city;
-  const parts = wedding.invitation.place?.split(",").map((s) => s.trim()) ?? [];
+  const parts = wedding.couple.place?.split(",").map((s) => s.trim()) ?? [];
   return parts.length ? parts.slice(-2).join(", ") : null;
 }
 

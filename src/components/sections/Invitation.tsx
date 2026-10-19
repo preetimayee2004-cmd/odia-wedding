@@ -3,11 +3,9 @@ import { wedding } from "@/config/wedding";
 import { useGuest } from "@/context/GuestContext";
 import { useFitToArea } from "@/hooks/useFitToArea";
 import { EASE } from "@/lib/motion";
-import { showPlaceholders } from "@/lib/placeholders";
 import { CardBackdrop, cardCq, cardMinHeight, type CardArt } from "@/components/art/CardBackdrop";
 import { RangoliStart } from "@/components/sections/RangoliStart";
-import { Divider, PinIcon } from "@/components/ui/CardOrnaments";
-import { Pending } from "@/components/ui/Pending";
+import { Divider } from "@/components/ui/CardOrnaments";
 
 export type RevealState = "hidden" | "revealing" | "shown";
 
@@ -30,14 +28,9 @@ const PANEL_BOTTOM = 1262; // the cream panel's bottom dotted line (card px)
 const PANEL_EDGE = 62; // the dotted inner border, in from each side
 
 const INK = "#2E1A10";
-const MAROON = "#7A1424";
 const LINE_STAGGER = 150;
 const LINE_DURATION = 800;
 const RANGOLI_SIZE = 124;
-// The opening line's halves are sized so the longer (about 22 × its font size
-// wide in Cormorant Garamond 600) just fills the panel between the dotted
-// borders; tuned by measurement, with a little slack.
-const QUOTE_WIDTH_PER_PX = 27.2;
 
 /**
  * Section 02 — The invitation card.
@@ -79,18 +72,6 @@ export function Invitation({ reveal, onOpen }: InvitationProps) {
       {invitation.greeting.replace("{guest}", guestName)}
     </p>,
     <Divider key="d1" className="mb-2" />,
-    // Exactly two lines, each sized to fit the width inside the dotted border
-    <p
-      key="m"
-      className="-mx-[22px] mb-2.5 font-semibold leading-[1.5]"
-      style={{ fontSize: `min(17.5px, calc((100cqw - 2 * (${cq(PANEL_EDGE)} + 6px)) / ${QUOTE_WIDTH_PER_PX}))` }}
-    >
-      {invitation.message.map((half) => (
-        <span key={half} className="block whitespace-nowrap">
-          {half}
-        </span>
-      ))}
-    </p>,
     <p key="s" className="t-label">
       {invitation.saveTheDate}
     </p>,
@@ -100,27 +81,9 @@ export function Invitation({ reveal, onOpen }: InvitationProps) {
       <span className="t-amp my-1">&amp;</span>
       <span className="t-names">{second}</span>
     </h1>,
-    <p key="a" className="t-quote mb-1.5">
+    <p key="a" className="t-quote">
       {invitation.announcement}
     </p>,
-    <Divider key="d2" className="mb-1.5" />,
-    invitation.dateLine ? (
-      <p key="dt" className="t-value mb-1 font-semibold" style={{ color: MAROON }}>
-        {invitation.dateLine}
-      </p>
-    ) : (
-      showPlaceholders && (
-        <p key="dt" className="t-value mb-1" style={{ color: MAROON }}>
-          <Pending label="Wedding date and lagna awaiting confirmation">Date &amp; lagna to be announced</Pending>
-        </p>
-      )
-    ),
-    invitation.place && (
-      <div key="pl" className="flex flex-col items-center">
-        <PinIcon />
-        <p className="t-body mt-0.5 max-w-[15rem] font-semibold leading-snug">{invitation.place}</p>
-      </div>
-    ),
   ].filter(Boolean);
 
   return (
