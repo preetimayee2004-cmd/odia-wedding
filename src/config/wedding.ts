@@ -182,12 +182,17 @@ export interface WeddingConfig {
     eyebrow: string;
     heading: string;
     /**
-     * The couple's photographs, in order. `tall` photos take a taller arch in
-     * the masonry; `focus` is where the arch's crop centres (CSS
-     * object-position — e.g. "right bottom" keeps a photographer's mark in
-     * view). With none, the section is hidden.
+     * The couple's photographs, in order (also the viewer's order). The one
+     * marked `featured` takes the wide arch at the top; the rest fill the
+     * two-column grid below. `tall` photos take a taller arch; `focus` is
+     * where the arch's crop centres (CSS object-position — e.g. "right
+     * bottom" keeps a photographer's mark in view); `still` turns the
+     * parallax off for a photograph whose mark must stay in view. The
+     * featured photo's `painting` is a Pattachitra-style painting of it:
+     * its toggle appears only once that file exists. With no photos the
+     * section is hidden.
      */
-    photos: Array<{ src: string; alt: string; tall?: boolean; focus?: string }>;
+    photos: Array<{ src: string; alt: string; tall?: boolean; focus?: string; featured?: boolean; painting?: string | null; still?: boolean }>;
   };
   /** "The Wedding Journey": the venue and getting here. */
   travel: {
@@ -535,13 +540,16 @@ export const wedding: WeddingConfig = {
     heading: "Gallery",
     // Shared by the couple, who confirmed they may be used (16 Oct 2026).
     photos: [
+      // featured: the wide arch at the top (its Pattachitra painting is to be added at public/gallery/)
+      { src: "/photos/gallery/under-the-veil.webp", alt: "The couple face to face beneath a red veil", featured: true, focus: "50% 40%", painting: "/gallery/featured-pattachitra.webp" },
       { src: "/photos/gallery/bride-mukuta.webp", alt: "The bride in a golden mukuta and a yellow-and-red saree, smiling across the ceremony", tall: true, focus: "50% 30%" },
       { src: "/photos/gallery/hands-marigolds.webp", alt: "Hands joined at the ceremony: mehendi, bangles and a ring among marigold garlands", focus: "68% 50%" },
-      { src: "/photos/gallery/rings.webp", alt: "Two hands showing their rings, then held together" },
-      { src: "/photos/gallery/under-the-veil.webp", alt: "The couple face to face beneath a red veil", tall: true, focus: "45% 40%" },
+      // the couple's two ring photographs, once stacked in one picture, now one per frame
+      { src: "/photos/gallery/rings.webp", alt: "Two hands side by side showing their wedding rings, hers hennaed" },
+      { src: "/photos/gallery/held-hands.webp", alt: "His hand holding her hennaed hand, her ring catching the light" },
       { src: "/photos/gallery/anklet.webp", alt: "The groom fastening an anklet on the bride's hennaed foot", tall: true },
-      // the photographer's SNAPSHOT mark sits bottom right: keep it in the crop
-      { src: "/photos/gallery/mehendi-palms.webp", alt: "Hennaed palms cupped together", focus: "right bottom" },
+      // the photographer's SNAPSHOT mark sits bottom right: keep it in the crop, and still
+      { src: "/photos/gallery/mehendi-palms.webp", alt: "Hennaed palms cupped together", tall: true, focus: "right bottom", still: true },
     ],
   },
   // From the couple (17 Oct 2026). Distances and the nearest bus stop to be

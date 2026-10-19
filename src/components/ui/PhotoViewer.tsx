@@ -8,8 +8,8 @@ export interface ViewerPhoto {
   focus?: string;
 }
 
-const OPEN_MS = 560;
-const CLOSE_MS = 460;
+const OPEN_MS = 350;
+const CLOSE_MS = 350;
 const FADE_MS = 260;
 const EASE_OUT = "cubic-bezier(0.22, 1, 0.36, 1)";
 const EASE_IN_OUT = "cubic-bezier(0.4, 0, 0.2, 1)";
@@ -27,27 +27,33 @@ function parseFocus(focus = "50% 50%"): [number, number] {
 const onScreen = (r: DOMRect) => r.width > 0 && r.bottom > 0 && r.top < window.innerHeight;
 
 /**
- * The whole photograph (as shown in the viewer) scaled down and clipped to
- * the frame's window, with the arch's rounded top: the photograph as it
- * sits in the gallery.
+ * The whole photograph (as shown in the viewer) scaled down to cover the
+ * box it fills in the gallery (`box`, its parallax layer) and clipped to the
+ * frame's window (`win`) with the arch's rounded top: the photograph as it
+ * sits in its frame.
  */
-function inFrame(img: HTMLImageElement, frame: DOMRect, focus?: string): Keyframe {
+function inFrame(img: HTMLImageElement, box: DOMRect, win: DOMRect, focus?: string): Keyframe {
   const f = img.getBoundingClientRect();
-  const s = Math.max(frame.width / f.width, frame.height / f.height);
-  const vw = frame.width / s; // the part of the photograph the frame shows, in the image's own pixels
-  const vh = frame.height / s;
+  const s = Math.max(box.width / f.width, box.height / f.height);
+  const vw = box.width / s; // the part of the photograph the box shows, in the image's own pixels
+  const vh = box.height / s;
   const [fx, fy] = parseFocus(focus);
   const left = (f.width - vw) * fx;
   const top = (f.height - vh) * fy;
-  // move the shown part's centre onto the frame's centre (scaling about the image's centre)
+  // move the shown part's centre onto the box's centre (scaling about the image's centre)
   const ox = left + vw / 2 - f.width / 2;
   const oy = top + vh / 2 - f.height / 2;
-  const dx = frame.left + frame.width / 2 - (f.left + f.width / 2) - s * ox;
-  const dy = frame.top + frame.height / 2 - (f.top + f.height / 2) - s * oy;
-  const r = vw / 2;
+  const dx = box.left + box.width / 2 - (f.left + f.width / 2) - s * ox;
+  const dy = box.top + box.height / 2 - (f.top + f.height / 2) - s * oy;
+  // the window, in the image's own pixels
+  const cl = left + (win.left - box.left) / s;
+  const ct = top + (win.top - box.top) / s;
+  const cw = win.width / s;
+  const ch = win.height / s;
+  const r = cw / 2;
   return {
     transform: `translate(${dx}px, ${dy}px) scale(${s})`,
-    clipPath: `inset(${top}px ${f.width - left - vw}px ${f.height - top - vh}px ${left}px round ${r}px ${r}px 0px 0px)`,
+    clipPath: `inset(${ct}px ${f.width - cl - cw}px ${f.height - ct - ch}px ${cl}px round ${r}px ${r}px 0px 0px)`,
   };
 }
 /** Settled in the viewer (the inset leaves room for its fine gold keyline and shadow). */
@@ -56,9 +62,10 @@ const SETTLED: Keyframe = { transform: "none", clipPath: "inset(-40px -40px -40p
 /**
  * The gallery's full-screen viewer — the "living photograph". A tapped
  * photograph rises out of its arch: the whole picture grows from the frame's
- * window to the centre of the screen over a warm overlay, uncropped and
+ * window to the centre of the screen over a maroon overlay, uncropped and
  * sharp. It shows its place in the set, its caption, close and previous /
- * next (also arrow keys and swipe); Escape or a tap outside closes. On
+ * next (also arrow keys and a swipe across); Escape, a swipe down or a tap
+ * outside closes. On
  * closing, the photograph showing settles back into its own frame (scrolled
  * into view behind the overlay if the guest moved on), and focus returns to
  * that frame. Built on the native <dialog>, so focus stays inside and the
@@ -95,13 +102,14 @@ export function PhotoViewer({
   useScrollLock(open);
 
   const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  /** The window of a photograph's frame, scrolled into view first if needed. */
+  /** A photograph's place in its frame — the box it fills and the window it shows through — scrolled into view first if needed. */
   const frameWindow = (i: number, scroll: boolean) => {
     const button = frameFor?.(i);
     const win = button?.querySelector(".arch-window");
     if (!button || !win) return null;
     if (scroll && !onScreen(win.getBoundingClientRect())) button.scrollIntoView({ block: "center" });
-    return win.getBoundingClientRect();
+    const w = win.getBoundingClientRect();
+    return { win: w, box: (button.querySelector(".arch-par") ?? win).getBoundingClientRect() };
   };
 
   useEffect(() => {
@@ -119,11 +127,11 @@ export function PhotoViewer({
         if (!img) return;
         const rise = () => {
           const from = frameWindow(last.current, false);
-          if (reduced() || !from || !onScreen(from)) {
+          if (reduced() || !from || !onScreen(from.win)) {
             img.animate([{ opacity: 0 }, { opacity: 1 }], { duration: reduced() ? 200 : 320, easing: "ease-out" });
             return;
           }
-          img.animate([{ ...inFrame(img, from, photos[last.current]?.focus), opacity: 1 }, { ...SETTLED, opacity: 1 }], { duration: OPEN_MS, easing: EASE_OUT });
+          img.animate([{ ...inFrame(img, from.box, from.win, photos[last.current]?.focus), opacity: 1 }, { ...SETTLED, opacity: 1 }], { duration: OPEN_MS, easing: EASE_OUT });
         };
         if (img.complete && img.naturalWidth) rise();
         else {
@@ -152,8 +160,8 @@ export function PhotoViewer({
       (button ?? opener.current)?.focus({ preventScroll: true, focusVisible: !byPointer.current } as FocusOptions);
     };
     const to = img && !reduced() ? frameWindow(last.current, true) : null;
-    if (img && to && onScreen(to)) {
-      const back = img.animate([{ ...SETTLED, opacity: 1 }, { ...inFrame(img, to, photos[last.current]?.focus), opacity: 1 }], { duration: CLOSE_MS, easing: EASE_IN_OUT, fill: "forwards" });
+    if (img && to && onScreen(to.win)) {
+      const back = img.animate([{ ...SETTLED, opacity: 1 }, { ...inFrame(img, to.box, to.win, photos[last.current]?.focus), opacity: 1 }], { duration: CLOSE_MS, easing: EASE_IN_OUT, fill: "forwards" });
       back.finished.then(finish, finish);
     } else {
       img?.animate([{ opacity: 1 }, { opacity: 0 }], { duration: FADE_MS, easing: "ease-in", fill: "forwards" });
@@ -196,8 +204,11 @@ export function PhotoViewer({
     if (!s) return;
     const dx = e.clientX - s.x;
     const dy = e.clientY - s.y;
-    swiped.current = Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4;
-    if (swiped.current) go(dx < 0 ? 1 : -1);
+    const across = Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4;
+    const down = dy > 80 && dy > Math.abs(dx) * 1.4; // a swipe down closes
+    swiped.current = across || down;
+    if (across) go(dx < 0 ? 1 : -1);
+    else if (down) onClose();
   };
   // a tap outside the photograph closes; the end of a swipe doesn't
   const onBackdrop = () => {
