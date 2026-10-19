@@ -679,7 +679,7 @@
 .pv-btn:focus-visible { outline: 2px solid #c9a24b; outline-offset: 3px; }
 
 /* The Wishing Wall's form (WishingWall.tsx WishForm): a warm paper card with
-   paper-coloured fields, a gold focus ring, relation chips and Send Blessing. */
+   paper-coloured fields, a gold focus ring and Send Blessing. */
 .wish-card {
   position: relative;
   padding: 22px 16px;
@@ -710,17 +710,6 @@
 .wish-field::placeholder { font-style: italic; color: #a68a68; }
 .wish-field:focus { outline: none; background: #fffaf0; border-color: #b8913f; box-shadow: 0 0 0 3px rgb(201 162 78 / 0.2); }
 .wish-textarea { min-height: 110px; resize: none; }
-.wish-chip {
-  padding: 7px 12px;
-  border: 1px solid rgb(184 145 63 / 0.45);
-  border-radius: 999px;
-  background: transparent;
-  font: 500 12px/1.1 var(--font-ui);
-  color: #8a6a4a;
-  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
-}
-.wish-chip[aria-pressed="true"] { background: #7a1f1f; border-color: #7a1f1f; color: #f7ecd6; }
-.wish-chip:focus-visible { outline: 2px solid #c9a24e; outline-offset: 2px; }
 .wish-send {
   display: block;
   width: 100%;
@@ -761,7 +750,7 @@
 .wish-note-in { animation: wish-note-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 @keyframes wish-note-in { from { opacity: 0; translate: 0 10px; } to { opacity: 1; translate: 0 0; } }
 @media (prefers-reduced-motion: reduce) {
-  .wish-field, .wish-chip, .wish-send, .wish-toast { transition: none; }
+  .wish-field, .wish-send, .wish-toast { transition: none; }
   .wish-note-in { animation: none; }
 }
 

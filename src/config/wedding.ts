@@ -213,8 +213,6 @@ export interface WeddingConfig {
     requireApproval: boolean;
     /** How many recent wishes show as notes on the wall; the rest open in "View all wishes". */
     previewCount: number;
-    /** The relation chips in the form (one may be chosen). */
-    relations: string[];
     maxLength: number;
     /**
      * SAMPLE wishes that fill the notes until enough approved ones arrive,
@@ -589,7 +587,6 @@ export const wedding: WeddingConfig = {
     allowAnonymous: false,
     requireApproval: true,
     previewCount: 3,
-    relations: ["Family", "Friend", "Elder", "Colleague"],
     maxLength: 200,
     // DEMO — made-up guests, not real wishes: marked "Example" on the wall,
     // shown while site.demo is on, and replaced as approved wishes arrive.

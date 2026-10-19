@@ -244,8 +244,8 @@ function MarigoldPin({ className = "" }: { className?: string }) {
 type Status = "idle" | "saving" | "sent" | "error";
 
 /**
- * "Leave Your Blessings", on a warm paper card: the name, a relation chip
- * (one may be chosen), and the blessing with its counter, in paper-coloured
+ * "Leave Your Blessings", on a warm paper card: the name and the blessing
+ * with its counter, in paper-coloured
  * fields with a gold focus ring; then Send Blessing (disabled until there is
  * a name and a blessing). Once it is accepted, a small toast says so, the
  * form resets and the blessing fades onto the wall above. The toast only
@@ -253,11 +253,10 @@ type Status = "idle" | "saving" | "sent" | "error";
  * blessing is kept on this device.
  */
 function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSProperties }) {
-  const { formHeading, allowAnonymous, maxLength, relations } = wedding.wishes;
+  const { formHeading, allowAnonymous, maxLength } = wedding.wishes;
   const { guestName, isPersonalized } = useGuest();
   const startName = isPersonalized ? guestName : "";
   const [name, setName] = useState(startName);
-  const [relation, setRelation] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [trap, setTrap] = useState("");
   const [error, setError] = useState("");
@@ -298,11 +297,10 @@ function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSPro
       return;
     }
 
-    const wish = { id: pendingId.current, name: n || null, relation, message: m };
+    const wish = { id: pendingId.current, name: n || null, relation: null, message: m };
     const reset = () => {
       pendingId.current = newId();
       setName(startName);
-      setRelation(null);
       setMessage("");
     };
     const sent = (saved: boolean) => {
@@ -368,21 +366,6 @@ function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSPro
             className="wish-field"
           />
         </div>
-
-        {relations.length > 0 && (
-          <div className="mt-4" role="group" aria-labelledby={`${ids}-rel`}>
-            <p id={`${ids}-rel`} className="wish-label">
-              Relation
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {relations.map((r) => (
-                <button key={r} type="button" aria-pressed={relation === r} onClick={() => setRelation((v) => (v === r ? null : r))} className="wish-chip">
-                  {r}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
 
         <div className="mt-4">
           <label htmlFor={`${ids}-message`} className="wish-label">
