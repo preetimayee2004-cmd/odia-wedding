@@ -49,7 +49,7 @@ export function ThankYou() {
 
   return (
     <section ref={ref} id="thank-you" aria-labelledby="thanks-heading" className="relative overflow-hidden pb-6 text-center" style={{ paddingInline: `calc(${BAND} + 16px)` }}>
-      <div className="relative mx-auto max-w-[24rem] pt-12">
+      <div className="relative mx-auto max-w-[24rem] pt-7">
         {/* Lord Jagannath between red filigree */}
         <img src={`${ART}/ornament.webp`} width={290} height={120} alt="Lord Jagannath" decoding="async" loading="lazy" className="mx-auto block h-auto w-[10.5rem]" style={rise(0)} />
 

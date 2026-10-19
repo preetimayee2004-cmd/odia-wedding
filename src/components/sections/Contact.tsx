@@ -51,7 +51,7 @@ export function Contact() {
   });
 
   return (
-    <section ref={ref} id="contact" aria-labelledby="contact-heading" className="pb-14 pt-12" style={{ paddingInline: `calc(${BAND} + 16px)` }}>
+    <section ref={ref} id="contact" aria-labelledby="contact-heading" className="pb-12 pt-12" style={{ paddingInline: `calc(${BAND} + 16px)` }}>
       <div className="mx-auto max-w-[24rem]">
         <header className="text-center" style={rise(0)}>
           <h2 id="contact-heading" className="font-serif text-[44px] font-semibold leading-none" style={{ color: MAROON }}>

@@ -141,7 +141,7 @@ function CountdownSection({ parts }: { parts: VenueDateTime | null }) {
 
   return (
     <section ref={ref} id="countdown" aria-labelledby="countdown-heading" className="relative text-center">
-      <div className="relative px-12 pb-0 pt-[3.25rem]">
+      <div className="relative px-12 pb-0 pt-7">
         <p className="t-label flex items-center justify-center gap-2" style={fadeIn(0)}>
           <span aria-hidden>+</span> {eyebrow} <span aria-hidden>+</span>
         </p>

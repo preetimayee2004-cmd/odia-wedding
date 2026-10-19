@@ -55,7 +55,7 @@
 
     /* Layout rhythm (mobile-first) */
     --gutter: 1.5rem;
-    --section-y: 5.5rem;
+    --section-y: 1.75rem; /* the small gap above and below a section */
   }
 
   html {

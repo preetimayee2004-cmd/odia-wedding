@@ -42,7 +42,7 @@ export function Family() {
   });
 
   return (
-    <section ref={ref} id="family" aria-labelledby="family-heading" className="py-20 text-center" style={{ paddingInline: "calc(100% * 35 / 768 + 16px)", backgroundImage: VEIL }}>
+    <section ref={ref} id="family" aria-labelledby="family-heading" className="py-7 text-center" style={{ paddingInline: "calc(100% * 35 / 768 + 16px)", backgroundImage: VEIL }}>
       <div className="mx-auto max-w-[24rem]">
         {/* The crest and heading */}
         <div style={rise(0)}>

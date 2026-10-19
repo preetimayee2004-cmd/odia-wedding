@@ -58,7 +58,7 @@ export function Rsvp() {
   const inView = useInView(ref, { threshold: 0.15 });
 
   return (
-    <section ref={ref} id="rsvp" aria-labelledby="rsvp-heading" className="py-20 text-center" style={{ paddingInline: "calc(100% * 35 / 768 + 18px)" }}>
+    <section ref={ref} id="rsvp" aria-labelledby="rsvp-heading" className="pb-12 pt-7 text-center" style={{ paddingInline: "calc(100% * 35 / 768 + 18px)" }}>
       <div
         className="mx-auto max-w-[24rem]"
         style={{

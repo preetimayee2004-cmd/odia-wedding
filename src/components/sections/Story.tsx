@@ -42,7 +42,7 @@ export function Story() {
     <section
       id="story"
       aria-labelledby="story-heading"
-      className="relative overflow-x-clip pb-16"
+      className="relative overflow-x-clip pb-7"
     >
       <div className="relative mx-auto" style={{ width: `min(calc(100% - 2 * (${BAND} + 10px)), 27rem)` }}>
         {/* The thread from the countdown's wheel, down to the nail; the string to the rod */}

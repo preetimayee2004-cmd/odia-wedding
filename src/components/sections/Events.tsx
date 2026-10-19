@@ -92,7 +92,7 @@ export function Events() {
       </svg>
 
       <div className="mx-auto max-w-[460px]">
-        <header className="px-12 pb-2 pt-14 text-center">
+        <header className="px-12 pb-2 pt-7 text-center">
           <h2 id="events-heading" className="ev-title">
             {heading}
           </h2>
@@ -103,7 +103,7 @@ export function Events() {
           </div>
         </header>
 
-        <div ref={timelineRef} className="relative pb-[110px] pt-10">
+        <div ref={timelineRef} className="relative pb-[56px] pt-10">
           <svg ref={vineRef} aria-hidden focusable="false" className="ev-vine pointer-events-none absolute inset-0 z-0 h-full w-full overflow-visible" />
           <ol className="relative z-[1]">
             {items.map((event, i) => (
