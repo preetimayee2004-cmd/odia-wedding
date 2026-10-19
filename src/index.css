@@ -525,6 +525,7 @@
   --ev-tan: #cfb089;
   --ev-card: #fffbf3;
   --ev-band: calc(100% * 35 / 768); /* the side bands' width */
+  --ev-flower: clamp(61px, 17.6vw, 74px);
   --ev-ease: cubic-bezier(0.22, 0.7, 0.2, 1);
 }
 .ev-paused * {
@@ -571,7 +572,8 @@
 .ev-left .ev-col { margin-left: max(calc(var(--ev-band) + 8px), calc(24% - 107px)); }
 .ev-right .ev-col { margin-left: auto; margin-right: max(calc(var(--ev-band) + 8px), calc(24% - 107px)); }
 
-.ev-flower { position: relative; width: clamp(61px, 17.6vw, 74px); aspect-ratio: 1; }
+.ev-item { position: relative; }
+.ev-flower { position: relative; width: var(--ev-flower); aspect-ratio: 1; }
 .ev-pop { position: relative; width: 100%; height: 100%; transition: transform 1s cubic-bezier(0.2, 0.9, 0.25, 1.15), opacity 0.7s; }
 .ev-bloom {
   display: block;
@@ -623,6 +625,41 @@
   text-shadow: 0 0 6px rgb(var(--page)), 0 0 12px rgb(var(--page));
 }
 
+/* the day and time, always shown under the Odia name */
+.ev-when {
+  margin-top: 2px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: rgb(var(--page)); /* like the button: the vine passes behind it */
+  font: 500 13px/1.4 var(--font-ui);
+  letter-spacing: 0.03em;
+  color: var(--ev-ink-soft);
+}
+.ev-when b { font-size: 11.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ev-red); }
+
+/* where a day begins: beside the first flower of the day, on the open side */
+.ev-day {
+  position: absolute;
+  top: calc(var(--ev-flower) / 2);
+  width: 112px;
+  transform: translateY(-50%);
+  text-align: center;
+  text-shadow: 0 0 6px rgb(var(--page)), 0 0 12px rgb(var(--page));
+}
+.ev-item + .ev-item .ev-day { top: calc(30px + var(--ev-flower) / 2); } /* below the item's top padding */
+.ev-left .ev-day { right: calc(var(--ev-band) + 6px); }
+.ev-right .ev-day { left: calc(var(--ev-band) + 6px); }
+.ev-day b {
+  display: block;
+  font: 600 11px/1.2 var(--font-ui);
+  letter-spacing: 0.2em;
+  margin-right: -0.2em; /* cancels the trailing letter-spacing */
+  text-transform: uppercase;
+  color: var(--ev-red);
+}
+.ev-day b::after { content: ""; display: block; width: 28px; height: 1px; margin: 6px auto 5px; background: var(--ev-gold); }
+.ev-day span { display: block; font: italic 500 15px/1.25 var(--font-serif); color: var(--ev-ink-soft); }
+
 /* the details button: a thin gold outline on the page cream, no shadow, a maroon label; the label is centred
    under the name, the chevron sits in the right padding */
 .ev-toggle {
@@ -656,12 +693,17 @@
 .ev-motion .ev-item:not(.in) .ev-pop { transform: scale(0.55) rotate(-25deg); opacity: 0; }
 .ev-motion .ev-name,
 .ev-motion .ev-odia,
+.ev-motion .ev-when,
 .ev-motion .ev-toggle { transition: opacity 0.7s, transform 0.7s var(--ev-ease), border-color 0.2s; }
 .ev-motion .ev-item:not(.in) .ev-name,
 .ev-motion .ev-item:not(.in) .ev-odia,
+.ev-motion .ev-item:not(.in) .ev-when,
 .ev-motion .ev-item:not(.in) .ev-toggle { opacity: 0; transform: translateY(12px); }
+.ev-motion .ev-day { transition: opacity 0.9s 0.2s; }
+.ev-motion .ev-item:not(.in) .ev-day { opacity: 0; }
 .ev-motion .ev-item.in .ev-name { transition-delay: 0.25s; }
 .ev-motion .ev-item.in .ev-odia { transition-delay: 0.35s; }
+.ev-motion .ev-item.in .ev-when { transition-delay: 0.4s; }
 .ev-motion .ev-item.in .ev-toggle { transition-delay: 0.45s, 0.45s, 0s; }
 
 /* the details card */

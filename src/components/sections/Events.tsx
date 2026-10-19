@@ -11,9 +11,11 @@ import { EVENT_ART_DEFS, FLOWER_IDS, rng } from "@/components/art/eventVineArt";
  * Section — Wedding Events.
  * A green vine zigzags down the page from flower to flower — marigold, champa,
  * lotus, in turn — alternating left and right, growing as the guest scrolls.
- * Under each flower: the ceremony's name, its Odia name and a "Tap to view
- * details" button that opens a card (date, time, about, dress code, place).
- * One card is open at a time. Styles: the `.ev-*` block in index.css.
+ * Under each flower: the ceremony's name, its Odia name, its day and time
+ * ("Wed · 10:00 AM – 1:00 PM"), and a "Tap to view details" button that opens
+ * a card (about, dress code, place). The first ceremony of each day carries
+ * the day beside its flower, on the open side. One card is open at a time.
+ * Styles: the `.ev-*` block in index.css.
  */
 export function Events() {
   const { heading, items } = wedding.events;
@@ -115,6 +117,7 @@ export function Events() {
                 className={`ev-item ${i % 2 ? "ev-right" : "ev-left"} ${i ? "pt-[30px]" : ""} ${seen[i] || reduced ? "in" : ""}`}
                 style={swayStyle(i)}
               >
+                {event.date && event.date !== items[i - 1]?.date && <DayLabel date={event.date} />}
                 <div className="ev-col">
                   <div className="ev-flower" data-index={i}>
                     <div className="ev-pop">
@@ -129,6 +132,7 @@ export function Events() {
                       {event.odiaName}
                     </p>
                   )}
+                  <When event={event} />
                   <button type="button" className="ev-toggle" aria-expanded={open === i} aria-controls={`ev-details-${event.id}`} onClick={() => toggle(i)}>
                     <span>{open === i ? "Hide details" : "Tap to view details"}</span>
                     <svg viewBox="0 0 16 16" aria-hidden>
@@ -163,10 +167,42 @@ function swayStyle(i: number): CSSProperties {
   return { "--sway-d": `${(4.4 + R() * 1.8).toFixed(2)}s`, "--sway-delay": `${(-R() * 4).toFixed(2)}s` } as CSSProperties;
 }
 
+/** "Wednesday, 10 February 2027" → ["Wednesday", "10 February 2027"]. */
+const splitDate = (date: string): [string, string | null] => {
+  const k = date.indexOf(",");
+  return k < 0 ? [date, null] : [date.slice(0, k).trim(), date.slice(k + 1).trim()];
+};
+const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+/** Where a day begins: the weekday and the date, beside the first flower of the day. */
+function DayLabel({ date }: { date: string }) {
+  const [weekday, rest] = splitDate(date);
+  return (
+    <p className="ev-day">
+      <b>{weekday}</b>
+      {rest && <span>{rest}</span>}
+    </p>
+  );
+}
+
+/** "Wed · 10:00 AM – 1:00 PM", always visible under the Odia name. */
+function When({ event }: { event: WeddingEvent }) {
+  const weekday = event.date && splitDate(event.date)[0];
+  const day = weekday && WEEKDAYS.includes(weekday) ? weekday.slice(0, 3) : null;
+  const time = event.when && keepTimesTogether(event.when);
+  if (!day && !time && !showPlaceholders) return null;
+  return (
+    <p className="ev-when">
+      {day && <b>{day}</b>}
+      {day && (time || showPlaceholders) && " · "}
+      {time ?? <Pending label="Time awaiting confirmation">{event.isLagna ? "Lagna to be announced" : "Time to be announced"}</Pending>}
+    </p>
+  );
+}
+
+/** The card behind "Tap to view details": about, dress code and place (the day and time are always shown). */
 function DetailsCard({ event }: { event: WeddingEvent }) {
   const rows: Array<{ label: string; value: string | null; className?: string; map?: string | null; toCome?: string }> = [
-    { label: "Date", value: event.date, toCome: "Date to be announced" },
-    { label: "Time", value: event.when && keepTimesTogether(event.when), toCome: event.isLagna ? "Lagna to be announced" : "Time to be announced" },
     { label: "About", value: event.about, className: "about" },
     { label: "Dress code", value: event.dressCode && event.dressCode.split(" | ").join(" · ") },
     { label: "Place", value: event.venueName, map: event.mapUrl },
