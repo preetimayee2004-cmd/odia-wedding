@@ -1,6 +1,6 @@
 import { SideBands } from "@/components/art/SideBands";
 import { FallingPetals } from "@/components/art/FallingPetals";
-import { SectionSeparator } from "@/components/ui/SectionSeparator";
+import { JhotiThreshold } from "@/components/ui/JhotiThreshold";
 import { Couple } from "@/components/sections/Couple";
 import { Countdown } from "@/components/sections/Countdown";
 import { Story } from "@/components/sections/Story";
@@ -16,8 +16,8 @@ import { Footer } from "@/components/sections/Footer";
 
 /**
  * Everything after the main invitation, in the section spec's order (with
- * the wedding events just before the family), with a small separator on
- * each seam (ui/SectionSeparator.tsx). Loaded as its own chunk so
+ * the wedding events just before the family), with a jhoti threshold on
+ * each seam (ui/JhotiThreshold.tsx). Loaded as its own chunk so
  * the first screen (opening + invitation) stays light.
  */
 export default function RestOfSite() {
@@ -33,24 +33,27 @@ export default function RestOfSite() {
         <Countdown />
         {/* Countdown → Our Story: the countdown's gold thread already runs down to the scroll's nail */}
         <Story />
-        <SectionSeparator line="vine" emblem="bud" />
+        {/* into the ceremonies: the one creeper border */}
+        <JhotiThreshold motif="champa-lata" />
         <Events />
-        <SectionSeparator emblem="marigold" />
+        {/* into The Families: a lotus, ceremonial */}
+        <JhotiThreshold motif="padma-bindu" />
         <Family />
-        <SectionSeparator emblem="pattachitra" />
+        <JhotiThreshold motif="champa" />
         <Gallery />
-        <SectionSeparator emblem="gold" />
+        {/* either side of the RSVP, a quiet marigold, so the RSVP stays the peak */}
+        <JhotiThreshold motif="gendu" />
         <Rsvp />
         {/* in the RSVP's bottom padding, clear of the wishing wall's toran */}
-        <SectionSeparator emblem="lotus" pull="up" />
+        <JhotiThreshold motif="gendu" pull="up" />
         <WishingWall />
-        <SectionSeparator emblem="chakra" />
+        <JhotiThreshold motif="champa" />
         <VenueTravel />
-        {/* the route line ends in a pin, in the contact section's top padding */}
-        <SectionSeparator line="vine" emblem="pin" pull="down" />
+        {/* in the contact section's top padding */}
+        <JhotiThreshold motif="champa" pull="down" />
         <Contact />
-        {/* petals drifting into a flourish, in the contact section's bottom padding (clear of the thank-you garlands) */}
-        <SectionSeparator emblem="gold" petals pull="up" />
+        {/* into Thank You: a lotus, ceremonial, in the contact section's bottom padding */}
+        <JhotiThreshold motif="padma" pull="up" />
         <ThankYou />
         {/* Thank You → Love Note: the closing signature opens the footer (Footer.tsx) */}
         <Footer />

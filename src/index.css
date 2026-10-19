@@ -451,6 +451,34 @@
   margin-left: 7px;
 }
 
+/* Jhoti thresholds between sections (ui/JhotiThreshold.tsx): rice-white line
+   on a fine ochre keyline, one line weight at any size. Armed until the seam
+   is reached, then drawn outward from the centre once as the flower opens;
+   with reduced motion they are simply there. */
+.jhoti .k,
+.jhoti .r,
+.jhoti .d { vector-effect: non-scaling-stroke; }
+.jhoti .k { fill: none; stroke: #b8916a; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+.jhoti .r { fill: none; stroke: #fffbf2; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.jhoti .d { fill: #fffbf2; stroke: #b8916a; stroke-width: 1; }
+.jhoti-bloom { transform-box: fill-box; transform-origin: center; }
+.jhoti[data-state="armed"] .jhoti-draw { clip-path: inset(-30px 50%); }
+.jhoti[data-state="armed"] .jhoti-bloom { opacity: 0; transform: scale(0.55); }
+.jhoti[data-state="play"] .jhoti-draw { animation: jhoti-draw 0.7s cubic-bezier(0.22, 0.7, 0.2, 1) both; }
+.jhoti[data-state="play"] .jhoti-bloom { animation: jhoti-bloom 0.6s cubic-bezier(0.2, 0.9, 0.25, 1.15) 0.15s both; }
+@keyframes jhoti-draw {
+  from { clip-path: inset(-30px 50%); }
+  to { clip-path: inset(-30px -12px); }
+}
+@keyframes jhoti-bloom {
+  from { opacity: 0; transform: scale(0.55); }
+  to { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jhoti .jhoti-draw,
+  .jhoti .jhoti-bloom { animation: none !important; clip-path: none !important; opacity: 1 !important; transform: none !important; }
+}
+
 /* The Families: a carved gold frame around each set of parents (see GoldFrame).
    The band is a gilded gradient with a row of beads along it; the panel inside
    is a lighter cream behind a fine dark-and-gold edge. */

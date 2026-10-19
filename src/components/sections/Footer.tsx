@@ -6,6 +6,7 @@ import { EASE } from "@/lib/motion";
 import { demoMode } from "@/lib/placeholders";
 import { scrollToSection } from "@/lib/scroll";
 import { SectionSeparator } from "@/components/ui/SectionSeparator";
+import { RangoliSeal } from "@/components/ui/JhotiThreshold";
 
 const TYPE_MS = 55; // per character
 
@@ -13,8 +14,9 @@ const TYPE_MS = 55; // per character
  * The closing note, beneath the thank-you screen (after the couple's
  * design). Opened by the separator system's closing signature, the line
  * "Your presence will make our celebration complete." types itself out
- * behind a blinking caret; then "|| ପ୍ରେମ ଓ ପବିତ୍ର ବନ୍ଧନ ||", the couple's
- * initials with a heart between them, and "Back to top", which returns to
+ * behind a blinking caret; then "|| ପ୍ରେମ ଓ ପବିତ୍ର ବନ୍ଧନ ||", the invitation's
+ * rangoli as a small rice-white seal, the couple's initials with a heart
+ * between them, and "Back to top", which returns to
  * the couple card. Deliberately not a "site footer". In the template's
  * example wedding, a quiet line beneath says so.
  */
@@ -65,6 +67,9 @@ export function Footer() {
           {odiaLine}
         </p>
       )}
+
+      {/* The invitation's rangoli as a small seal: the site ends with the jhoti it began with */}
+      <RangoliSeal className="mx-auto -mb-2.5 mt-[22px] block h-auto w-[62px]" style={after(350)} />
 
       {/* The couple's initials, a heart between them */}
       <p className="mt-6 font-serif text-[46px] font-semibold leading-none tracking-[2px]" style={{ ...after(500), color: "#B4483E" }}>
