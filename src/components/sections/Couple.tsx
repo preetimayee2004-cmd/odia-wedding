@@ -91,7 +91,7 @@ export function Couple() {
 
             {/* The guest, by name */}
             <div className="flex flex-col items-center">
-              <p className="t-greeting" style={rise(450)}>
+              <p className="t-greeting text-[27px] [text-wrap:balance]" style={rise(450)}>
                 {couple.greeting.replace("{guest}", guestName)}
               </p>
               <p className="t-body mt-1.5 [text-wrap:balance]" style={rise(600)}>
