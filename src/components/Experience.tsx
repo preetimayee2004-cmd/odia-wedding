@@ -23,10 +23,10 @@ const remembers = (key: string) => !import.meta.env.DEV && readSessionFlag(key);
 // Dev-only review shortcut: ?open starts with the invitation already open.
 const devOpen = import.meta.env.DEV && new URLSearchParams(window.location.search).has("open");
 
-// A guest who has seen the opening on this device gets the short one (the
-// doors open straight onto the invitation); ?intro=1 replays the full intro.
+// A guest who has seen the opening on this device gets a slightly quicker
+// darshan (never none); ?intro=1 plays the full-length intro.
 const replayIntro = new URLSearchParams(window.location.search).get("intro") === "1";
-const shortOpening = !replayIntro && !import.meta.env.DEV && readLocalFlag(OPENING_SEEN);
+const quickOpening = !replayIntro && !import.meta.env.DEV && readLocalFlag(OPENING_SEEN);
 
 function shouldPlayOpening(reducedMotion: boolean): boolean {
   if (reducedMotion || devOpen) return false;
@@ -104,11 +104,11 @@ export function Experience() {
     <>
       {intro !== "done" && (
         <OpeningSequence
-          short={shortOpening}
+          quick={quickOpening}
           onReveal={() => setIntro("revealing")}
           onDone={() => {
             writeSessionFlag(OPENING_SEEN);
-            writeLocalFlag(OPENING_SEEN); // next visit: the short opening
+            writeLocalFlag(OPENING_SEEN); // next visit: a slightly quicker darshan
             setIntro("done");
           }}
         />

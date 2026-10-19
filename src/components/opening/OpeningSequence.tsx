@@ -4,7 +4,7 @@ import { setStatusTone } from "@/lib/viewMode";
 import { FINGERTIP, Fingertip, Petals } from "@/components/opening/OpeningEffects";
 import { GoldDust, sampleMask, type GoldDustHandle } from "@/components/opening/GoldDust";
 
-/** The carved temple gate artwork, and where its two leaves sit in it (image pixels). */
+/** The carved temple gate artwork, and where its two leaves sit in it (in the artwork's original 992-wide pixels; the file itself is 800 wide, same proportions). */
 const IMG = { src: "/art/temple-door.webp", w: 992, h: 1586 };
 const DOOR = { x: 8, y: 420, w: 976, h: 1166 }; // below the Lakshmi lintel, edge to edge
 const SEAM = 496; // the centre post, where the leaves meet
@@ -25,8 +25,7 @@ const INVITATION_ART = ["/art/invitation-card.jpg", "/art/invitation-card-middle
 const DARK = "#0A0503"; // deep black of the inner sanctum
 const AUTO_OPEN = 3500; // opens by itself if not tapped
 const READY_TIMEOUT = 3000; // never wait longer than this for the door
-const DARSHAN_WAIT = 1500; // at most this long for the Lord's artwork, should it still be loading
-const SHORT_DOORS_MS = 1200; // a repeat visit: the doors open straight onto the invitation
+const DARSHAN_WAIT = 4000; // at most this long for the Lord's artwork to load and decode; otherwise on to the invitation
 const SKIP_MS = 450;
 const SMOOTH = "cubic-bezier(0.45, 0, 0.25, 1)";
 const CENTRE = "translate(-50%, -50%)"; // kept in the keyframes of centred elements
@@ -61,14 +60,26 @@ const T = {
   settleMs: 700,
   fadeMs: 600,
 };
+/** A repeat visit: the same darshan, a little quicker. */
+const QUICK = { ...T, revealMs: 900, holdMs: 400, dissolveMs: 700, gatherMs: 500 };
+
+/** An image loaded and decoded (false if it fails). */
+const decoded = (src: string) => {
+  const img = new Image();
+  img.src = src;
+  return img.decode().then(
+    () => true,
+    () => false,
+  );
+};
 
 interface OpeningSequenceProps {
   /** The invitation may start appearing (the light is settling onto it). */
   onReveal: () => void;
   /** The overlay can be removed. */
   onDone: () => void;
-  /** A repeat visit: no darshan — the doors open (1.2 s) straight onto the invitation. */
-  short?: boolean;
+  /** A repeat visit: the darshan a little quicker. */
+  quick?: boolean;
 }
 
 type Phase = "loading" | "waiting" | "gate" | "darshan" | "dissolve" | "ending";
@@ -89,11 +100,14 @@ function loadImage(src: string) {
  * three and a half seconds, nothing at all — opens it onto the dark sanctum,
  * where divine light and golden motes reveal Mahaprabhu Jagannath; after the
  * darshan he dissolves into golden light that settles onto the invitation.
- * On a repeat visit (`short`) the doors open straight onto the invitation.
+ * On a repeat visit (`quick`) the darshan is a little quicker. The darshan
+ * waits (the doorway's light gently pulsing) until the Lord's artwork has
+ * loaded and decoded; if it can't, the light settles straight onto the card.
  * Skip, Esc, or a tap anywhere during the darshan skips to the end; a sound
  * button plays the sankha.
  */
-export function OpeningSequence({ onReveal, onDone, short = false }: OpeningSequenceProps) {
+export function OpeningSequence({ onReveal, onDone, quick = false }: OpeningSequenceProps) {
+  const t = quick ? QUICK : T;
   const rootRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<HTMLDivElement>(null);
@@ -117,7 +131,7 @@ export function OpeningSequence({ onReveal, onDone, short = false }: OpeningSequ
   const running = useRef<Animation[]>([]);
   const timers = useRef<number[]>([]);
   const prepared = useRef(false);
-  const darshanReady = useRef<Promise<unknown>>(Promise.resolve());
+  const darshanReady = useRef<Promise<boolean>>(Promise.resolve(true));
   const [phase, setPhase] = useState<Phase>("loading");
   const phaseRef = useRef<Phase>("loading");
   const [hint, setHint] = useState(false);
@@ -209,7 +223,7 @@ export function OpeningSequence({ onReveal, onDone, short = false }: OpeningSequ
     void (async () => {
       // ---- Gate: the doors part onto a dark doorway; light from deep inside
       const D = T.doorsDelay;
-      const doorsMs = short ? SHORT_DOORS_MS : T.doorsMs;
+      const doorsMs = T.doorsMs;
       void play(seamRef.current, [{ opacity: 0.35, transform: "scaleX(1)" }, { opacity: 1, transform: "scaleX(2)" }, { opacity: 0, transform: "scaleX(3)" }], { duration: D + 900, easing: "ease-in-out" });
       for (const [leaf, angle] of [[leftRef.current, 84], [rightRef.current, -84]] as const) {
         void play(leaf, [{ transform: "rotateY(0deg)" }, { transform: `rotateY(${angle}deg)` }], { duration: doorsMs, delay: D, easing: SMOOTH });
@@ -226,15 +240,21 @@ export function OpeningSequence({ onReveal, onDone, short = false }: OpeningSequ
       await wait(D + doorsMs);
       if (!still("gate")) return;
 
-      // A repeat visit: straight on to the invitation
-      if (short) {
+      // The Lord's artwork has normally loaded and decoded by now. If not, the
+      // doorway's light pulses gently while it does (up to 4 s); should it fail,
+      // the light settles straight onto the invitation instead of an empty darshan.
+      const pulses = [
+        coreRef.current?.animate([{ opacity: 1 }, { opacity: 0.72 }, { opacity: 1 }], { duration: 1600, iterations: Infinity, easing: "ease-in-out" }),
+        doorRaysRef.current?.animate([{ opacity: 0.55 }, { opacity: 0.3 }, { opacity: 0.55 }], { duration: 1600, iterations: Infinity, easing: "ease-in-out" }),
+      ].filter((a): a is Animation => !!a);
+      running.current.push(...pulses);
+      const ready = await Promise.race([darshanReady.current, new Promise<boolean>((resolve) => later(DARSHAN_WAIT, () => resolve(false)))]);
+      pulses.forEach((a) => a.cancel());
+      if (!still("gate")) return;
+      if (!ready) {
         await finish(true);
         return;
       }
-
-      // the Lord's artwork has normally loaded by now; if not, allow it a moment
-      await Promise.race([darshanReady.current, wait(DARSHAN_WAIT)]);
-      if (!still("gate")) return;
 
       // The whole gate fades out and is removed; the motes carry the light on
       const [hx, hy] = centreOf(deityRef.current);
@@ -255,11 +275,11 @@ export function OpeningSequence({ onReveal, onDone, short = false }: OpeningSequ
       }
       await wait(T.revealDelay);
       if (!still("darshan")) return;
-      void play(silhouetteRef.current, [{ opacity: SILHOUETTE }, { opacity: 0 }], { duration: T.revealMs * 0.8, delay: T.revealMs * 0.2, easing: "ease-in-out" });
-      await play(deityRef.current, [{ opacity: 0.04, transform: `${CENTRE} scale(0.97)` }, { opacity: 1, transform: `${CENTRE} scale(1)` }], { duration: T.revealMs, easing: "ease-in-out" });
+      void play(silhouetteRef.current, [{ opacity: SILHOUETTE }, { opacity: 0 }], { duration: t.revealMs * 0.8, delay: t.revealMs * 0.2, easing: "ease-in-out" });
+      await play(deityRef.current, [{ opacity: 0.04, transform: `${CENTRE} scale(0.97)` }, { opacity: 1, transform: `${CENTRE} scale(1)` }], { duration: t.revealMs, easing: "ease-in-out" });
 
       // ---- Darshan, held; petals fall
-      await wait(T.holdMs);
+      await wait(t.holdMs);
       if (!still("darshan")) return;
 
       // ---- Dissolve into golden motes in his own shape; they gather into a circle
@@ -268,20 +288,20 @@ export function OpeningSequence({ onReveal, onDone, short = false }: OpeningSequ
       void play(haloGlowRef.current, [{ opacity: 0.7, transform: "scale(1)" }, { opacity: 1, transform: "scale(1.18)" }], { duration: 800, easing: "ease-in-out" });
       dust?.emit({ x: hx, y: hy, rate: 0 });
       if (box) {
-        void sampleMask(DARSHAN.mask, box, 420).then((points) => dust?.burst(points, [hx, hy], T.dissolveMs * 0.9));
+        void sampleMask(DARSHAN.mask, box, 420).then((points) => dust?.burst(points, [hx, hy], t.dissolveMs * 0.9));
       }
-      void play(deityRef.current, [{ opacity: 1, transform: `${CENTRE} scale(1)` }, { opacity: 0, transform: `${CENTRE} scale(1.02)` }], { duration: T.dissolveMs, easing: "ease-in" });
-      void play(haloRef.current, [{ opacity: 1 }, { opacity: 0.35 }], { duration: T.dissolveMs + T.gatherMs, easing: "ease-in-out" });
-      await wait(T.dissolveMs * 0.75);
+      void play(deityRef.current, [{ opacity: 1, transform: `${CENTRE} scale(1)` }, { opacity: 0, transform: `${CENTRE} scale(1.02)` }], { duration: t.dissolveMs, easing: "ease-in" });
+      void play(haloRef.current, [{ opacity: 1 }, { opacity: 0.35 }], { duration: t.dissolveMs + t.gatherMs, easing: "ease-in-out" });
+      await wait(t.dissolveMs * 0.75);
       if (!still("dissolve")) return;
       dust?.swirl(hx, hy, Math.min(120, innerWidth * 0.3));
-      await wait(T.gatherMs);
+      await wait(t.gatherMs);
       if (!still("dissolve")) return;
 
       // ---- The light settles onto the invitation
       await finish(false);
     })();
-  }, [finish, short]);
+  }, [finish, t]);
 
   // Prepare: the gate shows as soon as the door has loaded (the Lord's artwork
   // and the invitation card load meanwhile, in the background); then the hint
@@ -289,7 +309,9 @@ export function OpeningSequence({ onReveal, onDone, short = false }: OpeningSequ
   const prepare = useCallback(() => {
     if (prepared.current) return;
     prepared.current = true;
-    darshanReady.current = Promise.all((short ? INVITATION_ART : [DARSHAN.src, DARSHAN.mask, ...INVITATION_ART]).map(loadImage));
+    // the Lord's artwork (also preloaded by index.html), loaded and decoded; the invitation card in the background
+    darshanReady.current = Promise.all([decoded(DARSHAN.src), decoded(DARSHAN.mask)]).then((ok) => ok.every(Boolean));
+    INVITATION_ART.forEach(loadImage);
     const ready = Promise.race([loadImage(IMG.src), new Promise((r) => window.setTimeout(r, READY_TIMEOUT))]);
     void ready.then(async () => {
       if (phaseRef.current !== "loading") return;
@@ -307,7 +329,7 @@ export function OpeningSequence({ onReveal, onDone, short = false }: OpeningSequ
       setHint(true);
       later(AUTO_OPEN, start); // the visitor is never made to tap
     });
-  }, [start, short]);
+  }, [start]);
 
   useEffect(() => {
     prepare();
