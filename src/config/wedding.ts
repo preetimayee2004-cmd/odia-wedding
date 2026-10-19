@@ -349,15 +349,15 @@ pm run og. */
 
 export const wedding: WeddingConfig = {
   // ── EXAMPLE DATA ── The template ships with a sample wedding (Avi &
-  // Pragyan, Friday 12 February 2027, Bhubaneswar) so every section shows
+  // Pragya, Friday 12 February 2027, Bhubaneswar) so every section shows
   // working. Everything marked DEMO is made up: replace it with the real
   // details, then set site.demo to false (README: "Before you publish").
   couple: {
-    bride: { displayName: "Pragyan", fullName: null }, // DEMO (the page title)
+    bride: { displayName: "Pragya", fullName: null }, // DEMO (the page title)
     groom: { displayName: "Avi", fullName: null }, // DEMO (the page title)
     invocation: "|| Om Ganeshaya Namah ||",
     invite: "Together with their families, we joyfully invite you to the wedding of",
-    hashtag: "#AviWedsPragyan", // DEMO
+    hashtag: "#AviWedsPragya", // DEMO
     // DEMO — the example place, under the date block on the couple card
     place: "Jagannath Kalyan Mandap, Bhubaneswar, Odisha",
     quote: "Two souls, one journey, blessed by Lord Jagannath.",
@@ -372,7 +372,7 @@ export const wedding: WeddingConfig = {
     heading: "|| Jai Jagannath ||",
     greeting: "Dear {guest},",
     saveTheDate: "Save the Date",
-    names: ["Avi", "Pragyan"], // DEMO
+    names: ["Avi", "Pragya"], // DEMO
     announcement: "are getting married",
   },
   countdown: {
@@ -400,7 +400,7 @@ export const wedding: WeddingConfig = {
     tagline: "Bound by Love, Blessed by Family",
     art: {
       src: "/art/family/family-portrait.webp",
-      alt: "Avi and Pragyan in gold crowns, hands folded in greeting, with the groom's parents beside him and the bride's parents beside her",
+      alt: "Avi and Pragya in gold crowns, hands folded in greeting, with the groom's parents beside him and the bride's parents beside her",
       w: 1264,
       h: 848,
     },

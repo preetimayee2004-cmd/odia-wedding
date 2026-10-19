@@ -25,7 +25,7 @@ https://your-site.example/?guest=Priya%20Mishra
 
 Everything a guest reads lives in [`src/config/wedding.ts`](src/config/wedding.ts).
 
-**It ships with an example wedding.** So every section can be seen working, the template is filled with a complete sample: Avi & Pragyan, Friday 12 February 2027 (lagna 7:00 PM), Jagannath Kalyan Mandap in Bhubaneswar, nine ceremonies, six contacts and three wishes. Every example value is marked `DEMO` in the config. While `site.demo` is `true`:
+**It ships with an example wedding.** So every section can be seen working, the template is filled with a complete sample: Avi & Pragya, Friday 12 February 2027 (lagna 7:00 PM), Jagannath Kalyan Mandap in Bhubaneswar, nine ceremonies, six contacts and three wishes. Every example value is marked `DEMO` in the config. While `site.demo` is `true`:
 
 - the closing note ends with one quiet line saying it's an example invitation;
 - the three sample wishes carry an "Example" mark;
@@ -43,7 +43,7 @@ Replace every `DEMO` value using the checklist below, then set `site.demo` to `f
 
 | Item | Where |
 |---|---|
-| Couple's names (DEMO: Avi & Pragyan — also the page title) | `couple.bride` / `couple.groom`, `invitation.names` |
+| Couple's names (DEMO: Avi & Pragya — also the page title) | `couple.bride` / `couple.groom`, `invitation.names` |
 | Couple section wording (invocation, invite line, quote; DEMO hashtag and place — the date block comes from `wedding.dateTime`) | `couple` |
 | Wedding date & lagna time (DEMO: `"2027-02-12T19:00"`) — drives the countdown, every date shown and Add to Calendar | `wedding.dateTime` |
 | Invitation card wording and names (DEMO names) | `invitation` |
