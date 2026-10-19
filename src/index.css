@@ -308,10 +308,61 @@
     transform: scale(1.04);
   }
 }
+/* It also turns slowly (it stops where it is once tapped), and a thin gold
+   ring pulses out from behind it until it is tapped. */
+.rangoli-turn {
+  transform-box: view-box;
+  transform-origin: 100px 100px;
+  animation: rangoli-turn 40s linear infinite;
+}
+.rangoli-turn-paused { animation-play-state: paused; }
+@keyframes rangoli-turn {
+  to { transform: rotate(360deg); }
+}
+.rangoli-ring {
+  position: absolute;
+  inset: 4%;
+  border: 1.5px solid #c9a24e;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: rangoli-ring 2.2s ease-out infinite;
+}
+@keyframes rangoli-ring {
+  from { transform: scale(1); opacity: 0.6; }
+  to { transform: scale(1.25); opacity: 0; }
+}
+
+/* Invitation: the toran sways gently from its top centre, and the hanging
+   lamps' flames flicker, each a little out of step. */
+.inv-toran {
+  transform-origin: 50% 0;
+  animation: inv-sway 4s ease-in-out infinite;
+}
+@keyframes inv-sway {
+  0%,
+  100% { transform: rotate(-1deg); }
+  50% { transform: rotate(1deg); }
+}
+.inv-flame {
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  background: radial-gradient(ellipse 55% 60% at 50% 68%, #fff7d1 0%, #ffd75a 38%, #f5a21e 72%, rgb(245 162 30 / 0) 100%);
+  box-shadow: 0 0 6px 1px rgb(255 196 90 / 0.55);
+  transform-origin: 50% 100%;
+  animation: inv-flicker 1.2s ease-in-out infinite alternate;
+}
+@keyframes inv-flicker {
+  from { transform: scale(0.94); opacity: 0.9; }
+  to { transform: scale(1.06); opacity: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .rangoli-pulse {
+  .rangoli-pulse,
+  .rangoli-turn,
+  .inv-toran,
+  .inv-flame {
     animation: none !important;
   }
+  .rangoli-ring { display: none; }
 }
 
 /* ---------- Opening: gate hint, light, petals and golden motes ----------

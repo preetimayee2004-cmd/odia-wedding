@@ -20,7 +20,7 @@ const pct = (v: number, of: number) => `${(v / of) * 100}%`;
  */
 const DARSHAN = { src: "/art/jagannath-darshan.webp", mask: "/art/jagannath-darshan-mask.png", alt: "Mahaprabhu Jagannath", w: 1045, h: 1505 };
 /** The invitation card the opening hands over to (loaded in the background). */
-const INVITATION_ART = ["/art/invitation-card.jpg", "/art/invitation-card-middle.png"];
+const INVITATION_ART = ["/art/invitation/card.jpg", "/art/invitation/toran.webp", "/art/invitation/trinity.webp", "/art/invitation-card-middle.png"];
 
 const DARK = "#0A0503"; // deep black of the inner sanctum
 const AUTO_OPEN = 3500; // opens by itself if not tapped

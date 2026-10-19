@@ -195,8 +195,12 @@ export function RangoliStart({ active, onOpen, size = 170 }: { active: boolean; 
         className="flex flex-col items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[#B8863B]/60"
         style={{ WebkitTapHighlightColor: "transparent" }}
       >
-        <span className={`block ${stage === "ready" ? "rangoli-pulse" : ""}`}>
-          <svg ref={svgRef} viewBox="0 0 200 200" width={size} height={size} className="block overflow-visible" aria-hidden>
+        <span className={`relative block ${stage === "ready" ? "rangoli-pulse" : ""}`}>
+          {/* a thin gold ring pulsing out from behind it, inviting a tap (gone once tapped) */}
+          {stage === "ready" && <span aria-hidden className="rangoli-ring" />}
+          <svg ref={svgRef} viewBox="0 0 200 200" width={size} height={size} className="relative block overflow-visible" aria-hidden>
+            {/* the whole rangoli turns slowly (it stops where it is when tapped) */}
+            <g className={`rangoli-turn ${stage === "building" || stage === "ready" ? "" : "rangoli-turn-paused"}`}>
             {/* Outer scalloped edge, thin maroon */}
             <g {...layer(5)} fill="none" stroke={MAROON} strokeWidth="1.6" strokeLinecap="round">
               {ring(24).map((a) => (
@@ -241,6 +245,7 @@ export function RangoliStart({ active, onOpen, size = 170 }: { active: boolean; 
             {/* Gold centre */}
             <g {...layer(0)}>
               <circle cx="100" cy="100" r="10" fill="#E0A526" />
+            </g>
             </g>
           </svg>
         </span>
