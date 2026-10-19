@@ -242,3 +242,20 @@ export function RangoliSeal({ className = "", style }: { className?: string; sty
     </svg>
   );
 }
+
+/**
+ * A single champa with a short trail of rice dots beneath it: a quiet jhoti
+ * for a small empty space (the gallery's staggered corner).
+ */
+export function ChampaSprig({ className = "", style }: { className?: string; style?: CSSProperties }) {
+  const [bx, by, bw] = champa.box;
+  const size = 30;
+  return (
+    <svg viewBox="0 0 40 60" aria-hidden className={`jhoti overflow-visible ${className}`} style={style}>
+      <g transform={`translate(${f(20 - size / 2)} 2) scale(${f(size / bw)}) translate(${-bx} ${-by})`}>{champa.body}</g>
+      {dot(20, 42, 2)}
+      {dot(20, 50, 1.6)}
+      {dot(20, 57, 1.2)}
+    </svg>
+  );
+}

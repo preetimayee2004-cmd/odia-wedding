@@ -13,12 +13,9 @@ import { Toran } from "@/components/art/Toran";
 
 const PAGE = 20;
 const MAROON = "#7A1424";
-/** The note box's stroke and the Leave a Wish button. */
+/** The Leave a Wish button. */
 const RUST = "#8A3B2C";
 const TEXT_SOFT = "#6B4A3A";
-/** Both note boxes: white, rounded, with a rust stroke. */
-const BOX =
-  "rounded-2xl border-[1.5px] bg-white text-left text-ink placeholder:text-ink-soft/55 focus:outline-none focus:shadow-[0_0_0_3px_rgb(138_59_44/0.12)] focus-within:shadow-[0_0_0_3px_rgb(138_59_44/0.12)]";
 /** The notes' papers, in turn: cream, blush, butter. */
 const PAPERS = ["#FCF7EA", "#FBE9E6", "#F8F1D5"];
 /** Each note's slight tilt, in turn. */
@@ -237,9 +234,12 @@ function MarigoldPin({ className = "" }: { className?: string }) {
 type Status = "idle" | "saving" | "sent" | "error";
 
 /**
- * "Write your note": a box for the name and a box for the blessing (with a
- * counter), each white with a rust stroke, then Leave a Wish. When sent, a
- * marigold petal rises over "Your blessing has been sent to the couple".
+ * "Leave Your Blessings", on a wedding blessing card: warm ivory, a fine
+ * maroon border with a gold hairline inside it, and a small motif in each
+ * corner (clear of the fields). Labelled boxes for the name and the blessing
+ * (with its counter), then Leave a Wish. A marigold petal rises over "Your
+ * blessing has been sent to the couple" only once the database has accepted
+ * it; in the preview it says plainly that it is kept on this device.
  */
 function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSProperties }) {
   const { formHeading, allowAnonymous, maxLength } = wedding.wishes;
@@ -251,6 +251,7 @@ function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSPro
   const [status, setStatus] = useState<Status>("idle");
   const pendingId = useRef(newId()); // reused on retry so a resend can't duplicate
   const guard = useSpamGuard("tila:wish-sent-at", 30_000);
+  const ids = useId();
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -313,45 +314,57 @@ function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSPro
 
   return (
     <form onSubmit={onSubmit} onFocus={guard.touch} onInput={guard.touch} noValidate className="mt-8" style={style}>
-      <h3 className="font-serif text-[24px] font-semibold leading-tight" style={{ color: MAROON }}>
-        {formHeading}
-      </h3>
+      {/* The blessing card */}
+      <div className="wish-card">
+        {["tl", "tr", "bl", "br"].map((corner) => (
+          <CardCorner key={corner} className={`wish-corner wish-corner-${corner}`} />
+        ))}
+        <h3 className="text-center font-serif text-[26px] font-semibold leading-tight" style={{ color: MAROON }}>
+          {formHeading}
+        </h3>
+        <svg viewBox="0 0 80 8" aria-hidden className="mx-auto mt-2 block h-2 w-20">
+          <path d="M2 4H34M46 4H78" stroke="#B8916A" strokeWidth="0.8" strokeLinecap="round" />
+          <path d="M40 0.8L43.2 4 40 7.2 36.8 4Z" fill="#B8916A" />
+        </svg>
 
-      {/* A box for the name */}
-      <input
-        aria-label="Your name"
-        placeholder="Your name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        autoComplete="name"
-        maxLength={60}
-        className={`mt-3 block min-h-12 w-full px-4 font-sans text-[15px] ${BOX}`}
-        style={{ borderColor: RUST }}
-      />
+        <div className="wish-group mt-5">
+          <label htmlFor={`${ids}-name`} className="wish-label">
+            Your name
+          </label>
+          <input
+            id={`${ids}-name`}
+            placeholder="As you'd like it signed"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            autoComplete="name"
+            maxLength={60}
+            className="wish-field wish-input"
+          />
+        </div>
 
-      {/* A box for the blessing */}
-      <div className={`mt-3 overflow-hidden ${BOX}`} style={{ borderColor: RUST }}>
-        <textarea
-          aria-label="Your blessing"
-          placeholder="Write your blessing for the couple…"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          maxLength={maxLength}
-          rows={4}
-          className="block min-h-28 w-full resize-none bg-transparent px-4 pt-3 font-serif text-[17px] italic leading-snug text-ink placeholder:text-ink-soft/55 focus:outline-none"
-        />
-        <p className="px-4 pb-2 text-right font-sans text-[11px]" style={{ color: TEXT_SOFT }}>
-          {message.length}/{maxLength}
-        </p>
+        <div className="wish-group mt-4">
+          <label htmlFor={`${ids}-message`} className="wish-label">
+            Your blessing
+          </label>
+          <div className="wish-field">
+            <textarea
+              id={`${ids}-message`}
+              placeholder="Write your blessing for the couple…"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              maxLength={maxLength}
+              rows={4}
+              className="wish-textarea"
+            />
+            <p className="px-3.5 pb-2 text-right font-sans text-[11px]" style={{ color: TEXT_SOFT }} aria-live="polite">
+              {message.length}/{maxLength}
+            </p>
+          </div>
+        </div>
       </div>
       <Honeypot value={trap} onChange={setTrap} />
 
-      <button
-        type="submit"
-        disabled={status === "saving"}
-        className="t-button mt-5 inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-9 text-[14px] text-[#FBF3E4] shadow-[0_10px_20px_-12px_rgb(138_59_44/0.8)] transition duration-200 ease-silk active:scale-[0.98] disabled:opacity-60"
-        style={{ backgroundColor: RUST }}
-      >
+      <button type="submit" disabled={status === "saving"} className="wish-submit t-button mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-9 text-[14px] text-[#FBF3E4] disabled:opacity-60" style={{ backgroundColor: RUST }}>
         {status === "saving" ? (
           "Sending…"
         ) : (
@@ -362,7 +375,14 @@ function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSPro
       </button>
 
       <div role="status" className="mt-3 min-h-5">
-        {status === "sent" ? (
+        {status === "sent" && PREVIEW ? (
+          <>
+            <p className="font-serif text-[18px] font-semibold leading-snug" style={{ color: MAROON }}>
+              Your blessing is kept on this device
+            </p>
+            <p className="t-note mt-1">Preview — blessings aren't sent online yet, so the couple won't see it.</p>
+          </>
+        ) : status === "sent" ? (
           <>
             <svg key={pendingId.current} viewBox="0 0 24 34" className="petal-rise mx-auto h-7 w-auto" aria-hidden>
               <path d="M12 1C19 8 21 18 17 26 15 30 13 32 12 33 11 32 9 30 7 26 3 18 5 8 12 1Z" fill="#F29A2E" />
@@ -371,7 +391,7 @@ function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSPro
             <p className="font-serif text-[18px] font-semibold leading-snug" style={{ color: MAROON }}>
               Your blessing has been sent to the couple
             </p>
-            <p className="t-note mt-1">{PREVIEW ? "Preview — it isn't saved online yet; it's kept on this device." : "It will appear on the wall once they've seen it."}</p>
+            <p className="t-note mt-1">It will appear on the wall once they&rsquo;ve seen it.</p>
           </>
         ) : status === "error" ? (
           <p className="t-note font-medium text-sindoor">{error}</p>
@@ -380,6 +400,18 @@ function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSPro
         )}
       </div>
     </form>
+  );
+}
+
+/** A restrained corner for the blessing card: a fine maroon corner line, a gold bud and two dots (drawn for the top left; CSS turns it). */
+function CardCorner({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 20 20" aria-hidden className={className} fill="none" strokeLinecap="round">
+      <path d="M1.5 13V4.5a3 3 0 0 1 3-3H13" stroke={MAROON} strokeWidth="1" opacity="0.7" />
+      <path d="M6 6c3.6.2 6.2 2.8 6.4 6.4C8.8 12.2 6.2 9.6 6 6Z" fill="#B8916A" fillOpacity="0.55" stroke="#B8916A" strokeWidth="0.6" />
+      <circle cx="16" cy="1.5" r="1" fill={MAROON} opacity="0.7" />
+      <circle cx="1.5" cy="16" r="1" fill={MAROON} opacity="0.7" />
+    </svg>
   );
 }
 

@@ -479,6 +479,178 @@
   .jhoti .jhoti-bloom { animation: none !important; clip-path: none !important; opacity: 1 !important; transform: none !important; }
 }
 
+/* Gallery arches (art/GoldArch.tsx): the gold outline draws itself, the mat,
+   maroon line and finial follow, then the photograph fades in with a gentle
+   zoom-out. Opacity, transform and stroke only, so nothing shifts. */
+.arch-line { stroke-dasharray: 1 1; }
+.arch[data-reveal="armed"] .arch-line { stroke-dashoffset: 1; }
+.arch[data-reveal="armed"] :is(.arch-mat, .arch-maroon, .arch-finial, .arch-window) { opacity: 0; }
+.arch[data-reveal="armed"] .arch-zoom { transform: scale(1.07); }
+.arch[data-reveal="play"] .arch-line { animation: arch-draw 1s cubic-bezier(0.45, 0.05, 0.25, 1) var(--arch-delay, 0ms) both; }
+.arch[data-reveal="play"] .arch-mat { animation: arch-fade 0.7s ease-out calc(var(--arch-delay, 0ms) + 250ms) both; }
+.arch[data-reveal="play"] .arch-maroon { animation: arch-fade 0.5s ease-out calc(var(--arch-delay, 0ms) + 550ms) both; }
+.arch[data-reveal="play"] .arch-finial { animation: arch-fade 0.4s ease-out calc(var(--arch-delay, 0ms) + 800ms) both; }
+.arch[data-reveal="play"] .arch-window { animation: arch-fade 0.9s ease-out calc(var(--arch-delay, 0ms) + 650ms) both; }
+.arch[data-reveal="play"] .arch-zoom { animation: arch-zoom 1.4s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--arch-delay, 0ms) + 650ms) both; }
+@keyframes arch-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes arch-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes arch-zoom { from { transform: scale(1.07); } to { transform: none; } }
+
+/* The gallery's photo viewer (ui/PhotoViewer.tsx): a deep warm ground, the
+   photograph whole with a fine gold keyline, ivory controls. */
+.pv-backdrop { background: rgb(22 12 8 / 0.96); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); opacity: 0; transition: opacity 280ms ease; }
+.pv-stage { opacity: 0; transform: scale(0.97); transition: opacity 320ms ease, transform 420ms cubic-bezier(0.22, 1, 0.36, 1); }
+.pv-shown .pv-backdrop,
+.pv-shown .pv-stage { opacity: 1; transform: none; }
+.pv-top { padding-top: calc(max(0.75rem, env(safe-area-inset-top)) + var(--status-bar, 0px)); }
+.pv-bottom { padding: 6px 16px max(1.25rem, env(safe-area-inset-bottom)); }
+.pv-count { font: 500 12px/1 var(--font-ui); letter-spacing: 0.18em; color: rgb(248 240 224 / 0.75); }
+.pv-img {
+  display: block;
+  max-width: min(100%, 34rem);
+  max-height: calc(100dvh - 210px - var(--status-bar, 0px));
+  object-fit: contain;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgb(201 168 106 / 0.6), 0 24px 60px -24px rgb(0 0 0 / 0.7);
+  user-select: none;
+  touch-action: pan-y;
+  animation: pv-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.pv-img[data-dir="1"] { animation-name: pv-in-next; }
+.pv-img[data-dir="-1"] { animation-name: pv-in-prev; }
+@keyframes pv-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pv-in-next { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: none; } }
+@keyframes pv-in-prev { from { opacity: 0; transform: translateX(-18px); } to { opacity: 1; transform: none; } }
+.pv-caption {
+  max-width: 30rem;
+  text-align: center;
+  font: italic 500 16px/1.35 var(--font-serif);
+  color: rgb(248 240 224 / 0.85);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.pv-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  border: 1px solid rgb(201 168 106 / 0.55);
+  background: rgb(255 255 255 / 0.06);
+  color: #f8f0e0;
+  transition: background-color 0.2s, border-color 0.2s, transform 0.15s;
+}
+@media (hover: hover) { .pv-btn:hover { background: rgb(255 255 255 / 0.14); border-color: rgb(201 168 106 / 0.9); } }
+.pv-btn:active { transform: scale(0.94); }
+.pv-btn:focus-visible { outline: 2px solid #c9a24b; outline-offset: 3px; }
+
+/* The Wishing Wall's blessing card (WishingWall.tsx WishForm): warm ivory, a
+   fine maroon border with a gold hairline inside, a small motif in each
+   corner, clear of the fields. */
+.wish-card {
+  position: relative;
+  padding: 26px 26px 28px;
+  border: 1px solid rgb(122 20 36 / 0.55);
+  border-radius: 6px;
+  background: #fffbf2;
+  box-shadow: inset 0 0 0 4px #fffbf2, inset 0 0 0 5px rgb(184 145 106 / 0.55), 0 16px 32px -20px rgb(90 50 20 / 0.45);
+  text-align: left;
+}
+.wish-corner { position: absolute; width: 18px; height: 18px; }
+.wish-corner-tl { top: 8px; left: 8px; }
+.wish-corner-tr { top: 8px; right: 8px; transform: scaleX(-1); }
+.wish-corner-bl { bottom: 8px; left: 8px; transform: scaleY(-1); }
+.wish-corner-br { bottom: 8px; right: 8px; transform: scale(-1); }
+.wish-label {
+  display: block;
+  margin-bottom: 6px;
+  font: 600 10.5px/1.2 var(--font-ui);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #7a4a2a;
+  transition: color 0.25s;
+}
+.wish-group:focus-within .wish-label { color: #7a1424; }
+.wish-field {
+  display: block;
+  width: 100%;
+  border: 1px solid rgb(122 20 36 / 0.3);
+  border-radius: 10px;
+  background: #fffefb;
+  color: var(--c-text);
+  transition: border-color 0.25s, box-shadow 0.35s, background-color 0.25s;
+}
+@media (hover: hover) { .wish-field:hover { border-color: rgb(122 20 36 / 0.5); } }
+.wish-field:focus,
+.wish-field:focus-within { outline: none; border-color: #7a1424; background: #fff; box-shadow: 0 0 0 3px rgb(201 162 75 / 0.28); }
+.wish-input { min-height: 48px; padding: 0 14px; font: 500 18px/1.2 var(--font-serif); }
+.wish-textarea {
+  display: block;
+  width: 100%;
+  min-height: 7rem;
+  resize: none;
+  padding: 12px 14px 4px;
+  border: 0;
+  background: transparent;
+  font: italic 500 17px/1.4 var(--font-serif);
+  color: var(--c-text);
+}
+.wish-textarea:focus { outline: none; }
+.wish-input::placeholder,
+.wish-textarea::placeholder { color: rgb(107 74 58 / 0.55); }
+.wish-submit {
+  box-shadow: 0 10px 20px -12px rgb(138 59 44 / 0.8);
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s, background-color 0.2s;
+}
+@media (hover: hover) {
+  .wish-submit:hover:not(:disabled) { transform: translateY(-2px); background-color: #973f2f !important; box-shadow: 0 16px 26px -14px rgb(138 59 44 / 0.85); }
+}
+.wish-submit:active:not(:disabled) { transform: translateY(0) scale(0.98); box-shadow: 0 6px 12px -8px rgb(138 59 44 / 0.8); }
+.wish-submit:focus-visible { outline: 2px solid #c9a24b; outline-offset: 3px; }
+
+/* The RSVP's Accept button (Rsvp.tsx): a clear, clickable maroon button with
+   a fine gold edge, its ivory label and the Odia beneath. */
+.rsvp-accept {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 100%;
+  max-width: 19rem;
+  min-height: 64px;
+  padding: 12px 28px;
+  border: 1px solid rgb(201 162 75 / 0.85);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #8f1b2c 0%, #6e1020 100%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 2px 4px rgb(110 16 32 / 0.18), 0 12px 24px -12px rgb(110 16 32 / 0.7);
+  cursor: pointer;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s, filter 0.2s;
+}
+@media (hover: hover) {
+  .rsvp-accept:hover { transform: translateY(-2px); filter: brightness(1.06); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14), 0 4px 8px rgb(110 16 32 / 0.2), 0 18px 30px -14px rgb(110 16 32 / 0.75); }
+}
+.rsvp-accept:active { transform: translateY(0) scale(0.985); filter: brightness(0.96); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08), 0 1px 2px rgb(110 16 32 / 0.2), 0 6px 12px -8px rgb(110 16 32 / 0.6); }
+.rsvp-accept:focus-visible { outline: 2px solid #c9a24b; outline-offset: 3px; }
+.rsvp-accept-label { font: 600 14px/1.2 var(--font-ui); letter-spacing: 0.16em; text-transform: uppercase; color: #fbf3e4; }
+.rsvp-accept-odia { font: 500 14px/1.3 var(--font-odia); color: #f3d98c; }
+
+@media (prefers-reduced-motion: reduce) {
+  .arch :is(.arch-line, .arch-mat, .arch-maroon, .arch-finial, .arch-window, .arch-zoom) { animation: none !important; opacity: 1 !important; transform: none !important; stroke-dashoffset: 0 !important; }
+  .pv-stage,
+  .pv-img { transform: none !important; animation-name: pv-in !important; }
+  .wish-submit,
+  .rsvp-accept,
+  .pv-btn { transition: none; }
+  .wish-submit:hover,
+  .wish-submit:active,
+  .rsvp-accept:hover,
+  .rsvp-accept:active { transform: none; }
+}
+
 /* The Families: a carved gold frame around each set of parents (see GoldFrame).
    The band is a gilded gradient with a row of beads along it; the panel inside
    is a lighter cream behind a fine dark-and-gold edge. */

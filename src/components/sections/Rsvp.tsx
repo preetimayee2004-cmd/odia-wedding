@@ -8,7 +8,7 @@ import { canAddToCalendar, downloadWeddingCalendar } from "@/lib/calendar";
 import { EASE } from "@/lib/motion";
 import { demoMode, showPlaceholders } from "@/lib/placeholders";
 import { formatVenueDate, parseVenueDateTime, venueDateKey } from "@/lib/venueTime";
-import { AcceptPlaque, LotusConfirm, RiceShower } from "@/components/art/RsvpArt";
+import { LotusConfirm, RiceShower } from "@/components/art/RsvpArt";
 import { hasContactNumbers } from "@/components/sections/Contact";
 
 const SAVED_KEY = "tila:rsvp";
@@ -189,18 +189,16 @@ function RsvpBody() {
           )}
         </div>
       ) : (
-        /* The ornate Accept plaque: one tap accepts */
-        <button
-          type="button"
-          onClick={accept}
-          aria-label={r.acceptLabel}
-          className="relative mx-auto mt-6 block w-full max-w-[21rem] transition-transform duration-200 ease-silk active:scale-[0.98]"
-        >
-          <AcceptPlaque className="block h-auto w-full drop-shadow-[0_10px_14px_rgb(70_20_10/0.3)]" />
-          <span aria-hidden className="absolute inset-x-[12%] bottom-[6%] top-[20%] flex flex-col items-center justify-center leading-tight text-[#F3D98C]">
-            <span className="t-button text-[13px]">{r.acceptLabel}</span>
-            {r.acceptOdia && <span className="mt-0.5 font-odia text-[14px] font-medium">{r.acceptOdia}</span>}
+        /* Accept: one tap accepts */
+        <button type="button" onClick={accept} aria-label={r.acceptLabel} className="rsvp-accept mx-auto mt-6">
+          <span aria-hidden className="rsvp-accept-label">
+            {r.acceptLabel}
           </span>
+          {r.acceptOdia && (
+            <span aria-hidden lang="or" className="rsvp-accept-odia">
+              {r.acceptOdia}
+            </span>
+          )}
         </button>
       )}
 

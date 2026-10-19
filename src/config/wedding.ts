@@ -563,7 +563,7 @@ export const wedding: WeddingConfig = {
   wishes: {
     heading: "The Wishing Wall",
     quote: "May every blessing bloom into a lifetime of love, joy and togetherness.",
-    formHeading: "Write your note",
+    formHeading: "Leave Your Blessings",
     allowAnonymous: false,
     requireApproval: true,
     previewCount: 3,

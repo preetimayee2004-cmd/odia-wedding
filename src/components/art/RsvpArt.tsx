@@ -4,34 +4,6 @@ import { createPortal } from "react-dom";
 const GOLD = "#C9A24D";
 const f1 = (n: number) => n.toFixed(1);
 
-/** The Accept button's plaque: a maroon cartouche edged in gold, with a small kalash finial. */
-export function AcceptPlaque({ className = "" }: { className?: string }) {
-  const shape = "M42 18H278Q296 18 304 32Q294 53 304 74Q296 88 278 88H42Q24 88 16 74Q26 53 16 32Q24 18 42 18Z";
-  return (
-    <svg viewBox="0 0 320 92" className={className} aria-hidden>
-      <defs>
-        <linearGradient id="rsvp-plaque" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#9B2430" />
-          <stop offset="1" stopColor="#6E1020" />
-        </linearGradient>
-      </defs>
-      <path d={shape} fill="url(#rsvp-plaque)" stroke={GOLD} strokeWidth="2" />
-      <path d={shape} fill="none" stroke={GOLD} strokeWidth="0.8" opacity="0.8" transform="translate(160 53) scale(0.93 0.82) translate(-160 -53)" />
-      {/* curls at the notched ends */}
-      <g fill="none" stroke={GOLD} strokeWidth="1" strokeLinecap="round">
-        <path d="M30 40c6 2 8 8 4 13s-10 3-9-2 6-5 7-1M30 66c6-2 8-8 4-13" />
-        <path d="M290 40c-6 2-8 8-4 13s10 3 9-2-6-5-7-1M290 66c-6-2-8-8-4-13" />
-      </g>
-      {/* the kalash finial */}
-      <g fill={GOLD}>
-        <path d="M152 18H168L165 13H155Z" />
-        <path d="M155 13C150 11 150 5 160 4 170 5 170 11 165 13Z" />
-        <path d="M160 4C156 1 157-2 160-4 163-2 164 1 160 4Z" />
-      </g>
-    </svg>
-  );
-}
-
 /**
  * The confirmation seal: a pink lotus blooms ring by ring over a soft golden
  * glow, a thin gold ring draws itself round it, a red circle pops up in its
