@@ -11,10 +11,10 @@ import { type CSSProperties, type ReactNode } from "react";
  * plus FINIAL above it. The photograph is HTML (so it keeps lazy loading, its
  * crop focus and the hover zoom), masked to the arch window.
  *
- * `reveal`: "armed" hides it until "play", when the gold outline draws
- * itself, the mat, maroon line and finial follow, and the photograph fades in
- * with a gentle zoom-out (`.arch` in index.css; `delay` staggers it).
- * Without `reveal` it is simply shown.
+ * The frame itself never moves. `reveal`: "armed" holds the photograph
+ * back until "play", when it comes into focus, from slightly blurred and a
+ * little larger to sharp at its natural size (`.arch` in index.css; `delay`
+ * staggers it). Without `reveal` it is simply shown.
  */
 
 const W = 300;
@@ -64,7 +64,7 @@ export function GoldArchFrame({ height, reveal, delay = 0, children }: { height:
       style={{ aspectRatio: `${W} / ${total}`, "--arch-delay": `${delay}ms` } as CSSProperties}
     >
       <div
-        className="arch-window absolute overflow-hidden bg-[#2B1A14]"
+        className="arch-window absolute overflow-hidden bg-[#EADFCB]"
         style={{
           left: `${(box.x / W) * 100}%`,
           width: `${(box.w / W) * 100}%`,
@@ -81,15 +81,15 @@ export function GoldArchFrame({ height, reveal, delay = 0, children }: { height:
 
       <svg viewBox={`0 0 ${W} ${total}`} className="pointer-events-none absolute inset-0 h-full w-full overflow-visible" aria-hidden>
         {/* the cream mat, with a fine gold outline and a second hairline inside it */}
-        <path className="arch-mat" d={archPath(0, height) + archPath(MAT_IN, height)} fill={MAT} fillRule="evenodd" />
-        <path className="arch-line" pathLength={1} d={archPath(0.6, height)} fill="none" stroke={GOLD} strokeWidth="1.2" />
-        <path className="arch-line" pathLength={1} d={archPath(4, height)} fill="none" stroke={GOLD_SOFT} strokeWidth="0.7" />
+        <path d={archPath(0, height) + archPath(MAT_IN, height)} fill={MAT} fillRule="evenodd" />
+        <path d={archPath(0.6, height)} fill="none" stroke={GOLD} strokeWidth="1.2" />
+        <path d={archPath(4, height)} fill="none" stroke={GOLD_SOFT} strokeWidth="0.7" />
 
         {/* the maroon line round the photograph */}
-        <path className="arch-maroon" d={archPath(MAT_IN, height) + archPath(PHOTO_IN, height)} fill={MAROON} fillRule="evenodd" />
+        <path d={archPath(MAT_IN, height) + archPath(PHOTO_IN, height)} fill={MAROON} fillRule="evenodd" />
 
         {/* a small gold finial at the apex */}
-        <g className="arch-finial" transform={`translate(150 ${FINIAL})`} fill={GOLD}>
+        <g transform={`translate(150 ${FINIAL})`} fill={GOLD}>
           <path d="M-4.5 0.5C-6.5-4-2.5-7.5 0-12 2.5-7.5 6.5-4 4.5 0.5Z" />
           <circle cx="0" cy="-14.5" r="1.6" />
           <path d="M-9 1.2h18" stroke={GOLD} strokeWidth="1" />

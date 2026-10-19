@@ -4,37 +4,89 @@ import { useScrollLock } from "@/hooks/useScrollLock";
 export interface ViewerPhoto {
   src: string;
   alt: string;
+  /** Where the photograph's frame crops it (CSS object-position, e.g. "50% 30%"). */
+  focus?: string;
 }
 
-const EXIT_MS = 280;
+const OPEN_MS = 560;
+const CLOSE_MS = 460;
+const FADE_MS = 260;
+const EASE_OUT = "cubic-bezier(0.22, 1, 0.36, 1)";
+const EASE_IN_OUT = "cubic-bezier(0.4, 0, 0.2, 1)";
+
+/** "50% 30%", "right bottom"… → fractions across and down. */
+function parseFocus(focus = "50% 50%"): [number, number] {
+  const words: Record<string, number> = { left: 0, top: 0, center: 0.5, right: 1, bottom: 1 };
+  const parts = focus.trim().split(/\s+/);
+  const read = (p: string | undefined) => (p === undefined ? 0.5 : p.endsWith("%") ? parseFloat(p) / 100 : words[p] ?? 0.5);
+  // keywords may come in either order ("bottom right")
+  if (parts[0] === "top" || parts[0] === "bottom") return [read(parts[1]), read(parts[0])];
+  return [read(parts[0]), read(parts[1])];
+}
+
+const onScreen = (r: DOMRect) => r.width > 0 && r.bottom > 0 && r.top < window.innerHeight;
 
 /**
- * The gallery's full-screen viewer, on the native <dialog>: focus moves
- * inside (and back to the photograph that opened it), Escape closes, and the
- * page behind is inert. The photograph is shown whole and uncropped on a
- * deep warm ground, with its place in the set, its caption, and previous /
- * next — by button, arrow key or swipe; a tap outside the photograph closes
- * it. It opens with a soft fade and settle, and photographs cross-fade with
- * a slight drift in the direction of travel (only the fade with reduced
- * motion). Styles: `.pv` in index.css.
+ * The whole photograph (as shown in the viewer) scaled down and clipped to
+ * the frame's window, with the arch's rounded top: the photograph as it
+ * sits in the gallery.
+ */
+function inFrame(img: HTMLImageElement, frame: DOMRect, focus?: string): Keyframe {
+  const f = img.getBoundingClientRect();
+  const s = Math.max(frame.width / f.width, frame.height / f.height);
+  const vw = frame.width / s; // the part of the photograph the frame shows, in the image's own pixels
+  const vh = frame.height / s;
+  const [fx, fy] = parseFocus(focus);
+  const left = (f.width - vw) * fx;
+  const top = (f.height - vh) * fy;
+  // move the shown part's centre onto the frame's centre (scaling about the image's centre)
+  const ox = left + vw / 2 - f.width / 2;
+  const oy = top + vh / 2 - f.height / 2;
+  const dx = frame.left + frame.width / 2 - (f.left + f.width / 2) - s * ox;
+  const dy = frame.top + frame.height / 2 - (f.top + f.height / 2) - s * oy;
+  const r = vw / 2;
+  return {
+    transform: `translate(${dx}px, ${dy}px) scale(${s})`,
+    clipPath: `inset(${top}px ${f.width - left - vw}px ${f.height - top - vh}px ${left}px round ${r}px ${r}px 0px 0px)`,
+  };
+}
+/** Settled in the viewer (the inset leaves room for its fine gold keyline and shadow). */
+const SETTLED: Keyframe = { transform: "none", clipPath: "inset(-40px -40px -40px -40px round 3px 3px 3px 3px)" };
+
+/**
+ * The gallery's full-screen viewer — the "living photograph". A tapped
+ * photograph rises out of its arch: the whole picture grows from the frame's
+ * window to the centre of the screen over a warm overlay, uncropped and
+ * sharp. It shows its place in the set, its caption, close and previous /
+ * next (also arrow keys and swipe); Escape or a tap outside closes. On
+ * closing, the photograph showing settles back into its own frame (scrolled
+ * into view behind the overlay if the guest moved on), and focus returns to
+ * that frame. Built on the native <dialog>, so focus stays inside and the
+ * page behind is inert; the page doesn't scroll while it's open. With
+ * reduced motion it simply fades. Styles: `.pv` in index.css.
  */
 export function PhotoViewer({
   photos,
   index,
   onIndex,
   onClose,
+  frameFor,
 }: {
   photos: ViewerPhoto[];
   /** The photograph showing, or null when closed. */
   index: number | null;
   onIndex: (index: number) => void;
   onClose: () => void;
+  /** The gallery button holding a photograph's frame: where it rises from and settles back to. */
+  frameFor?: (index: number) => HTMLElement | null;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
   const opener = useRef<HTMLElement | null>(null);
-  const last = useRef(0); // keeps the photograph on screen while the viewer fades out
+  const last = useRef(0); // keeps the photograph on screen while it settles back
   const swipe = useRef<{ x: number; y: number } | null>(null);
   const swiped = useRef(false);
+  const byPointer = useRef(false); // closed by tap or click (no focus ring then), or by keyboard
   const [shown, setShown] = useState(false);
   const [dir, setDir] = useState(0);
   const open = index !== null;
@@ -42,26 +94,73 @@ export function PhotoViewer({
   if (index !== null) last.current = index;
   useScrollLock(open);
 
+  const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  /** The window of a photograph's frame, scrolled into view first if needed. */
+  const frameWindow = (i: number, scroll: boolean) => {
+    const button = frameFor?.(i);
+    const win = button?.querySelector(".arch-window");
+    if (!button || !win) return null;
+    if (scroll && !onScreen(win.getBoundingClientRect())) button.scrollIntoView({ block: "center" });
+    return win.getBoundingClientRect();
+  };
+
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
+
     if (open) {
-      if (!dialog.open) {
-        opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-        setDir(0);
-        dialog.showModal();
-      }
-      const frame = requestAnimationFrame(() => setShown(true));
+      if (dialog.open) return;
+      opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      setDir(0);
+      dialog.showModal();
+      let frame = requestAnimationFrame(() => {
+        setShown(true);
+        const img = imgRef.current;
+        if (!img) return;
+        const rise = () => {
+          const from = frameWindow(last.current, false);
+          if (reduced() || !from || !onScreen(from)) {
+            img.animate([{ opacity: 0 }, { opacity: 1 }], { duration: reduced() ? 200 : 320, easing: "ease-out" });
+            return;
+          }
+          img.animate([{ ...inFrame(img, from, photos[last.current]?.focus), opacity: 1 }, { ...SETTLED, opacity: 1 }], { duration: OPEN_MS, easing: EASE_OUT });
+        };
+        if (img.complete && img.naturalWidth) rise();
+        else {
+          img.style.opacity = "0";
+          img.addEventListener("load", () => {
+            img.style.opacity = "";
+            frame = requestAnimationFrame(rise);
+          }, { once: true });
+        }
+      });
       return () => cancelAnimationFrame(frame);
     }
+
+    // closing: settle back into the frame, then close
     setShown(false);
     if (!dialog.open) return;
-    const timer = window.setTimeout(() => {
+    const img = imgRef.current;
+    const button = frameFor?.(last.current) ?? null;
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
       dialog.close();
-      opener.current?.focus({ preventScroll: true });
-    }, EXIT_MS);
+      img?.getAnimations().forEach((a) => a.cancel());
+      // back to the photograph's frame; its focus ring only for keyboard use
+      (button ?? opener.current)?.focus({ preventScroll: true, focusVisible: !byPointer.current } as FocusOptions);
+    };
+    const to = img && !reduced() ? frameWindow(last.current, true) : null;
+    if (img && to && onScreen(to)) {
+      const back = img.animate([{ ...SETTLED, opacity: 1 }, { ...inFrame(img, to, photos[last.current]?.focus), opacity: 1 }], { duration: CLOSE_MS, easing: EASE_IN_OUT, fill: "forwards" });
+      back.finished.then(finish, finish);
+    } else {
+      img?.animate([{ opacity: 1 }, { opacity: 0 }], { duration: FADE_MS, easing: "ease-in", fill: "forwards" });
+    }
+    const timer = window.setTimeout(finish, (to ? CLOSE_MS : FADE_MS) + 80); // in case an animation never finishes
     return () => clearTimeout(timer);
-  }, [open]);
+  }, [open]); // runs on opening and closing only; the photograph and its frame are read as they are then
 
   const go = (step: number) => {
     if (index === null || n < 2) return;
@@ -89,6 +188,7 @@ export function PhotoViewer({
   const onPointerDown = (e: PointerEvent) => {
     swipe.current = { x: e.clientX, y: e.clientY };
     swiped.current = false;
+    byPointer.current = true;
   };
   const onPointerUp = (e: PointerEvent) => {
     const s = swipe.current;
@@ -113,17 +213,18 @@ export function PhotoViewer({
       ref={ref}
       aria-label="Photographs"
       onCancel={(e) => {
-        e.preventDefault(); // fade out instead of closing at once
+        e.preventDefault(); // settle back instead of closing at once
         onClose();
       }}
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
+      onKeyDown={() => (byPointer.current = false)}
       className={`pv fixed inset-0 m-0 h-[100dvh] max-h-none w-screen max-w-none overflow-hidden bg-transparent p-0 backdrop:bg-transparent ${shown ? "pv-shown" : ""}`}
     >
       <div aria-hidden className="pv-backdrop absolute inset-0" onClick={onBackdrop} />
 
-      <div className="pv-stage pointer-events-none absolute inset-0 flex flex-col">
-        <div className="pv-top flex items-center justify-between px-4">
+      <div className="pointer-events-none absolute inset-0 flex flex-col">
+        <div className="pv-top pv-fade flex items-center justify-between px-4">
           <p className="pv-count" aria-live="polite">
             <span className="sr-only">Photograph </span>
             {last.current + 1}
@@ -139,12 +240,12 @@ export function PhotoViewer({
         </div>
 
         <figure className="m-0 flex min-h-0 flex-1 flex-col items-center justify-center gap-3 px-4">
-          <img key={last.current} src={photo.src} alt={photo.alt} data-dir={dir} className="pv-img pointer-events-auto" draggable={false} />
-          <figcaption className="pv-caption">{photo.alt}</figcaption>
+          <img ref={imgRef} key={last.current} src={photo.src} alt={photo.alt} data-dir={dir} className="pv-img pointer-events-auto" draggable={false} />
+          <figcaption className="pv-caption pv-fade">{photo.alt}</figcaption>
         </figure>
 
         {n > 1 && (
-          <div className="pv-bottom flex items-center justify-center gap-10">
+          <div className="pv-bottom pv-fade flex items-center justify-center gap-10">
             <button type="button" onClick={() => go(-1)} aria-label="Previous photograph" className="pv-btn pointer-events-auto">
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden>
                 <path d="M11 3.5L5.5 9l5.5 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />

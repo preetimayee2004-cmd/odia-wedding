@@ -482,29 +482,29 @@
   .jhoti .jhoti-bloom { animation: none !important; clip-path: none !important; opacity: 1 !important; transform: none !important; }
 }
 
-/* Gallery arches (art/GoldArch.tsx): the gold outline draws itself, the mat,
-   maroon line and finial follow, then the photograph fades in with a gentle
-   zoom-out. Opacity, transform and stroke only, so nothing shifts. */
-.arch-line { stroke-dasharray: 1 1; }
-.arch[data-reveal="armed"] .arch-line { stroke-dashoffset: 1; }
-.arch[data-reveal="armed"] :is(.arch-mat, .arch-maroon, .arch-finial, .arch-window) { opacity: 0; }
-.arch[data-reveal="armed"] .arch-zoom { transform: scale(1.07); }
-.arch[data-reveal="play"] .arch-line { animation: arch-draw 1s cubic-bezier(0.45, 0.05, 0.25, 1) var(--arch-delay, 0ms) both; }
-.arch[data-reveal="play"] .arch-mat { animation: arch-fade 0.7s ease-out calc(var(--arch-delay, 0ms) + 250ms) both; }
-.arch[data-reveal="play"] .arch-maroon { animation: arch-fade 0.5s ease-out calc(var(--arch-delay, 0ms) + 550ms) both; }
-.arch[data-reveal="play"] .arch-finial { animation: arch-fade 0.4s ease-out calc(var(--arch-delay, 0ms) + 800ms) both; }
-.arch[data-reveal="play"] .arch-window { animation: arch-fade 0.9s ease-out calc(var(--arch-delay, 0ms) + 650ms) both; }
-.arch[data-reveal="play"] .arch-zoom { animation: arch-zoom 1.4s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--arch-delay, 0ms) + 650ms) both; }
-@keyframes arch-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
-@keyframes arch-fade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes arch-zoom { from { transform: scale(1.07); } to { transform: none; } }
+/* Gallery photographs (art/GoldArch.tsx): the frame stays still; as it
+   scrolls into view the photograph comes into focus, from slightly blurred
+   and a little larger to sharp at its natural size. Once only. On a desktop
+   it zooms gently under the pointer, inside the still frame. */
+.arch[data-reveal="armed"] .arch-zoom { opacity: 0; filter: blur(6px); transform: scale(1.05); }
+.arch[data-reveal="play"] .arch-zoom { animation: arch-focus 650ms cubic-bezier(0.22, 1, 0.36, 1) var(--arch-delay, 0ms) both; }
+@keyframes arch-focus {
+  0% { opacity: 0; filter: blur(6px); transform: scale(1.05); }
+  40% { opacity: 1; }
+  100% { opacity: 1; filter: none; transform: none; }
+}
+.arch-img { transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1); }
+@media (hover: hover) and (pointer: fine) {
+  .arch-btn:hover .arch-img { transform: scale(1.04); }
+}
 
 /* The gallery's photo viewer (ui/PhotoViewer.tsx): a deep warm ground, the
    photograph whole with a fine gold keyline, ivory controls. */
-.pv-backdrop { background: rgb(22 12 8 / 0.96); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); opacity: 0; transition: opacity 280ms ease; }
-.pv-stage { opacity: 0; transform: scale(0.97); transition: opacity 320ms ease, transform 420ms cubic-bezier(0.22, 1, 0.36, 1); }
-.pv-shown .pv-backdrop,
-.pv-shown .pv-stage { opacity: 1; transform: none; }
+.pv-backdrop { background: rgb(36 20 13 / 0.95); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); opacity: 0; transition: opacity 300ms ease; }
+/* the controls and caption fade; the photograph itself rises from its frame (PhotoViewer.tsx) */
+.pv-fade { opacity: 0; transition: opacity 200ms ease; }
+.pv-shown .pv-backdrop { opacity: 1; }
+.pv-shown .pv-fade { opacity: 1; transition: opacity 320ms ease 180ms; }
 .pv-top { padding-top: calc(max(0.75rem, env(safe-area-inset-top)) + var(--status-bar, 0px)); }
 .pv-bottom { padding: 6px 16px max(1.25rem, env(safe-area-inset-bottom)); }
 .pv-count { font: 500 12px/1 var(--font-ui); letter-spacing: 0.18em; color: rgb(248 240 224 / 0.75); }
@@ -517,10 +517,10 @@
   box-shadow: 0 0 0 1px rgb(201 168 106 / 0.6), 0 24px 60px -24px rgb(0 0 0 / 0.7);
   user-select: none;
   touch-action: pan-y;
-  animation: pv-in 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-.pv-img[data-dir="1"] { animation-name: pv-in-next; }
-.pv-img[data-dir="-1"] { animation-name: pv-in-prev; }
+/* moving through the set: the next photograph drifts in from its side */
+.pv-img[data-dir="1"] { animation: pv-in-next 360ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+.pv-img[data-dir="-1"] { animation: pv-in-prev 360ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 @keyframes pv-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes pv-in-next { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: none; } }
 @keyframes pv-in-prev { from { opacity: 0; transform: translateX(-18px); } to { opacity: 1; transform: none; } }
@@ -642,9 +642,10 @@
 .rsvp-accept-odia { font: 500 14px/1.3 var(--font-odia); color: #f3d98c; }
 
 @media (prefers-reduced-motion: reduce) {
-  .arch :is(.arch-line, .arch-mat, .arch-maroon, .arch-finial, .arch-window, .arch-zoom) { animation: none !important; opacity: 1 !important; transform: none !important; stroke-dashoffset: 0 !important; }
-  .pv-stage,
-  .pv-img { transform: none !important; animation-name: pv-in !important; }
+  .arch .arch-zoom { animation: none !important; opacity: 1 !important; filter: none !important; transform: none !important; }
+  .arch-btn:hover .arch-img { transform: none; }
+  .pv-img[data-dir="1"],
+  .pv-img[data-dir="-1"] { animation-name: pv-in !important; }
   .wish-submit,
   .rsvp-accept,
   .pv-btn { transition: none; }
