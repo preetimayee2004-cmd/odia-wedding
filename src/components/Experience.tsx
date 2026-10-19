@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useLayoutEffect, useState } from "react";
 import { wedding } from "@/config/wedding";
 import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { useScrollLock } from "@/hooks/useScrollLock";
-import { readSessionFlag, writeSessionFlag } from "@/lib/session";
+import { readLocalFlag, readSessionFlag, writeLocalFlag, writeSessionFlag } from "@/lib/session";
 import { jumpToSection } from "@/lib/scroll";
 import { watchStatusTone } from "@/lib/viewMode";
 import { OpeningSequence } from "@/components/opening/OpeningSequence";
@@ -22,6 +22,11 @@ const remembers = (key: string) => !import.meta.env.DEV && readSessionFlag(key);
 
 // Dev-only review shortcut: ?open starts with the invitation already open.
 const devOpen = import.meta.env.DEV && new URLSearchParams(window.location.search).has("open");
+
+// A guest who has seen the opening on this device gets the short one (the
+// doors open straight onto the invitation); ?intro=1 replays the full intro.
+const replayIntro = new URLSearchParams(window.location.search).get("intro") === "1";
+const shortOpening = !replayIntro && !import.meta.env.DEV && readLocalFlag(OPENING_SEEN);
 
 function shouldPlayOpening(reducedMotion: boolean): boolean {
   if (reducedMotion || devOpen) return false;
@@ -99,9 +104,11 @@ export function Experience() {
     <>
       {intro !== "done" && (
         <OpeningSequence
+          short={shortOpening}
           onReveal={() => setIntro("revealing")}
           onDone={() => {
             writeSessionFlag(OPENING_SEEN);
+            writeLocalFlag(OPENING_SEEN); // next visit: the short opening
             setIntro("done");
           }}
         />

@@ -1,5 +1,5 @@
 import { SoundButton } from "@/components/ui/SoundButton";
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent } from "react";
 import { setStatusTone } from "@/lib/viewMode";
 import { FINGERTIP, Fingertip, Petals } from "@/components/opening/OpeningEffects";
 import { GoldDust, sampleMask, type GoldDustHandle } from "@/components/opening/GoldDust";
@@ -19,12 +19,14 @@ const pct = (v: number, of: number) => `${(v / of) * 100}%`;
  * `mask` cuts away the artwork's own yellow sunburst so he glows in the dark.
  */
 const DARSHAN = { src: "/art/jagannath-darshan.webp", mask: "/art/jagannath-darshan-mask.png", alt: "Mahaprabhu Jagannath", w: 1045, h: 1505 };
-/** Images the opening, and the invitation it hands over to, need up front. */
-const PRELOAD = [IMG.src, DARSHAN.src, DARSHAN.mask, "/art/invitation-card.jpg", "/art/invitation-card-middle.png"];
+/** The invitation card the opening hands over to (loaded in the background). */
+const INVITATION_ART = ["/art/invitation-card.jpg", "/art/invitation-card-middle.png"];
 
 const DARK = "#0A0503"; // deep black of the inner sanctum
-const AUTO_OPEN = 5000; // opens by itself if not tapped
-const READY_TIMEOUT = 8000; // never wait longer than this for images
+const AUTO_OPEN = 3500; // opens by itself if not tapped
+const READY_TIMEOUT = 3000; // never wait longer than this for the door
+const DARSHAN_WAIT = 1500; // at most this long for the Lord's artwork, should it still be loading
+const SHORT_DOORS_MS = 1200; // a repeat visit: the doors open straight onto the invitation
 const SKIP_MS = 450;
 const SMOOTH = "cubic-bezier(0.45, 0, 0.25, 1)";
 const CENTRE = "translate(-50%, -50%)"; // kept in the keyframes of centred elements
@@ -33,7 +35,7 @@ const SILHOUETTE = 0.18; // the faint golden form seen before the Lord himself
 
 /**
  * The opening, as scenes in strict sequence — each starts only when the one
- * before has finished (~13 s from the tap):
+ * before has finished (about 6.5 s from the tap):
  *  gate     the doors part onto a dark doorway; light glows deep inside and
  *           hundreds of golden motes pour out with delicate rays; the gate
  *           then fades out and is removed from the page
@@ -47,17 +49,17 @@ const SILHOUETTE = 0.18; // the faint golden form seen before the Lord himself
  *           way to the card — dark and golden throughout, never a flash
  */
 const T = {
-  doorsDelay: 400,
-  doorsMs: 2400,
-  gateFadeMs: 900,
-  silhouetteMs: 1200,
-  revealDelay: 900,
-  revealMs: 3000,
-  holdMs: 2000,
-  dissolveMs: 1600,
-  gatherMs: 1500,
-  settleMs: 1100,
-  fadeMs: 1000,
+  doorsDelay: 200,
+  doorsMs: 1400,
+  gateFadeMs: 500,
+  silhouetteMs: 800,
+  revealDelay: 200,
+  revealMs: 1200,
+  holdMs: 700,
+  dissolveMs: 900,
+  gatherMs: 600,
+  settleMs: 700,
+  fadeMs: 600,
 };
 
 interface OpeningSequenceProps {
@@ -65,6 +67,8 @@ interface OpeningSequenceProps {
   onReveal: () => void;
   /** The overlay can be removed. */
   onDone: () => void;
+  /** A repeat visit: no darshan — the doors open (1.2 s) straight onto the invitation. */
+  short?: boolean;
 }
 
 type Phase = "loading" | "waiting" | "gate" | "darshan" | "dissolve" | "ending";
@@ -82,12 +86,14 @@ function loadImage(src: string) {
  * Section 01 — The Sacred Awakening.
  * The carved temple gate, with Goddess Lakshmi above, waits in warm light; a
  * golden fingertip taps its brass lock above "TAP TO OPEN". A tap — or, after
- * five seconds, nothing at all — opens it onto the dark sanctum, where divine
- * light and golden motes reveal Mahaprabhu Jagannath; after the darshan he
- * dissolves into golden light that settles onto the invitation.
- * Skip / Esc; a sound button plays the sankha.
+ * three and a half seconds, nothing at all — opens it onto the dark sanctum,
+ * where divine light and golden motes reveal Mahaprabhu Jagannath; after the
+ * darshan he dissolves into golden light that settles onto the invitation.
+ * On a repeat visit (`short`) the doors open straight onto the invitation.
+ * Skip, Esc, or a tap anywhere during the darshan skips to the end; a sound
+ * button plays the sankha.
  */
-export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
+export function OpeningSequence({ onReveal, onDone, short = false }: OpeningSequenceProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<HTMLDivElement>(null);
@@ -111,6 +117,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
   const running = useRef<Animation[]>([]);
   const timers = useRef<number[]>([]);
   const prepared = useRef(false);
+  const darshanReady = useRef<Promise<unknown>>(Promise.resolve());
   const [phase, setPhase] = useState<Phase>("loading");
   const phaseRef = useRef<Phase>("loading");
   const [hint, setHint] = useState(false);
@@ -182,7 +189,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
           new Promise<void>((resolve) => later(T.settleMs, resolve)),
         ]);
         // the light gives way to the rangoli as it builds itself
-        await dustRef.current?.fade(500);
+        await dustRef.current?.fade(400);
       }
     } catch {
       /* unmounted */
@@ -202,20 +209,31 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
     void (async () => {
       // ---- Gate: the doors part onto a dark doorway; light from deep inside
       const D = T.doorsDelay;
+      const doorsMs = short ? SHORT_DOORS_MS : T.doorsMs;
       void play(seamRef.current, [{ opacity: 0.35, transform: "scaleX(1)" }, { opacity: 1, transform: "scaleX(2)" }, { opacity: 0, transform: "scaleX(3)" }], { duration: D + 900, easing: "ease-in-out" });
       for (const [leaf, angle] of [[leftRef.current, 84], [rightRef.current, -84]] as const) {
-        void play(leaf, [{ transform: "rotateY(0deg)" }, { transform: `rotateY(${angle}deg)` }], { duration: T.doorsMs, delay: D, easing: SMOOTH });
-        void play(leaf, [{ opacity: 1 }, { opacity: 1, offset: 0.65 }, { opacity: 0 }], { duration: T.doorsMs, delay: D, easing: "ease-in" });
+        void play(leaf, [{ transform: "rotateY(0deg)" }, { transform: `rotateY(${angle}deg)` }], { duration: doorsMs, delay: D, easing: SMOOTH });
+        void play(leaf, [{ opacity: 1 }, { opacity: 1, offset: 0.65 }, { opacity: 0 }], { duration: doorsMs, delay: D, easing: "ease-in" });
       }
       for (const shade of [leftShadeRef.current, rightShadeRef.current]) {
-        void play(shade, [{ opacity: 0 }, { opacity: 0.6 }], { duration: T.doorsMs, delay: D, easing: SMOOTH });
+        void play(shade, [{ opacity: 0 }, { opacity: 0.6 }], { duration: doorsMs, delay: D, easing: SMOOTH });
       }
-      void play(coreRef.current, [{ opacity: 0.25, transform: `${CENTRE} scale(0.7)` }, { opacity: 1, transform: `${CENTRE} scale(1)` }], { duration: T.doorsMs, delay: D, easing: "ease-out" });
-      void play(doorRaysRef.current, [{ opacity: 0 }, { opacity: 0.55 }], { duration: T.doorsMs, delay: D + 300, easing: "ease-in-out" });
-      void play(zoomRef.current, [{ transform: "scale(1)" }, { transform: "scale(1.05)" }], { duration: D + T.doorsMs + T.gateFadeMs, easing: SMOOTH });
+      void play(coreRef.current, [{ opacity: 0.25, transform: `${CENTRE} scale(0.7)` }, { opacity: 1, transform: `${CENTRE} scale(1)` }], { duration: doorsMs, delay: D, easing: "ease-out" });
+      void play(doorRaysRef.current, [{ opacity: 0 }, { opacity: 0.55 }], { duration: doorsMs, delay: D + 300, easing: "ease-in-out" });
+      void play(zoomRef.current, [{ transform: "scale(1)" }, { transform: "scale(1.05)" }], { duration: D + doorsMs + T.gateFadeMs, easing: SMOOTH });
       const [cx, cy] = centreOf(coreRef.current);
       later(D + 300, () => dust?.emit({ x: cx, y: cy, rate: 150, speed: [18, 95] }));
-      await wait(D + T.doorsMs);
+      await wait(D + doorsMs);
+      if (!still("gate")) return;
+
+      // A repeat visit: straight on to the invitation
+      if (short) {
+        await finish(true);
+        return;
+      }
+
+      // the Lord's artwork has normally loaded by now; if not, allow it a moment
+      await Promise.race([darshanReady.current, wait(DARSHAN_WAIT)]);
       if (!still("gate")) return;
 
       // The whole gate fades out and is removed; the motes carry the light on
@@ -228,7 +246,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
       // ---- Emerge, on deep black: halo, a faint silhouette, then Mahaprabhu
       go("darshan");
       if (darshanRef.current) darshanRef.current.style.opacity = "1";
-      void play(haloRef.current, [{ opacity: 0, transform: `${CENTRE} scale(0.85)` }, { opacity: 1, transform: `${CENTRE} scale(1)` }], { duration: 1600, easing: "ease-out" });
+      void play(haloRef.current, [{ opacity: 0, transform: `${CENTRE} scale(0.85)` }, { opacity: 1, transform: `${CENTRE} scale(1)` }], { duration: 1000, easing: "ease-out" });
       void play(silhouetteRef.current, [{ opacity: 0 }, { opacity: SILHOUETTE }], { duration: T.silhouetteMs, easing: "ease-in-out" });
       const around = deityRef.current?.getBoundingClientRect();
       if (around) {
@@ -247,7 +265,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
       // ---- Dissolve into golden motes in his own shape; they gather into a circle
       go("dissolve");
       const box = deityRef.current?.getBoundingClientRect();
-      void play(haloGlowRef.current, [{ opacity: 0.7, transform: "scale(1)" }, { opacity: 1, transform: "scale(1.18)" }], { duration: 1200, easing: "ease-in-out" });
+      void play(haloGlowRef.current, [{ opacity: 0.7, transform: "scale(1)" }, { opacity: 1, transform: "scale(1.18)" }], { duration: 800, easing: "ease-in-out" });
       dust?.emit({ x: hx, y: hy, rate: 0 });
       if (box) {
         void sampleMask(DARSHAN.mask, box, 420).then((points) => dust?.burst(points, [hx, hy], T.dissolveMs * 0.9));
@@ -263,14 +281,16 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
       // ---- The light settles onto the invitation
       await finish(false);
     })();
-  }, [finish]);
+  }, [finish, short]);
 
-  // Prepare: the images load, the gate fades in, then the hint shows and the
-  // 5-second countdown begins.
+  // Prepare: the gate shows as soon as the door has loaded (the Lord's artwork
+  // and the invitation card load meanwhile, in the background); then the hint
+  // shows and the 3.5-second countdown begins.
   const prepare = useCallback(() => {
     if (prepared.current) return;
     prepared.current = true;
-    const ready = Promise.race([Promise.all(PRELOAD.map(loadImage)), new Promise((r) => window.setTimeout(r, READY_TIMEOUT))]);
+    darshanReady.current = Promise.all((short ? INVITATION_ART : [DARSHAN.src, DARSHAN.mask, ...INVITATION_ART]).map(loadImage));
+    const ready = Promise.race([loadImage(IMG.src), new Promise((r) => window.setTimeout(r, READY_TIMEOUT))]);
     void ready.then(async () => {
       if (phaseRef.current !== "loading") return;
       try {
@@ -287,7 +307,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
       setHint(true);
       later(AUTO_OPEN, start); // the visitor is never made to tap
     });
-  }, [start]);
+  }, [start, short]);
 
   useEffect(() => {
     prepare();
@@ -298,6 +318,11 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
     running.current.forEach((a) => a.pause());
     void finish(true);
   }, [finish]);
+
+  // A tap anywhere during the darshan or the dissolve skips to the end (the Skip and sound buttons keep their own jobs).
+  const onRootClick = (e: ReactMouseEvent) => {
+    if ((phaseRef.current === "darshan" || phaseRef.current === "dissolve") && !(e.target as Element).closest("button")) skip();
+  };
 
   // Escape skips at any point.
   useEffect(() => {
@@ -337,7 +362,7 @@ export function OpeningSequence({ onReveal, onDone }: OpeningSequenceProps) {
   };
 
   return (
-    <div ref={rootRef} className="fixed inset-0 z-50 overflow-hidden" style={{ touchAction: "none" }}>
+    <div ref={rootRef} onClick={onRootClick} className="fixed inset-0 z-50 overflow-hidden" style={{ touchAction: "none" }}>
       {/* The deep black of the sanctum */}
       <div ref={bgRef} aria-hidden className="absolute inset-0" style={{ backgroundColor: DARK }} />
 
