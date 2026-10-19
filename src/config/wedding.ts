@@ -173,8 +173,6 @@ export interface WeddingConfig {
     together: string | null;
     /** Odia line near the foot, e.g. "|| ବସୁଧୈବ କୁଟୁମ୍ବକମ୍ ||". */
     odiaLine: string | null;
-    /** Under the Jagannath icon, e.g. "Jai Jagannath". */
-    closing: string;
   };
   events: {
     heading: string;
@@ -421,7 +419,6 @@ export const wedding: WeddingConfig = {
     },
     together: "Together, our families become one.",
     odiaLine: "|| ବସୁଧୈବ କୁଟୁମ୍ବକମ୍ ||",
-    closing: "Jai Jagannath",
   },
   events: {
     heading: "Wedding Events",

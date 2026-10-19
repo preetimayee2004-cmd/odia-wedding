@@ -27,12 +27,11 @@ const PORTRAIT_MASK = "radial-gradient(ellipse 72% 68% at center, #000 60%, tran
  * with both sets of parents, its edges fading into the page; the groom's and
  * the bride's families one above the other in matching compact gold frames
  * (label, names, blessing); "Together, our families become one."; "|| ବସୁଧୈବ
- * କୁଟୁମ୍ବକମ୍ ||" (the world is one family); and Lord Jagannath between two
- * scrolls over Jai Jagannath. The page's flowers are veiled here, leaving
- * four faint ones in the corners.
+ * କୁଟୁମ୍ବକମ୍ ||" (the world is one family). The page's flowers are veiled
+ * here, leaving four faint ones in the corners.
  */
 export function Family() {
-  const { eyebrow, heading, tagline, art, groom, bride, together, odiaLine, closing } = wedding.family;
+  const { eyebrow, heading, tagline, art, groom, bride, together, odiaLine } = wedding.family;
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { threshold: 0.12 });
 
@@ -95,16 +94,6 @@ export function Family() {
             {odiaLine.split(/(||)/).map((part, i) => (part === "||" ? <span key={i} style={{ color: GOLD_TEXT }}>{part}</span> : part))}
           </p>
         )}
-
-        {/* Lord Jagannath between two scrolls, over Jai Jagannath */}
-        <div aria-hidden className="mx-auto mt-5 flex items-center justify-center gap-2" style={rise(720)}>
-          <Scroll />
-          <img src="/art/family/jagannath.png" width={76} height={106} alt="" decoding="async" loading="lazy" className="block h-16 w-auto" style={{ filter: "brightness(0.86) contrast(1.3) saturate(1.2)" }} />
-          <Scroll mirrored />
-        </div>
-        <p className="t-blessing mt-[10px]" style={{ ...rise(820), color: "var(--c-text)" }}>
-          {closing}
-        </p>
       </div>
     </section>
   );
@@ -201,12 +190,3 @@ function CornerFlower({ className = "" }: { className?: string }) {
   );
 }
 
-/** A small gold scroll beside Lord Jagannath. */
-function Scroll({ mirrored = false }: { mirrored?: boolean }) {
-  return (
-    <svg viewBox="0 0 70 16" className={`h-4 w-[4.4rem] ${mirrored ? "-scale-x-100" : ""}`} aria-hidden fill="none" stroke={GOLD} strokeWidth="1.1" strokeLinecap="round">
-      <path d="M68 8C56 8 46 8 36 8M36 8C30 8 26 3 21 4 17 5 17 11 21 11.5 24 12 25 9 23 8" />
-      <circle cx="10" cy="8" r="1.4" fill={GOLD} stroke="none" />
-    </svg>
-  );
-}
