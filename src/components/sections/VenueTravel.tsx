@@ -63,7 +63,7 @@ export function VenueTravel() {
 
         {/* 01 — The Venue */}
         <div className="mt-10" style={fade(100)}>
-          <img src={`${ART}/temple.webp`} width={478} height={415} alt="The Jagannath temple by the sea, with Lord Jagannath among jasmine and marigolds" loading="lazy" decoding="async" className={PAINTING} />
+          <img src={`${ART}/mandap.webp`} width={599} height={613} alt="The wedding mandap: a golden canopy hung with roses, red drapes and marigold tassels over a red-carpeted stage" loading="lazy" decoding="async" className={PAINTING} />
           <div className="mt-6">
             <Venue />
           </div>
