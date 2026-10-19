@@ -8,6 +8,7 @@ import { formatVenueDate, parseVenueDateTime } from "@/lib/venueTime";
 import { CardBackdrop, cardCq, cardMinHeight, type CardArt } from "@/components/art/CardBackdrop";
 import { GaneshaIcon, LotusIcon } from "@/components/art/Ganesha";
 import { PinIcon } from "@/components/ui/CardOrnaments";
+import { FitText } from "@/components/ui/FitText";
 
 /**
  * The couple card artwork (768×1376): a carved arch in a red-and-gold border
@@ -140,7 +141,9 @@ export function Couple() {
               {couple.hashtag && (
                 <div className="flex flex-col items-center gap-1.5">
                   <span aria-hidden className="h-px w-40" style={{ background: `linear-gradient(to right, transparent, ${GOLD}, transparent)` }} />
-                  <p className="t-hashtag">{couple.hashtag}</p>
+                  <FitText tiers={[[1, 0.6]]} className="t-hashtag">
+                    {couple.hashtag}
+                  </FitText>
                   <span aria-hidden className="h-px w-40" style={{ background: `linear-gradient(to right, transparent, ${GOLD}, transparent)` }} />
                 </div>
               )}

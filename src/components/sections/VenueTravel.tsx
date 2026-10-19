@@ -76,8 +76,7 @@ export function VenueTravel() {
           <img src={`${ART}/signpost.webp`} width={523} height={854} alt="A wooden signpost with three painted arrows: a steam train, an aeroplane, and an auto-rickshaw beside a bus" loading="lazy" decoding="async" className="mx-auto block h-auto w-[56%] max-w-[12.5rem]" />
           <div className="mt-6">
             <StopHeading number="02" title={gettingHere.title} tagline={gettingHere.tagline} icon="plane" />
-            <p className="t-body mt-4">{gettingHere.intro}</p>
-            <ul className="mt-3 divide-y divide-dashed divide-[#E3CFA4] border-y border-dashed border-[#E3CFA4]">
+            <ul className="mt-4 divide-y divide-dashed divide-[#E3CFA4] border-y border-dashed border-[#E3CFA4]">
               {gettingHere.modes.map((m) => (
                 <li key={m.kind} className="py-3.5">
                   <Mode mode={m} />

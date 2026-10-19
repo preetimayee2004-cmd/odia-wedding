@@ -4,6 +4,7 @@ import { JhotiRule } from "@/components/ui/JhotiThreshold";
 import { useInView } from "@/hooks/useInView";
 import { EASE } from "@/lib/motion";
 import { formatVenueDate, parseVenueDateTime } from "@/lib/venueTime";
+import { FitText } from "@/components/ui/FitText";
 
 const MAROON = "#8C1C24";
 const INK = "#6B2A22";
@@ -84,9 +85,9 @@ export function ThankYou() {
 
       <div className="relative mx-auto max-w-[24rem]">
         {hashtag && (
-          <p className="font-serif text-[26px] font-semibold italic leading-tight" style={{ ...rise(600), color: MAROON }}>
+          <FitText tiers={[[1, 0.6]]} className="font-serif text-[26px] font-semibold italic leading-tight" style={{ ...rise(600), color: MAROON }}>
             {hashtag}
-          </p>
+          </FitText>
         )}
         <Divider className="mx-auto mt-3" style={rise(650)} />
         {date && (
@@ -95,12 +96,13 @@ export function ThankYou() {
           </p>
         )}
         {place && (
-          <p className="t-label mt-2 inline-flex items-center gap-1.5 text-[12px] tracking-[3px]" style={{ ...rise(750), color: INK }}>
-            <svg viewBox="0 0 12 16" className="h-3.5 w-3" aria-hidden fill={INK}>
+          <FitText tiers={[[1, 0.85], [2, 1]]} className="t-label mx-auto mt-2 text-[12px] tracking-[3px] [text-wrap:balance]" style={{ ...rise(750), color: INK }}>
+            {/* inline, so a place that wraps keeps its pin beside its first word */}
+            <svg viewBox="0 0 12 16" className="mr-1.5 inline-block h-3.5 w-3 align-[-2px]" aria-hidden fill={INK}>
               <path d="M6 0a6 6 0 0 0-6 6c0 4.5 6 10 6 10s6-5.5 6-10a6 6 0 0 0-6-6Zm0 8.4A2.4 2.4 0 1 1 6 3.6a2.4 2.4 0 0 1 0 4.8Z" />
             </svg>
             {place}
-          </p>
+          </FitText>
         )}
       </div>
     </section>

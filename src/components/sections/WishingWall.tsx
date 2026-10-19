@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/Button";
 import { Honeypot } from "@/components/ui/Field";
 import { Sheet } from "@/components/ui/Sheet";
 import { Toran } from "@/components/art/Toran";
+import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
+import { releaseHearts } from "@/lib/hearts";
 
 const PAGE = 20;
 const MAROON = "#7A1424";
@@ -247,10 +249,12 @@ type Status = "idle" | "saving" | "sent" | "error";
  * "Leave Your Blessings", on a warm paper card: the name and the blessing
  * with its counter, in paper-coloured
  * fields with a gold focus ring; then Send Blessing (disabled until there is
- * a name and a blessing). Once it is accepted, a small toast says so, the
- * form resets and the blessing fades onto the wall above. The toast only
- * says "sent" once the database has accepted it; in the preview it says the
- * blessing is kept on this device.
+ * a name and a blessing). Once it is accepted, the button gives a heartbeat
+ * and releases floating hearts and marigold petals (not under reduced
+ * motion), says "Blessing sent ♥" for 2s, a small toast says so, the form
+ * resets and the blessing fades onto the wall above. The button and the
+ * toast only say "sent" once the database has accepted it; in the preview
+ * they say the blessing is kept (on this device).
  */
 function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSProperties }) {
   const { formHeading, allowAnonymous, maxLength } = wedding.wishes;
@@ -262,6 +266,10 @@ function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSPro
   const [error, setError] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [toast, setToast] = useState<string | null>(null);
+  const [done, setDone] = useState<"sent" | "kept" | null>(null);
+  const sendRef = useRef<HTMLButtonElement>(null);
+  const chitTimer = useRef<number>();
+  const reduced = usePrefersReducedMotion();
   const pendingId = useRef(newId()); // reused on retry so a resend can't duplicate
   const guard = useSpamGuard("tila:wish-sent-at", 30_000);
   const ids = useId();
@@ -272,6 +280,23 @@ function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSPro
     const t = window.setTimeout(() => setToast(null), 3600);
     return () => clearTimeout(t);
   }, [toast]);
+
+  // "Blessing sent ♥" ("kept", in the preview) on the button for 2s
+  useEffect(() => {
+    if (!done) return;
+    const t = window.setTimeout(() => setDone(null), 2000);
+    return () => clearTimeout(t);
+  }, [done]);
+  useEffect(() => () => clearTimeout(chitTimer.current), []);
+
+  /** The button's heartbeat and a release of hearts (none under reduced motion), and its thank-you label. */
+  const celebrate = (label: "sent" | "kept") => {
+    setDone(label);
+    const button = sendRef.current;
+    if (!button || reduced) return;
+    button.animate([{ transform: "scale(1)" }, { transform: "scale(1.06)" }, { transform: "scale(1)" }], { duration: 250, easing: "ease-out" });
+    releaseHearts(button);
+  };
 
   const ready = (allowAnonymous || name.trim().length > 0) && message.trim().length > 0;
 
@@ -304,7 +329,10 @@ function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSPro
       setMessage("");
     };
     const sent = (saved: boolean) => {
-      onSent({ ...wish, created_at: new Date().toISOString() });
+      celebrate(saved ? "sent" : "kept");
+      // the new note fades onto the wall once the hearts are on their way
+      const created = { ...wish, created_at: new Date().toISOString() };
+      chitTimer.current = window.setTimeout(() => onSent(created), reduced ? 0 : 900);
       reset();
       setStatus("sent");
       setToast(saved ? "Your blessing has been sent 🌼" : "Your blessing is kept on this device 🌼");
@@ -312,6 +340,7 @@ function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSPro
 
     if (trap) {
       // Almost certainly a bot: look successful, store nothing.
+      celebrate("sent");
       reset();
       setStatus("sent");
       setToast("Your blessing has been sent 🌼");
@@ -386,8 +415,8 @@ function WishForm({ onSent, style }: { onSent: (w: Wish) => void; style?: CSSPro
 
         <Honeypot value={trap} onChange={setTrap} />
 
-        <button type="submit" disabled={!ready || status === "saving"} className="wish-send mt-3">
-          {status === "saving" ? "Sending…" : "Send Blessing"}
+        <button ref={sendRef} type="submit" disabled={!ready || status === "saving"} className={`wish-send mt-3 ${done ? "wish-send-done" : ""}`}>
+          {status === "saving" ? "Sending…" : done === "sent" ? "Blessing sent ♥" : done === "kept" ? "Blessing kept ♥" : "Send Blessing"}
         </button>
 
         <div role="status" className="mt-3 min-h-5 text-center">

@@ -84,6 +84,8 @@
     /* Cormorant's default old-style "1" reads as "I": use lining figures */
     font-variant-numeric: lining-nums;
     text-rendering: optimizeLegibility;
+    /* a very long name, place or word wraps rather than spilling out of its card */
+    overflow-wrap: break-word;
   }
 
   h1,
@@ -724,6 +726,8 @@
 }
 .wish-send:active:not(:disabled) { transform: scale(0.98); }
 .wish-send:disabled { opacity: 0.5; cursor: not-allowed; }
+/* "Blessing sent ♥" shows at full strength, though the emptied form can't be sent again yet */
+.wish-send.wish-send-done:disabled { opacity: 1; cursor: default; }
 .wish-send:focus-visible { outline: 2px solid #c9a24e; outline-offset: 3px; }
 /* the toast, at the foot of the screen */
 .wish-toast {
@@ -928,7 +932,7 @@
   font-size: var(--fs-event);
   font-weight: 600;
   line-height: 1.05;
-  white-space: nowrap;
+  text-wrap: balance;
   color: var(--ev-ink);
   /* a soft halo keeps the name clear of the vine behind it */
   text-shadow: 0 0 6px rgb(var(--page)), 0 0 12px rgb(var(--page)), 0 0 18px rgb(var(--page));

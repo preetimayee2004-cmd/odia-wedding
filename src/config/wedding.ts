@@ -190,7 +190,7 @@ export interface WeddingConfig {
     eyebrow: string;
     heading: string;
     intro: string;
-    gettingHere: { title: string; tagline: string; intro: string; modes: TravelMode[] };
+    gettingHere: { title: string; tagline: string; modes: TravelMode[] };
     /** At the foot of the section, e.g. "Jay Jagannath". */
     closing: string;
   };
@@ -565,7 +565,6 @@ export const wedding: WeddingConfig = {
     gettingHere: {
       title: "Getting Here",
       tagline: "Travel made easy",
-      intro: "Bhubaneswar is well connected by air, rail and road. Here are the best ways to reach the venue:",
       modes: [
         { kind: "air", title: "By Air", place: "Biju Patnaik International Airport", detail: "Taxi or cab from the airport to the mandap." },
         { kind: "train", title: "By Train", place: "Bhubaneswar Railway Station", detail: "Auto, taxi or cab from the station to the venue." },

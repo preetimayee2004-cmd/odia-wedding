@@ -8,7 +8,21 @@ import { downloadIcs, eventCalendarItem, googleCalendarUrl, shortTime } from "@/
 import { directionsUrl } from "@/lib/maps";
 import { showPlaceholders } from "@/lib/placeholders";
 import { Pending } from "@/components/ui/Pending";
+import { FitText, type FitTier } from "@/components/ui/FitText";
 import { EVENT_ART_DEFS, FLOWER_IDS, rng } from "@/components/art/eventVineArt";
+
+/** A long ceremony name first shrinks a little on one line, then takes two. */
+const NAME_FIT: FitTier[] = [
+  [1, 0.82],
+  [2, 0.7],
+];
+/** A quick-fact value (time, place, wear): two lines, then a little smaller over three. */
+const CHIP_FIT: FitTier[] = [
+  [2, 1],
+  [3, 0.8],
+];
+/** A no-break space: keeps "10 AM" together. */
+const NBSP = String.fromCharCode(160);
 
 /**
  * Section — Wedding Events.
@@ -125,7 +139,9 @@ export function Events() {
                       </svg>
                     </div>
                   </div>
-                  <h3 className="ev-name">{event.name}</h3>
+                  <FitText as="h3" className="ev-name" tiers={NAME_FIT}>
+                    {event.name}
+                  </FitText>
                   {event.odiaName && (
                     <p lang="or" className="ev-odia">
                       {event.odiaName}
@@ -200,7 +216,8 @@ function When({ event }: { event: WeddingEvent }) {
  */
 function DetailsCard({ event }: { event: WeddingEvent }) {
   const { venue } = wedding;
-  const time = event.when ? shortTime(event.when) : null;
+  // "10 AM – 1 PM" may break only at the dash
+  const time = event.when ? (shortTime(event.when)?.replace(/ (AM|PM)(?![a-z])/gi, `${NBSP}$1`) ?? null) : null;
   const [lead, style] = event.dressCode?.includes(" | ") ? event.dressCode.split(" | ") : [null, event.dressCode];
   const wear = event.wear ?? lead?.split(/\s+/)[0] ?? event.dressCode?.split(/[\s:]+/)[0] ?? null;
   const colors = event.dressColors ?? [];
@@ -222,17 +239,23 @@ function DetailsCard({ event }: { event: WeddingEvent }) {
       <ul className="evp-chips evp-in" style={step(0)}>
         <li className="evp-chip">
           <ClockIcon />
-          <span className="evp-value">{time ?? (event.isLagna ? "At the lagna" : toCome("Time"))}</span>
+          <FitText as="span" className="evp-value" tiers={CHIP_FIT}>
+            {time ?? (event.isLagna ? "At the lagna" : toCome("Time"))}
+          </FitText>
           <span className="evp-chip-label">Time</span>
         </li>
         <li className="evp-chip">
           <MandapIcon />
-          <span className="evp-value">{event.venueName ?? toCome("Place")}</span>
+          <FitText as="span" className="evp-value" tiers={CHIP_FIT}>
+            {event.venueName ?? toCome("Place")}
+          </FitText>
           <span className="evp-chip-label">Place</span>
         </li>
         <li className="evp-chip">
           <WearIcon />
-          <span className="evp-value">{wear ?? toCome("Dress code")}</span>
+          <FitText as="span" className="evp-value" tiers={CHIP_FIT}>
+            {wear ?? toCome("Dress code")}
+          </FitText>
           <span className="evp-chip-label">Wear</span>
         </li>
       </ul>

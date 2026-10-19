@@ -5,6 +5,7 @@ import { useInView } from "@/hooks/useInView";
 import { EASE } from "@/lib/motion";
 import { demoMode, showPlaceholders } from "@/lib/placeholders";
 import { Pending } from "@/components/ui/Pending";
+import { FitText, type FitTier } from "@/components/ui/FitText";
 
 /** Room on each side for the page's looped side bands. */
 const BAND = "calc(100% * 35 / 768)";
@@ -13,6 +14,12 @@ const GUTTER = `calc(${BAND} + 22px)`;
 const MAROON = "#7A1424";
 const GOLD = "#B8913F";
 const TEXT_SOFT = "#7A6250";
+/** A long role: a touch smaller on one line, else two. A long name: two lines, a little smaller if need be, never cut. */
+const ROLE_FIT: FitTier[] = [
+  [1, 0.9],
+  [2, 1],
+];
+const NAME_FIT: FitTier[] = [[2, 0.8]];
 
 /** A real number to call (samples are masked stand-ins). */
 const hasNumber = (p: ContactPerson) => !!p.phone && !p.sample;
@@ -137,7 +144,7 @@ function FamilyCell({ person, divider, onSoon }: { person: ContactPerson; divide
       {divider && <li aria-hidden className="ct-vrule" />}
       <li className="flex min-w-0 flex-col items-center text-center">
         <Role color={MAROON}>{person.role}</Role>
-        <Name person={person} clamp />
+        <Name person={person} />
         {person.note && (
           <p className="font-serif text-[13.5px] italic leading-snug" style={{ color: TEXT_SOFT }}>
             {person.note}
@@ -161,17 +168,17 @@ function Label({ children }: { children: ReactNode }) {
 
 function Role({ color, children }: { color: string; children: ReactNode }) {
   return (
-    <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.1em]" style={{ color }}>
+    <FitText tiers={ROLE_FIT} className="font-sans text-[10px] font-semibold uppercase leading-[1.3] tracking-[0.1em]" style={{ color }}>
       {children}
-    </p>
+    </FitText>
   );
 }
 
-function Name({ person, clamp = false }: { person: ContactPerson; clamp?: boolean }) {
+function Name({ person }: { person: ContactPerson }) {
   return (
-    <p className={`mt-0.5 font-serif text-[17px] font-semibold leading-[1.2] ${clamp ? "line-clamp-2" : ""}`} style={{ color: "var(--c-text)" }}>
+    <FitText tiers={NAME_FIT} className="mt-0.5 font-serif text-[17px] font-semibold leading-[1.2]" style={{ color: "var(--c-text)" }}>
       {person.name ?? (showPlaceholders ? <Pending label="Name awaiting confirmation">Name to be added</Pending> : person.role)}
-    </p>
+    </FitText>
   );
 }
 
