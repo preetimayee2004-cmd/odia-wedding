@@ -17,8 +17,8 @@ import { releaseHearts } from "@/lib/hearts";
 const PAGE = 20;
 const MAROON = "#7A1424";
 const TEXT_SOFT = "#6B4A3A";
-/** The notes' papers, in turn: cream, blush, butter. */
-const PAPERS = ["#FCF7EA", "#FBE9E6", "#F8F1D5"];
+/** The notes' papers, in turn: warm ivory, with a whisper of blush, then of butter. */
+const PAPERS = ["#FCF6E8", "#FCF1EA", "#FBF4E1"];
 /** Each note's slight tilt, in turn. */
 const TILTS = [-0.8, 0.7, -0.4];
 
@@ -139,7 +139,8 @@ function WishingWallSection() {
           </p>
         </div>
 
-        <div aria-live="polite" aria-busy={approved === null && !loadFailed}>
+        {/* the drifting petals fade while the notes are being read */}
+        <div aria-live="polite" aria-busy={approved === null && !loadFailed} data-no-petals>
           {loadFailed ? (
             <p className="t-body mt-8" style={{ color: TEXT_SOFT }}>
               We couldn&rsquo;t load the wishes just now.{" "}
@@ -189,28 +190,38 @@ function WishingWallSection() {
   );
 }
 
-/** "— ANANYA · BRIDE'S COUSIN": the name in maroon, the relation softer; the guest's own wish says where it stands. */
+/** "— ANANYA · BRIDE'S COUSIN": the name in maroon, the relation in muted gold; the guest's own wish says where it stands. */
 function Byline({ wish, own = false }: { wish: Wish; own?: boolean }) {
   return (
     <>
       <b>— {wish.name ?? "A well-wisher"}</b>
-      {wish.relation && <> · {wish.relation}</>}
-      {own && <span className="opacity-75"> · {PREVIEW ? "on this device" : "waiting for the couple"}</span>}
+      {wish.relation && (
+        <>
+          <span aria-hidden className="wish-sep">·</span>
+          <span>{wish.relation}</span>
+        </>
+      )}
+      {own && (
+        <>
+          <span aria-hidden className="wish-sep">·</span>
+          <span className="opacity-80">{PREVIEW ? "on this device" : "waiting for the couple"}</span>
+        </>
+      )}
     </>
   );
 }
 
-/** Notes of lined paper, zig-zagging left and right down the wall. */
+/** Notes of warm ivory paper with a fine gold-and-maroon double line, zig-zagging left and right down the wall. */
 function Notes({ wishes, own, fresh, className = "", style }: { wishes: Wish[]; own?: ReadonlySet<string>; fresh?: string | null; className?: string; style?: CSSProperties }) {
   return (
-    <ul aria-label="Wishes" className={`space-y-6 pt-3 ${className}`} style={style}>
+    <ul aria-label="Wishes" className={`space-y-7 pt-3 ${className}`} style={style}>
       {wishes.map((w, i) => (
         <li key={w.id} className={`wish-note ${i % 2 ? "ml-auto" : "mr-auto"} ${w.id === fresh ? "wish-note-in" : ""}`} style={{ backgroundColor: PAPERS[i % PAPERS.length], transform: `rotate(${TILTS[i % TILTS.length]}deg)` }}>
-          <MarigoldPin className="absolute left-1/2 top-[-12px] h-6 w-6 -translate-x-1/2" />
+          <FloralSeal variant={i % 3} className="absolute left-1/2 top-[-13px] h-[26px] w-[26px] -translate-x-1/2" />
           <p lang={isOdia(w.message) ? "or" : undefined} className={`wish-note-text ${isOdia(w.message) ? "odia" : ""}`}>
             {w.message}
           </p>
-          <p className="wish-byline mt-1.5 text-right">
+          <p className="wish-byline mt-2.5 text-right">
             <Byline wish={w} own={own?.has(w.id)} />
           </p>
         </li>
@@ -219,26 +230,50 @@ function Notes({ wishes, own, fresh, className = "", style }: { wishes: Wish[]; 
   );
 }
 
-/** A marigold head, pinning a note. */
-function MarigoldPin({ className = "" }: { className?: string }) {
+/**
+ * A small gold floral seal at the top of a note, on a disc of paper so the
+ * note's lines stop short of it; a little different on each note: eight
+ * rounded petals, a twelve-petal marigold, or a lotus.
+ */
+function FloralSeal({ variant, className = "" }: { variant: number; className?: string }) {
   const id = useId().replace(/:/g, "");
+  const gold = `url(#${id})`;
+  const edge = "#9A7230";
   return (
-    <svg viewBox="-12 -12 24 24" className={className} aria-hidden>
+    <svg viewBox="-13 -13 26 26" className={className} aria-hidden>
       <defs>
-        <radialGradient id={id} cx="0.45" cy="0.4" r="0.65">
-          <stop offset="0" stopColor="#FFC85A" />
-          <stop offset="0.6" stopColor="#F39424" />
-          <stop offset="1" stopColor="#DA6F12" />
+        <radialGradient id={id} cx="0.42" cy="0.36" r="0.7">
+          <stop offset="0" stopColor="#F3DE9E" />
+          <stop offset="0.55" stopColor="#D2AE5E" />
+          <stop offset="1" stopColor="#A9822F" />
         </radialGradient>
       </defs>
-      <g fill={`url(#${id})`}>
-        {Array.from({ length: 12 }, (_, k) => (
-          <ellipse key={k} cx="0" cy="-6.6" rx="2.8" ry="4.6" transform={`rotate(${k * 30})`} />
-        ))}
-      </g>
-      <circle r="6.2" fill={`url(#${id})`} />
-      <circle r="6.2" fill="none" stroke="#C9650F" strokeWidth="0.7" strokeDasharray="1.4 1.3" opacity="0.6" />
-      <circle r="2.6" fill="#C2560C" opacity="0.75" />
+      <circle r="12" fill="#FCF6E8" />
+      <circle r="11.2" fill="none" stroke={edge} strokeWidth="0.5" strokeOpacity="0.55" />
+      {variant === 0 && (
+        <g fill={gold} stroke={edge} strokeWidth="0.35">
+          {Array.from({ length: 8 }, (_, k) => (
+            <ellipse key={k} cx="0" cy="-5.4" rx="2.5" ry="3.9" transform={`rotate(${k * 45})`} />
+          ))}
+        </g>
+      )}
+      {variant === 1 && (
+        <g fill={gold} stroke={edge} strokeWidth="0.3">
+          {Array.from({ length: 12 }, (_, k) => (
+            <ellipse key={k} cx="0" cy="-6" rx="1.7" ry="3.6" transform={`rotate(${k * 30})`} />
+          ))}
+        </g>
+      )}
+      {variant === 2 && (
+        <g fill={gold} stroke={edge} strokeWidth="0.35" strokeLinejoin="round">
+          <path d="M0-8.6C2.4-5.6 2.4-2.4 0 .6-2.4-2.4-2.4-5.6 0-8.6Z" />
+          <path d="M0 .6C-3.4.3-6-1.8-6.8-5.2-3.6-4.7-1.2-2.6 0 .6ZM0 .6C3.4.3 6-1.8 6.8-5.2 3.6-4.7 1.2-2.6 0 .6Z" />
+          <path d="M-1.6 2.2C-5.4 2.6-8.4 1-9.6-1.6-6.2-2-3.4-1 -1.6 2.2ZM1.6 2.2C5.4 2.6 8.4 1 9.6-1.6 6.2-2 3.4-1 1.6 2.2Z" />
+          <path d="M-6.4 5.4H6.4" fill="none" strokeWidth="0.7" />
+        </g>
+      )}
+      {variant !== 2 && <circle r="2.5" fill="#7A1F1F" opacity="0.85" />}
+      {variant !== 2 && <circle r="1" fill="#F3DE9E" />}
     </svg>
   );
 }
