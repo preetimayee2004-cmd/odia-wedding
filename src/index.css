@@ -843,29 +843,59 @@
 }
 
 /* The couple card: the date block's side words between thin gold lines, and Add to calendar */
+/* The couple card (Couple.tsx). The names are the focal point: large, in the
+   names' maroon serif, a small gold ampersand between them. */
+.couple-name {
+  display: block;
+  font-size: clamp(44px, 14.4cqw, 56px);
+  line-height: 1.04;
+  text-wrap: balance;
+}
+.couple-amp {
+  display: block;
+  margin: 2px 0 1px;
+  font: italic 600 26px/1 var(--font-serif);
+  color: #c9a24e;
+}
+/* the date: FRIDAY | 12 | FEB 2027, the words between delicate gold lines */
 .couple-dateside {
   display: block;
-  padding: 5px 0 5px 0.2em; /* the left padding balances the trailing letter-spacing */
-  border-top: 1px solid rgb(201 162 78 / 0.75);
-  border-bottom: 1px solid rgb(201 162 78 / 0.75);
+  padding: 6px 0 6px 0.2em; /* the left padding balances the trailing letter-spacing */
+  border-top: 1px solid rgb(201 162 78 / 0.6);
+  border-bottom: 1px solid rgb(201 162 78 / 0.6);
   font: 500 11px/1.2 var(--font-ui);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   white-space: nowrap;
   color: #7a5a44;
 }
-.couple-cal {
-  padding: 6px 4px;
-  color: #7a1424;
-  font: 500 14px/1 var(--font-ui);
-  font-variant-caps: all-small-caps;
-  letter-spacing: 0.1em;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 4px;
-  text-decoration-color: rgb(122 20 36 / 0.5);
+.couple-dateday {
+  font: 600 40px/1 var(--font-cinzel);
+  padding-top: 2px; /* Cinzel's figures sit a touch high in their line */
 }
-.couple-cal:focus-visible { outline: 2px solid #c9a24e; outline-offset: 3px; border-radius: 2px; }
+/* the venue and Add to calendar, one block */
+.couple-venue-name { display: block; font: 600 17px/1.3 var(--font-serif); color: var(--c-text); }
+.couple-venue-city { display: block; margin-top: 1px; font: 500 15px/1.3 var(--font-serif); color: #7a5a44; }
+.couple-cal {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 14px;
+  border: 1px solid rgb(122 20 36 / 0.5);
+  border-radius: 999px;
+  background: rgb(255 250 240 / 0.55);
+  color: #7a1424;
+  font: 600 10.5px/1 var(--font-ui);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: border-color 200ms ease, background-color 200ms ease, transform 150ms ease;
+}
+.couple-cal::before { content: ""; position: absolute; inset: -6px 0; } /* a 44px tap target */
+@media (hover: hover) { .couple-cal:hover { border-color: #7a1424; background: rgb(255 250 240 / 0.9); } }
+.couple-cal:active { transform: scale(0.97); }
+.couple-cal:focus-visible { outline: 2px solid #c9a24e; outline-offset: 3px; }
 
 /* The Families: a carved gold frame around each set of parents (see GoldFrame).
    The band is a gilded gradient with a row of beads along it; the panel inside
