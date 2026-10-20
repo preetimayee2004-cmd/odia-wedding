@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties, type Keyb
 import { setStatusTone } from "@/lib/viewMode";
 import { FINGERTIP, Fingertip, Petals } from "@/components/opening/OpeningEffects";
 import { GoldDust, sampleMask, type GoldDustHandle } from "@/components/opening/GoldDust";
+import { beginOpeningMusic, beginWeddingMusic } from "@/lib/sound";
 
 /** The carved temple gate artwork, and where its two leaves sit in it (in the artwork's original 992-wide pixels; the file itself is 800 wide, same proportions). */
 const IMG = { src: "/art/temple-door.webp", w: 992, h: 1586 };
@@ -103,8 +104,10 @@ function loadImage(src: string) {
  * On a repeat visit (`quick`) the darshan is a little quicker. The darshan
  * waits (the doorway's light gently pulsing) until the Lord's artwork has
  * loaded and decoded; if it can't, the light settles straight onto the card.
- * Skip, Esc, or a tap anywhere during the darshan skips to the end; a sound
- * button plays the sankha.
+ * Skip, Esc, or a tap anywhere during the darshan skips to the end. The
+ * devotional sound begins with the tap on the gate, and as the opening
+ * finishes it fades into the wedding song (lib/sound.ts); the sound button
+ * mutes and unmutes it.
  */
 export function OpeningSequence({ onReveal, onDone, quick = false }: OpeningSequenceProps) {
   const t = quick ? QUICK : T;
@@ -186,6 +189,7 @@ export function OpeningSequence({ onReveal, onDone, quick = false }: OpeningSequ
     clearTimers();
     go("ending");
     setHint(false);
+    beginWeddingMusic(fast); // the devotional sound gives way to the wedding song as the light settles
     callbacks.current.onReveal();
     setStatusTone("dark");
     for (const b of [skipRef.current, soundRef.current]) void play(b, [{ opacity: 1 }, { opacity: 0 }], { duration: 250 });
@@ -215,6 +219,7 @@ export function OpeningSequence({ onReveal, onDone, quick = false }: OpeningSequ
   const start = useCallback(() => {
     if (phaseRef.current !== "waiting") return;
     clearTimers(); // cancels the 5-second countdown
+    beginOpeningMusic(); // inside the visitor's tap (or, if the gate opened by itself, at their next one)
     go("gate");
     setHint(false);
     void play(skipRef.current, [{ opacity: 0 }, { opacity: 1 }], { duration: 500 });

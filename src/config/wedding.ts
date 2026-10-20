@@ -302,10 +302,25 @@ export interface WeddingConfig {
     /** Desktop only: artwork shown around the phone mockup (portrait works best). */
     desktopBackdrop: string | null;
     /**
-     * Sound for the opening's sound button, e.g. "/audio/opening.mp3".
-     * While null, a conch-like call (sankha) is synthesised in the browser.
+     * A recording of the sankha, e.g. "/audio/sankha.mp3". While null, a
+     * conch-like call is synthesised in the browser. Used during the opening
+     * only while `openingMusic` is null.
      */
     openingSound: string | null;
+    /**
+     * Devotional music for the opening, e.g. "/audio/opening.mp3" in
+     * /public: it starts with the visitor's tap on the temple gate and fades
+     * out as the opening finishes. Use only audio you are licensed or
+     * permitted to use. null: the sankha instead.
+     */
+    openingMusic: string | null;
+    /**
+     * The wedding song, e.g. "/audio/wedding-song.mp3" in /public: it fades
+     * in as the opening finishes (or at the visitor's first tap, if there is
+     * no opening) and loops softly through the site. Use only audio you are
+     * licensed or permitted to use. null: no music after the opening.
+     */
+    weddingMusic: string | null;
   };
   site: {
     /**
@@ -694,6 +709,10 @@ export const wedding: WeddingConfig = {
   assets: {
     desktopBackdrop: "/art/desktop-dark.webp",
     openingSound: null, // synthesised sankha until a recording is supplied
+    // Awaiting licensed recordings from the couple (20 Oct 2026): a temple
+    // bell & sankha piece for the opening, and an Odia wedding song.
+    openingMusic: null,
+    weddingMusic: null,
   },
   site: {
     demo: true, // the example wedding above: set to false once every DEMO value is replaced
