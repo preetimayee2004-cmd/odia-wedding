@@ -21,6 +21,19 @@ export interface Person {
   fullName: string | null;
 }
 
+/** One chapter of Our Story. */
+export interface StoryChapter {
+  label: string;
+  title: string;
+  text: string;
+  /**
+   * A small illustration beside the words, feathered into the parchment;
+   * w × h is the file's size. `showTop` keeps only the top part of the
+   * picture (e.g. 0.6 for the faces of a full-length figure).
+   */
+  art: { src: string; alt: string; w: number; h: number; showTop?: number } | null;
+}
+
 /** One person in Contact. */
 export interface ContactPerson {
   /** "family": the two brothers, side by side at the top; "coordinator": a full-width row below. */
@@ -141,16 +154,17 @@ export interface WeddingConfig {
     completedMessage: string;
   };
   story: {
-    /** Handwritten line above the heading. */
+    /** Small capitals above the heading. */
     eyebrow: string;
     heading: string;
+    /** In italics under the heading's lotus; null hides it. */
+    intro: string | null;
     /**
-     * The four chapters, joined by a hand-drawn line down to the couple.
-     * Edit the words freely — they should be the couple's own.
+     * The chapters, painted down the scroll and joined by a gold thread;
+     * their illustrations alternate left and right. Edit the words freely —
+     * they should be the couple's own.
      */
-    chapters: Array<{ label: string; title: string; text: string }>;
-    /** In italics under the lotus after the last chapter, above the couple; null hides it. */
-    closing: string | null;
+    chapters: StoryChapter[];
   };
   family: {
     /** Small capitals above the heading, e.g. "Two Families · One Celebration". */
@@ -380,15 +394,38 @@ export const wedding: WeddingConfig = {
   story: {
     eyebrow: "Two Hearts, One Journey",
     heading: "Our Story",
-    // DEMO wording — replace with the couple's own words.
+    // From the couple's Story Mural brief (20 Oct 2026).
+    intro: "Different paths. Same destination. Here's how our journey began…",
+    // DEMO wording — replace with the couple's own words. The illustrations
+    // are the site's own: chapter 2's is a stand-in (the couple at the
+    // sacred fire, its top only) until a painting of a romantic moment is
+    // added.
     chapters: [
-      { label: "Chapter 01", title: "The Beginning", text: "Two paths crossed, and a simple hello quietly became the start of everything." },
-      { label: "Chapter 02", title: "Growing Together", text: "Through long talks, shared laughter and little adventures, friendship grew into love." },
-      { label: "Chapter 03", title: "Two Families, One Bond", text: "With the blessings of our elders, two families came together as one." },
-      { label: "Chapter 04", title: "Our Forever", text: "Under the grace of Mahaprabhu, we begin our forever — and we would love you beside us." },
+      {
+        label: "Chapter 01",
+        title: "The Beginning",
+        text: "Two paths crossed, and a simple hello quietly became the start of everything.",
+        art: { src: "/art/story/couple.png", alt: "The couple seen from behind, sitting close, his arm around her", w: 202, h: 228 },
+      },
+      {
+        label: "Chapter 02",
+        title: "Growing Together",
+        text: "Through long talks, shared laughter and little adventures, friendship grew into love.",
+        art: { src: "/art/couple-havan.png", alt: "The bride and groom smiling at each other", w: 726, h: 909, showTop: 0.6 },
+      },
+      {
+        label: "Chapter 03",
+        title: "Two Families, One Bond",
+        text: "With the blessings of our elders, two families came together as one.",
+        art: { src: "/art/events/icons/hastaganthi.webp", alt: "Hands joined in the Hastaganthi ritual, bangles and a sacred thread", w: 140, h: 92 },
+      },
+      {
+        label: "Chapter 04",
+        title: "Our Forever",
+        text: "Under the grace of Mahaprabhu, we begin our forever — and we would love you beside us.",
+        art: { src: "/art/thanks/couple.webp", alt: "The couple at Puri, looking out over the sea towards the Jagannath temple", w: 916, h: 650 },
+      },
     ],
-    // From the couple's Our Story design (20 Oct 2026).
-    closing: "A beautiful beginning, a lifetime together",
   },
   family: {
     eyebrow: "Two Families · One Celebration",

@@ -1,21 +1,17 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from "react";
-import { wedding } from "@/config/wedding";
-import { JhotiRule } from "@/components/ui/JhotiThreshold";
+import { wedding, type StoryChapter } from "@/config/wedding";
 import { FitText, type FitTier } from "@/components/ui/FitText";
-import { rng } from "@/components/art/eventVineArt";
 import { useInView } from "@/hooks/useInView";
 import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
 import { EASE } from "@/lib/motion";
 
 // The countdown section's text colours
 const VERMILION = "#7A1424"; // headings (the countdown's maroon)
-const LABEL = "#A6782C"; // eyebrow and chapter labels (the countdown's gold)
+const LABEL = "#A6782C"; // eyebrow (the countdown's gold)
 const LINE = "#B4483E"; // hearts: muted vermilion
 const STRING = "#4A2A1A";
-const GOLD = "#B8913F"; // the thread, its flowers, the cards' flourishes, the sprigs
+const GOLD = "#B8913F"; // the mural's thread, flowers and leaves
 const COUPLE = { w: 202, h: 228 };
-/** How long the scroll takes to unroll. */
-const UNROLL_MS = 2200;
 /** Room on each side for the page's looped side bands. */
 const BAND = "calc(100% * 35 / 768)";
 /** A long chapter title: a touch smaller on one line, else two. */
@@ -23,56 +19,94 @@ const TITLE_FIT: FitTier[] = [
   [1, 0.86],
   [2, 1],
 ];
+/** The unroll: the scroll's own 2.2s, a little longer for a taller parchment (to 3.6s). */
+const unrollMs = (height: number) => Math.round(Math.min(3600, Math.max(2200, height * 2.2)));
+/** The unroll's easing (EASE.temple), as numbers. */
+const UNROLL_BEZIER = [0.65, 0, 0.35, 1] as const;
 
-/** Where the thread goes, measured from the laid-out parchment. */
-type Geo = {
-  /** Just under the floral divider. */
-  start: { x: number; y: number };
-  /** Each card: the middle of the free strip beside it, and its top and bottom. */
-  cards: Array<{ x: number; top: number; bottom: number }>;
-  /** The lotus after the last chapter. */
-  end: { x: number; y: number };
-};
+/** When (0–1 of the unroll's time) the opening edge reaches `f` (0–1) of the parchment's height. */
+function edgeTime(f: number): number {
+  const [x1, y1, x2, y2] = UNROLL_BEZIER;
+  const bez = (a: number, b: number, s: number) => 3 * a * (1 - s) * (1 - s) * s + 3 * b * (1 - s) * s * s + s * s * s;
+  // the edge's position along the curve grows with its parameter, so search that, then read its time
+  let lo = 0;
+  let hi = 1;
+  for (let i = 0; i < 24; i++) {
+    const mid = (lo + hi) / 2;
+    if (bez(y1, y2, mid) < f) lo = mid;
+    else hi = mid;
+  }
+  return bez(x1, x2, (lo + hi) / 2);
+}
+/** In the thread's 300-wide drawings: under a left-hand illustration, under a right-hand one, and the middle. */
+const SIDE = [66, 234] as const;
+const MID = 150;
 
 /**
- * Section 05 — Our Story (after the couple's design).
- * On the page cream with its faint white flowers, a hanging scroll: the
- * thread from the countdown's wheel comes down to a nail, and from it the
+ * Section 05 — Our Story, a story mural painted on a hanging scroll.
+ * The thread from the countdown's wheel comes down to a nail; from it the
  * scroll hangs by a string — maroon rods with wooden knobs, parchment
- * between. It unrolls as it comes into view. On the parchment: "Two Hearts,
- * One Journey", "Our Story" and the floral divider; then the four chapters on
- * deckle-edged ivory cards, alternating left and right, each with gold
- * flourishes in two corners. A fine gold thread with small gold flowers
- * leaves the divider and winds down beside the cards (in the space each one
- * leaves free, crossing between them, never through the words) to a lotus;
- * under it "A beautiful beginning, a lifetime together", and the bride and
- * groom between gold sprigs at the scroll's foot. Each card fades up as it
- * comes into view (the right-hand ones a beat later) while the thread draws
- * down to it; the close fades in last. Reduced motion: all of it simply
- * there.
+ * between. Closed at first, it unrolls when it comes into view: the bottom
+ * rod travels down as the parchment is revealed (a little longer for a
+ * taller story). Painted on the parchment: "Two Hearts, One Journey", "Our
+ * Story", a gold lotus and a line in italics; then the chapters, each with a
+ * small illustration feathered into the paper (alternating left and right,
+ * the words wrapping round it); a fine antique-gold thread with a lotus or
+ * champa and a few leaves winds between them — only in the space between
+ * chapters, never over the words — down to the couple and the hashtag at the
+ * scroll's foot. As the parchment opens, each part fades in and the thread
+ * draws on as it comes into view. Reduced motion: open, all of it there.
  */
 export function Story() {
-  const { eyebrow, heading, chapters, closing } = wedding.story;
+  const { eyebrow, heading, intro, chapters } = wedding.story;
+  const hashtag = wedding.couple.hashtag;
   const reduced = usePrefersReducedMotion();
   const scrollRef = useRef<HTMLDivElement>(null);
   const paperRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLElement>(null);
-  const listRef = useRef<HTMLOListElement>(null);
-  const finaleRef = useRef<HTMLDivElement>(null);
-  const lotusRef = useRef<HTMLDivElement>(null);
   const opened = useInView(scrollRef, { threshold: 0.12 });
   const open = opened || reduced;
-  const seen = useSeenEach(listRef, finaleRef, chapters.length);
-  const shown = (i: number) => reduced || (open && seen[i]);
-  const finaleShown = reduced || (open && seen[chapters.length]);
-  const geo = useThreadGeometry(paperRef, headerRef, listRef, lotusRef);
+  const seen = useSeen(paperRef);
+  const shown = (key: string) => reduced || (open && seen.has(key));
+  const [ms, setMs] = useState(2200);
+  // where each marked part sits on the parchment (0–1 of its height)
+  const [places, setPlaces] = useState<Record<string, number>>({});
+  useLayoutEffect(() => {
+    const paper = paperRef.current;
+    if (!paper) return;
+    const measure = () => {
+      const h = paper.offsetHeight;
+      if (!h) return;
+      setMs(unrollMs(h));
+      const top = paper.getBoundingClientRect().top;
+      const next: Record<string, number> = {};
+      paper.querySelectorAll<HTMLElement | SVGElement>("[data-seen]").forEach((el) => {
+        next[el.dataset.seen ?? ""] = Math.min(1, (el.getBoundingClientRect().top - top + 40) / h);
+      });
+      setPlaces(next);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(paper);
+    return () => ro.disconnect();
+  }, []);
+  const openedAt = useRef<number | null>(null);
+  if (open && openedAt.current === null) openedAt.current = performance.now();
+  /** Holds a part back until the opening edge of the parchment reaches it (none once the scroll is open). */
+  const lag = (key: string) => {
+    const t0 = openedAt.current;
+    const at = seen.get(key);
+    const f = places[key];
+    if (reduced || t0 === null || at === undefined || f === undefined) return 0;
+    return Math.max(0, Math.round(ms * edgeTime(f) - Math.max(0, at - t0)));
+  };
 
-  const unroll = `${UNROLL_MS}ms ${EASE.temple}`;
-  const rise = (on: boolean, delay = 0, lift = 14): CSSProperties => ({
+  const unroll = `${ms}ms ${EASE.temple}`;
+  const rise = (on: boolean, delay = 0, lift = 12): CSSProperties => ({
     opacity: on ? 1 : 0,
     transform: on ? "none" : `translateY(${lift}px)`,
     transition: reduced ? "none" : `opacity 700ms ${EASE.silk} ${delay}ms, transform 800ms ${EASE.silk} ${delay}ms`,
   });
+  const side = (i: number) => SIDE[i % 2];
 
   return (
     <section id="story" aria-labelledby="story-heading" data-no-petals className="relative overflow-x-clip pb-7">
@@ -87,7 +121,7 @@ export function Story() {
         <div ref={scrollRef} className="relative mx-[14px]">
           <div
             ref={paperRef}
-            className="relative overflow-hidden px-[14px] pb-8 pt-8 shadow-[0_14px_30px_-16px_rgb(70_35_10/0.55)]"
+            className="relative overflow-hidden px-4 pb-9 pt-8 shadow-[0_14px_30px_-16px_rgb(70_35_10/0.55)]"
             style={{
               background:
                 "linear-gradient(to bottom, rgb(110 60 20 / 0.2), transparent 20px, transparent calc(100% - 24px), rgb(110 60 20 / 0.24)), radial-gradient(130% 90% at 50% 40%, #FBF3E2 0%, #F4E5C8 62%, #E8D1A8 100%)",
@@ -95,63 +129,48 @@ export function Story() {
               transition: reduced ? "none" : `clip-path ${unroll}`,
             }}
           >
-            {geo && <Thread geo={geo} shown={shown} finaleShown={finaleShown} instant={reduced} />}
-
-            {/* a gold sprig beside the heading */}
-            <Sprig className="absolute right-[6px] top-[58px] h-[64px] w-[26px]" style={rise(open, 600, 0)} />
-
-            <header ref={headerRef} className="relative z-[1] text-center" style={rise(open, 250, 10)}>
-              <p className="t-label leading-none" style={{ color: LABEL }}>
+            <header className="text-center">
+              <p className="t-label leading-none" style={{ ...rise(open, 250, 8), color: LABEL }}>
                 {eyebrow}
               </p>
-              <h2 id="story-heading" className="t-heading mt-2 leading-none" style={{ color: VERMILION }}>
+              <h2 id="story-heading" className="t-heading mt-2 leading-none" style={{ ...rise(open, 350, 10), color: VERMILION }}>
                 {heading}
               </h2>
-              <JhotiRule motif="champa" className="mt-3" />
+              <LotusRule className="mt-3" style={rise(open, 500, 6)} />
+              {intro && (
+                <p className="mural-intro mx-auto mt-3" style={rise(open, 650, 8)}>
+                  {intro}
+                </p>
+              )}
             </header>
 
-            <ol ref={listRef} className="relative z-[1] mt-9">
+            {/* from the lotus down to the first chapter */}
+            <Connector seenKey="t0" from={MID} to={side(0)} flower="champa" drawn={shown("t0")} lag={lag("t0")} instant={reduced} />
+
+            <ol>
               {chapters.map((c, i) => {
-                const left = i % 2 === 0;
+                const last = i === chapters.length - 1;
                 return (
-                  <li
-                    key={c.label}
-                    className={`story-card-wrap relative w-[80%] ${i ? "mt-[30px]" : ""} ${left ? "mr-auto" : "ml-auto"}`}
-                    // the right-hand cards follow a beat after the left
-                    style={rise(shown(i), left ? 120 : 220)}
-                  >
-                    <div className="story-card" style={{ clipPath: DECKLES[i % DECKLES.length] }}>
-                      <Flourish className={`story-flourish ${left ? "story-flourish-tl" : "story-flourish-tr"}`} />
-                      <Flourish className={`story-flourish ${left ? "story-flourish-br" : "story-flourish-bl"}`} />
-                      <p className="story-card-label">
-                        {c.label}
-                        <span aria-hidden className="story-card-dash" />
-                      </p>
-                      <FitText as="h3" tiers={TITLE_FIT} className="story-card-title">
-                        {c.title}
-                      </FitText>
-                      <p className="story-card-text">{c.text}</p>
-                    </div>
+                  <li key={c.label}>
+                    <Chapter chapter={c} left={i % 2 === 0} seenKey={`c${i}`} on={shown(`c${i}`)} lag={lag(`c${i}`)} reduced={reduced} />
+                    {/* on to the next chapter, or down to the couple */}
+                    <Connector
+                      seenKey={`t${i + 1}`}
+                      from={side(i)}
+                      to={last ? MID : side(i + 1)}
+                      flower={i % 2 === 0 ? "lotus" : "champa"}
+                      drawn={shown(`t${i + 1}`)}
+                      lag={lag(`t${i + 1}`)}
+                      instant={reduced}
+                    />
                   </li>
                 );
               })}
             </ol>
 
-            {/* The close: a lotus on fine gold lines, a line in italics, and the bride and groom */}
-            <div ref={finaleRef} className="relative z-[1] mt-9 text-center">
-              <div ref={lotusRef} aria-hidden className="flex items-center justify-center gap-2" style={rise(finaleShown, 0, 6)}>
-                <span className="h-px w-[4.5rem]" style={{ background: `linear-gradient(to right, transparent, ${GOLD})` }} />
-                <Lotus className="h-auto w-[28px]" />
-                <span className="h-px w-[4.5rem]" style={{ background: `linear-gradient(to left, transparent, ${GOLD})` }} />
-              </div>
-              {closing && (
-                <p className="mx-auto mt-3 max-w-[15rem] font-serif text-[19px] font-medium italic leading-snug [text-wrap:balance]" style={{ ...rise(finaleShown, 150, 8), color: "#5A3B2A" }}>
-                  {closing}
-                </p>
-              )}
-              <div className="relative mx-auto mt-6 w-[58%] max-w-[12rem]" style={rise(finaleShown, 350, 10)}>
-                <Sprig className="absolute bottom-[4%] left-[-30%] h-[60px] w-[24px]" />
-                <Sprig className="absolute bottom-[4%] right-[-30%] h-[60px] w-[24px] -scale-x-100" />
+            {/* The couple at the scroll's foot, and the hashtag */}
+            <div data-seen="end" className="text-center">
+              <div className="relative mx-auto w-[60%] max-w-[13rem]" style={rise(shown("end"), lag("end"), 10)}>
                 <Heart className="absolute -left-[14%] top-[14%] h-4 w-4" filled />
                 <Heart className="absolute -right-[12%] top-[6%] h-3.5 w-3.5" />
                 <img
@@ -164,6 +183,16 @@ export function Story() {
                   className="relative block h-auto w-full"
                 />
               </div>
+              {hashtag && (
+                <div className="mt-4 flex flex-col items-center gap-1.5" style={rise(shown("end"), lag("end") + 250, 8)}>
+                  <span aria-hidden className="h-px w-36" style={{ background: `linear-gradient(to right, transparent, ${GOLD}, transparent)` }} />
+                  <FitText tiers={[[1, 0.7]]} className="mural-hashtag" aria-label={hashtag}>
+                    {/* "#AviWedsPragya" → "#Avi Weds Pragya", in Cinzel's capitals */}
+                    {hashtag.replace(/([a-z])([A-Z])/g, "$1 $2")}
+                  </FitText>
+                  <span aria-hidden className="h-px w-36" style={{ background: `linear-gradient(to right, transparent, ${GOLD}, transparent)` }} />
+                </div>
+              )}
             </div>
           </div>
 
@@ -177,156 +206,148 @@ export function Story() {
   );
 }
 
-/** A deckled (hand-torn) edge for each card, a little different on each. */
-const DECKLES = Array.from({ length: 4 }, (_, k) => {
-  const R = rng(900 + k);
-  const j = () => (0.3 + R() * 2.2).toFixed(2);
-  const pts: string[] = [];
-  for (let x = 0; x <= 100; x += 4) pts.push(`${x}% ${j()}px`);
-  for (let y = 4; y <= 96; y += 4) pts.push(`calc(100% - ${j()}px) ${y}%`);
-  for (let x = 100; x >= 0; x -= 4) pts.push(`${x}% calc(100% - ${j()}px)`);
-  for (let y = 96; y >= 4; y -= 4) pts.push(`${j()}px ${y}%`);
-  return `polygon(${pts.join(", ")})`;
-});
-
-/**
- * Whether each card (and, last, the close) has come into view yet: once
- * seen, always seen, so each reveal plays once as the guest reads down.
- */
-function useSeenEach(listRef: RefObject<HTMLOListElement>, finaleRef: RefObject<HTMLDivElement>, count: number): boolean[] {
-  const [seen, setSeen] = useState<boolean[]>(() => Array(count + 1).fill(false));
+/** When each marked part of the parchment (`data-seen`) first came into view: once seen, always seen. */
+function useSeen(rootRef: RefObject<HTMLElement>): Map<string, number> {
+  const [seen, setSeen] = useState<Map<string, number>>(() => new Map());
   useEffect(() => {
-    const items = [...(listRef.current?.children ?? []), finaleRef.current].filter(Boolean) as Element[];
+    const els = [...(rootRef.current?.querySelectorAll<HTMLElement>("[data-seen]") ?? [])];
+    const key = (el: Element) => (el as HTMLElement).dataset.seen ?? "";
     if (!("IntersectionObserver" in window)) {
-      setSeen(Array(count + 1).fill(true));
+      setSeen(new Map(els.map((el) => [key(el), 0])));
       return;
     }
     const io = new IntersectionObserver(
       (entries) => {
-        const hit = entries.filter((e) => e.isIntersecting).map((e) => items.indexOf(e.target));
+        const hit = entries.filter((e) => e.isIntersecting).map((e) => e.target);
         if (!hit.length) return;
-        setSeen((prev) => prev.map((v, i) => v || hit.includes(i)));
-        entries.forEach((e) => e.isIntersecting && io.unobserve(e.target));
+        const now = performance.now();
+        setSeen((prev) => new Map([...prev, ...hit.map((el): [string, number] => [key(el), prev.get(key(el)) ?? now])]));
+        hit.forEach((el) => io.unobserve(el));
       },
-      { threshold: 0.15, rootMargin: "0px 0px -8% 0px" },
+      { threshold: 0.2, rootMargin: "0px 0px -6% 0px" },
     );
-    items.forEach((el) => io.observe(el));
+    els.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, [listRef, finaleRef, count]);
+  }, [rootRef]);
   return seen;
 }
 
-/** Measures where the thread runs (layout positions, so the reveals' small lifts don't move it). */
-function useThreadGeometry(
-  paperRef: RefObject<HTMLDivElement>,
-  headerRef: RefObject<HTMLElement>,
-  listRef: RefObject<HTMLOListElement>,
-  lotusRef: RefObject<HTMLDivElement>,
-): Geo | null {
-  const [geo, setGeo] = useState<Geo | null>(null);
-  useLayoutEffect(() => {
-    const paper = paperRef.current;
-    const header = headerRef.current;
-    const list = listRef.current;
-    const lotus = lotusRef.current;
-    if (!paper || !header || !list || !lotus) return;
-    const measure = () => {
-      const w = paper.clientWidth;
-      const cs = getComputedStyle(paper);
-      const innerL = parseFloat(cs.paddingLeft);
-      const innerR = w - parseFloat(cs.paddingRight);
-      const cards = [...list.children].map((li, i) => {
-        const el = li as HTMLElement;
-        const left = list.offsetLeft + el.offsetLeft;
-        const top = list.offsetTop + el.offsetTop;
-        // the free strip beside the card: to its right for a left-hand card, else to its left
-        const x = i % 2 === 0 ? (left + el.offsetWidth + innerR) / 2 : (innerL + left) / 2;
-        return { x, top, bottom: top + el.offsetHeight };
-      });
-      const finale = lotus.offsetParent as HTMLElement | null;
-      setGeo({
-        start: { x: w / 2, y: header.offsetTop + header.offsetHeight + 6 },
-        cards,
-        end: { x: w / 2, y: (finale?.offsetTop ?? 0) + lotus.offsetTop - 2 },
-      });
-    };
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(paper);
-    let alive = true;
-    document.fonts?.ready.then(() => alive && measure());
-    return () => {
-      alive = false;
-      ro.disconnect();
-    };
-  }, [paperRef, headerRef, listRef, lotusRef]);
-  return geo;
-}
-
 /**
- * The gold thread and its flowers. It is drawn in pieces, each drawing
- * downward as its card appears: the crossing that leads to the card, then
- * a gentle wave down beside it, past a small flower; the last piece leads
- * to the lotus.
+ * One chapter, painted on the parchment: its label with a short gold dash,
+ * its title, and its words wrapping round a small illustration on its side.
  */
-function Thread({ geo, shown, finaleShown, instant }: { geo: Geo; shown: (i: number) => boolean; finaleShown: boolean; instant: boolean }) {
-  const { start, cards, end } = geo;
-  /** A gentle S from (x1, y1) down to (x2, y2): leaving and arriving vertically. */
-  const swoop = (x1: number, y1: number, x2: number, y2: number) => {
-    const k = Math.max(8, (y2 - y1) * 0.6);
-    return `M${x1} ${y1}C${x1} ${y1 + k} ${x2} ${y2 - k} ${x2} ${y2}`;
-  };
-  /** Down beside a card with a soft sway, through its middle. */
-  const wave = (x: number, y1: number, y2: number) => {
-    const h = y2 - y1;
-    return `M${x} ${y1}C${x + 7} ${y1 + h * 0.33} ${x - 7} ${y1 + h * 0.67} ${x} ${y2}`;
-  };
-  const draw = (on: boolean, delay: number, ms = 650): CSSProperties => ({
-    strokeDashoffset: on ? 0 : 1,
-    transition: instant ? "none" : `stroke-dashoffset ${ms}ms ${EASE.silk} ${delay}ms`,
+function Chapter({ chapter, left, seenKey, on, lag, reduced }: { chapter: StoryChapter; left: boolean; seenKey: string; on: boolean; lag: number; reduced: boolean }) {
+  const { label, title, text, art } = chapter;
+  const fade = (delay: number, lift = 10): CSSProperties => ({
+    opacity: on ? 1 : 0,
+    transform: on ? "none" : `translateY(${lift}px)`,
+    transition: reduced ? "none" : `opacity 700ms ${EASE.silk} ${lag + delay}ms, transform 800ms ${EASE.silk} ${lag + delay}ms`,
   });
-  const last = cards[cards.length - 1];
-
   return (
-    <svg aria-hidden className="pointer-events-none absolute inset-0 z-0 h-full w-full overflow-visible" fill="none">
-      <g stroke={GOLD} strokeWidth="1" strokeOpacity="0.7" strokeLinecap="butt" strokeDasharray="1 1">
-        {cards.map((c, i) => {
-          const from = i === 0 ? start : { x: cards[i - 1].x, y: cards[i - 1].bottom - 4 };
-          return (
-            <g key={i}>
-              <path d={swoop(from.x, from.y, c.x, c.top + 4)} pathLength={1} style={draw(shown(i), 0)} />
-              <path d={wave(c.x, c.top + 4, c.bottom - 4)} pathLength={1} style={draw(shown(i), 450, 750)} />
-            </g>
-          );
-        })}
-        {last && <path d={swoop(last.x, last.bottom - 4, end.x, end.y)} pathLength={1} style={draw(finaleShown, 0, 700)} />}
-      </g>
-
-      {/* a small gold flower on the thread beside each card, a flower and a lotus in turn */}
-      {cards.map((c, i) => (
-        <g
-          key={`f${i}`}
-          transform={`translate(${c.x} ${(c.top + c.bottom) / 2})`}
-          opacity={shown(i) ? 1 : 0}
-          style={{ transition: instant ? "none" : `opacity 600ms ease 700ms` }}
-        >
-          <circle r="7.5" fill="#F6EAD3" />
-          {i % 2 === 0 ? <FlowerMark /> : <LotusMark />}
-        </g>
-      ))}
-    </svg>
+    <div data-seen={seenKey}>
+      <p className="mural-label" style={fade(0, 6)}>
+        {label}
+        <span aria-hidden className="mural-dash" />
+      </p>
+      <FitText as="h3" tiers={TITLE_FIT} className="mural-title" style={fade(100)}>
+        {title}
+      </FitText>
+      <div className="mural-body">
+        {art && <Art art={art} left={left} on={on} lag={lag} reduced={reduced} />}
+        <p className="mural-text" style={fade(320)}>
+          {text}
+        </p>
+      </div>
+    </div>
   );
 }
 
-/** A six-petal gold flower, drawn about the origin (for the thread). */
-function FlowerMark() {
+/**
+ * A chapter's illustration as if painted on the parchment: multiplied into
+ * the paper, its edges feathered away, over a faint wash of gold; the words
+ * wrap round its oval. It blooms in gently (no transforms on its ancestors,
+ * so it keeps blending with the paper while it does).
+ */
+function Art({ art, left, on, lag, reduced }: { art: NonNullable<StoryChapter["art"]>; left: boolean; on: boolean; lag: number; reduced: boolean }) {
+  const { src, alt, w, h, showTop } = art;
   return (
-    <g stroke={GOLD} strokeWidth="0.9" fill="#F1DFAE">
-      {[0, 60, 120, 180, 240, 300].map((a) => (
-        <ellipse key={a} cx="0" cy="-4" rx="2.1" ry="3.4" transform={`rotate(${a})`} />
-      ))}
-      <circle r="1.6" fill={GOLD} stroke="none" />
-    </g>
+    <figure className={`mural-art ${left ? "mural-art-left" : "mural-art-right"}`} data-on={on ? "" : undefined} style={{ aspectRatio: `${w} / ${Math.round(h * (showTop ?? 1))}` }}>
+      <img
+        src={src}
+        alt={alt}
+        width={w}
+        height={h}
+        loading="lazy"
+        decoding="async"
+        style={{
+          objectFit: showTop ? "cover" : "contain",
+          objectPosition: "50% 0",
+          opacity: on ? 1 : 0,
+          transform: on ? "none" : "scale(0.95)",
+          transition: reduced ? "none" : `opacity 1000ms ${EASE.silk} ${lag + 180}ms, transform 1200ms ${EASE.silk} ${lag + 180}ms`,
+        }}
+      />
+    </figure>
+  );
+}
+
+/**
+ * The gold thread between two parts of the story: a gentle S from one side
+ * to the other (in a 300 × 64 drawing that scales with the parchment), a
+ * lotus or a champa at its middle, and a pair of slender leaves on each
+ * half, after the botanical borders of Pattachitra. It draws on when it
+ * comes into view; its flower and leaves follow.
+ */
+function Connector({ seenKey, from, to, flower, drawn, lag, instant }: { seenKey: string; from: number; to: number; flower: "lotus" | "champa"; drawn: boolean; lag: number; instant: boolean }) {
+  const H = 64;
+  const P = [
+    [from, 0],
+    [from, 28],
+    [to, 36],
+    [to, H],
+  ];
+  const at = (t: number) => {
+    const u = 1 - t;
+    const k = [u * u * u, 3 * u * u * t, 3 * u * t * t, t * t * t];
+    const d = [-3 * u * u, 3 * u * u - 6 * u * t, 6 * u * t - 3 * t * t, 3 * t * t];
+    const x = k.reduce((s, c, j) => s + c * P[j][0], 0);
+    const y = k.reduce((s, c, j) => s + c * P[j][1], 0);
+    const dx = d.reduce((s, c, j) => s + c * P[j][0], 0);
+    const dy = d.reduce((s, c, j) => s + c * P[j][1], 0);
+    return { x, y, a: (Math.atan2(dy, dx) * 180) / Math.PI };
+  };
+  const later = (delay: number): CSSProperties => ({ opacity: drawn ? 1 : 0, transition: instant ? "none" : `opacity 600ms ease ${lag + delay}ms` });
+  const mid = at(0.5);
+
+  return (
+    <svg data-seen={seenKey} viewBox={`0 0 300 ${H}`} aria-hidden className="my-1 block h-auto w-full overflow-visible" fill="none">
+      <path
+        d={`M${from} 0C${from} 28 ${to} 36 ${to} ${H}`}
+        stroke={GOLD}
+        strokeOpacity="0.75"
+        strokeWidth="1"
+        vectorEffect="non-scaling-stroke"
+        pathLength={1}
+        strokeDasharray="1 1"
+        style={{ strokeDashoffset: drawn ? 0 : 1, transition: instant ? "none" : `stroke-dashoffset 900ms ${EASE.silk} ${lag}ms` }}
+      />
+      {/* slender leaves in pairs along the thread */}
+      <g style={later(450)} fill={GOLD} fillOpacity="0.22" stroke={GOLD} strokeWidth="0.7" strokeLinejoin="round">
+        {[0.2, 0.8].map((t) => {
+          const p = at(t);
+          return (
+            <g key={t} transform={`translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${p.a.toFixed(1)})`}>
+              <path d="M0 0C2.4-2.6 6.4-3.2 9.5-1.2 6.4 1.2 2.4 1.2 0 0Z" transform="rotate(-38)" />
+              <path d="M0 0C2.4 2.6 6.4 3.2 9.5 1.2 6.4-1.2 2.4-1.2 0 0Z" transform="rotate(38)" />
+            </g>
+          );
+        })}
+      </g>
+      {/* the flower at its middle */}
+      <g transform={`translate(${mid.x.toFixed(1)} ${mid.y.toFixed(1)})`} style={later(600)}>
+        {flower === "lotus" ? <LotusMark /> : <ChampaMark />}
+      </g>
+    </svg>
   );
 }
 
@@ -334,52 +355,39 @@ function FlowerMark() {
 function LotusMark() {
   return (
     <g stroke={GOLD} strokeWidth="0.9" strokeLinejoin="round" fill="#F1DFAE">
-      <path d="M0-6.5C2.2-4 2.2-1.2 0 1.6-2.2-1.2-2.2-4 0-6.5Z" />
-      <path d="M0 1.6C-2.8 1.4-5-.4-5.6-3.2-2.8-2.8-1 -1 0 1.6ZM0 1.6C2.8 1.4 5-.4 5.6-3.2 2.8-2.8 1-1 0 1.6Z" />
-      <path d="M-5.6 3.6H5.6" fill="none" />
+      <path d="M0-7.5C2.6-4.6 2.6-1.4 0 1.8-2.6-1.4-2.6-4.6 0-7.5Z" />
+      <path d="M0 1.8C-3.3 1.6-5.8-.5-6.5-3.7-3.3-3.2-1.2-1.2 0 1.8ZM0 1.8C3.3 1.6 5.8-.5 6.5-3.7 3.3-3.2 1.2-1.2 0 1.8Z" />
+      <path d="M-6.5 4.2H6.5" fill="none" />
+      <circle cy="7" r="0.9" fill={GOLD} stroke="none" />
     </g>
   );
 }
 
-/** The lotus after the last chapter. */
-function Lotus({ className = "" }: { className?: string }) {
+/** A small gold champa (five petals), drawn about the origin (for the thread). */
+function ChampaMark() {
   return (
-    <svg viewBox="-17 -14 34 20" aria-hidden className={className} fill="none" stroke={GOLD} strokeWidth="1.1" strokeLinejoin="round" strokeLinecap="round">
-      <path d="M0-12C3.6-7.6 3.6-2.6 0 2-3.6-2.6-3.6-7.6 0-12Z" fill="#F3E2B6" />
-      <path d="M0 2C-4.6 1.6-8.4-1.2-9.4-5.8-4.8-5.2-1.6-2.2 0 2ZM0 2C4.6 1.6 8.4-1.2 9.4-5.8 4.8-5.2 1.6-2.2 0 2Z" fill="#F8EBC8" />
-      <path d="M-3.2 3.6C-9 3.8-13.4 1.6-15.4-2M3.2 3.6C9 3.8 13.4 1.6 15.4-2" />
-      <circle cy="-4.4" r="1" fill={GOLD} stroke="none" />
-    </svg>
-  );
-}
-
-/** A gold corner flourish (drawn for the top-left corner; the CSS turns it to the others). */
-function Flourish({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 20 20" aria-hidden className={className} fill="none" stroke={GOLD} strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 17C3 9.6 8.4 4 16 4" />
-      <path d="M16 4c-2.4 0-3.4 2.4-1.8 3.4 1.3.8 2.6-.5 1.8-1.5" />
-      <path d="M3 17c0-2.4 2.4-3.4 3.4-1.8.8 1.3-.5 2.6-1.5 1.8" />
-      <path d="M7.6 8.8c1.7-.5 3 .3 3.3 1.9-1.7.4-2.9-.4-3.3-1.9Z" fill={GOLD} fillOpacity="0.35" />
-    </svg>
-  );
-}
-
-/** A slender gold sprig: a stem, three leaves, a small flower and a bud. */
-function Sprig({ className = "", style }: { className?: string; style?: CSSProperties }) {
-  return (
-    <svg viewBox="0 0 30 72" aria-hidden className={`pointer-events-none ${className}`} style={style} fill="none" stroke={GOLD} strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round" opacity="0.75">
-      <path d="M15 71C13.6 56 16.4 40 14 22" />
-      <path d="M14.8 58C9.6 57 6.6 53 6.4 48.6 10.6 49.6 13.6 53 14.8 58Z" />
-      <path d="M15.4 48C20.6 47 23.4 43 23.6 38.6 19.4 39.6 16.4 43 15.4 48Z" />
-      <path d="M14.4 37.6C10 36.2 7.8 32.4 8.2 28.8 11.8 30 14 33.2 14.4 37.6Z" />
-      <path d="M15.6 30C17.6 28 20.2 27.6 21.6 28.4" />
-      <path d="M21.6 28.4C23.6 27.6 24.4 25.4 23 24 21.6 24.6 21 26.6 21.6 28.4Z" />
+    <g stroke={GOLD} strokeWidth="0.85" fill="#F6E7BE">
       {[0, 72, 144, 216, 288].map((a) => (
-        <ellipse key={a} cx="14" cy="13.2" rx="2.2" ry="3.6" transform={`rotate(${a} 14 17)`} />
+        <ellipse key={a} cx="0" cy="-4.4" rx="2.4" ry="3.9" transform={`rotate(${a})`} />
       ))}
-      <circle cx="14" cy="17" r="1.3" fill={GOLD} stroke="none" />
-    </svg>
+      <circle r="1.7" fill={GOLD} stroke="none" />
+    </g>
+  );
+}
+
+/** Under the heading: fine gold lines either side of a small lotus. */
+function LotusRule({ className = "", style }: { className?: string; style?: CSSProperties }) {
+  return (
+    <div aria-hidden className={`flex items-center justify-center gap-2 ${className}`} style={style}>
+      <span className="h-px w-[4.5rem]" style={{ background: `linear-gradient(to right, transparent, ${GOLD})` }} />
+      <svg viewBox="-17 -14 34 20" className="h-auto w-[30px]" fill="none" stroke={GOLD} strokeWidth="1.1" strokeLinejoin="round" strokeLinecap="round">
+        <path d="M0-12C3.6-7.6 3.6-2.6 0 2-3.6-2.6-3.6-7.6 0-12Z" fill="#F3E2B6" />
+        <path d="M0 2C-4.6 1.6-8.4-1.2-9.4-5.8-4.8-5.2-1.6-2.2 0 2ZM0 2C4.6 1.6 8.4-1.2 9.4-5.8 4.8-5.2 1.6-2.2 0 2Z" fill="#F8EBC8" />
+        <path d="M-3.2 3.6C-9 3.8-13.4 1.6-15.4-2M3.2 3.6C9 3.8 13.4 1.6 15.4-2" />
+        <circle cy="-4.4" r="1" fill={GOLD} stroke="none" />
+      </svg>
+      <span className="h-px w-[4.5rem]" style={{ background: `linear-gradient(to left, transparent, ${GOLD})` }} />
+    </div>
   );
 }
 
