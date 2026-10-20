@@ -149,6 +149,8 @@ export interface WeddingConfig {
      * Edit the words freely — they should be the couple's own.
      */
     chapters: Array<{ label: string; title: string; text: string }>;
+    /** In italics under the lotus after the last chapter, above the couple; null hides it. */
+    closing: string | null;
   };
   family: {
     /** Small capitals above the heading, e.g. "Two Families · One Celebration". */
@@ -385,6 +387,8 @@ export const wedding: WeddingConfig = {
       { label: "Chapter 03", title: "Two Families, One Bond", text: "With the blessings of our elders, two families came together as one." },
       { label: "Chapter 04", title: "Our Forever", text: "Under the grace of Mahaprabhu, we begin our forever — and we would love you beside us." },
     ],
+    // From the couple's Our Story design (20 Oct 2026).
+    closing: "A beautiful beginning, a lifetime together",
   },
   family: {
     eyebrow: "Two Families · One Celebration",
