@@ -404,7 +404,7 @@ export const wedding: WeddingConfig = {
         label: "Chapter 01",
         title: "The Beginning",
         text: "Two paths crossed, and a simple hello quietly became the start of everything.",
-        art: { src: "/art/story/ch1-chai.webp", alt: "The two of them sharing chai at a roadside tea stall under string lights, smiling at each other", w: 480, h: 533 },
+        art: { src: "/art/story/ch1-chai.webp", alt: "The two of them sharing chai at a roadside tea stall under string lights, smiling at each other", w: 480, h: 417 },
       },
       {
         label: "Chapter 02",
@@ -422,7 +422,7 @@ export const wedding: WeddingConfig = {
         label: "Chapter 04",
         title: "Our Forever",
         text: "Under the grace of Mahaprabhu, we begin our forever — and we would love you beside us.",
-        art: { src: "/art/story/ch4-forever.webp", alt: "The bride and groom in garlands, their joined hands raised high, laughing with joy", w: 480, h: 522 },
+        art: { src: "/art/story/ch4-forever.webp", alt: "The bride and groom in garlands, their joined hands raised high, laughing with joy", w: 480, h: 535 },
       },
     ],
   },

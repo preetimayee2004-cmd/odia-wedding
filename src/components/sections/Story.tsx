@@ -38,9 +38,31 @@ function edgeTime(f: number): number {
   }
   return bez(x1, x2, (lo + hi) / 2);
 }
-/** In the thread's 300-wide drawings: under a left-hand illustration, under a right-hand one, and the middle. */
-const SIDE = [66, 234] as const;
-const MID = 150;
+/** The parchment's side margin, and where the thread runs in it (from the parchment's edge). */
+const MARGIN = 22;
+const RAIL = 11;
+
+/** Where the thread runs, measured from the laid-out parchment (px within it). */
+type Geo = {
+  w: number;
+  /** Just under the intro line. */
+  start: number;
+  /** Each chapter: its rail (on its picture's side), its label's middle, its foot. */
+  chapters: Array<{ x: number; label: number; bottom: number }>;
+  /** Just above the couple. */
+  end: number;
+};
+
+/** `el`'s top within `root`, by layout (ignoring the reveals' small lifts). */
+function topWithin(el: HTMLElement, root: HTMLElement): number {
+  let y = 0;
+  let e: HTMLElement | null = el;
+  while (e && e !== root) {
+    y += e.offsetTop;
+    e = e.offsetParent as HTMLElement | null;
+  }
+  return y;
+}
 
 /**
  * Section 05 — Our Story, a story mural painted on a hanging scroll.
@@ -50,12 +72,14 @@ const MID = 150;
  * rod travels down as the parchment is revealed (a little longer for a
  * taller story). Painted on the parchment: "Two Hearts, One Journey", "Our
  * Story", a gold lotus and a line in italics; then the chapters, each with a
- * small illustration feathered into the paper (alternating left and right,
- * the words wrapping round it); a fine antique-gold thread with a lotus or
- * champa and a few leaves winds between them — only in the space between
- * chapters, never over the words — down to the couple and the hashtag at the
- * scroll's foot. As the parchment opens, each part fades in and the thread
- * draws on as it comes into view. Reduced motion: open, all of it there.
+ * small illustration whose edge washes into the paper in warm beige
+ * (alternating left and right, the words wrapping round it). One fine
+ * antique-gold thread runs the length of the story: from under the intro,
+ * down the margin on each chapter's picture side (a small flower, the same
+ * for each, at its label) and across the space between chapters, never over
+ * the words or the pictures, to the couple and the hashtag at the scroll's
+ * foot. As the parchment opens, each part fades in and the thread draws on
+ * as it comes into view. Reduced motion: open, all of it there.
  */
 export function Story() {
   const { eyebrow, heading, intro, chapters } = wedding.story;
@@ -68,8 +92,9 @@ export function Story() {
   const seen = useSeen(paperRef);
   const shown = (key: string) => reduced || (open && seen.has(key));
   const [ms, setMs] = useState(2200);
-  // where each marked part sits on the parchment (0–1 of its height)
+  // where each marked part sits on the parchment (0–1 of its height), and where the thread runs
   const [places, setPlaces] = useState<Record<string, number>>({});
+  const [geo, setGeo] = useState<Geo | null>(null);
   useLayoutEffect(() => {
     const paper = paperRef.current;
     if (!paper) return;
@@ -83,11 +108,26 @@ export function Story() {
         next[el.dataset.seen ?? ""] = Math.min(1, (el.getBoundingClientRect().top - top + 40) / h);
       });
       setPlaces(next);
+      const w = paper.clientWidth;
+      const header = paper.querySelector<HTMLElement>("header");
+      const couple = paper.querySelector<HTMLElement>("[data-couple]");
+      if (!header || !couple) return;
+      const chapters = [...paper.querySelectorAll<HTMLElement>("[data-chapter]")].map((ch, i) => {
+        const label = ch.querySelector<HTMLElement>("[data-label]");
+        const top = topWithin(ch, paper);
+        return { x: i % 2 === 0 ? RAIL : w - RAIL, label: label ? topWithin(label, paper) + label.offsetHeight / 2 : top, bottom: top + ch.offsetHeight };
+      });
+      setGeo({ w, start: topWithin(header, paper) + header.offsetHeight + 6, chapters, end: topWithin(couple, paper) - 10 });
     };
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(paper);
-    return () => ro.disconnect();
+    let alive = true;
+    document.fonts?.ready.then(() => alive && measure());
+    return () => {
+      alive = false;
+      ro.disconnect();
+    };
   }, []);
   const openedAt = useRef<number | null>(null);
   if (open && openedAt.current === null) openedAt.current = performance.now();
@@ -106,7 +146,6 @@ export function Story() {
     transform: on ? "none" : `translateY(${lift}px)`,
     transition: reduced ? "none" : `opacity 700ms ${EASE.silk} ${delay}ms, transform 800ms ${EASE.silk} ${delay}ms`,
   });
-  const side = (i: number) => SIDE[i % 2];
 
   return (
     <section id="story" aria-labelledby="story-heading" data-no-petals className="relative overflow-x-clip pb-7">
@@ -121,15 +160,18 @@ export function Story() {
         <div ref={scrollRef} className="relative mx-[14px]">
           <div
             ref={paperRef}
-            className="relative overflow-hidden px-4 pb-9 pt-8 shadow-[0_14px_30px_-16px_rgb(70_35_10/0.55)]"
+            className="relative overflow-hidden pb-9 pt-8 shadow-[0_14px_30px_-16px_rgb(70_35_10/0.55)]"
             style={{
               background:
                 "linear-gradient(to bottom, rgb(110 60 20 / 0.2), transparent 20px, transparent calc(100% - 24px), rgb(110 60 20 / 0.24)), radial-gradient(130% 90% at 50% 40%, #FBF3E2 0%, #F4E5C8 62%, #E8D1A8 100%)",
+              paddingInline: MARGIN,
               clipPath: open ? "inset(-30px -30px -30px -30px)" : "inset(-30px -30px 100% -30px)",
               transition: reduced ? "none" : `clip-path ${unroll}`,
             }}
           >
-            <header className="text-center">
+            {geo && <Thread geo={geo} shown={(i) => shown(`c${i}`)} lag={(i) => lag(`c${i}`)} endShown={shown("end")} endLag={lag("end")} instant={reduced} />}
+
+            <header className="relative z-[1] text-center">
               <p className="t-label leading-none" style={{ ...rise(open, 250, 8), color: LABEL }}>
                 {eyebrow}
               </p>
@@ -144,33 +186,17 @@ export function Story() {
               )}
             </header>
 
-            {/* from the lotus down to the first chapter */}
-            <Connector seenKey="t0" from={MID} to={side(0)} flower="champa" drawn={shown("t0")} lag={lag("t0")} instant={reduced} />
-
-            <ol>
-              {chapters.map((c, i) => {
-                const last = i === chapters.length - 1;
-                return (
-                  <li key={c.label}>
-                    <Chapter chapter={c} left={i % 2 === 0} seenKey={`c${i}`} on={shown(`c${i}`)} lag={lag(`c${i}`)} reduced={reduced} />
-                    {/* on to the next chapter, or down to the couple */}
-                    <Connector
-                      seenKey={`t${i + 1}`}
-                      from={side(i)}
-                      to={last ? MID : side(i + 1)}
-                      flower={i % 2 === 0 ? "lotus" : "champa"}
-                      drawn={shown(`t${i + 1}`)}
-                      lag={lag(`t${i + 1}`)}
-                      instant={reduced}
-                    />
-                  </li>
-                );
-              })}
+            <ol className="relative z-[1] mt-10">
+              {chapters.map((c, i) => (
+                <li key={c.label} className={i ? "mt-11" : ""}>
+                  <Chapter chapter={c} left={i % 2 === 0} seenKey={`c${i}`} on={shown(`c${i}`)} lag={lag(`c${i}`)} reduced={reduced} />
+                </li>
+              ))}
             </ol>
 
             {/* The couple at the scroll's foot, and the hashtag */}
-            <div data-seen="end" className="text-center">
-              <div className="relative mx-auto w-[60%] max-w-[13rem]" style={rise(shown("end"), lag("end"), 10)}>
+            <div data-seen="end" className="relative z-[1] mt-11 text-center">
+              <div data-couple className="relative mx-auto w-[60%] max-w-[13rem]" style={rise(shown("end"), lag("end"), 10)}>
                 <Heart className="absolute -left-[14%] top-[14%] h-4 w-4" filled />
                 <Heart className="absolute -right-[12%] top-[6%] h-3.5 w-3.5" />
                 <img
@@ -244,8 +270,8 @@ function Chapter({ chapter, left, seenKey, on, lag, reduced }: { chapter: StoryC
     transition: reduced ? "none" : `opacity 700ms ${EASE.silk} ${lag + delay}ms, transform 800ms ${EASE.silk} ${lag + delay}ms`,
   });
   return (
-    <div data-seen={seenKey}>
-      <p className="mural-label" style={fade(0, 6)}>
+    <div data-seen={seenKey} data-chapter>
+      <p data-label className="mural-label" style={fade(0, 6)}>
         {label}
         <span aria-hidden className="mural-dash" />
       </p>
@@ -263,15 +289,15 @@ function Chapter({ chapter, left, seenKey, on, lag, reduced }: { chapter: StoryC
 }
 
 /**
- * A chapter's illustration as if painted on the parchment: multiplied into
- * the paper, its edges feathered away, over a faint wash of gold; the words
- * wrap round its oval. It blooms in gently (no transforms on its ancestors,
- * so it keeps blending with the paper while it does).
+ * A chapter's illustration as if painted on the parchment: its edge washes
+ * into warm beige and dissolves into the paper (baked into the picture, so
+ * the couple keeps its own colours); the words wrap round its oval. It
+ * blooms in gently.
  */
 function Art({ art, left, on, lag, reduced }: { art: NonNullable<StoryChapter["art"]>; left: boolean; on: boolean; lag: number; reduced: boolean }) {
   const { src, alt, w, h, showTop } = art;
   return (
-    <figure className={`mural-art ${left ? "mural-art-left" : "mural-art-right"}`} data-on={on ? "" : undefined} style={{ aspectRatio: `${w} / ${Math.round(h * (showTop ?? 1))}` }}>
+    <figure className={`mural-art ${left ? "mural-art-left" : "mural-art-right"}`} style={{ aspectRatio: `${w} / ${Math.round(h * (showTop ?? 1))}` }}>
       <img
         src={src}
         alt={alt}
@@ -292,61 +318,72 @@ function Art({ art, left, on, lag, reduced }: { art: NonNullable<StoryChapter["a
 }
 
 /**
- * The gold thread between two parts of the story: a gentle S from one side
- * to the other (in a 300 × 64 drawing that scales with the parchment), a
- * lotus or a champa at its middle, and a pair of slender leaves on each
- * half, after the botanical borders of Pattachitra. It draws on when it
- * comes into view; its flower and leaves follow.
+ * The gold thread, one line the length of the story: from under the intro
+ * it swings across to the first chapter, runs down the margin on that
+ * chapter's picture side past a small flower at its label, swings across
+ * the space to the next chapter, and so on, ending above the couple. Two
+ * slender leaves, one each side as on a vine, mark the middle of each swing. It is drawn in pieces
+ * that join smoothly, each drawing on as its chapter appears.
  */
-function Connector({ seenKey, from, to, flower, drawn, lag, instant }: { seenKey: string; from: number; to: number; flower: "lotus" | "champa"; drawn: boolean; lag: number; instant: boolean }) {
-  const H = 64;
-  const P = [
-    [from, 0],
-    [from, 28],
-    [to, 36],
-    [to, H],
-  ];
-  const at = (t: number) => {
-    const u = 1 - t;
-    const k = [u * u * u, 3 * u * u * t, 3 * u * t * t, t * t * t];
-    const d = [-3 * u * u, 3 * u * u - 6 * u * t, 6 * u * t - 3 * t * t, 3 * t * t];
-    const x = k.reduce((s, c, j) => s + c * P[j][0], 0);
-    const y = k.reduce((s, c, j) => s + c * P[j][1], 0);
-    const dx = d.reduce((s, c, j) => s + c * P[j][0], 0);
-    const dy = d.reduce((s, c, j) => s + c * P[j][1], 0);
-    return { x, y, a: (Math.atan2(dy, dx) * 180) / Math.PI };
+function Thread({ geo, shown, lag, endShown, endLag, instant }: { geo: Geo; shown: (i: number) => boolean; lag: (i: number) => number; endShown: boolean; endLag: number; instant: boolean }) {
+  const { w, start, chapters, end } = geo;
+  const mid = w / 2;
+  const R = 8; // the flowers' radius: the thread stops short of them
+  /** A smooth S from (x1, y1) down to (x2, y2), leaving and arriving vertically; its middle and direction there. */
+  const swing = (x1: number, y1: number, x2: number, y2: number) => {
+    const k = Math.max(10, (y2 - y1) * 0.6);
+    const d = `M${x1} ${y1}C${x1} ${y1 + k} ${x2} ${y2 - k} ${x2} ${y2}`;
+    const angle = (Math.atan2(y2 - y1 - k, x2 - x1) * 180) / Math.PI;
+    return { d, mx: (x1 + x2) / 2, my: (y1 + y2) / 2, angle };
   };
-  const later = (delay: number): CSSProperties => ({ opacity: drawn ? 1 : 0, transition: instant ? "none" : `opacity 600ms ease ${lag + delay}ms` });
-  const mid = at(0.5);
+  const draw = (on: boolean, delay: number, ms = 700): CSSProperties => ({
+    strokeDashoffset: on ? 0 : 1,
+    transition: instant ? "none" : `stroke-dashoffset ${ms}ms ${EASE.silk} ${delay}ms`,
+  });
+  const fadeIn = (on: boolean, delay: number): CSSProperties => ({ opacity: on ? 1 : 0, transition: instant ? "none" : `opacity 600ms ease ${delay}ms` });
+  const last = chapters[chapters.length - 1];
+  const swings = chapters.map((c, i) => {
+    const from = i === 0 ? { x: mid, y: start } : { x: chapters[i - 1].x, y: chapters[i - 1].bottom - 2 };
+    return swing(from.x, from.y, c.x, c.label - R);
+  });
+  const final = last ? swing(last.x, last.bottom - 2, mid, end) : null;
+  const leaves = (sw: { mx: number; my: number; angle: number }, style: CSSProperties) => (
+    <g transform={`translate(${sw.mx.toFixed(1)} ${sw.my.toFixed(1)}) rotate(${sw.angle.toFixed(1)})`} style={style} fill={GOLD} fillOpacity="0.22" stroke={GOLD} strokeWidth="0.7" strokeLinejoin="round">
+      {/* alternate leaves, as on a vine: one each side, a little apart */}
+      <path d="M0 0C2.2-2.4 5.8-2.9 8.6-1.1 5.8 1.1 2.2 1.1 0 0Z" transform="translate(-5 0) rotate(-48)" />
+      <path d="M0 0C2.2 2.4 5.8 2.9 8.6 1.1 5.8-1.1 2.2-1.1 0 0Z" transform="translate(4 0) rotate(48)" />
+    </g>
+  );
 
   return (
-    <svg data-seen={seenKey} viewBox={`0 0 300 ${H}`} aria-hidden className="my-1 block h-auto w-full overflow-visible" fill="none">
-      <path
-        d={`M${from} 0C${from} 28 ${to} 36 ${to} ${H}`}
-        stroke={GOLD}
-        strokeOpacity="0.75"
-        strokeWidth="1"
-        vectorEffect="non-scaling-stroke"
-        pathLength={1}
-        strokeDasharray="1 1"
-        style={{ strokeDashoffset: drawn ? 0 : 1, transition: instant ? "none" : `stroke-dashoffset 900ms ${EASE.silk} ${lag}ms` }}
-      />
-      {/* slender leaves in pairs along the thread */}
-      <g style={later(450)} fill={GOLD} fillOpacity="0.22" stroke={GOLD} strokeWidth="0.7" strokeLinejoin="round">
-        {[0.2, 0.8].map((t) => {
-          const p = at(t);
-          return (
-            <g key={t} transform={`translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${p.a.toFixed(1)})`}>
-              <path d="M0 0C2.4-2.6 6.4-3.2 9.5-1.2 6.4 1.2 2.4 1.2 0 0Z" transform="rotate(-38)" />
-              <path d="M0 0C2.4 2.6 6.4 3.2 9.5 1.2 6.4-1.2 2.4-1.2 0 0Z" transform="rotate(38)" />
+    <svg aria-hidden className="pointer-events-none absolute inset-0 h-full w-full overflow-visible" fill="none">
+      <g stroke={GOLD} strokeOpacity="0.75" strokeWidth="1" strokeLinecap="round" strokeDasharray="1 1">
+        {chapters.map((c, i) => (
+          <g key={i}>
+            <path d={swings[i].d} pathLength={1} style={draw(shown(i), lag(i))} />
+            {c.bottom - 2 > c.label + R && <path d={`M${c.x} ${c.label + R}V${c.bottom - 2}`} pathLength={1} style={draw(shown(i), lag(i) + 550, 800)} />}
+          </g>
+        ))}
+        {final && <path d={final.d} pathLength={1} style={draw(endShown, endLag)} />}
+      </g>
+      {/* leaves at the middle of each swing */}
+      {swings.map((sw, i) => (
+        <g key={`l${i}`}>{leaves(sw, fadeIn(shown(i), lag(i) + 350))}</g>
+      ))}
+      {final && leaves(final, fadeIn(endShown, endLag + 350))}
+      {/* a small flower at each chapter's label, all the same size: a lotus, then a champa */}
+      {chapters.map((c, i) => (
+        <g key={`f${i}`} transform={`translate(${c.x} ${c.label.toFixed(1)})`} style={fadeIn(shown(i), lag(i) + 450)}>
+          {i % 2 === 0 ? (
+            <g transform="scale(1.1)">
+              <LotusMark />
             </g>
-          );
-        })}
-      </g>
-      {/* the flower at its middle */}
-      <g transform={`translate(${mid.x.toFixed(1)} ${mid.y.toFixed(1)})`} style={later(600)}>
-        {flower === "lotus" ? <LotusMark /> : <ChampaMark />}
-      </g>
+          ) : (
+            <ChampaMark />
+          )}
+        </g>
+      ))}
+      {final && <circle cx={mid} cy={end + 2} r="1.8" fill={GOLD} style={fadeIn(endShown, endLag + 600)} />}
     </svg>
   );
 }
