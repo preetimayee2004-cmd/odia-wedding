@@ -118,7 +118,7 @@ function Divider({ className = "", style }: { className?: string; style?: CSSPro
         {[0, 90, 180, 270].map((a) => (
           <ellipse key={a} cx="110" cy="3.4" rx="2" ry="3.4" transform={`rotate(${a} 110 7)`} />
         ))}
-        <circle cx="110" cy="7" r="1.4" fill="#F3E4C9" />
+        <circle cx="110" cy="7" r="1.4" style={{ fill: "rgb(var(--page))" }} />
         <circle cx="100" cy="7" r="1.1" />
         <circle cx="120" cy="7" r="1.1" />
       </g>

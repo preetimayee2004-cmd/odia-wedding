@@ -150,7 +150,7 @@ const EMBLEMS: Record<SeparatorEmblem, ReactNode> = {
         <ellipse key={deg} cx="0" cy="-4.6" rx="2" ry="4.2" transform={`rotate(${deg})`} fill={deg % 90 ? `${MAROON}99` : MAROON} />
       ))}
       <circle r="2.4" fill={GOLD} />
-      <circle r="1" fill="#F3E4C9" />
+      <circle r="1" style={{ fill: "rgb(var(--page))" }} />
       {ring(4, (deg) => (
         <circle key={deg} cx="0" cy="-10.5" r="0.9" fill={GOLD} transform={`rotate(${deg + 45})`} />
       ))}
@@ -162,7 +162,7 @@ const EMBLEMS: Record<SeparatorEmblem, ReactNode> = {
       {ring(4, (deg) => (
         <ellipse key={deg} cx="0" cy="-3.4" rx="1.8" ry="3.4" transform={`rotate(${deg})`} fill={GOLD} />
       ))}
-      <circle r="1.3" fill="#F3E4C9" />
+      <circle r="1.3" style={{ fill: "rgb(var(--page))" }} />
       <circle cx="-8" cy="0" r="0.9" fill={GOLD} />
       <circle cx="8" cy="0" r="0.9" fill={GOLD} />
     </g>
@@ -180,7 +180,7 @@ const EMBLEMS: Record<SeparatorEmblem, ReactNode> = {
   // a miniature Konark chakra: maroon rim, gold spokes and beads
   chakra: (
     <g>
-      <circle r="9" fill="#F3E4C9" stroke={MAROON} strokeWidth="1.3" />
+      <circle r="9" style={{ fill: "rgb(var(--page))" }} stroke={MAROON} strokeWidth="1.3" />
       <circle r="6.6" fill="none" stroke={GOLD} strokeWidth="0.6" />
       {ring(8, (deg) => (
         <path key={deg} d="M0-2.2V-6.6" stroke={GOLD} strokeWidth="0.8" transform={`rotate(${deg})`} />
@@ -197,7 +197,7 @@ const EMBLEMS: Record<SeparatorEmblem, ReactNode> = {
       {leaf(-1, 9, 200, 0.6)}
       {leaf(1, 9, -20, 0.6)}
       <path d="M0-11a6 6 0 0 0-6 6C-6-.6 0 7 0 7S6-.6 6-5a6 6 0 0 0-6-6Z" fill={MAROON} />
-      <circle cy="-5.2" r="2.2" fill="#F3E4C9" />
+      <circle cy="-5.2" r="2.2" style={{ fill: "rgb(var(--page))" }} />
       <circle cy="-5.2" r="1" fill={GOLD} />
     </g>
   ),

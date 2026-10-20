@@ -209,7 +209,7 @@ function InfoRow({ icon, children }: { icon: "pin" | "calendar"; children: React
         {icon === "pin" ? (
           <>
             <path d="M10 18s6-5.6 6-10a6 6 0 0 0-12 0c0 4.4 6 10 6 10Z" fill={ROUTE} stroke="none" />
-            <circle cx="10" cy="8" r="2.2" fill="#F3E4C9" stroke="none" />
+            <circle cx="10" cy="8" r="2.2" style={{ fill: "rgb(var(--page))" }} stroke="none" />
           </>
         ) : (
           <>
@@ -315,7 +315,7 @@ function Connector({ plane = false }: { plane?: boolean }) {
         <path d="M88 0C88 22 52 24 56 46S96 62 88 74" stroke={ROUTE} strokeWidth="1.2" strokeDasharray="4 5" strokeLinecap="round" />
         {/* the pin at the next stop */}
         <path d="M88 88s-6.5-7.2-6.5-12a6.5 6.5 0 0 1 13 0C94.5 80.8 88 88 88 88Z" fill={ROUTE} transform="translate(0 -4)" />
-        <circle cx="88" cy="72" r="2.2" fill="#F3E4C9" />
+        <circle cx="88" cy="72" r="2.2" style={{ fill: "rgb(var(--page))" }} />
         {/* a few strokes of sea */}
         <path d="M118 52c3-2.6 5 2.6 8 0s5 2.6 8 0M124 58c3-2.6 5 2.6 8 0" stroke="#7FA6C0" strokeWidth="1" strokeLinecap="round" />
         {plane && (

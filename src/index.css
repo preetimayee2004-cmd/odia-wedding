@@ -5,7 +5,7 @@
 @layer base {
   :root {
     /* PRD palette — RGB channels for Tailwind alpha support */
-    --page: 243 228 201; /* #F3E4C9 — every section after the couple card (Our Story excepted): the page ochre, lightened */
+    --page: 246 222 177; /* #F6DEB1 — every section after the couple card: warm sand (the couple's chosen shade, 20 Oct 2026) */
     --cream: 235 211 165; /* #EBD3A5 — light golden sand: the page background (a light tint of the supplied #AE7830 ochre) */
     --cream-light: 250 244 236; /* #FAF4EC — raised surfaces, cards */
     --cream-deep: 236 224 207; /* #ECE0CF — desktop backdrop around the phone */
