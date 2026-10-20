@@ -18,6 +18,20 @@ export interface SoundHandle {
 let ctx: AudioContext | null = null;
 const SILENT: SoundHandle = { stop: () => {}, ended: Promise.resolve() };
 
+/**
+ * Marks the page's sound as media playback (Safari 16.4+), so it plays
+ * like a video does — an iPhone's ring/silent switch otherwise mutes Web
+ * Audio altogether. Elsewhere it does nothing.
+ */
+export function asMediaPlayback() {
+  try {
+    const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
+    if (session && session.type !== "playback") session.type = "playback";
+  } catch {
+    /* not supported */
+  }
+}
+
 export function playSankha(src: string | null): SoundHandle {
   try {
     if (src) {
@@ -33,6 +47,7 @@ export function playSankha(src: string | null): SoundHandle {
     }
     const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!AC) return SILENT;
+    asMediaPlayback();
     ctx ??= new AC();
     if (ctx.state === "suspended") void ctx.resume();
     return synthConch(ctx);

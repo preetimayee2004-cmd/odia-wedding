@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { wedding } from "@/config/wedding";
-import { playSankha, type SoundHandle } from "@/lib/sankha";
+import { asMediaPlayback, playSankha, type SoundHandle } from "@/lib/sankha";
 
 /**
  * The invitation's sound, as one sequence with the opening:
@@ -15,8 +15,10 @@ import { playSankha, type SoundHandle } from "@/lib/sankha";
  * otherwise): if the gate opened by itself, or the opening was skipped by
  * the browser's settings, the right music starts at the visitor's next tap.
  * Each stage starts once, so a remount or a replay never doubles it. The
- * sound buttons mute and unmute it (remembered on this device), it pauses
+ * sound buttons mute and unmute it (remembered for the visit), it pauses
  * while the page is hidden, and any failure is silent — sound is a nicety.
+ * Sound plays as media (like a video), so an iPhone's silent switch
+ * doesn't swallow it.
  */
 type Stage = "idle" | "opening" | "wedding";
 type Kind = "opening" | "wedding";
@@ -67,15 +69,15 @@ const inGesture = () => {
 
 function readMuted(): boolean {
   try {
-    return localStorage.getItem(MUTED_KEY) === "1";
+    return sessionStorage.getItem(MUTED_KEY) === "1";
   } catch {
     return false;
   }
 }
 function writeMuted(on: boolean) {
   try {
-    if (on) localStorage.setItem(MUTED_KEY, "1");
-    else localStorage.removeItem(MUTED_KEY);
+    if (on) sessionStorage.setItem(MUTED_KEY, "1");
+    else sessionStorage.removeItem(MUTED_KEY);
   } catch {
     /* storage unavailable: remembered for this visit only */
   }
@@ -86,6 +88,7 @@ function unlock() {
   try {
     const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!AC) return;
+    asMediaPlayback();
     ctx ??= new AC();
     if (ctx.state === "suspended") void ctx.resume();
   } catch {
