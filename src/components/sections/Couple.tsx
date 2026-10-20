@@ -27,7 +27,6 @@ const COUPLE_ART = { src: "/art/couple-havan.png", alt: "The bride and groom sea
 
 const GOLD = "#B8863B";
 const MAROON = "#7A1424";
-const MUTED = "#7A5A44";
 /** A long name first shrinks a little on its line, then takes two. */
 const NAME_FIT: FitTier[] = [
   [1, 0.78],
@@ -101,7 +100,7 @@ export function Couple() {
           {/* Centred in the card; shrinks a little on very small screens */}
           <div
             ref={blockRef}
-            className="absolute inset-x-0 top-1/2 flex flex-col items-center text-center font-serif"
+            className="couple-text absolute inset-x-0 top-1/2 flex flex-col items-center text-center font-serif"
             style={{ paddingInline: `calc(${cq(PANEL_EDGE)} + 28px)`, transform: "translateY(-50%)" }}
           >
             {/* Ganesha, the invocation and the invite line */}
@@ -118,7 +117,7 @@ export function Couple() {
               <p className="t-blessing whitespace-nowrap" style={rise(300)}>
                 {couple.invocation}
               </p>
-              <p className="max-w-[16.5rem] font-serif text-[15px] italic leading-snug [text-wrap:balance]" style={{ ...rise(420), color: MUTED }}>
+              <p className="couple-invite max-w-[16.5rem] [text-wrap:balance]" style={rise(420)}>
                 {couple.invite}
               </p>
             </div>
