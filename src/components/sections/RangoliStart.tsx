@@ -11,6 +11,8 @@ const RING_MS = 320;
 const EXPAND = 900; // the petals spin while it grows into a golden wash
 const SPIN = 20; // degrees
 const FADE = 600; // the wash fades into the Couple section
+/** No tap? Once the rangoli is ready it opens by itself after this long (counted while the page is on screen). */
+const AUTO_OPEN = 5000;
 
 // Drawing in a 200-unit box, centre 100,100; angles clockwise from the top.
 const C = 100;
@@ -45,9 +47,10 @@ type Stage = "waiting" | "building" | "ready" | "opening" | "opened";
 /**
  * The way into the site: a colourful Odia jhoti and flower rangoli. Once on
  * screen it builds itself ring by ring from the centre outward, then breathes
- * gently above "Tap the rangoli" until the guest taps it. The tap spins
- * its petals as it grows into a golden wash over the whole screen, which
- * fades into the Couple section. Runs once.
+ * gently above "Tap the rangoli" until the guest taps it — or, five seconds
+ * on without a tap, opens by itself (the count pauses while the page is in
+ * the background). The tap spins its petals as it grows into a golden wash
+ * over the whole screen, which fades into the Couple section. Runs once.
  */
 export function RangoliStart({ active, onOpen, size = 170 }: { active: boolean; onOpen: () => Promise<void>; size?: number }) {
   const reducedMotion = usePrefersReducedMotion();
@@ -93,6 +96,22 @@ export function RangoliStart({ active, onOpen, size = 170 }: { active: boolean; 
     const reach = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
     setWash({ x, y, size: r.width, scale: ((reach * 2) / r.width) * 1.05 });
   }, [reducedMotion]);
+
+  // No tap within five seconds of the rangoli being ready: it opens by itself, just as a tap would
+  useEffect(() => {
+    if (stage !== "ready") return;
+    let timer = 0;
+    const arm = () => {
+      window.clearTimeout(timer);
+      if (!document.hidden) timer = window.setTimeout(() => void open(), AUTO_OPEN);
+    };
+    arm();
+    document.addEventListener("visibilitychange", arm);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener("visibilitychange", arm);
+    };
+  }, [stage, open]);
 
   // The petals spin as the rangoli grows into a golden wash, then it fades onto the couple
   useEffect(() => {
