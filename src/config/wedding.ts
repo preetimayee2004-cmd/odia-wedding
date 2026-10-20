@@ -657,7 +657,7 @@ export const wedding: WeddingConfig = {
     explanation: "Under the divine grace of Lord Jagannath, we seek your sacred presence and blessings as {names} unite in matrimony.",
     offerHeading: "Accept the Sacred Gua & Bless Us",
     offerText: "In the cherished Odia tradition, accept our humble offering and confirm your gracious presence.",
-    acceptHint: "Tap below to accept the invitation",
+    acceptHint: "Tap the accept button",
     acceptLabel: "Accept Invitation",
     acceptOdia: "ନିମନ୍ତ୍ରଣ ସ୍ୱୀକାର",
     closing: "Jai Jagannath",
