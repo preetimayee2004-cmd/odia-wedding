@@ -185,17 +185,28 @@ function RsvpBody() {
           )}
         </div>
       ) : (
-        /* Accept: one tap accepts */
-        <button type="button" onClick={accept} aria-label={r.acceptLabel} className="rsvp-accept mx-auto mt-6">
-          <span aria-hidden className="rsvp-accept-label">
-            {r.acceptLabel}
-          </span>
-          {r.acceptOdia && (
-            <span aria-hidden lang="or" className="rsvp-accept-odia">
-              {r.acceptOdia}
-            </span>
+        <>
+          {/* a line inviting the tap, with a small gold arrow nodding down to the button */}
+          {r.acceptHint && (
+            <p className="rsvp-hint mx-auto mt-5">
+              {r.acceptHint}
+              <svg viewBox="0 0 16 16" aria-hidden className="rsvp-hint-arrow" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 4.5 8 8.5l4-4M4 8.5l4 4 4-4" />
+              </svg>
+            </p>
           )}
-        </button>
+          {/* Accept: one tap accepts */}
+          <button type="button" onClick={accept} aria-label={r.acceptLabel} className={`rsvp-accept mx-auto ${r.acceptHint ? "mt-2" : "mt-6"}`}>
+            <span aria-hidden className="rsvp-accept-label">
+              {r.acceptLabel}
+            </span>
+            {r.acceptOdia && (
+              <span aria-hidden lang="or" className="rsvp-accept-odia">
+                {r.acceptOdia}
+              </span>
+            )}
+          </button>
+        </>
       )}
 
       {/* Jai Jagannath */}

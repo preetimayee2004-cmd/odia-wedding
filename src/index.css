@@ -796,6 +796,17 @@
   .wish-note-in { animation: none; }
 }
 
+/* The line above the RSVP's Accept button, and its small gold arrow nodding down to it */
+.rsvp-hint { display: flex; flex-direction: column; align-items: center; gap: 2px; font: italic 500 16px/1.35 var(--font-serif); color: #6b4a33; }
+.rsvp-hint-arrow { width: 15px; height: 15px; color: #b8913f; animation: rsvp-hint-nod 1.8s ease-in-out infinite; }
+@keyframes rsvp-hint-nod {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(4px); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rsvp-hint-arrow { animation: none; opacity: 0.85; }
+}
+
 /* The RSVP's Accept button (Rsvp.tsx): a clear, clickable maroon button with
    a fine gold edge, its ivory label and the Odia beneath. */
 .rsvp-accept {
