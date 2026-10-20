@@ -397,33 +397,32 @@ export const wedding: WeddingConfig = {
     // From the couple's Story Mural brief (20 Oct 2026).
     intro: "Different paths. Same destination. Here's how our journey began…",
     // DEMO wording — replace with the couple's own words. The illustrations
-    // are the site's own: chapter 2's is a stand-in (the couple at the
-    // sacred fire, its top only) until a painting of a romantic moment is
-    // added.
+    // are the couple's (20 Oct 2026), cropped round the couple in
+    // public/art/story/.
     chapters: [
       {
         label: "Chapter 01",
         title: "The Beginning",
         text: "Two paths crossed, and a simple hello quietly became the start of everything.",
-        art: { src: "/art/story/couple.png", alt: "The couple seen from behind, sitting close, his arm around her", w: 202, h: 228 },
+        art: { src: "/art/story/ch1-chai.webp", alt: "The two of them sharing chai at a roadside tea stall under string lights, smiling at each other", w: 480, h: 533 },
       },
       {
         label: "Chapter 02",
         title: "Growing Together",
         text: "Through long talks, shared laughter and little adventures, friendship grew into love.",
-        art: { src: "/art/couple-havan.png", alt: "The bride and groom smiling at each other", w: 726, h: 909, showTop: 0.6 },
+        art: { src: "/art/story/ch2-sunset.webp", alt: "At sunset, sharing a pair of earphones, he kisses her forehead as she smiles", w: 480, h: 509 },
       },
       {
         label: "Chapter 03",
         title: "Two Families, One Bond",
         text: "With the blessings of our elders, two families came together as one.",
-        art: { src: "/art/events/icons/hastaganthi.webp", alt: "Hands joined in the Hastaganthi ritual, bangles and a sacred thread", w: 140, h: 92 },
+        art: { src: "/art/story/ch3-hands.webp", alt: "Her hennaed hand resting on his, rings on their fingers, in wedding red and ivory", w: 480, h: 509 },
       },
       {
         label: "Chapter 04",
         title: "Our Forever",
         text: "Under the grace of Mahaprabhu, we begin our forever — and we would love you beside us.",
-        art: { src: "/art/thanks/couple.webp", alt: "The couple at Puri, looking out over the sea towards the Jagannath temple", w: 916, h: 650 },
+        art: { src: "/art/story/ch4-forever.webp", alt: "The bride and groom in garlands, their joined hands raised high, laughing with joy", w: 480, h: 522 },
       },
     ],
   },
