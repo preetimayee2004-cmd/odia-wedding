@@ -112,6 +112,15 @@
     @apply outline outline-2 outline-offset-2 outline-sindoor;
   }
 
+  /* The page never pans sideways on a phone: the root clips anything that
+     strays past the screen's edge (a drifting petal, a settling arch), and
+     sideways overscroll doesn't bounce. On the root this clips the viewport
+     itself, so sticky layers inside the page still stick. */
+  html {
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+  }
+
   /* Inside the desktop phone mockup: scroll, but no visible scrollbar */
   html.is-framed,
   html.is-framed body {
@@ -1401,4 +1410,13 @@
 @media (prefers-reduced-motion: reduce) {
   .ct-frame:not(.ct-in) .ct-crown { opacity: 1; translate: 0 0; }
   .ct-in .ct-crown { transition: none; animation: none; }
+}
+
+/* Browsers that don't know `overflow: clip` (iPhones before iOS 16, older
+   Android browsers and some in-app browsers) would ignore it, and wide
+   content would let the page pan sideways: they clip with `hidden` instead
+   (their falling petals then scroll with the page rather than staying put). */
+@supports not (overflow: clip) {
+  .overflow-x-clip { overflow-x: hidden; }
+  .overflow-clip { overflow: hidden; }
 }
