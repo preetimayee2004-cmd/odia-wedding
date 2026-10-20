@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePrefersReducedMotion } from "@/hooks/useMediaQuery";
+import { playSong } from "@/lib/sound";
 
 const CAPTION = "#2E1A10";
 const MAROON = "#8A1C2B";
@@ -208,7 +209,10 @@ export function RangoliStart({ active, onOpen, size = 170 }: { active: boolean; 
       <button
         ref={rootRef}
         type="button"
-        onClick={() => void open()}
+        onClick={() => {
+          playSong(); // first, inside the tap itself, so every browser lets the song start
+          void open();
+        }}
         aria-label="Tap the rangoli to open the invitation"
         aria-controls="couple"
         className="flex flex-col items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[#B8863B]/60"

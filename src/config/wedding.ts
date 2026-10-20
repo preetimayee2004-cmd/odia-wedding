@@ -712,10 +712,10 @@ export const wedding: WeddingConfig = {
   assets: {
     desktopBackdrop: "/art/desktop-dark.webp",
     openingSound: null, // synthesised sankha until a recording is supplied
-    // Awaiting licensed recordings from the couple (20 Oct 2026): a temple
-    // bell & sankha piece for the opening, and an Odia wedding song.
+    // The opening: still awaiting a temple bell & sankha recording. The song:
+    // the couple's file (20 Oct 2026), public/ishq-hai.mp3.
     openingMusic: null,
-    weddingMusic: null,
+    weddingMusic: "/ishq-hai.mp3",
   },
   site: {
     demo: true, // the example wedding above: set to false once every DEMO value is replaced

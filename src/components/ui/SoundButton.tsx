@@ -15,6 +15,7 @@ export const SoundButton = forwardRef<HTMLButtonElement, { className?: string; s
         ref={ref}
         type="button"
         onClick={toggleSound}
+        data-sound-button
         aria-label={on ? "Mute music" : "Play music"}
         aria-pressed={on}
         className={`inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#D9B877]/50 text-[#F3E3C0] ${onLight ? "bg-[rgba(59,36,22,0.62)] backdrop-blur-[2px]" : "bg-black/25"} ${className}`}

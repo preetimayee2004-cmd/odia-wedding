@@ -3,69 +3,60 @@ import { wedding } from "@/config/wedding";
 import { asMediaPlayback, playSankha, type SoundHandle } from "@/lib/sankha";
 
 /**
- * The invitation's sound, as one sequence with the opening:
- *  opening  from the visitor's tap on the temple gate, the devotional sound
- *           (`assets.openingMusic`; while that is null, the synthesised
- *           sankha) plays through the darshan;
- *  wedding  at the opening's own finish — the moment the light begins to
- *           settle onto the invitation — it fades out as the wedding song
- *           (`assets.weddingMusic`) fades in, then loops softly through the
- *           rest of the site.
- * Sound only starts inside a tap or key press (browsers forbid it
- * otherwise): if the gate opened by itself, or the opening was skipped by
- * the browser's settings, the right music starts at the visitor's next tap.
- * Each stage starts once, so a remount or a replay never doubles it. The
- * sound buttons mute and unmute it (remembered for the visit), it pauses
- * while the page is hidden, and any failure is silent — sound is a nicety.
- * Sound plays as media (like a video), so an iPhone's silent switch
- * doesn't swallow it.
+ * The site's sound.
+ *
+ * The song (`assets.weddingMusic`) is ONE shared <audio> element for the
+ * whole visit — made once when the site loads (loop, preload "auto", volume
+ * 0.6), never per render. Browsers only let sound start inside a tap, so
+ * play() is always called synchronously in a click handler, never in an
+ * effect, a timer or after an await: the rose rangoli on the invitation
+ * calls playSong() straight from its onClick; the sound buttons call
+ * toggleSound(); and if the invitation opened by itself, the visitor's first
+ * tap anywhere starts it. It plays on through every section, pauses while
+ * the tab is hidden and resumes when it comes back. If the file can't load,
+ * nothing breaks: the buttons just stay off. play() failures are logged.
+ *
+ * The opening: the tap on the temple gate plays the devotional sound once
+ * (`assets.openingMusic`, or while that is null the synthesised sankha).
  */
-type Stage = "idle" | "opening" | "wedding";
-type Kind = "opening" | "wedding";
 
 const MUTED_KEY = "tila:music-muted";
-/** How loud each track plays (the song sits under the reading). */
-const LEVEL: Record<Kind, number> = { opening: 0.9, wedding: 0.6 };
-const SRC: Record<Kind, string | null> = { opening: wedding.assets.openingMusic, wedding: wedding.assets.weddingMusic };
+const SONG_VOLUME = 0.6;
 
-interface Player {
-  el: HTMLAudioElement;
-  /** null where Web Audio is unavailable (then the element's own volume is used). */
-  gain: GainNode | null;
-  fadeTimer?: number;
+let muted = readMuted();
+let opening: HTMLAudioElement | null = null;
+let sankha: SoundHandle | null = null;
+let openingStarted = false;
+let resumeOnShow = false;
+let firstTapArmed = false;
+let songFailed = false;
+
+/** The one song element (null without a file, or outside a browser). */
+const song: HTMLAudioElement | null = typeof window !== "undefined" && wedding.assets.weddingMusic ? makeSong(wedding.assets.weddingMusic) : null;
+
+function makeSong(src: string): HTMLAudioElement {
+  const el = new Audio();
+  el.loop = true;
+  el.preload = "auto";
+  el.volume = SONG_VOLUME;
+  el.addEventListener("play", notify);
+  el.addEventListener("pause", notify);
+  el.addEventListener("error", () => {
+    songFailed = true;
+    console.error("[music] the song could not be loaded:", src, el.error);
+    notify();
+  });
+  el.src = src;
+  return el;
 }
 
-let stage: Stage = "idle";
-let muted = readMuted();
-let audible = false;
-let ctx: AudioContext | null = null;
-const players: Partial<Record<Kind, Player>> = {};
-let sankha: SoundHandle | null = null;
-let gestureArmed = false;
-let resumeOnShow: Kind | null = null;
-
+// ── the buttons' on/off state ──
 const listeners = new Set<() => void>();
-/** The stage and whether sound is playing, also on <html data-music data-music-on> (for styling and tests). */
-function mark() {
-  if (typeof document !== "undefined") {
-    document.documentElement.dataset.music = stage;
-    document.documentElement.dataset.musicOn = audible ? "1" : "0";
-  }
+const isOn = () => (!!song && !songFailed && !song.paused) || sankha !== null || (!!opening && !opening.paused);
+function notify() {
+  if (typeof document !== "undefined") document.documentElement.dataset.musicOn = isOn() ? "1" : "0";
   listeners.forEach((l) => l());
 }
-function setAudible(on: boolean) {
-  audible = on;
-  mark();
-}
-function setStage(next: Stage) {
-  stage = next;
-  mark();
-}
-/** Is the visitor's tap or key press happening now (where the browser can tell)? */
-const inGesture = () => {
-  const ua = (navigator as Navigator & { userActivation?: { isActive: boolean } }).userActivation;
-  return ua ? ua.isActive : true;
-};
 
 function readMuted(): boolean {
   try {
@@ -75,6 +66,7 @@ function readMuted(): boolean {
   }
 }
 function writeMuted(on: boolean) {
+  muted = on;
   try {
     if (on) sessionStorage.setItem(MUTED_KEY, "1");
     else sessionStorage.removeItem(MUTED_KEY);
@@ -83,190 +75,122 @@ function writeMuted(on: boolean) {
   }
 }
 
-/** The audio graph, created (or woken) inside a gesture. */
-function unlock() {
-  try {
-    const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!AC) return;
-    asMediaPlayback();
-    ctx ??= new AC();
-    if (ctx.state === "suspended") void ctx.resume();
-  } catch {
-    ctx = null;
-  }
+/** Starts the song. Call only inside a click/keypress handler, synchronously. */
+function startSong() {
+  if (!song || songFailed) return;
+  asMediaPlayback();
+  song.volume = SONG_VOLUME;
+  song.play().then(notify, (err: unknown) => {
+    console.error("[music] play() was refused:", err);
+    notify();
+  });
 }
 
-/** A track's player, made once (and routed through Web Audio, so it can fade on every phone). */
-function player(kind: Kind): Player | null {
-  const src = SRC[kind];
-  if (!src) return null;
-  const made = players[kind];
-  if (made) return made;
-  const el = new Audio(src);
-  el.preload = "auto";
-  el.loop = kind === "wedding";
-  let gain: GainNode | null = null;
-  try {
-    if (ctx) {
-      gain = ctx.createGain();
-      gain.gain.value = 0;
-      ctx.createMediaElementSource(el).connect(gain).connect(ctx.destination);
-    }
-  } catch {
-    gain = null;
-  }
-  if (!gain) el.volume = 0;
-  const p: Player = { el, gain };
-  players[kind] = p;
-  return p;
+function stopOpening() {
+  sankha?.stop();
+  sankha = null;
+  opening?.pause();
+  notify();
 }
 
-/** Fades a player to `to` over `ms`. */
-function fade(p: Player, to: number, ms: number) {
-  window.clearInterval(p.fadeTimer);
-  if (p.gain && ctx) {
-    const now = ctx.currentTime;
-    p.gain.gain.cancelScheduledValues(now);
-    p.gain.gain.setValueAtTime(p.gain.gain.value, now);
-    p.gain.gain.linearRampToValueAtTime(to, now + ms / 1000);
-    return;
-  }
-  // without Web Audio: step the element's volume (ignored on iOS, where it simply plays)
-  const from = p.el.volume;
-  const t0 = performance.now();
-  p.fadeTimer = window.setInterval(() => {
-    const k = Math.min(1, (performance.now() - t0) / Math.max(1, ms));
-    p.el.volume = Math.max(0, Math.min(1, from + (to - from) * k));
-    if (k >= 1) window.clearInterval(p.fadeTimer);
-  }, 40);
-}
-
-/** Starts a track (fading in); if the browser won't allow it yet, waits for the visitor's next tap. */
-function start(kind: Kind, fadeMs: number) {
+/** The rangoli's tap (the way into the site): the song begins — call it first thing in the onClick. */
+export function playSong() {
   if (muted) return;
-  const p = player(kind);
-  if (!p) {
-    // no recording: the opening has the synthesised sankha (only inside a tap); the site, silence
-    if (kind === "opening") {
-      if (inGesture()) playConch();
-      else armGesture();
-    }
+  disarmFirstTap();
+  stopOpening();
+  startSong();
+}
+
+/** The temple gate's tap: the devotional sound, once. */
+export function beginOpeningMusic() {
+  if (openingStarted || muted) return;
+  openingStarted = true;
+  const src = wedding.assets.openingMusic;
+  if (src) {
+    opening = new Audio(src);
+    opening.addEventListener("play", notify);
+    opening.addEventListener("pause", notify);
+    opening.addEventListener("ended", notify);
+    opening.play().catch((err: unknown) => console.error("[music] opening play() was refused:", err));
     return;
   }
-  unlock();
-  if (p.gain && ctx && ctx.state !== "running") void ctx.resume();
-  p.el.play().then(
-    () => {
-      fade(p, LEVEL[kind], fadeMs);
-      setAudible(true);
-    },
-    () => armGesture(),
-  );
-}
-
-/** Fades a track out and pauses it. */
-function stop(kind: Kind, fadeMs: number) {
-  const p = players[kind];
-  if (!p || p.el.paused) return;
-  fade(p, 0, fadeMs);
-  window.setTimeout(() => {
-    if (stage !== kind || muted) p.el.pause();
-  }, fadeMs + 60);
-}
-
-function playConch() {
-  if (sankha) return;
   const handle = playSankha(wedding.assets.openingSound);
   sankha = handle;
-  setAudible(true);
+  notify();
   void handle.ended.then(() => {
     if (sankha !== handle) return;
     sankha = null;
-    setAudible(false);
+    notify();
   });
-}
-
-function stopConch() {
-  sankha?.stop();
-  sankha = null;
-}
-
-/** The music the current stage calls for, at the visitor's next tap or key press. */
-function armGesture() {
-  if (gestureArmed) return;
-  gestureArmed = true;
-  const go = () => {
-    window.removeEventListener("pointerdown", go, true);
-    window.removeEventListener("keydown", go, true);
-    gestureArmed = false;
-    unlock();
-    if (!muted && !audible && stage !== "idle") start(stage, 1200);
-  };
-  window.addEventListener("pointerdown", go, true);
-  window.addEventListener("keydown", go, true);
-}
-
-// paused while the page is hidden, back when it returns
-if (typeof document !== "undefined") {
-  document.addEventListener("visibilitychange", () => {
-    const kind = stage === "idle" ? null : stage;
-    const p = kind ? players[kind] : undefined;
-    if (document.hidden) {
-      if (p && !p.el.paused) {
-        p.el.pause();
-        resumeOnShow = kind;
-      }
-    } else if (resumeOnShow && resumeOnShow === kind && !muted) {
-      resumeOnShow = null;
-      void p?.el.play().catch(() => armGesture());
-    }
-  });
-}
-
-/** The gate opens (called inside the visitor's tap, or by the gate's own timer): the devotional sound begins. */
-export function beginOpeningMusic() {
-  if (stage !== "idle") return; // once
-  setStage("opening");
-  unlock();
-  player("wedding"); // let the song load meanwhile
-  start("opening", 600);
 }
 
 /**
- * The opening has finished (the light begins to settle onto the invitation),
- * or there was no opening: the devotional sound fades out as the wedding song
- * fades in. `fast` for a skipped opening.
+ * The opening has finished (or there was none): the devotional sound fades,
+ * and the song waits for the visitor's tap — the rangoli's, or, if the
+ * invitation opens by itself, their first tap anywhere.
  */
-export function beginWeddingMusic(fast = false) {
-  if (stage === "wedding") return; // once
-  const was = stage;
-  setStage("wedding");
-  stopConch();
-  if (was === "opening") stop("opening", fast ? 500 : 1600);
-  window.setTimeout(() => start("wedding", fast ? 1500 : 2200), was === "opening" ? (fast ? 200 : 300) : 0);
-  if (!players.wedding && !SRC.wedding) setAudible(false);
+export function beginWeddingMusic(_fast = false) {
+  if (opening && !opening.paused) {
+    const el = opening;
+    const t0 = performance.now();
+    const from = el.volume;
+    const step = () => {
+      const k = Math.min(1, (performance.now() - t0) / 1200);
+      el.volume = from * (1 - k);
+      if (k < 1) requestAnimationFrame(step);
+      else el.pause();
+    };
+    requestAnimationFrame(step);
+  }
+  armFirstTap();
 }
 
-/** The sound buttons: mute, or unmute and play what the moment calls for. Call inside the tap. */
+/** The sound buttons: play or pause the song (the same element). Call inside the tap. */
 export function toggleSound() {
-  unlock();
-  if (audible) {
-    muted = true;
+  if (isOn()) {
     writeMuted(true);
-    stopConch();
-    if (stage !== "idle") stop(stage, 400);
-    setAudible(false);
+    stopOpening();
+    song?.pause();
+    notify();
     return;
   }
-  muted = false;
   writeMuted(false);
-  if (stage === "idle") setStage("opening"); // music before the gate opens: the devotional sound, now
-  const now: Kind = stage === "wedding" ? "wedding" : "opening";
-  if (now === "wedding" && !SRC.wedding) {
-    playConch(); // no song: the sankha, once
-    return;
-  }
-  start(now, 600);
+  disarmFirstTap();
+  startSong();
+}
+
+// ── the first tap anywhere, for a visitor who never tapped the rangoli ──
+function onFirstTap(e: Event) {
+  const target = e.target as Element | null;
+  if (target?.closest?.("[data-sound-button]")) return; // the sound buttons decide for themselves
+  disarmFirstTap();
+  if (!muted && song && song.paused) startSong();
+}
+function armFirstTap() {
+  if (firstTapArmed || typeof window === "undefined" || !song) return;
+  firstTapArmed = true;
+  window.addEventListener("click", onFirstTap, true);
+  window.addEventListener("keydown", onFirstTap, true);
+}
+function disarmFirstTap() {
+  if (!firstTapArmed) return;
+  firstTapArmed = false;
+  window.removeEventListener("click", onFirstTap, true);
+  window.removeEventListener("keydown", onFirstTap, true);
+}
+
+// paused while the tab is hidden, back when it returns
+if (typeof document !== "undefined") {
+  document.addEventListener("visibilitychange", () => {
+    if (!song) return;
+    if (document.hidden) {
+      resumeOnShow = !song.paused;
+      if (resumeOnShow) song.pause();
+    } else if (resumeOnShow && !muted) {
+      resumeOnShow = false;
+      song.play().catch((err: unknown) => console.error("[music] could not resume:", err));
+    }
+  });
 }
 
 /** Whether sound is playing (for the buttons' icon and label). */
@@ -276,6 +200,7 @@ export function useSoundOn(): boolean {
       listeners.add(l);
       return () => listeners.delete(l);
     },
-    () => audible,
+    isOn,
+    () => false,
   );
 }
