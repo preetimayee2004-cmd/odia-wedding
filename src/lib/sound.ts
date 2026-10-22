@@ -116,7 +116,12 @@ function writeMuted(on: boolean) {
  * `crossfade`: song 1 fades out as song 2 fades in over a second.
  */
 function startSong(crossfade = false) {
-  if (!song || songFailed) return;
+  if (!song) return;
+  if (songFailed) {
+    // it failed to load (a dropped connection, say): give it another try on this tap
+    songFailed = false;
+    song.load();
+  }
   asMediaPlayback();
   const fadeIn = crossfade && canFade && !!opening && !opening.paused;
   song.volume = fadeIn ? 0 : SONG_VOLUME;
