@@ -17,8 +17,8 @@ import { asMediaPlayback, playSankha, type SoundHandle } from "@/lib/sankha";
  * nothing breaks: the buttons just stay off. play() failures are logged.
  *
  * Song 1, the opening: the tap on the temple gate starts the devotional
- * sound — `assets.openingMusic`, looping through the darshan and the
- * invitation card (or, while that is null, the synthesised sankha, once).
+ * sound — `assets.openingMusic`, played once through the opening (or,
+ * while that is null, the synthesised sankha, once).
  * Song 2 takes over from the couple section: when the song starts, song 1
  * fades out as song 2 fades in over one second (where the browser lets a
  * page set volume; on iPhones, which don't, the switch is clean instead).
@@ -162,7 +162,7 @@ export function beginOpeningMusic() {
   const src = wedding.assets.openingMusic;
   if (src) {
     opening = new Audio(src);
-    opening.loop = true; // through the darshan and the invitation card, until song 2 takes over
+    // once: it rings through the opening and (if it's still sounding) fades into song 2 at the couple section
     opening.volume = OPENING_VOLUME;
     opening.addEventListener("play", notify);
     opening.addEventListener("pause", notify);
