@@ -210,6 +210,7 @@ export function RangoliStart({ active, onOpen, size = 170 }: { active: boolean; 
         ref={rootRef}
         type="button"
         onClick={() => {
+          if (stageRef.current !== "ready") return; // still drawing itself: not yet a way in
           playSong(); // first, inside the tap itself, so every browser lets the song start
           void open();
         }}

@@ -10,18 +10,24 @@ import { asMediaPlayback, playSankha, type SoundHandle } from "@/lib/sankha";
  * 0.6), never per render. Browsers only let sound start inside a tap, so
  * play() is always called synchronously in a click handler, never in an
  * effect, a timer or after an await: the rose rangoli on the invitation
- * calls playSong() straight from its onClick; the sound buttons call
- * toggleSound(); and if the invitation opened by itself, the visitor's first
- * tap anywhere starts it. It plays on through every section, pauses while
- * the tab is hidden and resumes when it comes back. If the file can't load,
- * nothing breaks: the buttons just stay off. play() failures are logged.
+ * calls playSong() straight from its onClick; if the invitation opened by
+ * itself, the visitor's first tap anywhere in the couple section starts it.
+ * Nothing starts it earlier — not the sound buttons, not a stray tap during
+ * the opening or on the invitation card. It plays on through every section,
+ * pauses while the tab is hidden and resumes when it comes back. If the file
+ * can't load, nothing breaks: the buttons just stay off. play() failures are
+ * logged.
  *
  * Song 1, the opening: the tap on the temple gate starts the devotional
- * sound — `assets.openingMusic`, played once through the opening (or,
- * while that is null, the synthesised sankha, once).
- * Song 2 takes over from the couple section: when the song starts, song 1
- * fades out as song 2 fades in over one second (where the browser lets a
+ * sound — `assets.openingMusic`, played once (or, while that is null, the
+ * synthesised sankha, once). It is the only sound until the couple section.
+ * Song 2 takes over from the couple section: if song 1 is still sounding,
+ * it fades out as song 2 fades in over one second (where the browser lets a
  * page set volume; on iPhones, which don't, the switch is clean instead).
+ *
+ * The sound buttons: before the couple section they mute or unmute (the
+ * opening sound pauses or carries on, and the song will or won't start at
+ * the rangoli); from the couple section they pause or play the song.
  */
 
 const MUTED_KEY = "tila:music-muted";
@@ -43,6 +49,8 @@ let openingStarted = false;
 let resumeOnShow = false;
 let firstTapArmed = false;
 let songFailed = false;
+/** The song waits for the couple section: the rangoli's tap, or arriving there. */
+let songReleased = false;
 
 /** The one song element (null without a file, or outside a browser). */
 const song: HTMLAudioElement | null = typeof window !== "undefined" && wedding.assets.weddingMusic ? makeSong(wedding.assets.weddingMusic) : null;
@@ -65,7 +73,10 @@ function makeSong(src: string): HTMLAudioElement {
 
 // ── the buttons' on/off state ──
 const listeners = new Set<() => void>();
-const isOn = () => (!!song && !songFailed && !song.paused) || sankha !== null || (!!opening && !opening.paused);
+const openingSounding = () => sankha !== null || (!!opening && !opening.paused);
+/** On = playing; before the couple section, also "not muted" (the song is still to come). */
+const isOn = () =>
+  songReleased ? (!!song && !songFailed && !song.paused) || openingSounding() : openingSounding() || (!muted && !!song);
 function notify() {
   if (typeof document !== "undefined") {
     const d = document.documentElement.dataset;
@@ -155,8 +166,9 @@ function stopOpening() {
 
 /** The rangoli's tap (into the couple section): song 2 takes over from song 1 — call it first thing in the onClick. */
 export function playSong() {
-  if (muted) return;
+  songReleased = true;
   disarmFirstTap();
+  if (muted) return notify();
   startSong(true);
 }
 
@@ -186,16 +198,21 @@ export function beginOpeningMusic() {
 }
 
 /**
- * The opening has finished (or there was none): song 1 plays on over the
- * invitation card, and song 2 waits for the visitor's tap into the couple
- * section — the rangoli's, or, if the invitation opens by itself, their
- * first tap anywhere.
+ * The couple section is on screen. After the rangoli's tap the song is
+ * already playing; if the invitation opened by itself (or the visit starts
+ * here), the song starts at the visitor's first tap anywhere.
  */
-export function beginWeddingMusic(_fast = false) {
-  armFirstTap();
+export function reachCoupleSection() {
+  songReleased = true;
+  if (!muted && song && song.paused) armFirstTap();
+  notify();
 }
 
-/** The sound buttons: play or pause the song (the same element). Call inside the tap. */
+/**
+ * The sound buttons: play or pause the song (the same element). Call inside
+ * the tap. Before the couple section they only mute or unmute — the song
+ * never starts here early.
+ */
 export function toggleSound() {
   if (isOn()) {
     writeMuted(true);
@@ -205,6 +222,15 @@ export function toggleSound() {
     return;
   }
   writeMuted(false);
+  if (!songReleased) {
+    // the opening sound carries on from where it was paused, if it hasn't finished
+    if (opening && opening.paused && !opening.ended && opening.currentTime > 0) {
+      opening.volume = OPENING_VOLUME;
+      opening.play().catch((err: unknown) => console.error("[music] opening play() was refused:", err));
+    }
+    notify();
+    return;
+  }
   disarmFirstTap();
   startSong(true);
 }

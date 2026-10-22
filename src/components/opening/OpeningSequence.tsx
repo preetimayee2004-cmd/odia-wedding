@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties, type Keyb
 import { setStatusTone } from "@/lib/viewMode";
 import { FINGERTIP, Fingertip, Petals } from "@/components/opening/OpeningEffects";
 import { GoldDust, sampleMask, type GoldDustHandle } from "@/components/opening/GoldDust";
-import { beginOpeningMusic, beginWeddingMusic } from "@/lib/sound";
+import { beginOpeningMusic } from "@/lib/sound";
 
 /** The carved temple gate artwork, and where its two leaves sit in it (in the artwork's original 992-wide pixels; the file itself is 800 wide, same proportions). */
 const IMG = { src: "/art/temple-door.webp", w: 992, h: 1586 };
@@ -189,7 +189,6 @@ export function OpeningSequence({ onReveal, onDone, quick = false }: OpeningSequ
     clearTimers();
     go("ending");
     setHint(false);
-    beginWeddingMusic(fast); // the devotional sound gives way to the wedding song as the light settles
     callbacks.current.onReveal();
     setStatusTone("dark");
     for (const b of [skipRef.current, soundRef.current]) void play(b, [{ opacity: 1 }, { opacity: 0 }], { duration: 250 });

@@ -8,7 +8,7 @@ import { watchStatusTone } from "@/lib/viewMode";
 import { OpeningSequence } from "@/components/opening/OpeningSequence";
 import { Invitation } from "@/components/sections/Invitation";
 import { FloatingSoundButton } from "@/components/ui/SoundButton";
-import { beginWeddingMusic } from "@/lib/sound";
+import { reachCoupleSection } from "@/lib/sound";
 
 // Everything after the invitation is a separate chunk, fetched in the
 // background while the guest reads the invitation.
@@ -61,12 +61,12 @@ export function Experience() {
 
   useScrollLock(intro !== "done");
 
-  // No opening (reduced motion, or already seen this session): the wedding
-  // song begins at the visitor's first tap.
+  // The wedding song belongs to the couple section: after the rangoli's tap
+  // it is already playing; otherwise (the invitation opened by itself, or
+  // this visit starts at the couple) it begins at the visitor's next tap.
   useEffect(() => {
-    if (intro === "done") beginWeddingMusic(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on arrival
-  }, []);
+    if (intro === "done" && invitationLeft) reachCoupleSection();
+  }, [intro, invitationLeft]);
 
   // The opening always starts at the top, even on reload.
   useLayoutEffect(() => {
